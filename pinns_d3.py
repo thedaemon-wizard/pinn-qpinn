@@ -7,14 +7,27 @@ import torch.optim as optim
 from torch.autograd import grad
 import pennylane as qml
 import time
-from typing import Tuple, List, Callable, Union, Any, Dict
+from typing import Tuple, List, Callable, Union, Any, Dict, Optional
 import os
 os.environ['OMP_NUM_THREADS']=str(12)
 from collections import deque
 import warnings
+from scipy.optimize import minimize
+from multiprocessing import Pool, cpu_count, Manager, Process
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
+import functools
+from dataclasses import dataclass
+import pickle
+import threading
+from queue import Queue
+import psutil
+import copy
+import json
+from itertools import product
 
 # 警告を抑制
 warnings.filterwarnings("ignore", category=UserWarning)
+
 # バックエンドの互換性を確保
 np.set_printoptions(precision=8)
 try:
@@ -24,7 +37,6 @@ except AttributeError:
 
 # PyTorchのデフォルト浮動小数点精度を設定
 torch.set_default_dtype(torch.float32)
-
 
 #================================================
 # 共通パラメータの設定
@@ -39,11 +51,47 @@ nx, ny, nz = 20, 20, 20  # 空間分割数
 nt = 20                 # 時間分割数
 
 # トレーニングパラメータ
-pinn_epochs = 10000     # PINNのエポック数
-qnn_epochs = 1500      # QPINNのエポック数
+pinn_epochs = 2000     # PINNのエポック数
+qnn_epochs = 2000      # QPINNのエポック数（実機モードでは長めに）
+
+# 並列処理パラメータ
+N_PARALLEL_DEVICES = min(4, cpu_count() // 2)  # 並列デバイス数（利用可能なCPUコア数に応じて調整）
+USE_PARALLEL_TRAINING = True  # 並列処理を使用するか
 
 # デバイスの設定
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+#================================================
+# データクラスの定義（並列処理用）
+#================================================
+@dataclass
+class TrainingPoint:
+    """トレーニングデータポイント"""
+    x: float
+    y: float
+    z: float
+    t: float
+    u_true: float = None
+    type: str = 'interior'  # 'interior', 'initial', 'boundary', 'data'
+
+@dataclass
+class BatchResult:
+    """バッチ処理結果"""
+    loss: float
+    predictions: List[float]
+    gradients: np.ndarray = None
+
+@dataclass
+class CircuitArchitecture:
+    """量子回路アーキテクチャの定義"""
+    n_qubits: int
+    n_layers: int
+    gate_sequence: List[Dict[str, Any]]
+    entangling_pattern: str
+    feature_map: str
+    measurement_basis: List[str]
+    score: float = 0.0
+    metadata: Dict[str, Any] = None
 
 #================================================
 # 初期条件と境界条件の定義
@@ -98,6 +146,354 @@ def to_python_float(value):
         return float(value)
     except Exception:
         return 0.0
+
+# 安定した数値計算のためのヘルパー関数
+def stable_exp(x, max_val=10.0):
+    """安定した指数関数計算"""
+    x_clipped = qml.numpy.clip(x, -max_val, max_val)
+    return qml.numpy.exp(x_clipped)
+
+def stable_tanh(x, max_val=10.0):
+    """安定したtanh関数計算"""
+    x_clipped = qml.numpy.clip(x, -max_val, max_val)
+    return qml.numpy.tanh(x_clipped)
+
+def stable_sigmoid(x, max_val=10.0):
+    """安定したsigmoid関数計算"""
+    x_clipped = qml.numpy.clip(x, -max_val, max_val)
+    return 1.0 / (1.0 + stable_exp(-x_clipped))
+
+#================================================
+# Transformerベースの量子回路生成器（改善版）
+#================================================
+class QuantumCircuitTransformer(nn.Module):
+    """量子回路アーキテクチャを生成するTransformerモデル（汎用性重視版）"""
+    def __init__(self, vocab_size=50, d_model=128, nhead=4, num_layers=3, 
+                 dim_feedforward=512, max_seq_length=100):
+        super().__init__()
+        self.d_model = d_model
+        self.embedding = nn.Embedding(vocab_size, d_model)
+        self.pos_encoding = self._create_positional_encoding(max_seq_length, d_model)
+        
+        encoder_layer = nn.TransformerEncoderLayer(
+            d_model=d_model,
+            nhead=nhead,
+            dim_feedforward=dim_feedforward,
+            dropout=0.1,
+            activation='relu'
+        )
+        self.transformer = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+        
+        self.output_proj = nn.Linear(d_model, vocab_size)
+        
+        # ゲートタイプの定義（汎用的なゲートセット）
+        self.gate_vocab = {
+            'RY': 0, 'RZ': 1, 'RX': 2, 'CNOT': 3, 'CZ': 4, 
+            'H': 5, 'U3': 6, 'CRY': 7, 'CRZ': 8, 'END': 9, 'PAD': 10
+        }
+        self.reverse_gate_vocab = {v: k for k, v in self.gate_vocab.items()}
+        
+    def _create_positional_encoding(self, max_len, d_model):
+        pe = torch.zeros(max_len, d_model)
+        position = torch.arange(0, max_len).unsqueeze(1).float()
+        div_term = torch.exp(torch.arange(0, d_model, 2).float() * 
+                            -(np.log(10000.0) / d_model))
+        pe[:, 0::2] = torch.sin(position * div_term)
+        pe[:, 1::2] = torch.cos(position * div_term)
+        return pe.unsqueeze(0)
+    
+    def generate_circuit_architecture(self, n_qubits, n_layers, problem_type='general'):
+        """汎用的な量子回路アーキテクチャを生成"""
+        gate_sequence = []
+        
+        # 問題タイプに基づいた生成戦略の選択
+        if problem_type == 'general':
+            strategy = self._general_strategy
+        elif problem_type == 'optimization':
+            strategy = self._optimization_strategy
+        elif problem_type == 'variational':
+            strategy = self._variational_strategy
+        else:
+            strategy = self._general_strategy
+        
+        gate_sequence = strategy(n_qubits, n_layers)
+        
+        architecture = CircuitArchitecture(
+            n_qubits=n_qubits,
+            n_layers=n_layers,
+            gate_sequence=gate_sequence,
+            entangling_pattern='transformer_generated',
+            feature_map='general_encoding',
+            measurement_basis=['Z'] * n_qubits,
+            metadata={'generator': 'transformer', 'type': problem_type}
+        )
+        
+        return architecture
+    
+    def _general_strategy(self, n_qubits, n_layers):
+        """汎用的な回路生成戦略"""
+        gate_sequence = []
+        
+        for layer in range(n_layers):
+            # 単一量子ビットゲート層（多様性を持たせる）
+            for q in range(n_qubits):
+                if np.random.rand() < 0.7:  # 70%の確率でゲートを配置
+                    if np.random.rand() < 0.6:
+                        # 基本的な回転ゲート
+                        gate_type = np.random.choice(['RY', 'RZ', 'RX'], p=[0.4, 0.3, 0.3])
+                        gate_sequence.append({
+                            'gate': gate_type,
+                            'qubits': [q],
+                            'params': [f'theta_{layer}_{q}_{gate_type}']
+                        })
+                    else:
+                        # U3ゲート（より一般的な単一量子ビットゲート）
+                        gate_sequence.append({
+                            'gate': 'U3',
+                            'qubits': [q],
+                            'params': [f'theta_{layer}_{q}_U3_0', 
+                                     f'theta_{layer}_{q}_U3_1',
+                                     f'theta_{layer}_{q}_U3_2']
+                        })
+            
+            # エンタングリング層
+            if layer < n_layers - 1:
+                entangling_pairs = self._generate_entangling_pairs(n_qubits, layer)
+                for pair in entangling_pairs:
+                    if np.random.rand() < 0.8:
+                        gate_type = np.random.choice(['CNOT', 'CZ', 'CRY', 'CRZ'], 
+                                                   p=[0.4, 0.2, 0.2, 0.2])
+                        if gate_type in ['CRY', 'CRZ']:
+                            gate_sequence.append({
+                                'gate': gate_type,
+                                'qubits': pair,
+                                'params': [f'phi_{layer}_{pair[0]}_{pair[1]}']
+                            })
+                        else:
+                            gate_sequence.append({
+                                'gate': gate_type,
+                                'qubits': pair
+                            })
+        
+        return gate_sequence
+    
+    def _optimization_strategy(self, n_qubits, n_layers):
+        """最適化問題向けの回路生成戦略"""
+        gate_sequence = []
+        
+        # 初期Hadamard層
+        for q in range(n_qubits):
+            gate_sequence.append({
+                'gate': 'H',
+                'qubits': [q]
+            })
+        
+        # QAOA風の層構造
+        for layer in range(n_layers):
+            # 問題ハミルトニアン層
+            for q in range(n_qubits):
+                gate_sequence.append({
+                    'gate': 'RZ',
+                    'qubits': [q],
+                    'params': [f'gamma_{layer}_{q}']
+                })
+            
+            # ミキサー層
+            for q in range(n_qubits):
+                gate_sequence.append({
+                    'gate': 'RX',
+                    'qubits': [q],
+                    'params': [f'beta_{layer}_{q}']
+                })
+            
+            # エンタングリング
+            if layer < n_layers - 1:
+                for q in range(0, n_qubits - 1, 2):
+                    if q + 1 < n_qubits:
+                        gate_sequence.append({
+                            'gate': 'CZ',
+                            'qubits': [q, q + 1]
+                        })
+        
+        return gate_sequence
+    
+    def _variational_strategy(self, n_qubits, n_layers):
+        """変分アルゴリズム向けの回路生成戦略"""
+        gate_sequence = []
+        
+        for layer in range(n_layers):
+            # 強い表現力を持つ層
+            for q in range(n_qubits):
+                # U3ゲート
+                gate_sequence.append({
+                    'gate': 'U3',
+                    'qubits': [q],
+                    'params': [f'u3_{layer}_{q}_0', f'u3_{layer}_{q}_1', f'u3_{layer}_{q}_2']
+                })
+            
+            # フルエンタングリング
+            if layer < n_layers - 1:
+                for i in range(n_qubits):
+                    for j in range(i + 1, n_qubits):
+                        if np.random.rand() < 0.3:  # 30%の確率で接続
+                            gate_sequence.append({
+                                'gate': 'CRY',
+                                'qubits': [i, j],
+                                'params': [f'cry_{layer}_{i}_{j}']
+                            })
+        
+        return gate_sequence
+    
+    def _generate_entangling_pairs(self, n_qubits, layer_idx):
+        """多様なエンタングリングパターンを生成"""
+        pairs = []
+        
+        pattern_choice = np.random.choice(['nearest', 'alternating', 'all_to_all', 'ladder'])
+        
+        if pattern_choice == 'nearest':
+            # 最近傍エンタングリング
+            for i in range(n_qubits - 1):
+                if np.random.rand() < 0.7:
+                    pairs.append([i, i + 1])
+        
+        elif pattern_choice == 'alternating':
+            # 交互エンタングリング
+            offset = layer_idx % 2
+            for i in range(offset, n_qubits - 1, 2):
+                if i + 1 < n_qubits and np.random.rand() < 0.7:
+                    pairs.append([i, i + 1])
+        
+        elif pattern_choice == 'all_to_all':
+            # 全結合（確率的に選択）
+            for i in range(n_qubits):
+                for j in range(i + 1, n_qubits):
+                    if np.random.rand() < 0.2:  # 20%の確率で接続
+                        pairs.append([i, j])
+        
+        elif pattern_choice == 'ladder':
+            # ラダー型
+            if n_qubits >= 4:
+                mid = n_qubits // 2
+                for i in range(mid - 1):
+                    if np.random.rand() < 0.7:
+                        pairs.append([i, i + 1])
+                    if np.random.rand() < 0.7:
+                        pairs.append([i + mid, i + mid + 1])
+                    if np.random.rand() < 0.5:
+                        pairs.append([i, i + mid])
+        
+        return pairs
+
+class CircuitArchitectureSearch:
+    """量子回路アーキテクチャの自動探索（改善版）"""
+    def __init__(self, n_qubits, problem_type='general'):
+        self.n_qubits = n_qubits
+        self.problem_type = problem_type
+        self.transformer = QuantumCircuitTransformer()
+        self.best_architecture = None
+        self.best_score = -float('inf')
+        
+    def search(self, n_candidates=10, n_layers_range=(2, 6)):
+        """アーキテクチャ探索を実行"""
+        candidates = []
+        
+        # Transformerベースの生成（多様な戦略を使用）
+        for i in range(n_candidates // 2):
+            n_layers = np.random.randint(n_layers_range[0], n_layers_range[1] + 1)
+            problem_types = ['general', 'optimization', 'variational']
+            prob_type = np.random.choice(problem_types)
+            arch = self.transformer.generate_circuit_architecture(
+                self.n_qubits, n_layers, prob_type
+            )
+            candidates.append(arch)
+        
+        # 基本的なテンプレート
+        for n_layers in range(n_layers_range[0], n_layers_range[1] + 1):
+            arch = self._create_hardware_efficient_architecture(n_layers)
+            candidates.append(arch)
+            if len(candidates) >= n_candidates:
+                break
+        
+        # 評価（汎用的なメトリクス）
+        for arch in candidates:
+            score = self._evaluate_architecture(arch)
+            arch.score = score
+            
+            if score > self.best_score:
+                self.best_score = score
+                self.best_architecture = arch
+        
+        return self.best_architecture
+    
+    def _create_hardware_efficient_architecture(self, n_layers):
+        """ハードウェア効率的なアーキテクチャを作成"""
+        gate_sequence = []
+        
+        for layer in range(n_layers):
+            # RY層
+            for q in range(self.n_qubits):
+                gate_sequence.append({
+                    'gate': 'RY',
+                    'qubits': [q],
+                    'params': [f'ry_{layer}_{q}']
+                })
+            
+            # RZ層
+            for q in range(self.n_qubits):
+                gate_sequence.append({
+                    'gate': 'RZ',
+                    'qubits': [q],
+                    'params': [f'rz_{layer}_{q}']
+                })
+            
+            # CNOT層（circular）
+            if layer < n_layers - 1:
+                for q in range(self.n_qubits):
+                    gate_sequence.append({
+                        'gate': 'CNOT',
+                        'qubits': [q, (q + 1) % self.n_qubits]
+                    })
+        
+        return CircuitArchitecture(
+            n_qubits=self.n_qubits,
+            n_layers=n_layers,
+            gate_sequence=gate_sequence,
+            entangling_pattern='circular',
+            feature_map='hardware_efficient',
+            measurement_basis=['Z'] * self.n_qubits,
+            metadata={'type': 'hardware_efficient'}
+        )
+    
+    def _evaluate_architecture(self, architecture):
+        """アーキテクチャの汎用的な評価"""
+        n_gates = len(architecture.gate_sequence)
+        n_params = sum(len(g.get('params', [])) for g in architecture.gate_sequence)
+        n_entangling = sum(1 for g in architecture.gate_sequence if len(g['qubits']) > 1)
+        
+        # ゲートの多様性
+        gate_types = set(g['gate'] for g in architecture.gate_sequence)
+        gate_diversity = len(gate_types)
+        
+        # エンタングリングの接続性
+        entangling_pairs = set()
+        for g in architecture.gate_sequence:
+            if len(g['qubits']) > 1:
+                entangling_pairs.add(tuple(sorted(g['qubits'])))
+        connectivity = len(entangling_pairs) / (self.n_qubits * (self.n_qubits - 1) / 2)
+        
+        # 総合スコア（汎用性を重視）
+        score = 0.0
+        score += 0.2 * n_params  # パラメータ数
+        score += 0.2 * n_entangling  # エンタングリング数
+        score += 0.3 * gate_diversity  # ゲートの多様性
+        score += 0.2 * connectivity * 10  # 接続性
+        score -= 0.001 * n_gates  # 全体のゲート数（軽いペナルティ）
+        
+        # 適度な深さを評価
+        if 3 <= architecture.n_layers <= 6:
+            score += 2.0
+        
+        return score
 
 #================================================
 # PINNsの実装（変更なし）
@@ -486,379 +882,642 @@ def evaluate_pinn(model: PINN) -> np.ndarray:
     return u_pred.flatten()
 
 #================================================
-# 物理制約付き量子機械学習実装（最適化改良版）
+# 並列処理用のグローバル変数とヘルパー関数
 #================================================
-class PhysicsInformedQuantumNN:
-    def __init__(self, n_qubits=8, n_layers=4, circuit_type='strongly_entangling', 
-                 entangling_strategy='all_to_all', backend='lightning.qubit',
-                 shots=None, noise_model=None):
-        """
-        物理制約付き量子ニューラルネットワーク（最適化改良版）
-        
-        Args:
-            n_qubits: 量子ビット数
-            n_layers: 量子回路の層数（デフォルトを6から4に削減）
-            circuit_type: 回路タイプ
-            entangling_strategy: エンタングリング戦略
-            backend: 量子シミュレータバックエンド
-            shots: ショット数（実機向け）
-            noise_model: ノイズモデル（実機シミュレーション）
-        """
+_quantum_device_pool = None
+_pool_lock = threading.Lock()
+
+def initialize_quantum_device_pool(n_devices, n_qubits, architecture, shots, params_shape, noise_model=None):
+    """量子デバイスプールの初期化（ノイズモデル対応）"""
+    global _quantum_device_pool
+    with _pool_lock:
+        if _quantum_device_pool is None:
+            _quantum_device_pool = []
+            for i in range(n_devices):
+                device_params = (i, n_qubits, architecture, shots, params_shape, noise_model)
+                _quantum_device_pool.append(device_params)
+    return _quantum_device_pool
+
+class ParallelQuantumDevice:
+    """並列実行用の量子デバイスラッパー（ノイズモデル対応版）"""
+    def __init__(self, device_id, n_qubits, architecture, shots, noise_model=None):
+        self.device_id = device_id
         self.n_qubits = n_qubits
-        self.n_layers = n_layers
-        self.circuit_type = circuit_type
-        self.entangling_strategy = entangling_strategy
+        self.architecture = architecture
         self.shots = shots
         self.noise_model = noise_model
         
+        # デバイスの設定（default.mixedを使用）
+        if shots is not None:
+            self.dev = qml.device('default.mixed', wires=n_qubits, shots=shots)
+            self.diff_method = "parameter-shift"
+        else:
+            self.dev = qml.device('lightning.qubit', wires=n_qubits)
+            self.diff_method = "adjoint"
+        
+        self._create_circuit_from_architecture()
+    
+    def _apply_noise_model(self, wire):
+        """ノイズモデルの適用"""
+        if self.noise_model is None:
+            return
+        
+        if self.noise_model == 'depolarizing':
+            # デポラライジングノイズ
+            qml.DepolarizingChannel(0.01, wires=wire)
+        elif self.noise_model == 'amplitude_damping':
+            # 振幅減衰ノイズ
+            qml.AmplitudeDamping(0.01, wires=wire)
+        elif self.noise_model == 'phase_damping':
+            # 位相減衰ノイズ
+            qml.PhaseDamping(0.01, wires=wire)
+        elif self.noise_model == 'bitflip':
+            # ビットフリップノイズ
+            qml.BitFlip(0.01, wires=wire)
+    
+    def _create_circuit_from_architecture(self):
+        """アーキテクチャ定義から量子回路を作成（汎用版）"""
+        @qml.qnode(self.dev, interface="autograd", diff_method=self.diff_method)
+        def circuit(inputs, params_dict):
+            # 汎用的な入力エンコーディング
+            n_inputs = len(inputs)
+            
+            # 入力の正規化（問題に依存しない）
+            normalized_inputs = []
+            for i in range(n_inputs):
+                if i < len(inputs):
+                    # 入力値をクリップして安定化
+                    clipped_input = qml.numpy.clip(inputs[i], 0.0, 1.0)
+                    normalized_inputs.append(2.0 * clipped_input - 1.0)  # [-1, 1]範囲に正規化
+            
+            # データエンコーディング（複数の方式を組み合わせ）
+            # 1. 角度エンコーディング
+            for i in range(min(n_inputs, self.n_qubits)):
+                angle = normalized_inputs[i] * np.pi
+                # 角度をクリップして安定化
+                angle = qml.numpy.clip(angle, -np.pi, np.pi)
+                qml.RY(angle, wires=i)
+                if self.noise_model:
+                    self._apply_noise_model(i)
+            
+            # 2. 振幅エンコーディング風の初期化（残りの量子ビット）
+            if self.n_qubits > n_inputs:
+                for i in range(n_inputs, self.n_qubits):
+                    # データの組み合わせから角度を生成
+                    combined_angle = 0.0
+                    for j in range(n_inputs):
+                        combined_angle += normalized_inputs[j] * (j + 1) / (i + 1)
+                    # 角度をクリップ
+                    combined_angle = qml.numpy.clip(combined_angle * np.pi, -np.pi, np.pi)
+                    qml.RY(combined_angle, wires=i)
+                    if self.noise_model:
+                        self._apply_noise_model(i)
+            
+            # アーキテクチャに基づいた回路の実行（パラメータをクリップ）
+            param_idx = 0
+            for gate_info in self.architecture.gate_sequence:
+                gate_type = gate_info['gate']
+                qubits = gate_info['qubits']
+                gate_params = gate_info.get('params', [])
+                
+                # ゲートの適用（パラメータをクリップして安定化）
+                if gate_type == 'RY' and gate_params:
+                    if param_idx < len(params_dict['circuit_params']):
+                        param_val = qml.numpy.clip(params_dict['circuit_params'][param_idx], -2*np.pi, 2*np.pi)
+                        qml.RY(param_val, wires=qubits[0])
+                        param_idx += 1
+                elif gate_type == 'RZ' and gate_params:
+                    if param_idx < len(params_dict['circuit_params']):
+                        param_val = qml.numpy.clip(params_dict['circuit_params'][param_idx], -2*np.pi, 2*np.pi)
+                        qml.RZ(param_val, wires=qubits[0])
+                        param_idx += 1
+                elif gate_type == 'RX' and gate_params:
+                    if param_idx < len(params_dict['circuit_params']):
+                        param_val = qml.numpy.clip(params_dict['circuit_params'][param_idx], -2*np.pi, 2*np.pi)
+                        qml.RX(param_val, wires=qubits[0])
+                        param_idx += 1
+                elif gate_type == 'U3' and gate_params:
+                    if param_idx + 2 < len(params_dict['circuit_params']):
+                        param1 = qml.numpy.clip(params_dict['circuit_params'][param_idx], -2*np.pi, 2*np.pi)
+                        param2 = qml.numpy.clip(params_dict['circuit_params'][param_idx + 1], -2*np.pi, 2*np.pi)
+                        param3 = qml.numpy.clip(params_dict['circuit_params'][param_idx + 2], -2*np.pi, 2*np.pi)
+                        qml.U3(param1, param2, param3, wires=qubits[0])
+                        param_idx += 3
+                elif gate_type == 'CNOT':
+                    qml.CNOT(wires=qubits)
+                elif gate_type == 'CZ':
+                    qml.CZ(wires=qubits)
+                elif gate_type == 'CRY' and gate_params:
+                    if param_idx < len(params_dict['circuit_params']):
+                        param_val = qml.numpy.clip(params_dict['circuit_params'][param_idx], -2*np.pi, 2*np.pi)
+                        qml.CRY(param_val, wires=qubits)
+                        param_idx += 1
+                elif gate_type == 'CRZ' and gate_params:
+                    if param_idx < len(params_dict['circuit_params']):
+                        param_val = qml.numpy.clip(params_dict['circuit_params'][param_idx], -2*np.pi, 2*np.pi)
+                        qml.CRZ(param_val, wires=qubits)
+                        param_idx += 1
+                elif gate_type == 'H':
+                    qml.Hadamard(wires=qubits[0])
+                
+                # ゲート後のノイズ
+                if self.noise_model:
+                    for q in qubits:
+                        self._apply_noise_model(q)
+            
+            # 測定（複数の基底で測定して情報を増やす）
+            measurements = []
+            
+            # Z基底測定
+            for i in range(self.n_qubits):
+                measurements.append(qml.expval(qml.PauliZ(i)))
+            
+            # 追加の測定（より多くの情報を抽出）
+            if self.n_qubits >= 2:
+                # いくつかのXY測定を追加
+                for i in range(min(2, self.n_qubits)):
+                    measurements.append(qml.expval(qml.PauliX(i)))
+                    measurements.append(qml.expval(qml.PauliY(i)))
+            
+            return measurements
+        
+        self.circuit = circuit
+    
+    def execute(self, inputs, params):
+        """回路の実行"""
+        return self.circuit(inputs, params)
+
+# 並列実行用のグローバル関数（ノイズ対応版）
+def parallel_forward_batch(args):
+    """並列実行用のバッチ順伝播（ノイズ対応版）"""
+    device_params, batch_data, param_dict = args
+    device_id, n_qubits, architecture, shots, _, noise_model = device_params
+    
+    # デバイスの作成
+    device = ParallelQuantumDevice(device_id, n_qubits, architecture, shots, noise_model)
+    
+    results = []
+    for point in batch_data:
+        try:
+            inputs = qml.numpy.array([point.x, point.y, point.z, point.t])
+            measurements = device.execute(inputs, param_dict)
+            
+            # 測定結果の処理（汎用的な処理）
+            measurements_array = qml.numpy.array(measurements)
+            
+            # Z基底測定の平均（主要な出力）
+            z_measurements = measurements_array[:device.n_qubits]
+            z_output = qml.numpy.mean(z_measurements)
+            
+            # 追加測定がある場合の処理
+            if len(measurements_array) > device.n_qubits:
+                x_measurements = measurements_array[device.n_qubits:device.n_qubits+2]
+                y_measurements = measurements_array[device.n_qubits+2:device.n_qubits+4]
+                
+                # 全体的な量子状態の指標
+                quantum_state_indicator = (z_output + 
+                                         0.1 * qml.numpy.mean(x_measurements) + 
+                                         0.1 * qml.numpy.mean(y_measurements))
+            else:
+                quantum_state_indicator = z_output
+            
+            # 非線形変換（汎用的な活性化、安定版）
+            scaled_output = quantum_state_indicator * param_dict['output_scale']
+            
+            # 安定した活性化関数の使用
+            tanh_output = stable_tanh(scaled_output)
+            sigmoid_output = stable_sigmoid(scaled_output)
+            activated_output = 0.7 * tanh_output + 0.3 * sigmoid_output
+            
+            # バイアスと追加の変換
+            result = activated_output * param_dict['amplitude_scale'] + param_dict['output_bias']
+            
+            # 時間依存性（汎用的な処理）
+            if 't' in param_dict and param_dict['t'] > 0:
+                time_factor = stable_exp(-param_dict['time_scale'] * param_dict['t'])
+                result = result * time_factor
+            
+            # 出力の正規化（問題に依存しない）
+            result = qml.numpy.abs(result)  # 非負制約
+            
+            results.append(to_python_float(result))
+        except Exception as e:
+            print(f"Device {device_id} error: {e}")
+            results.append(0.1)
+    
+    return results
+
+class GeneralQuantumNN:
+    """汎用的な量子ニューラルネットワーク（PennyLane SPSA対応版）"""
+    def __init__(self, n_qubits=8, n_layers=4, use_architecture_search=True,
+                 backend='default.mixed', shots=None, noise_model=None, 
+                 use_parallel=True, n_parallel_devices=None):
+        
+        self.n_qubits = n_qubits
+        self.n_layers = n_layers
+        self.use_architecture_search = use_architecture_search
+        self.shots = shots
+        self.noise_model = noise_model
+        self.use_parallel = use_parallel and USE_PARALLEL_TRAINING
+        
+        # 並列デバイス数の設定
+        if n_parallel_devices is None:
+            self.n_parallel_devices = N_PARALLEL_DEVICES
+        else:
+            self.n_parallel_devices = n_parallel_devices
+        
         # 実機モードの判定
         self.is_hardware = shots is not None
+        self.backend = backend
         
-        # デバイスの設定
+        # 実機モードでの設定
         if self.is_hardware:
-            # 実機またはノイズありシミュレーション
-            self.dev = qml.device(backend, wires=self.n_qubits, shots=shots)
-            print(f"実機モード: ショット数 = {shots}")
+            self.min_shots = max(5000, self.shots)  # より多くのショット数
+            if self.use_parallel:
+                self.shots_per_device = max(1000, self.min_shots // self.n_parallel_devices)
+            print(f"実機モード: ショット数 = {self.min_shots}")
+            print(f"ノイズモデル: {self.noise_model}")
+            if self.use_parallel:
+                print(f"並列処理: {self.n_parallel_devices} デバイス, 各 {self.shots_per_device} ショット")
         else:
-            # 理想的なシミュレーション
-            self.dev = qml.device(backend, wires=self.n_qubits)
-            print("シミュレーションモード: 解析的計算")
+            print("シミュレーションモード")
         
-        # パラメータの自動計算
+        # アーキテクチャ探索または基本アーキテクチャ
+        if use_architecture_search:
+            print("量子回路アーキテクチャの自動探索を開始...")
+            self.architecture_search = CircuitArchitectureSearch(n_qubits, problem_type='general')
+            self.architecture = self.architecture_search.search(n_candidates=15)
+            print(f"最適アーキテクチャを発見: スコア = {self.architecture.score:.4f}")
+        else:
+            self.architecture = self._get_hardware_efficient_architecture()
+        
+        # パラメータ数の計算
         self._calculate_parameter_counts()
         
-        # パラメータの初期化（改善: より小さい初期値）
-        self.weights = qml.numpy.array(
-            np.random.uniform(-np.pi/8, np.pi/8, size=self.n_params),
+        # メインデバイスの設定
+        if self.is_hardware:
+            self.dev = qml.device(self.backend, wires=self.n_qubits, shots=self.min_shots)
+        else:
+            self.dev = qml.device('lightning.qubit', wires=self.n_qubits)
+        
+        # パラメータの初期化（より小さな初期値で安定化）
+        self.circuit_params = qml.numpy.array(
+            np.random.uniform(-0.01, 0.01, size=self.n_circuit_params),  # より小さな初期値
             requires_grad=True
         )
         
-        # 出力処理パラメータ（初期値を調整）
-        self.output_scale = qml.numpy.array(2.0, requires_grad=True)  # 増加
-        self.output_bias = qml.numpy.array(0.1, requires_grad=True)   # 正の値
+        # 出力処理パラメータ（汎用的なパラメータ、安定した初期値）
+        self.output_scale = qml.numpy.array(0.5, requires_grad=True)  # より小さな初期値
+        self.output_bias = qml.numpy.array(0.0, requires_grad=True)
+        self.time_scale = qml.numpy.array(0.5, requires_grad=True)    # より小さな初期値
+        self.amplitude_scale = qml.numpy.array(0.5, requires_grad=True)  # より小さな初期値
         
-        # 特徴量エンコーディング用のスケール
-        self.feature_scales = qml.numpy.array(
-            np.ones(8) * 0.3,  # 減少
-            requires_grad=True
-        )
-        
-        # 空間減衰パラメータ
-        self.spatial_decay = qml.numpy.array(2.0, requires_grad=True)  # 減少
-        
-        # 時間スケーリングパラメータ
-        self.time_scale = qml.numpy.array(0.5, requires_grad=True)  # 減少
-        
-        # 量子回路の自動生成
+        # 量子回路の作成
         self._create_quantum_circuit()
+        
+        # 並列処理の初期化
+        if self.use_parallel:
+            self.process_pool = ProcessPoolExecutor(max_workers=self.n_parallel_devices)
+            initialize_quantum_device_pool(
+                self.n_parallel_devices, self.n_qubits, self.architecture,
+                self.shots_per_device if self.is_hardware else None,
+                self.n_circuit_params, self.noise_model
+            )
+            print(f"並列処理プールを初期化: {self.n_parallel_devices} ワーカー")
         
         # トレーニング履歴
         self.loss_history = []
-        self.loss_components = {
-            'data': [],
-            'pde': [],
-            'initial': [],
-            'boundary': []
-        }
+        self.training_data = None
         
-        # 最適化器の履歴
-        self.optimizer_history = []
+    def _get_hardware_efficient_architecture(self):
+        """ハードウェア効率的なアーキテクチャ"""
+        gate_sequence = []
         
-        # トレーニングデータを保存
-        self.training_data = {}
+        for layer in range(self.n_layers):
+            # 単一量子ビットゲート層
+            for q in range(self.n_qubits):
+                gate_sequence.append({
+                    'gate': 'U3',
+                    'qubits': [q],
+                    'params': [f'u3_{layer}_{q}_0', f'u3_{layer}_{q}_1', f'u3_{layer}_{q}_2']
+                })
+            
+            # エンタングリング層
+            if layer < self.n_layers - 1:
+                # Circular entangling
+                for q in range(self.n_qubits):
+                    gate_sequence.append({
+                        'gate': 'CNOT',
+                        'qubits': [q, (q + 1) % self.n_qubits]
+                    })
         
+        return CircuitArchitecture(
+            n_qubits=self.n_qubits,
+            n_layers=self.n_layers,
+            gate_sequence=gate_sequence,
+            entangling_pattern='circular',
+            feature_map='hardware_efficient',
+            measurement_basis=['Z'] * self.n_qubits,
+            metadata={'type': 'hardware_efficient'}
+        )
+    
     def _calculate_parameter_counts(self):
-        """パラメータ数の自動計算"""
-        if self.circuit_type == 'hardware_efficient':
-            # 各層: RY + RZ ゲート各量子ビット、CNOTゲートは固定
-            params_per_layer = self.n_qubits * 2
-            self.n_params = self.n_layers * params_per_layer
-            
-        elif self.circuit_type == 'strongly_entangling':
-            # 各層: RX, RY, RZ ゲート各量子ビット
-            params_per_layer = self.n_qubits * 3
-            self.n_params = self.n_layers * params_per_layer
-            
-        elif self.circuit_type == 'data_reuploading':
-            # 各層: データエンコーディング + 変分パラメータ
-            # データエンコーディング: 各量子ビットにRY
-            # 変分層: RX, RY, RZ
-            variational_params_per_layer = self.n_qubits * 3
-            self.n_params = self.n_layers * variational_params_per_layer
-            # データエンコーディングは入力データに依存するため、別途処理
-            
-    def _create_quantum_circuit(self):
-        """量子回路の自動生成（完全版）"""
+        """アーキテクチャに基づいてパラメータ数を計算"""
+        self.n_circuit_params = sum(
+            len(gate.get('params', [])) 
+            for gate in self.architecture.gate_sequence
+        )
+        print(f"回路パラメータ数: {self.n_circuit_params}")
+    
+    def _apply_noise_to_circuit(self, wire):
+        """メイン回路用のノイズ適用"""
+        if self.noise_model is None or not self.is_hardware:
+            return
         
-        # 微分法の選択（実機対応）
-        if self.is_hardware:
-            diff_method = "parameter-shift"  # 実機では必須
-        else:
-            diff_method = "adjoint"  # シミュレータでは高速
+        if self.noise_model == 'depolarizing':
+            qml.DepolarizingChannel(0.01, wires=wire)
+        elif self.noise_model == 'amplitude_damping':
+            qml.AmplitudeDamping(0.01, wires=wire)
+        elif self.noise_model == 'phase_damping':
+            qml.PhaseDamping(0.01, wires=wire)
+        elif self.noise_model == 'bitflip':
+            qml.BitFlip(0.01, wires=wire)
+        elif self.noise_model == 'combined':
+            # 複合ノイズモデル
+            qml.DepolarizingChannel(0.005, wires=wire)
+            qml.AmplitudeDamping(0.005, wires=wire)
+    
+    def _create_quantum_circuit(self):
+        """量子回路の作成（汎用版、安定化版）"""
+        diff_method = "parameter-shift" if self.is_hardware else "adjoint"
         
         @qml.qnode(self.dev, interface="autograd", diff_method=diff_method)
-        def quantum_circuit(inputs, weights, feature_scales):
-            """改良された量子回路"""
+        def quantum_circuit(inputs, circuit_params):
+            # 入力の正規化（汎用的、安定化）
+            normalized_inputs = []
+            for i in range(len(inputs)):
+                # 入力値をクリップして安定化
+                clipped_input = qml.numpy.clip(inputs[i], 0.0, 1.0)
+                normalized_inputs.append(2.0 * clipped_input - 1.0)
             
-            # 入力の前処理
-            x_norm = inputs[0] / L
-            y_norm = inputs[1] / L
-            z_norm = inputs[2] / L
-            t_norm = inputs[3] / T
+            # データエンコーディング
+            for i in range(min(len(inputs), self.n_qubits)):
+                angle = normalized_inputs[i] * np.pi
+                # 角度をクリップ
+                angle = qml.numpy.clip(angle, -np.pi, np.pi)
+                qml.RY(angle, wires=i)
+                if self.is_hardware:
+                    self._apply_noise_to_circuit(i)
             
-            # 特徴量の生成
-            r = qml.numpy.sqrt((x_norm - 0.5)**2 + (y_norm - 0.5)**2 + (z_norm - 0.5)**2)
-            r_scaled = qml.numpy.exp(-2.0 * r)
+            # 追加のエンコーディング
+            if self.n_qubits > len(inputs):
+                for i in range(len(inputs), self.n_qubits):
+                    combined_angle = 0.0
+                    for j in range(len(inputs)):
+                        combined_angle += normalized_inputs[j] * (j + 1) / (i + 1)
+                    # 角度をクリップ
+                    combined_angle = qml.numpy.clip(combined_angle * np.pi, -np.pi, np.pi)
+                    qml.RY(combined_angle, wires=i)
+                    if self.is_hardware:
+                        self._apply_noise_to_circuit(i)
             
-            features = qml.numpy.array([
-                x_norm - 0.5,
-                y_norm - 0.5,
-                z_norm - 0.5,
-                t_norm,
-                r_scaled,
-                qml.numpy.sin(2 * np.pi * x_norm),
-                qml.numpy.sin(2 * np.pi * y_norm),
-                qml.numpy.sin(2 * np.pi * z_norm)
-            ])
-            
-            # 特徴量のスケーリング
-            scaled_features = features * feature_scales
-            
-            # ノイズモデルの適用（実機シミュレーション用）
-            if self.noise_model is not None:
-                # ここでノイズを追加（例：デポラライジングノイズ）
-                for qubit in range(self.n_qubits):
-                    qml.DepolarizingChannel(0.001, wires=qubit)
-            
+            # アーキテクチャに基づく回路実行（パラメータをクリップ）
             param_idx = 0
-            
-            if self.circuit_type == 'strongly_entangling':
-                # 初期状態準備
-                for qubit in range(self.n_qubits):
-                    feature_idx = qubit % len(features)
-                    qml.Hadamard(wires=qubit)
-                    qml.RY(scaled_features[feature_idx], wires=qubit)
+            for gate_info in self.architecture.gate_sequence:
+                gate_type = gate_info['gate']
+                qubits = gate_info['qubits']
+                gate_params = gate_info.get('params', [])
                 
-                # 強エンタングリング層
-                for layer in range(self.n_layers):
-                    # 各量子ビットに3つの回転ゲート
-                    for qubit in range(self.n_qubits):
-                        # データ依存の回転（係数を減少）
-                        feature_combination = 0.0
-                        for f_idx in range(3):
-                            f_idx_actual = (qubit + f_idx + layer) % len(features)
-                            feature_combination += scaled_features[f_idx_actual]
-                        
-                        qml.RX(weights[param_idx] + 0.05 * feature_combination, wires=qubit)
+                if gate_type == 'RY' and gate_params:
+                    if param_idx < len(circuit_params):
+                        param_val = qml.numpy.clip(circuit_params[param_idx], -2*np.pi, 2*np.pi)
+                        qml.RY(param_val, wires=qubits[0])
                         param_idx += 1
-                        qml.RY(weights[param_idx], wires=qubit)
+                elif gate_type == 'RZ' and gate_params:
+                    if param_idx < len(circuit_params):
+                        param_val = qml.numpy.clip(circuit_params[param_idx], -2*np.pi, 2*np.pi)
+                        qml.RZ(param_val, wires=qubits[0])
                         param_idx += 1
-                        qml.RZ(weights[param_idx] + 0.05 * feature_combination, wires=qubit)
+                elif gate_type == 'RX' and gate_params:
+                    if param_idx < len(circuit_params):
+                        param_val = qml.numpy.clip(circuit_params[param_idx], -2*np.pi, 2*np.pi)
+                        qml.RX(param_val, wires=qubits[0])
                         param_idx += 1
-                    
-                    # エンタングリング層
-                    if layer < self.n_layers - 1:
-                        self._apply_entangling_layer(layer)
-                        
-            elif self.circuit_type == 'hardware_efficient':
-                # Hardware Efficient Ansatz
-                # 初期状態準備
-                for qubit in range(self.n_qubits):
-                    qml.Hadamard(wires=qubit)
+                elif gate_type == 'U3' and gate_params:
+                    if param_idx + 2 < len(circuit_params):
+                        param1 = qml.numpy.clip(circuit_params[param_idx], -2*np.pi, 2*np.pi)
+                        param2 = qml.numpy.clip(circuit_params[param_idx + 1], -2*np.pi, 2*np.pi)
+                        param3 = qml.numpy.clip(circuit_params[param_idx + 2], -2*np.pi, 2*np.pi)
+                        qml.U3(param1, param2, param3, wires=qubits[0])
+                        param_idx += 3
+                elif gate_type == 'CNOT':
+                    qml.CNOT(wires=qubits)
+                elif gate_type == 'CZ':
+                    qml.CZ(wires=qubits)
+                elif gate_type == 'CRY' and gate_params:
+                    if param_idx < len(circuit_params):
+                        param_val = qml.numpy.clip(circuit_params[param_idx], -2*np.pi, 2*np.pi)
+                        qml.CRY(param_val, wires=qubits)
+                        param_idx += 1
+                elif gate_type == 'CRZ' and gate_params:
+                    if param_idx < len(circuit_params):
+                        param_val = qml.numpy.clip(circuit_params[param_idx], -2*np.pi, 2*np.pi)
+                        qml.CRZ(param_val, wires=qubits)
+                        param_idx += 1
+                elif gate_type == 'H':
+                    qml.Hadamard(wires=qubits[0])
                 
-                # 層ごとの処理
-                for layer in range(self.n_layers):
-                    # Single-qubit rotations
-                    for qubit in range(self.n_qubits):
-                        # データエンコーディング
-                        feature_idx = (qubit + layer) % len(features)
-                        qml.RY(scaled_features[feature_idx] * np.pi, wires=qubit)
-                        
-                        # 変分パラメータ
-                        qml.RY(weights[param_idx], wires=qubit)
-                        param_idx += 1
-                        qml.RZ(weights[param_idx], wires=qubit)
-                        param_idx += 1
-                    
-                    # Entangling gates (最小限のCNOT)
-                    if layer < self.n_layers - 1:
-                        # 隣接量子ビット間のCNOT
-                        for qubit in range(0, self.n_qubits - 1):
-                            qml.CNOT(wires=[qubit, qubit + 1])
-                        # 循環境界条件
-                        if self.n_qubits > 2:
-                            qml.CNOT(wires=[self.n_qubits - 1, 0])
-                            
-            elif self.circuit_type == 'data_reuploading':
-                # Data Re-uploading Circuit
-                for layer in range(self.n_layers):
-                    # データエンコーディング層
-                    for qubit in range(self.n_qubits):
-                        # 各層で異なる特徴量の組み合わせ
-                        feature_idx1 = (qubit + layer) % len(features)
-                        feature_idx2 = (qubit + layer + 1) % len(features)
-                        
-                        # データエンコーディング
-                        angle = scaled_features[feature_idx1] * np.pi
-                        qml.RY(angle, wires=qubit)
-                        
-                        # 追加のデータエンコーディング
-                        if layer > 0:
-                            angle2 = scaled_features[feature_idx2] * np.pi / 2
-                            qml.RZ(angle2, wires=qubit)
-                    
-                    # 変分層
-                    for qubit in range(self.n_qubits):
-                        qml.RX(weights[param_idx], wires=qubit)
-                        param_idx += 1
-                        qml.RY(weights[param_idx], wires=qubit)
-                        param_idx += 1
-                        qml.RZ(weights[param_idx], wires=qubit)
-                        param_idx += 1
-                    
-                    # エンタングリング層
-                    if layer < self.n_layers - 1:
-                        # ブロック状のエンタングリング
-                        for i in range(0, self.n_qubits - 1, 2):
-                            qml.CZ(wires=[i, i + 1])
-                        for i in range(1, self.n_qubits - 1, 2):
-                            qml.CZ(wires=[i, i + 1])
+                # ゲート後のノイズ
+                if self.is_hardware:
+                    for q in qubits:
+                        self._apply_noise_to_circuit(q)
             
             # 測定
             measurements = []
             
-            # 単一量子ビット測定
+            # Z基底測定
             for i in range(self.n_qubits):
                 measurements.append(qml.expval(qml.PauliZ(i)))
             
-            # 相関測定（選択的）
-            if self.n_qubits <= 10 and not self.is_hardware:  # 実機では計算コストが高い
-                for i in range(0, self.n_qubits - 1, 2):
-                    measurements.append(qml.expval(qml.PauliZ(i) @ qml.PauliZ(i + 1)))
+            # 追加測定
+            if self.n_qubits >= 2 and not self.is_hardware:
+                for i in range(min(2, self.n_qubits)):
+                    measurements.append(qml.expval(qml.PauliX(i)))
+                    measurements.append(qml.expval(qml.PauliY(i)))
             
             return measurements
         
         self.qnode = quantum_circuit
         
-        print(f"物理制約付き量子回路を生成：")
-        print(f"  - 量子ビット数: {self.n_qubits}")
-        print(f"  - 層数: {self.n_layers}")
-        print(f"  - 回路タイプ: {self.circuit_type}")
-        print(f"  - エンタングリング戦略: {self.entangling_strategy}")
-        print(f"  - 回路パラメータ数: {self.n_params}")
-        print(f"  - 微分法: {diff_method}")
-        
-    def _apply_entangling_layer(self, layer_idx):
-        """エンタングリング層の適用"""
-        if self.entangling_strategy == 'all_to_all':
-            if layer_idx % 3 == 0:
-                # 隣接ペア
-                for i in range(0, self.n_qubits - 1, 2):
-                    qml.CNOT(wires=[i, i + 1])
-                for i in range(1, self.n_qubits - 1, 2):
-                    qml.CNOT(wires=[i, i + 1])
-            elif layer_idx % 3 == 1:
-                # スキップ接続
-                step = 2
-                for i in range(self.n_qubits - step):
-                    qml.CNOT(wires=[i, i + step])
-            else:
-                # 循環接続
-                for i in range(self.n_qubits):
-                    qml.CNOT(wires=[i, (i + 3) % self.n_qubits])
+        print(f"量子回路を生成:")
+        print(f"  - ゲート数: {len(self.architecture.gate_sequence)}")
+        print(f"  - エンタングリングパターン: {self.architecture.entangling_pattern}")
+        if self.is_hardware:
+            print(f"  - デバイス: {self.backend}")
+            print(f"  - ノイズモデル: {self.noise_model}")
     
     def forward(self, x, y, z, t):
-        """順伝播（改良版）"""
+        """順伝播（単一入力）（汎用版、安定化版）"""
         try:
-            # 入力を配列に変換
-            inputs = qml.numpy.array([float(x), float(y), float(z), float(t)])
+            # 入力の正規化（0-1範囲）とクリップ
+            inputs = qml.numpy.array([
+                np.clip(float(x) / L, 0.0, 1.0),
+                np.clip(float(y) / L, 0.0, 1.0),
+                np.clip(float(z) / L, 0.0, 1.0),
+                np.clip(float(t) / T, 0.0, 1.0)
+            ])
             
             # 量子回路の実行
-            measurements = self.qnode(inputs, self.weights, self.feature_scales)
+            measurements = self.qnode(inputs, self.circuit_params)
             
-            # 測定値を配列に変換
+            # 測定結果の処理
             measurements_array = qml.numpy.array(measurements)
             
-            # 単一量子ビット測定の処理
-            n_single_measurements = self.n_qubits
-            single_measurements = measurements_array[:n_single_measurements]
+            # Z基底測定の処理
+            z_measurements = measurements_array[:self.n_qubits]
+            z_output = qml.numpy.mean(z_measurements)
             
-            # 測定値の集約（改良版）
-            # 重み付き平均の代わりに、より単純な平均を使用
-            single_output = qml.numpy.mean(single_measurements)
-            
-            # 相関測定がある場合
-            if len(measurements_array) > n_single_measurements:
-                correlation_measurements = measurements_array[n_single_measurements:]
-                correlation_output = qml.numpy.mean(correlation_measurements)
-                quantum_output = 0.8 * single_output + 0.2 * correlation_output
+            # 追加測定の処理（ある場合）
+            if len(measurements_array) > self.n_qubits:
+                additional_measurements = measurements_array[self.n_qubits:]
+                combined_output = z_output + 0.1 * qml.numpy.mean(additional_measurements)
             else:
-                quantum_output = single_output
+                combined_output = z_output
             
-            # 出力の後処理（改良版）
-            # tanhの代わりに、より線形な活性化を使用
-            quantum_output = quantum_output * 0.5  # スケーリング
-            normalized_output = (quantum_output + 1.0) / 2.0
+            # 非線形変換と出力処理（安定化版）
+            scaled_output = combined_output * self.output_scale
             
-            # 解析解に基づく形状関数
-            sigma_0 = 0.05
-            sigma_t = qml.numpy.sqrt(sigma_0**2 + 2 * alpha * float(t))
-            amplitude = (sigma_0 / sigma_t) ** 3
+            # 安定した活性化関数の使用
+            tanh_output = stable_tanh(scaled_output)
+            sigmoid_output = stable_sigmoid(scaled_output)
+            activated_output = 0.7 * tanh_output + 0.3 * sigmoid_output
             
-            # 空間的な形状
-            x_centered = (float(x) - L/2) / L
-            y_centered = (float(y) - L/2) / L
-            z_centered = (float(z) - L/2) / L
-            r_squared = x_centered**2 + y_centered**2 + z_centered**2
+            # 最終的な出力
+            result = activated_output * self.amplitude_scale + self.output_bias
             
-            # ガウス分布形状
-            spatial_factor = qml.numpy.exp(-self.spatial_decay * r_squared / (sigma_t / L)**2)
-            
-            # 最終出力（改良版）
-            result = self.output_scale * amplitude * spatial_factor * (normalized_output + self.output_bias)
+            # 時間依存性（安定化版）
+            if float(t) > 0:
+                time_factor = stable_exp(-self.time_scale * float(t) / T)
+                result = result * time_factor
             
             # 非負制約
-            return qml.numpy.maximum(result, 0.0)
+            result = qml.numpy.abs(result)
+            
+            return result
             
         except Exception as e:
             print(f"順伝播エラー: {e}")
-            import traceback
-            traceback.print_exc()
-            return qml.numpy.array(0.0)
+            return qml.numpy.array(0.1)
+    
+    def forward_batch_parallel(self, batch_points):
+        """バッチ処理の並列実行"""
+        if not self.use_parallel or len(batch_points) < self.n_parallel_devices:
+            return [self.forward(p.x, p.y, p.z, p.t) for p in batch_points]
+        
+        # バッチ分割
+        batch_size_per_device = max(1, len(batch_points) // self.n_parallel_devices)
+        batches = []
+        
+        for i in range(self.n_parallel_devices):
+            start_idx = i * batch_size_per_device
+            if i == self.n_parallel_devices - 1:
+                batch = batch_points[start_idx:]
+            else:
+                end_idx = start_idx + batch_size_per_device
+                batch = batch_points[start_idx:end_idx]
+            
+            if len(batch) > 0:
+                batches.append(batch)
+        
+        # パラメータ辞書（値をクリップ）
+        param_dict = {
+            'circuit_params': self.circuit_params,
+            'output_scale': qml.numpy.clip(self.output_scale, 0.1, 10.0),
+            'output_bias': self.output_bias,
+            'time_scale': qml.numpy.clip(self.time_scale, 0.1, 10.0),
+            'amplitude_scale': qml.numpy.clip(self.amplitude_scale, 0.1, 10.0)
+        }
+        
+        # デバイスプールの取得
+        device_pool = _quantum_device_pool[:len(batches)]
+        
+        # 並列実行
+        args_list = [(device_params, batch, param_dict) 
+                     for device_params, batch in zip(device_pool, batches)]
+        
+        futures = []
+        for args in args_list:
+            future = self.process_pool.submit(parallel_forward_batch, args)
+            futures.append(future)
+        
+        # 結果の収集
+        all_results = []
+        for i, future in enumerate(futures):
+            try:
+                results = future.result(timeout=60)
+                all_results.extend(results)
+            except Exception as e:
+                print(f"並列処理エラー（バッチ {i}）: {e}")
+                all_results.extend([0.1] * len(batches[i]))
+        
+        return all_results
     
     def compute_pde_residual(self, x, y, z, t, epsilon=1e-3):
-        """PDE残差の計算"""
+        """PDE残差の計算（汎用版）"""
         try:
-            # 境界チェック
             if x < epsilon or x > L - epsilon or y < epsilon or y > L - epsilon or \
                z < epsilon or z > L - epsilon or t > T - epsilon:
                 return qml.numpy.array(0.0)
             
-            # 中心での値
-            u = self.forward(x, y, z, t)
+            # 中心差分用の評価点
+            points = [
+                TrainingPoint(x, y, z, t),
+                TrainingPoint(x + epsilon, y, z, t),
+                TrainingPoint(x - epsilon, y, z, t),
+                TrainingPoint(x, y + epsilon, z, t),
+                TrainingPoint(x, y - epsilon, z, t),
+                TrainingPoint(x, y, z + epsilon, t),
+                TrainingPoint(x, y, z - epsilon, t)
+            ]
             
-            # 時間微分（前進差分）
+            # 時間微分用の点
             if t + epsilon <= T:
-                u_t_plus = self.forward(x, y, z, t + epsilon)
+                points.append(TrainingPoint(x, y, z, t + epsilon))
+            if t - epsilon >= 0:
+                points.append(TrainingPoint(x, y, z, t - epsilon))
+            
+            # 評価
+            if self.use_parallel and len(points) >= self.n_parallel_devices:
+                values = self.forward_batch_parallel(points)
+            else:
+                values = [self.forward(p.x, p.y, p.z, p.t) for p in points]
+            
+            # 数値微分
+            u = values[0]
+            u_x_plus = values[1]
+            u_x_minus = values[2]
+            u_y_plus = values[3]
+            u_y_minus = values[4]
+            u_z_plus = values[5]
+            u_z_minus = values[6]
+            
+            # 時間微分
+            if len(values) >= 9:
+                u_t_plus = values[7]
+                u_t_minus = values[8]
+                u_t = (u_t_plus - u_t_minus) / (2 * epsilon)
+            elif len(values) >= 8:
+                u_t_plus = values[7]
                 u_t = (u_t_plus - u) / epsilon
             else:
-                u_t_minus = self.forward(x, y, z, t - epsilon)
-                u_t = (u - u_t_minus) / epsilon
+                u_t = qml.numpy.array(0.0)
             
-            # 空間二階微分（中心差分）
-            u_x_plus = self.forward(x + epsilon, y, z, t)
-            u_x_minus = self.forward(x - epsilon, y, z, t)
+            # 空間二階微分
             u_xx = (u_x_plus - 2*u + u_x_minus) / (epsilon**2)
-            
-            u_y_plus = self.forward(x, y + epsilon, z, t)
-            u_y_minus = self.forward(x, y - epsilon, z, t)
             u_yy = (u_y_plus - 2*u + u_y_minus) / (epsilon**2)
-            
-            u_z_plus = self.forward(x, y, z + epsilon, t)
-            u_z_minus = self.forward(x, y, z - epsilon, t)
             u_zz = (u_z_plus - 2*u + u_z_minus) / (epsilon**2)
             
-            # 熱伝導方程式の残差
+            # PDE残差
             pde_residual = u_t - alpha * (u_xx + u_yy + u_zz)
             
             return pde_residual
@@ -866,126 +1525,376 @@ class PhysicsInformedQuantumNN:
         except Exception as e:
             return qml.numpy.array(0.0)
     
-    def _rotosolve_update(self, all_params, param_idx, cost_function):
-        """Rotosolve最適化ステップ"""
-        # 現在のパラメータのコピー
-        params_plus = qml.numpy.copy(all_params)
-        params_minus = qml.numpy.copy(all_params)
+    def train(self, n_samples=2500) -> Tuple[qml.numpy.ndarray, List[float], float]:
+        """PennyLane SPSAを使用したトレーニング（安定化版）"""
+        print(f"量子モデルのトレーニングを開始...")
+        print(f"最適化手法: {'PennyLane SPSA' if self.is_hardware else 'Adam'}")
+        print(f"並列処理: {'有効' if self.use_parallel else '無効'}")
+        if self.use_parallel:
+            print(f"並列デバイス数: {self.n_parallel_devices}")
         
-        # パラメータシフト
-        shift = np.pi / 2
-        params_plus[param_idx] = all_params[param_idx] + shift
-        params_minus[param_idx] = all_params[param_idx] - shift
-        
-        # コスト計算
-        cost_plus = cost_function(params_plus)
-        cost_minus = cost_function(params_minus)
-        cost_0 = cost_function(all_params)
-        
-        # 最適な角度を解析的に計算
-        a = (cost_plus + cost_minus - 2 * cost_0) / 2
-        b = (cost_plus - cost_minus) / 2
-        
-        if qml.numpy.abs(a) > 1e-10:
-            theta_opt = -qml.numpy.arctan(b / a) / 2
-            if a > 0:
-                theta_opt += np.pi
-        else:
-            theta_opt = 0.0
-        
-        # パラメータ更新
-        all_params[param_idx] = all_params[param_idx] + theta_opt
-        
-        return all_params
-    
-    def train(self, n_samples=1500) -> Tuple[qml.numpy.ndarray, List[float], float]:
-        """量子モデルのトレーニング（安定化された最適化）"""
-        print(f"物理制約付き量子モデルのトレーニングを開始...")
-        print(f"最適化戦略: SPSA → Adam → Rotosolve")
         start_time = time.time()
         
         # データ生成
-        # 1. 内部点（PDE制約用）
-        n_interior = int(n_samples * 0.3)
-        x_interior = np.random.uniform(0.05, 0.95, n_interior) * L
-        y_interior = np.random.uniform(0.05, 0.95, n_interior) * L
-        z_interior = np.random.uniform(0.05, 0.95, n_interior) * L
-        t_interior = np.random.uniform(0.05, 0.95, n_interior) * T
+        interior_points, initial_points, boundary_points, data_points = \
+            self._generate_training_data(n_samples)
         
-        # 2. 初期条件点
-        n_initial = int(n_samples * 0.4)
-        x_initial = np.random.normal(L/2, 0.1, n_initial)
-        y_initial = np.random.normal(L/2, 0.1, n_initial)
-        z_initial = np.random.normal(L/2, 0.1, n_initial)
-        x_initial = np.clip(x_initial, 0, L)
-        y_initial = np.clip(y_initial, 0, L)
-        z_initial = np.clip(z_initial, 0, L)
-        t_initial = np.zeros(n_initial)
-        u_initial = np.array([
-            initial_condition(x, y, z) 
-            for x, y, z in zip(x_initial, y_initial, z_initial)
+        # トレーニングデータを保存
+        self.training_data = {
+            'interior_points': interior_points,
+            'initial_points': initial_points,
+            'boundary_points': boundary_points,
+            'data_points': data_points
+        }
+        
+        print(f"トレーニングサンプル数: {n_samples}")
+        print(f"  - 内部点（PDE）: {len(interior_points)}")
+        print(f"  - 初期条件: {len(initial_points)}")
+        print(f"  - 境界条件: {len(boundary_points)}")
+        print(f"  - データ点: {len(data_points)}")
+        
+        # コスト関数の定義（安定化版）
+        def cost_function(all_params):
+            # パラメータの分離とクリップ
+            self.circuit_params = qml.numpy.clip(all_params[:self.n_circuit_params], -2*np.pi, 2*np.pi)
+            self.output_scale = qml.numpy.clip(qml.numpy.abs(all_params[-4]) + 0.1, 0.1, 10.0)
+            self.output_bias = qml.numpy.clip(all_params[-3], -10.0, 10.0)
+            self.time_scale = qml.numpy.clip(qml.numpy.abs(all_params[-2]) + 0.1, 0.1, 10.0)
+            self.amplitude_scale = qml.numpy.clip(qml.numpy.abs(all_params[-1]) + 0.1, 0.1, 10.0)
+            
+            # 損失計算（例外処理付き）
+            try:
+                total_loss = self._compute_loss_parallel()
+                # 損失値の妥当性チェック
+                if np.isnan(total_loss) or np.isinf(total_loss):
+                    print("警告: 無効な損失値が検出されました。デフォルト値を返します。")
+                    return 1000.0
+                return total_loss
+            except Exception as e:
+                print(f"損失計算エラー: {e}")
+                return 1000.0
+        
+        # 全パラメータの結合
+        all_params = qml.numpy.concatenate([
+            self.circuit_params,
+            qml.numpy.array([self.output_scale]),
+            qml.numpy.array([self.output_bias]),
+            qml.numpy.array([self.time_scale]),
+            qml.numpy.array([self.amplitude_scale])
         ])
         
-        # 3. 境界条件点
-        n_boundary = int(n_samples * 0.15)
-        x_boundary = []
-        y_boundary = []
-        z_boundary = []
-        t_boundary = []
+        all_params.requires_grad = True
+        
+        # ベストパラメータの追跡
+        best_params = qml.numpy.copy(all_params)
+        best_loss = float('inf')
+        
+        if self.is_hardware:
+            # 実機モード: PennyLane SPSA最適化（安定化版）
+            print("\nPennyLane SPSA最適化（安定化版）")
+            
+            # SPSA最適化器の設定（より慎重なパラメータ）
+            spsa_opt = qml.SPSAOptimizer(
+                maxiter=100,  # step_and_costは100ステップずつ実行
+                a=0.05,     # ステップサイズパラメータ（より小さく）
+                c=0.05,     # 摂動パラメータ（より小さく）
+                A=50,       # 安定性パラメータ（より大きく）
+                alpha=0.602,  # ステップサイズ減衰指数
+                gamma=0.101   # 摂動減衰指数
+            )
+            
+            # 初期評価
+            try:
+                initial_loss = to_python_float(cost_function(all_params))
+                print(f"初期損失: {initial_loss:.6f}")
+                self.loss_history.append(initial_loss)
+            except Exception as e:
+                print(f"初期評価エラー: {e}")
+                initial_loss = 1000.0
+                self.loss_history.append(initial_loss)
+            
+            # 最適化のメインループ
+            patience_counter = 0
+            max_patience = 300  # 早期停止のための忍耐パラメータ
+            
+            for epoch in range(qnn_epochs):
+                try:
+                    # SPSAによる1ステップの最適化
+                    all_params, current_cost = spsa_opt.step_and_cost(
+                        cost_function, 
+                        all_params
+                    )
+                    
+                    # パラメータのクリップ（発散防止）
+                    all_params[:self.n_circuit_params] = qml.numpy.clip(
+                        all_params[:self.n_circuit_params], -2*np.pi, 2*np.pi
+                    )
+                    all_params[-4:] = qml.numpy.clip(all_params[-4:], -10.0, 10.0)
+                    
+                    current_cost = to_python_float(current_cost)
+                    self.loss_history.append(current_cost)
+                    
+                    if current_cost < best_loss:
+                        best_loss = current_cost
+                        best_params = qml.numpy.copy(all_params)
+                        patience_counter = 0
+                    else:
+                        patience_counter += 1
+                    
+                    # 進捗報告
+                    if (epoch + 1) % 100 == 0 or epoch == 0:
+                        print(f"Epoch [{epoch+1}/{qnn_epochs}], "
+                              f"Loss: {current_cost:.6f}, "
+                              f"Best Loss: {best_loss:.6f}")
+                        
+                        # 予測値確認
+                        self._print_predictions()
+                    
+                    # 早期停止チェック
+                    if patience_counter >= max_patience:
+                        print(f"早期停止（エポック {epoch+1}）: {max_patience} エポック改善なし")
+                        break
+                    
+                except Exception as e:
+                    print(f"SPSA最適化エラー（エポック {epoch+1}）: {e}")
+                    # エラー時は現在の損失値を記録
+                    try:
+                        current_loss = to_python_float(cost_function(all_params))
+                        self.loss_history.append(current_loss)
+                    except:
+                        self.loss_history.append(self.loss_history[-1] if self.loss_history else initial_loss)
+                    continue
+        
+        else:
+            # シミュレータモード: Adam最適化
+            print("\nAdam最適化")
+            
+            adam_opt = qml.AdamOptimizer(stepsize=0.001)  # より小さなステップサイズ
+            
+            for epoch in range(min(1000, qnn_epochs)):
+                try:
+                    # 勾配計算とパラメータ更新
+                    all_params, cost = adam_opt.step_and_cost(cost_function, all_params)
+                    
+                    # パラメータのクリップ
+                    all_params[:self.n_circuit_params] = qml.numpy.clip(
+                        all_params[:self.n_circuit_params], -2*np.pi, 2*np.pi
+                    )
+                    all_params[-4:] = qml.numpy.clip(all_params[-4:], -10.0, 10.0)
+                    
+                    self.loss_history.append(to_python_float(cost))
+                    
+                    if cost < best_loss:
+                        best_loss = cost
+                        best_params = qml.numpy.copy(all_params)
+                    
+                    if (epoch + 1) % 100 == 0:
+                        print(f"Epoch [{epoch+1}], Loss: {to_python_float(cost):.6f}")
+                        self._print_predictions()
+                        
+                except Exception as e:
+                    print(f"Adam最適化エラー: {e}")
+                    continue
+        
+        # 最良パラメータを設定
+        self.circuit_params = best_params[:self.n_circuit_params]
+        self.output_scale = qml.numpy.clip(qml.numpy.abs(best_params[-4]) + 0.1, 0.1, 10.0)
+        self.output_bias = qml.numpy.clip(best_params[-3], -10.0, 10.0)
+        self.time_scale = qml.numpy.clip(qml.numpy.abs(best_params[-2]) + 0.1, 0.1, 10.0)
+        self.amplitude_scale = qml.numpy.clip(qml.numpy.abs(best_params[-1]) + 0.1, 0.1, 10.0)
+        
+        training_time = time.time() - start_time
+        print(f"\n量子モデルのトレーニング完了。時間: {training_time:.2f}秒")
+        print(f"最終損失: {to_python_float(best_loss):.6f}")
+        
+        # 最終評価
+        print("\n最終評価:")
+        self._print_predictions()
+        
+        return self.circuit_params, self.loss_history, training_time
+    
+    def _compute_loss_parallel(self):
+        """並列処理を使用した損失計算（汎用版、安定化版）"""
+        reduction_factor = 5 if self.is_hardware else 1
+        
+        # 最小バッチサイズ
+        min_batch_size = self.n_parallel_devices if self.use_parallel else 1
+        
+        try:
+            # 初期条件損失
+            initial_loss = 0.0
+            n_ic_eval = max(min_batch_size, min(200 // reduction_factor, len(self.training_data['initial_points'])))
+            ic_indices = np.random.choice(len(self.training_data['initial_points']), n_ic_eval, replace=False)
+            
+            ic_batch = [self.training_data['initial_points'][i] for i in ic_indices]
+            
+            if self.use_parallel:
+                predictions = self.forward_batch_parallel(ic_batch)
+            else:
+                predictions = [self.forward(p.x, p.y, p.z, p.t) for p in ic_batch]
+            
+            for i, pred in enumerate(predictions):
+                true_val = ic_batch[i].u_true
+                diff = to_python_float(pred) - true_val
+                # 差分をクリップして爆発を防ぐ
+                diff = np.clip(diff, -10.0, 10.0)
+                initial_loss += diff ** 2
+            initial_loss = initial_loss / len(ic_batch)
+            
+            # PDE損失（軽量化）
+            pde_loss = 0.0
+            n_pde_eval = max(min_batch_size, min(10 // reduction_factor, len(self.training_data['interior_points'])))
+            pde_indices = np.random.choice(len(self.training_data['interior_points']), n_pde_eval, replace=False)
+            
+            for idx in pde_indices:
+                point = self.training_data['interior_points'][idx]
+                residual = self.compute_pde_residual(point.x, point.y, point.z, point.t)
+                residual_val = to_python_float(residual)
+                # 残差をクリップ
+                residual_val = np.clip(residual_val, -10.0, 10.0)
+                pde_loss += residual_val ** 2
+            pde_loss = pde_loss / n_pde_eval
+            
+            # 境界条件損失
+            boundary_loss = 0.0
+            n_bc_eval = max(min_batch_size, min(50 // reduction_factor, len(self.training_data['boundary_points'])))
+            bc_indices = np.random.choice(len(self.training_data['boundary_points']), n_bc_eval, replace=False)
+            
+            bc_batch = [self.training_data['boundary_points'][i] for i in bc_indices]
+            
+            if self.use_parallel:
+                predictions = self.forward_batch_parallel(bc_batch)
+            else:
+                predictions = [self.forward(p.x, p.y, p.z, p.t) for p in bc_batch]
+            
+            for pred in predictions:
+                pred_val = to_python_float(pred)
+                # 予測値をクリップ
+                pred_val = np.clip(pred_val, -10.0, 10.0)
+                boundary_loss += pred_val ** 2
+            boundary_loss = boundary_loss / len(bc_batch)
+            
+            # データ損失
+            data_loss = 0.0
+            if len(self.training_data['data_points']) > 0:
+                n_data_eval = max(min_batch_size, min(150 // reduction_factor, len(self.training_data['data_points'])))
+                data_indices = np.random.choice(len(self.training_data['data_points']), n_data_eval, replace=False)
+                
+                data_batch = [self.training_data['data_points'][i] for i in data_indices]
+                
+                if self.use_parallel:
+                    predictions = self.forward_batch_parallel(data_batch)
+                else:
+                    predictions = [self.forward(p.x, p.y, p.z, p.t) for p in data_batch]
+                
+                for i, pred in enumerate(predictions):
+                    true_val = data_batch[i].u_true
+                    diff = to_python_float(pred) - true_val
+                    # 差分をクリップ
+                    diff = np.clip(diff, -10.0, 10.0)
+                    data_loss += diff ** 2
+                data_loss = data_loss / len(data_batch)
+            
+            # 正則化（最小限）
+            reg = 0.0001 * qml.numpy.sum(qml.numpy.clip(self.circuit_params, -10.0, 10.0) ** 2)
+            
+            # 総損失（汎用的な重み）
+            if self.is_hardware:
+                # 実機モードでは初期条件とデータを重視
+                total_loss = 0.01 * pde_loss + 200.0 * initial_loss + \
+                            5.0 * boundary_loss + 100.0 * data_loss + to_python_float(reg)
+            else:
+                # シミュレーションモードでは物理的制約も考慮
+                total_loss = 0.1 * pde_loss + 100.0 * initial_loss + \
+                            2.0 * boundary_loss + 50.0 * data_loss + to_python_float(reg)
+            
+            # 最終的な損失値の妥当性チェック
+            if np.isnan(total_loss) or np.isinf(total_loss):
+                print("警告: 損失計算で無効な値が検出されました")
+                return 1000.0
+            
+            return total_loss
+            
+        except Exception as e:
+            print(f"損失計算エラー: {e}")
+            return 1000.0
+    
+    def _generate_training_data(self, n_samples):
+        """トレーニングデータの生成（汎用版）"""
+        # 内部点
+        n_interior = int(n_samples * 0.2)  # PDEの比率を減らす
+        interior_points = []
+        for _ in range(n_interior):
+            x = np.random.uniform(0.05, 0.95) * L
+            y = np.random.uniform(0.05, 0.95) * L
+            z = np.random.uniform(0.05, 0.95) * L
+            t = np.random.uniform(0.05, 0.95) * T
+            interior_points.append(TrainingPoint(x, y, z, t, type='interior'))
+        
+        # 初期条件点（より重要）
+        n_initial = int(n_samples * 0.4)
+        initial_points = []
+        for _ in range(n_initial):
+            # 多様な分布から選択
+            if np.random.rand() < 0.7:
+                # 中心付近
+                x = np.random.normal(L/2, 0.1)
+                y = np.random.normal(L/2, 0.1)
+                z = np.random.normal(L/2, 0.1)
+            else:
+                # ランダム
+                x = np.random.uniform(0, 1) * L
+                y = np.random.uniform(0, 1) * L
+                z = np.random.uniform(0, 1) * L
+            
+            x = np.clip(x, 0, L)
+            y = np.clip(y, 0, L)
+            z = np.clip(z, 0, L)
+            t = 0.0
+            
+            u_true = initial_condition(x, y, z)
+            initial_points.append(TrainingPoint(x, y, z, t, u_true, type='initial'))
+        
+        # 境界条件点
+        n_boundary = int(n_samples * 0.1)
+        boundary_points = []
         
         for i in range(n_boundary):
             face = i % 6
             t_b = np.random.uniform(0, 1) * T
+            
             if face == 0:
-                x_boundary.append(0)
-                y_boundary.append(np.random.uniform(0, 1) * L)
-                z_boundary.append(np.random.uniform(0, 1) * L)
+                x_b, y_b, z_b = 0, np.random.uniform(0, 1) * L, np.random.uniform(0, 1) * L
             elif face == 1:
-                x_boundary.append(L)
-                y_boundary.append(np.random.uniform(0, 1) * L)
-                z_boundary.append(np.random.uniform(0, 1) * L)
+                x_b, y_b, z_b = L, np.random.uniform(0, 1) * L, np.random.uniform(0, 1) * L
             elif face == 2:
-                x_boundary.append(np.random.uniform(0, 1) * L)
-                y_boundary.append(0)
-                z_boundary.append(np.random.uniform(0, 1) * L)
+                x_b, y_b, z_b = np.random.uniform(0, 1) * L, 0, np.random.uniform(0, 1) * L
             elif face == 3:
-                x_boundary.append(np.random.uniform(0, 1) * L)
-                y_boundary.append(L)
-                z_boundary.append(np.random.uniform(0, 1) * L)
+                x_b, y_b, z_b = np.random.uniform(0, 1) * L, L, np.random.uniform(0, 1) * L
             elif face == 4:
-                x_boundary.append(np.random.uniform(0, 1) * L)
-                y_boundary.append(np.random.uniform(0, 1) * L)
-                z_boundary.append(0)
+                x_b, y_b, z_b = np.random.uniform(0, 1) * L, np.random.uniform(0, 1) * L, 0
             else:
-                x_boundary.append(np.random.uniform(0, 1) * L)
-                y_boundary.append(np.random.uniform(0, 1) * L)
-                z_boundary.append(L)
-            t_boundary.append(t_b)
+                x_b, y_b, z_b = np.random.uniform(0, 1) * L, np.random.uniform(0, 1) * L, L
+            
+            boundary_points.append(TrainingPoint(x_b, y_b, z_b, t_b, 0.0, type='boundary'))
         
-        x_boundary = np.array(x_boundary)
-        y_boundary = np.array(y_boundary)
-        z_boundary = np.array(z_boundary)
-        t_boundary = np.array(t_boundary)
-        u_boundary = np.zeros(n_boundary)
-        
-        # 4. データ点
-        n_data_target = n_samples - n_interior - n_initial - n_boundary
-        t_data_points = [0.0, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0]
-        n_per_time = n_data_target // len(t_data_points)
-        
-        x_data = []
-        y_data = []
-        z_data = []
-        t_data = []
-        u_data = []
+        # データ点（解析解からのサンプル）
+        n_data = n_samples - n_interior - n_initial - n_boundary
+        data_points = []
+        t_data_points = np.linspace(0, T, 10)
         
         for t_val in t_data_points:
+            n_per_time = n_data // len(t_data_points)
+            
             for _ in range(n_per_time):
-                if np.random.rand() < 0.7:
+                # 多様なサンプリング
+                if np.random.rand() < 0.6:
+                    # 重要領域
                     x_val = np.random.normal(L/2, 0.15)
                     y_val = np.random.normal(L/2, 0.15)
                     z_val = np.random.normal(L/2, 0.15)
                 else:
+                    # ランダム
                     x_val = np.random.uniform(0, 1) * L
                     y_val = np.random.uniform(0, 1) * L
                     z_val = np.random.uniform(0, 1) * L
@@ -994,350 +1903,36 @@ class PhysicsInformedQuantumNN:
                 y_val = np.clip(y_val, 0, L)
                 z_val = np.clip(z_val, 0, L)
                 
-                x_data.append(x_val)
-                y_data.append(y_val)
-                z_data.append(z_val)
-                t_data.append(t_val)
-                u_data.append(analytical_solution(x_val, y_val, z_val, t_val))
+                u_val = analytical_solution(x_val, y_val, z_val, t_val)
+                data_points.append(TrainingPoint(x_val, y_val, z_val, t_val, u_val, type='data'))
         
-        x_data = np.array(x_data)
-        y_data = np.array(y_data)
-        z_data = np.array(z_data)
-        t_data = np.array(t_data)
-        u_data = np.array(u_data)
+        return interior_points, initial_points, boundary_points, data_points
+    
+    def _print_predictions(self):
+        """予測値の表示"""
+        test_points = [
+            (L/2, L/2, L/2, 0.0),
+            (L/2, L/2, L/2, 0.1),
+            (L/2, L/2, L/2, 0.5),
+            (L/2, L/2, L/2, 1.0),
+            (L/4, L/4, L/4, 0.5),
+            (3*L/4, 3*L/4, 3*L/4, 0.5)
+        ]
         
-        # トレーニングデータを保存
-        self.training_data = {
-            'x_interior': x_interior, 'y_interior': y_interior, 
-            'z_interior': z_interior, 't_interior': t_interior,
-            'x_initial': x_initial, 'y_initial': y_initial,
-            'z_initial': z_initial, 't_initial': t_initial, 'u_initial': u_initial,
-            'x_boundary': x_boundary, 'y_boundary': y_boundary,
-            'z_boundary': z_boundary, 't_boundary': t_boundary, 'u_boundary': u_boundary,
-            'x_data': x_data, 'y_data': y_data,
-            'z_data': z_data, 't_data': t_data, 'u_data': u_data
-        }
-        
-        n_data_actual = len(x_data)
-        print(f"トレーニングサンプル数: {n_samples}")
-        print(f"  - 内部点（PDE）: {n_interior}")
-        print(f"  - 初期条件: {n_initial}")
-        print(f"  - 境界条件: {n_boundary}")
-        print(f"  - データ点: {n_data_actual}")
-        
-        # コスト関数（改良版）
-        def cost_function(all_params):
-            # パラメータの分離
-            weights = all_params[:self.n_params]
-            feature_scales = all_params[self.n_params:self.n_params + 8]
-            output_scale = all_params[-4]
-            output_bias = all_params[-3]
-            spatial_decay = all_params[-2]
-            time_scale = all_params[-1]
-            
-            self.weights = weights
-            self.feature_scales = qml.numpy.abs(feature_scales) + 0.1
-            self.output_scale = qml.numpy.abs(output_scale) + 0.1
-            self.output_bias = qml.numpy.abs(output_bias)  # 非負制約
-            self.spatial_decay = qml.numpy.abs(spatial_decay) + 0.5
-            self.time_scale = qml.numpy.abs(time_scale) + 0.1
-            
-            # 実機モードでは評価数を減らす
-            reduction_factor = 2 if self.is_hardware else 1
-            
-            # 1. PDE損失
-            pde_loss = 0.0
-            n_pde_eval = min(20 // reduction_factor, n_interior)
-            pde_indices = np.random.choice(n_interior, n_pde_eval, replace=False)
-            for i in pde_indices:
-                residual = self.compute_pde_residual(
-                    x_interior[i], y_interior[i], z_interior[i], t_interior[i]
-                )
-                pde_loss = pde_loss + residual ** 2
-            pde_loss = pde_loss / n_pde_eval
-            
-            # 2. 初期条件損失（最重要）
-            initial_loss = 0.0
-            n_ic_eval = min(50 // reduction_factor, n_initial)  # 増加
-            ic_indices = np.random.choice(n_initial, n_ic_eval, replace=False)
-            for i in ic_indices:
-                u_pred = self.forward(x_initial[i], y_initial[i], z_initial[i], t_initial[i])
-                initial_loss = initial_loss + (u_pred - u_initial[i]) ** 2
-            initial_loss = initial_loss / n_ic_eval
-            
-            # 3. 境界条件損失
-            boundary_loss = 0.0
-            n_bc_eval = min(20 // reduction_factor, n_boundary)
-            bc_indices = np.random.choice(n_boundary, n_bc_eval, replace=False)
-            for i in bc_indices:
-                u_pred = self.forward(x_boundary[i], y_boundary[i], z_boundary[i], t_boundary[i])
-                boundary_loss = boundary_loss + (u_pred - u_boundary[i]) ** 2
-            boundary_loss = boundary_loss / n_bc_eval
-            
-            # 4. データフィッティング損失
-            data_loss = 0.0
-            n_data_eval = min(50 // reduction_factor, n_data_actual)
-            if n_data_actual > 0:
-                data_indices = np.random.choice(n_data_actual, n_data_eval, replace=False)
-                for i in data_indices:
-                    u_pred = self.forward(x_data[i], y_data[i], z_data[i], t_data[i])
-                    data_loss = data_loss + (u_pred - u_data[i]) ** 2
-                data_loss = data_loss / n_data_eval
-            
-            # 正則化
-            reg = 0.0001 * qml.numpy.sum(weights ** 2)
-            
-            # 総損失（重みを調整）
-            total_loss = 0.1 * pde_loss + 500.0 * initial_loss + 5.0 * boundary_loss + 200.0 * data_loss + reg
-            
-            return total_loss
-        
-        # 詳細な損失成分を計算する関数
-        def compute_detailed_losses(all_params):
-            # パラメータの分離
-            weights = all_params[:self.n_params]
-            feature_scales = all_params[self.n_params:self.n_params + 8]
-            output_scale = all_params[-4]
-            output_bias = all_params[-3]
-            spatial_decay = all_params[-2]
-            time_scale = all_params[-1]
-            
-            self.weights = weights
-            self.feature_scales = qml.numpy.abs(feature_scales) + 0.1
-            self.output_scale = qml.numpy.abs(output_scale) + 0.1
-            self.output_bias = qml.numpy.abs(output_bias)
-            self.spatial_decay = qml.numpy.abs(spatial_decay) + 0.5
-            self.time_scale = qml.numpy.abs(time_scale) + 0.1
-            
-            # 各損失成分を計算
-            losses = {}
-            
-            # PDE損失
-            pde_loss = 0.0
-            for i in range(min(30, n_interior)):
-                residual = self.compute_pde_residual(
-                    x_interior[i], y_interior[i], z_interior[i], t_interior[i]
-                )
-                pde_loss += residual ** 2
-            losses['pde'] = to_python_float(pde_loss / min(30, n_interior))
-            
-            # 初期条件損失
-            initial_loss = 0.0
-            for i in range(min(50, n_initial)):
-                u_pred = self.forward(x_initial[i], y_initial[i], z_initial[i], t_initial[i])
-                initial_loss += (u_pred - u_initial[i]) ** 2
-            losses['initial'] = to_python_float(initial_loss / min(50, n_initial))
-            
-            # 境界条件損失
-            boundary_loss = 0.0
-            for i in range(min(30, n_boundary)):
-                u_pred = self.forward(x_boundary[i], y_boundary[i], z_boundary[i], t_boundary[i])
-                boundary_loss += (u_pred - u_boundary[i]) ** 2
-            losses['boundary'] = to_python_float(boundary_loss / min(30, n_boundary))
-            
-            # データ損失
-            data_loss = 0.0
-            if n_data_actual > 0:
-                for i in range(min(50, n_data_actual)):
-                    u_pred = self.forward(x_data[i], y_data[i], z_data[i], t_data[i])
-                    data_loss += (u_pred - u_data[i]) ** 2
-                losses['data'] = to_python_float(data_loss / min(50, n_data_actual))
-            else:
-                losses['data'] = 0.0
-                
-            return losses
-        
-        # すべてのパラメータを結合
-        all_params = qml.numpy.concatenate([
-            self.weights,
-            self.feature_scales,
-            qml.numpy.array([self.output_scale]),
-            qml.numpy.array([self.output_bias]),
-            qml.numpy.array([self.spatial_decay]),
-            qml.numpy.array([self.time_scale])
-        ])
-        
-        # ハイブリッド最適化戦略
-        best_params = qml.numpy.copy(all_params)
-        best_loss = float('inf')
-        
-        # フェーズ1: SPSA（大域的探索、ノイズ耐性）
-        if self.is_hardware or qnn_epochs > 300:
-            print("\nフェーズ1: SPSA最適化（大域的探索）")
-            spsa_opt = qml.SPSAOptimizer(maxiter=100, c=0.1, a=0.05)  # パラメータ調整
-            self.optimizer_history.append("SPSA")
-            
-            for epoch in range(min(500, qnn_epochs // 3)):
-                try:
-                    all_params, cost = spsa_opt.step_and_cost(cost_function, all_params)
-                    
-                    if cost < best_loss:
-                        best_loss = cost
-                        best_params = qml.numpy.copy(all_params)
-                    
-                    self.loss_history.append(to_python_float(cost))
-                    
-                    if (epoch + 1) % 50 == 0:
-                        losses = compute_detailed_losses(all_params)
-                        print(f"SPSA Epoch [{epoch+1}], Loss: {to_python_float(cost):.6f}, "
-                              f"PDE Loss: {losses['pde']:.6f}, "
-                              f"IC Loss: {losses['initial']:.6f}, "
-                              f"BC Loss: {losses['boundary']:.6f}, "
-                              f"Ref Loss: {losses['data']:.6f}, "
-                              f"LR: SPSA")
-                        
-                        # 予測値の確認（SPSAでも追加）
-                        test_points = [(L/2, L/2, L/2, 0.0), 
-                                       (L/2, L/2, L/2, 0.5), 
-                                       (L/2, L/2, L/2, 1.0)]
-                        
-                        for x_test, y_test, z_test, t_test in test_points:
-                            u_pred = self.forward(x_test, y_test, z_test, t_test)
-                            u_true = analytical_solution(x_test, y_test, z_test, t_test)
-                            print(f"  Center at t={t_test:.1f}: True={u_true:.6f}, "
-                                  f"Pred={to_python_float(u_pred):.6f}")
-                        
-                except Exception as e:
-                    print(f"SPSA最適化エラー: {e}")
-                    continue
-        
-        # フェーズ2: Adam（安定した収束）
-        print("\nフェーズ2: Adam最適化（最終調整）")
-        adam_opt = qml.AdamOptimizer(stepsize=0.005)  # 学習率を下げる
-        self.optimizer_history.append("Adam")
-        
-        # 最良パラメータから開始
-        all_params = qml.numpy.copy(best_params)
-        patience = 0
-        max_patience = 300
-        
-        remaining_epochs = qnn_epochs - len(self.loss_history)
-        
-        for epoch in range(remaining_epochs):
-            if epoch > 200 and epoch % 300 == 0:
-                adam_opt.stepsize *= 0.8
-            
+        for x_test, y_test, z_test, t_test in test_points[:4]:  # 主要な点のみ表示
             try:
-                # 勾配クリッピングを追加
-                grads = qml.grad(cost_function)(all_params)
-                grad_norm = qml.numpy.linalg.norm(grads)
-                if grad_norm > 1.0:
-                    grads = grads / grad_norm
-                
-                # 手動でパラメータ更新
-                all_params = all_params - adam_opt.stepsize * grads
-                cost = cost_function(all_params)
-                
-                # パラメータ更新
-                self.weights = all_params[:self.n_params]
-                self.feature_scales = qml.numpy.abs(all_params[self.n_params:self.n_params + 8]) + 0.1
-                self.output_scale = qml.numpy.abs(all_params[-4]) + 0.1
-                self.output_bias = qml.numpy.abs(all_params[-3])
-                self.spatial_decay = qml.numpy.abs(all_params[-2]) + 0.5
-                self.time_scale = qml.numpy.abs(all_params[-1]) + 0.1
-                
-                self.loss_history.append(to_python_float(cost))
-                
-                if cost < best_loss:
-                    best_loss = cost
-                    best_params = qml.numpy.copy(all_params)
-                    patience = 0
-                else:
-                    patience += 1
-                
+                u_pred = self.forward(x_test, y_test, z_test, t_test)
+                u_true = analytical_solution(x_test, y_test, z_test, t_test)
+                error = abs(to_python_float(u_pred) - u_true)
+                print(f"  t={t_test:.1f}: True={u_true:.6f}, "
+                      f"Pred={to_python_float(u_pred):.6f}, Error={error:.6f}")
             except Exception as e:
-                print(f"Adam最適化エラー: {e}")
-                continue
-            
-            # 進捗報告
-            if (epoch + 1) % 100 == 0 or epoch < 10:
-                losses = compute_detailed_losses(all_params)
-                print(f"Adam Epoch [{epoch+1}/{remaining_epochs}], Loss: {to_python_float(cost):.6f}, "
-                      f"PDE Loss: {losses['pde']:.6f}, "
-                      f"IC Loss: {losses['initial']:.6f}, "
-                      f"BC Loss: {losses['boundary']:.6f}, "
-                      f"Ref Loss: {losses['data']:.6f}, "
-                      f"LR: {adam_opt.stepsize:.4f}")
-                
-                # 予測値の確認
-                test_points = [(L/2, L/2, L/2, 0.0), 
-                               (L/2, L/2, L/2, 0.5), 
-                               (L/2, L/2, L/2, 1.0)]
-                
-                for x_test, y_test, z_test, t_test in test_points:
-                    u_pred = self.forward(x_test, y_test, z_test, t_test)
-                    u_true = analytical_solution(x_test, y_test, z_test, t_test)
-                    print(f"  Center at t={t_test:.1f}: True={u_true:.6f}, "
-                          f"Pred={to_python_float(u_pred):.6f}")
-            
-            if patience >= max_patience:
-                print(f"早期停止: epoch {epoch+1}")
-                break
-        
-        # フェーズ3: Rotosolve（最終精密調整、実機向け）
-        if self.is_hardware and len(self.loss_history) < qnn_epochs:
-            print("\nフェーズ3: Rotosolve最適化（パラメータ単位の最適化）")
-            self.optimizer_history.append("Rotosolve")
-            
-            # 最良パラメータから開始
-            all_params = qml.numpy.copy(best_params)
-            
-            # 重要なパラメータのみを選択的に最適化
-            important_params = list(range(0, self.n_params, 10))  # 10個おきに選択
-            
-            for param_idx in important_params[:10]:  # 最大10パラメータ
-                try:
-                    all_params = self._rotosolve_update(all_params, param_idx, cost_function)
-                    cost = cost_function(all_params)
-                    
-                    if cost < best_loss:
-                        best_loss = cost
-                        best_params = qml.numpy.copy(all_params)
-                    
-                    self.loss_history.append(to_python_float(cost))
-                    
-                    if (param_idx + 1) % 5 == 0:
-                        losses = compute_detailed_losses(all_params)
-                        print(f"Rotosolve: パラメータ {param_idx} 最適化完了, Loss: {to_python_float(cost):.6f}, "
-                              f"PDE Loss: {losses['pde']:.6f}, "
-                              f"IC Loss: {losses['initial']:.6f}, "
-                              f"BC Loss: {losses['boundary']:.6f}, "
-                              f"Ref Loss: {losses['data']:.6f}, "
-                              f"LR: Rotosolve")
-                        
-                        # 予測値の確認（Rotosolveでも追加）
-                        test_points = [(L/2, L/2, L/2, 0.0), 
-                                       (L/2, L/2, L/2, 0.5), 
-                                       (L/2, L/2, L/2, 1.0)]
-                        
-                        for x_test, y_test, z_test, t_test in test_points:
-                            u_pred = self.forward(x_test, y_test, z_test, t_test)
-                            u_true = analytical_solution(x_test, y_test, z_test, t_test)
-                            print(f"  Center at t={t_test:.1f}: True={u_true:.6f}, "
-                                  f"Pred={to_python_float(u_pred):.6f}")
-                    
-                except Exception as e:
-                    print(f"Rotosolve最適化エラー: {e}")
-                    continue
-        
-        # ベストパラメータを使用
-        self.weights = best_params[:self.n_params]
-        self.feature_scales = qml.numpy.abs(best_params[self.n_params:self.n_params + 8]) + 0.1
-        self.output_scale = qml.numpy.abs(best_params[-4]) + 0.1
-        self.output_bias = qml.numpy.abs(best_params[-3])
-        self.spatial_decay = qml.numpy.abs(best_params[-2]) + 0.5
-        self.time_scale = qml.numpy.abs(best_params[-1]) + 0.1
-        
-        training_time = time.time() - start_time
-        print(f"\n量子モデルのトレーニング完了。時間: {training_time:.2f}秒")
-        print(f"使用した最適化器: {' → '.join(self.optimizer_history)}")
-        print(f"最終損失: {best_loss:.6f}")
-        
-        return self.weights, self.loss_history, training_time
+                print(f"  予測エラー at t={t_test:.1f}: {e}")
     
     def evaluate(self) -> np.ndarray:
-        """量子モデルの評価"""
+        """モデルの評価（並列処理対応）"""
         print("量子モデルの評価中...")
+        print(f"並列処理: {'有効' if self.use_parallel else '無効'}")
         
         # グリッドデータ
         x = np.linspace(0, L, nx)
@@ -1351,31 +1946,56 @@ class PhysicsInformedQuantumNN:
         Z_flat = Z.flatten()
         T_flat = T_mesh.flatten()
         
+        # 評価ポイントの作成
+        eval_points = [
+            TrainingPoint(X_flat[i], Y_flat[i], Z_flat[i], T_flat[i], type='eval')
+            for i in range(len(X_flat))
+        ]
+        
         u_pred = np.zeros_like(X_flat)
         
-        # 評価
-        batch_size = 100
-        n_batches = len(X_flat) // batch_size + (1 if len(X_flat) % batch_size != 0 else 0)
-        
-        for batch_idx in range(n_batches):
-            start_idx = batch_idx * batch_size
-            end_idx = min(start_idx + batch_size, len(X_flat))
+        # 並列処理を使用
+        if self.use_parallel:
+            print("並列評価を実行中...")
             
-            for i in range(start_idx, end_idx):
-                try:
-                    pred_val = self.forward(X_flat[i], Y_flat[i], Z_flat[i], T_flat[i])
-                    u_pred[i] = to_python_float(pred_val)
-                except:
-                    u_pred[i] = 0.0
+            batch_size = max(100, self.n_parallel_devices * 20)
+            n_batches = len(eval_points) // batch_size + (1 if len(eval_points) % batch_size != 0 else 0)
             
-            if (batch_idx + 1) % 20 == 0:
-                progress = end_idx / len(X_flat) * 100
-                print(f"評価進捗: {progress:.1f}%")
+            for batch_idx in range(n_batches):
+                start_idx = batch_idx * batch_size
+                end_idx = min(start_idx + batch_size, len(eval_points))
+                
+                batch_points = eval_points[start_idx:end_idx]
+                predictions = self.forward_batch_parallel(batch_points)
+                
+                for i, pred in enumerate(predictions):
+                    u_pred[start_idx + i] = to_python_float(pred)
+                
+                if (batch_idx + 1) % 10 == 0:
+                    progress = end_idx / len(eval_points) * 100
+                    print(f"評価進捗: {progress:.1f}%")
+        else:
+            # 通常の評価
+            print("逐次評価を実行中...")
+            
+            for i, point in enumerate(eval_points):
+                u_pred[i] = to_python_float(
+                    self.forward(point.x, point.y, point.z, point.t)
+                )
+                
+                if (i + 1) % 1000 == 0:
+                    progress = (i + 1) / len(eval_points) * 100
+                    print(f"評価進捗: {progress:.1f}%")
         
         return np.clip(u_pred, 0, None)
+    
+    def __del__(self):
+        """デストラクタ"""
+        if hasattr(self, 'process_pool'):
+            self.process_pool.shutdown(wait=True)
 
 #================================================
-# 解析解の計算（変更なし）
+# 可視化と評価関数（変更なし）
 #================================================
 def compute_analytical_solution() -> np.ndarray:
     """解析解を計算する"""
@@ -1400,9 +2020,6 @@ def compute_analytical_solution() -> np.ndarray:
     
     return u_analytical
 
-#================================================
-# 結果の評価と可視化（変更なし）
-#================================================
 def calculate_metrics(u_pred: np.ndarray, u_true: np.ndarray) -> Tuple[float, float]:
     """精度メトリクスを計算"""
     u_pred = np.nan_to_num(u_pred, nan=0.0, posinf=0.0, neginf=0.0)
@@ -1412,8 +2029,9 @@ def calculate_metrics(u_pred: np.ndarray, u_true: np.ndarray) -> Tuple[float, fl
     rel_l2 = np.sqrt(np.sum((u_pred - u_true) ** 2)) / np.sqrt(np.sum(u_true ** 2) + 1e-10)
     return mse, rel_l2
 
-def visualize_results(results_dir:str, u_pinn: np.ndarray, u_qnn: np.ndarray, u_analytical: np.ndarray, 
-                     label_qnn: str = "QPINN") -> None:
+def visualize_results(results_dir: str, u_pinn: np.ndarray, u_qnn: np.ndarray, 
+                     u_analytical: np.ndarray, label_qnn: str = "QPINN",
+                     qsolver=None) -> None:
     """結果を可視化"""
     print("結果を可視化中...")
     
@@ -1468,7 +2086,7 @@ def visualize_results(results_dir:str, u_pinn: np.ndarray, u_qnn: np.ndarray, u_
         fig.colorbar(im3, ax=axes[i, 2])
     
     plt.tight_layout()
-    plt.savefig(results_dir + 'heat_equation_comparison_improved.png', dpi=150, bbox_inches='tight')
+    plt.savefig(results_dir + 'heat_equation_comparison_spsa.png', dpi=150, bbox_inches='tight')
     plt.close()
     
     # 1Dプロファイル比較
@@ -1492,7 +2110,7 @@ def visualize_results(results_dir:str, u_pinn: np.ndarray, u_qnn: np.ndarray, u_
         axes[i].set_ylim(bottom=0)
     
     plt.tight_layout()
-    plt.savefig(results_dir + 'heat_equation_profile_comparison_improved.png', dpi=150, bbox_inches='tight')
+    plt.savefig(results_dir + 'heat_equation_profile_comparison_spsa.png', dpi=150, bbox_inches='tight')
     plt.close()
     
     # 誤差の時間発展
@@ -1534,10 +2152,10 @@ def visualize_results(results_dir:str, u_pinn: np.ndarray, u_qnn: np.ndarray, u_
     ax2.grid(True)
     
     plt.tight_layout()
-    plt.savefig(results_dir + 'heat_equation_error_comparison_improved.png', dpi=150, bbox_inches='tight')
+    plt.savefig(results_dir + 'heat_equation_error_comparison_spsa.png', dpi=150, bbox_inches='tight')
     plt.close()
     
-    # トレーニング損失と最適化器の変遷（修正版）
+    # トレーニング損失の可視化
     try:
         fig, ax = plt.subplots(figsize=(10, 6))
         
@@ -1545,37 +2163,33 @@ def visualize_results(results_dir:str, u_pinn: np.ndarray, u_qnn: np.ndarray, u_
             ax.semilogy(range(1, len(pinn_losses) + 1), pinn_losses, 'b-', label='PINN')
         
         if hasattr(qsolver, 'loss_history') and len(qsolver.loss_history) > 0:
-            ax.semilogy(range(1, len(qsolver.loss_history) + 1), qsolver.loss_history, 'r-', label=label_qnn)
-            
-            # 最適化器の変更点をマーク（正確な位置）
-            if hasattr(qsolver, 'optimizer_history') and hasattr(qsolver, 'optimizer_epochs'):
-                for i in range(1, len(qsolver.optimizer_epochs)):
-                    change_epoch = qsolver.optimizer_epochs[i]
-                    opt_name = qsolver.optimizer_history[i]
-                    ax.axvline(x=change_epoch, color='gray', linestyle='--', alpha=0.5)
-                    ax.text(change_epoch, ax.get_ylim()[1] * 0.9, opt_name, rotation=90, va='top')
+            ax.semilogy(range(1, len(qsolver.loss_history) + 1), 
+                       qsolver.loss_history, 'r-', label=label_qnn)
         
         ax.set_xlabel('Epochs')
         ax.set_ylabel('Loss (log scale)')
-        ax.set_title('Training Loss Comparison with Optimizer Transitions')
+        ax.set_title('Training Loss Comparison')
         ax.legend()
         ax.grid(True)
         
         plt.tight_layout()
-        plt.savefig(results_dir + 'heat_equation_loss_comparison_improved.png', dpi=150, bbox_inches='tight')
+        plt.savefig(results_dir + 'heat_equation_loss_comparison_spsa.png', 
+                   dpi=150, bbox_inches='tight')
         plt.close()
-            
+        
     except Exception as e:
-        print(f"損失プロット作成中にエラー: {e}")
-#================================================
-# メイン関数
-#================================================
+        print(f"プロット作成中にエラー: {e}")
+
 def main():
     """メイン関数"""
     global pinn_losses, qsolver
     
-    print("3次元熱伝導方程式のPINNと物理制約付き量子機械学習による比較を開始します...")
+    print("3次元熱伝導方程式のPINN/QPINN比較を開始（PennyLane SPSA版）...")
     print(f"PennyLane version: {qml.__version__}")
+    print(f"PyTorch version: {torch.__version__}")
+    print(f"NumPy version: {np.__version__}")
+    print(f"利用可能なCPUコア数: {cpu_count()}")
+    print(f"並列デバイス数: {N_PARALLEL_DEVICES}")
     print()
     
     # 出力ディレクトリの作成
@@ -1587,37 +2201,38 @@ def main():
     pinn_model, pinn_losses, pinn_time = train_pinn()
     u_pinn = evaluate_pinn(pinn_model)
     
-    # 2. 物理制約付き量子機械学習モデルの学習と評価
-    print("\n=== 物理制約付き量子モデル (QPINN) ===")
+    # 2. 汎用量子機械学習モデルの学習と評価
+    print("\n=== 汎用量子モデル (General QPINN with Noise) ===")
     
-    # 実機モードのテスト（オプション）
-    use_hardware_mode = False  # True に設定すると実機モードをシミュレート
+    # 実機モードのテスト（default.mixed + ノイズモデル）
+    use_hardware_mode = True
     
     if use_hardware_mode:
-        # 実機向け設定
-        qsolver = PhysicsInformedQuantumNN(
-            n_qubits=6,  # 実機では少なめ
-            n_layers=3,  # 実機では浅め（さらに削減）
-            circuit_type='hardware_efficient',  # 実機向けの効率的な回路
-            entangling_strategy='all_to_all',
-            backend='lightning.qubit',
-            shots=1000,  # 実機のショット数
-            noise_model='depolarizing'  # ノイズモデル
+        # 実機向け設定（default.mixed + ノイズモデル）
+        qsolver = GeneralQuantumNN(
+            n_qubits=8,
+            n_layers=4,
+            use_architecture_search=True,
+            backend='default.mixed',
+            shots=5000,
+            noise_model='combined',  # 複合ノイズモデル
+            use_parallel=True,
+            n_parallel_devices=N_PARALLEL_DEVICES
         )
     else:
         # シミュレーション向け設定
-        qsolver = PhysicsInformedQuantumNN(
-            n_qubits=8,
-            n_layers=4,  # 6から4に削減
-            circuit_type='strongly_entangling',  # より表現力の高い回路
-            entangling_strategy='all_to_all',
+        qsolver = GeneralQuantumNN(
+            n_qubits=10,
+            n_layers=5,
+            use_architecture_search=False,
             backend='lightning.qubit',
-            shots=None,  # 解析的計算
-            noise_model=None
+            shots=None,
+            noise_model=None,
+            use_parallel=False
         )
     
     try:
-        _, qnn_losses, qnn_time = qsolver.train(n_samples=1500)
+        _, qnn_losses, qnn_time = qsolver.train(n_samples=3000)
         u_qnn = qsolver.evaluate()
         print(f"QPINNモデル評価完了。サイズ: {u_qnn.shape}")
     except Exception as e:
@@ -1637,12 +2252,30 @@ def main():
     
     print("\n===== 結果の比較 =====")
     print(f"PINN  - MSE: {mse_pinn:.6e}, Relative L2: {rel_l2_pinn:.6e}, Time: {pinn_time:.2f}秒")
-    print(f"QPINN - MSE: {mse_qnn:.6e}, Relative L2: {rel_l2_qnn:.6e}, Time: {qnn_time:.2f}秒")
+    
+    if use_hardware_mode:
+        label = "QPINN (Noisy, SPSA)"
+    else:
+        label = "QPINN (Simulation)"
+    print(f"{label} - MSE: {mse_qnn:.6e}, Relative L2: {rel_l2_qnn:.6e}, Time: {qnn_time:.2f}秒")
+    
+    # アーキテクチャ情報の表示
+    if hasattr(qsolver, 'architecture'):
+        print(f"\n使用された量子回路アーキテクチャ:")
+        print(f"  - タイプ: {qsolver.architecture.metadata}")
+        print(f"  - ゲート数: {len(qsolver.architecture.gate_sequence)}")
+        print(f"  - エンタングリングパターン: {qsolver.architecture.entangling_pattern}")
+        print(f"  - スコア: {qsolver.architecture.score:.4f}")
     
     # 5. 結果の可視化
     try:
-        visualize_results(results_dir, u_pinn, u_qnn, u_analytical, label_qnn="QPINN")
-        print("\n処理が完了しました。結果は画像ファイルに保存されています。")
+        visualize_results(results_dir, u_pinn, u_qnn, u_analytical, 
+                         label_qnn=label, qsolver=qsolver)
+        print("\n処理が完了しました。結果は以下のファイルに保存されています：")
+        print(f"  - heat_equation_comparison_spsa.png")
+        print(f"  - heat_equation_profile_comparison_spsa.png")
+        print(f"  - heat_equation_error_comparison_spsa.png")
+        print(f"  - heat_equation_loss_comparison_spsa.png")
     except Exception as e:
         print(f"可視化中にエラー: {str(e)}")
 
