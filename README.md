@@ -1,1 +1,1 @@
-# pinn-qpinn
+# pinn-qpinn v1.0.0
