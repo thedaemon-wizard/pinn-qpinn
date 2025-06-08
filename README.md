@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # GQE-GPT-QPINN: Generative Quantum Eigensolver with GPT for Quantum Physics-Informed Neural Networks
 
 ## Overview
