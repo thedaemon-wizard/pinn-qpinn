@@ -32,6 +32,8 @@ This repository implements a novel approach to solving the 3D heat equation usin
 
 - CMake≥ 3.25
 
+- CUDA≥12.6(If using GPU)
+
 - PyPl package
 
 ```
@@ -141,8 +143,8 @@ Output files(at results directory):
 ## Performance
 
 Typical performance characteristics:
-- **PINN**: ~100-200 seconds training time, MSE ~1e-5
-- **GQE-GPT-QPINN**: ~2-3 hours training time (with quantum simulation)
+- **PINN**: ~100-200 seconds training time(benchmark using CUDA with NVIDIA RTX A2000 12GB) , MSE ~1e-5
+- **GQE-GPT-QPINN**: ~1-2 hours training time (with quantum simulation and benchmark i5-13600K 4core CPU)
 - **RCGA Convergence**: 500 generations typical for good solutions
 
 ## Citation
