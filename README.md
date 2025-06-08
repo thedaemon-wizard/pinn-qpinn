@@ -176,8 +176,5 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Contact
 
-<<<<<<< HEAD
 For questions or issues, please open an issue on GitHub or contact.
-=======
-For questions or issues, please open an issue on GitHub or contact [your email].
->>>>>>> 42c5c1526bd26456bd45eb10abd2512ceffe9823
+
