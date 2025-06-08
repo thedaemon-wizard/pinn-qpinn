@@ -26,6 +26,13 @@ This repository implements a novel approach to solving the 3D heat equation usin
 - Python bindings via pybind11
 
 ## Requirements
+- Python ≥ 3.12
+
+- C++17 compiler (GCC ≥ 10 / Clang ≥ 12 / MSVC ≥ 19.3)
+
+- CMake≥ 3.25
+
+- PyPl package
 
 ```
 numpy>=2.2.6
@@ -35,6 +42,7 @@ pennylane>=0.41.1
 transformers>=4.52.0
 scipy>=1.15.0
 pybind11>=2.13.6
+setuptools>=80.7.0
 ```
 
 ## Installation
@@ -52,7 +60,7 @@ pip install -r requirements.txt
 
 ### 3. Build RCGA optimizer
 ```bash
-python setup.py build_ext --inplace
+pip install -U  . rcga_optimizer
 ```
 
 ## Usage
