@@ -1,6 +1,4 @@
-以下、量子回路可視化機能の追加に対応したREADME.mdの修正版です：
 
-```markdown
 # GQE-GPT-QPINN: Generative Quantum Eigensolver with GPT for Quantum Physics-Informed Neural Networks
 
 ## Overview
