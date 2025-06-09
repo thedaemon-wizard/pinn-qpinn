@@ -1,0 +1,205 @@
+{
+  "metadata": {
+    "timestamp": "2025-06-09 15:21:42",
+    "n_qubits": 6,
+    "backend": "default.mixed",
+    "shots": 1000,
+    "noise_model": "realistic",
+    "use_gpt": true,
+    "use_rcga": true
+  },
+  "circuit_template": {
+    "n_layers": 2,
+    "n_gates": 17,
+    "n_parameters": 12,
+    "entangling_pattern": "gpt_generated",
+    "noise_resilience_score": 0.8,
+    "hardware_efficiency": 0.85,
+    "expressivity_score": 0.8
+  },
+  "gate_sequence": [
+    {
+      "gate": "RY",
+      "qubits": [
+        0
+      ],
+      "trainable": true,
+      "param_idx": 0
+    },
+    {
+      "gate": "SWAP",
+      "qubits": [
+        4,
+        0
+      ],
+      "trainable": false,
+      "param_idx": null
+    },
+    {
+      "gate": "RY",
+      "qubits": [
+        3
+      ],
+      "trainable": true,
+      "param_idx": 1
+    },
+    {
+      "gate": "RY",
+      "qubits": [
+        2
+      ],
+      "trainable": true,
+      "param_idx": 2
+    },
+    {
+      "gate": "RY",
+      "qubits": [
+        3
+      ],
+      "trainable": true,
+      "param_idx": 3
+    },
+    {
+      "gate": "RY",
+      "qubits": [
+        5
+      ],
+      "trainable": true,
+      "param_idx": 4
+    },
+    {
+      "gate": "T",
+      "qubits": [
+        0
+      ],
+      "trainable": false,
+      "param_idx": null
+    },
+    {
+      "gate": "RY",
+      "qubits": [
+        1
+      ],
+      "trainable": true,
+      "param_idx": 5
+    },
+    {
+      "gate": "CNOT",
+      "qubits": [
+        2,
+        3
+      ],
+      "trainable": false,
+      "param_idx": null
+    },
+    {
+      "gate": "CNOT",
+      "qubits": [
+        3,
+        4
+      ],
+      "trainable": false,
+      "param_idx": null
+    },
+    {
+      "gate": "CNOT",
+      "qubits": [
+        4,
+        5
+      ],
+      "trainable": false,
+      "param_idx": null
+    },
+    {
+      "gate": "RY",
+      "qubits": [
+        0
+      ],
+      "trainable": true,
+      "param_idx": 6
+    },
+    {
+      "gate": "RY",
+      "qubits": [
+        1
+      ],
+      "trainable": true,
+      "param_idx": 7
+    },
+    {
+      "gate": "RY",
+      "qubits": [
+        2
+      ],
+      "trainable": true,
+      "param_idx": 8
+    },
+    {
+      "gate": "RY",
+      "qubits": [
+        3
+      ],
+      "trainable": true,
+      "param_idx": 9
+    },
+    {
+      "gate": "RY",
+      "qubits": [
+        4
+      ],
+      "trainable": true,
+      "param_idx": 10
+    },
+    {
+      "gate": "RY",
+      "qubits": [
+        4
+      ],
+      "trainable": true,
+      "param_idx": 11
+    }
+  ],
+  "parameter_map": {
+    "RY_gate_0": 0,
+    "RY_gate_2": 1,
+    "RY_gate_3": 2,
+    "RY_gate_4": 3,
+    "RY_gate_5": 4,
+    "RY_gate_7": 5,
+    "RY_gate_11": 6,
+    "RY_gate_12": 7,
+    "RY_gate_13": 8,
+    "RY_gate_14": 9,
+    "RY_gate_15": 10,
+    "RY_gate_16": 11
+  },
+  "optimized_parameters": {
+    "circuit_params": [
+      3.690501117516174,
+      0.3572848414934011,
+      -0.9102094653955894,
+      -0.2427906501656761,
+      -0.9464676926830614,
+      2.6199393243046076,
+      0.14760719923148163,
+      -0.6484247446886342,
+      1.983460520703722,
+      1.9909372863768373,
+      0.1961488042004469,
+      -1.1376375955388238
+    ],
+    "output_scale": 1.758009500102586,
+    "output_bias": -2.0,
+    "time_decay": 0.9715706745716927,
+    "spatial_decay": 0.0500539551817066,
+    "amplitude": 1.062911174310364,
+    "x_weight": 0.3418339970359789,
+    "correlation_weight": 0.6854237448666941
+  },
+  "gate_statistics": {
+    "RY": 12,
+    "SWAP": 1,
+    "T": 1,
+    "CNOT": 3
+  }
+}

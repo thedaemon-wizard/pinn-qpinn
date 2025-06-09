@@ -1,8 +1,11 @@
+以下、量子回路可視化機能の追加に対応したREADME.mdの修正版です：
+
+```markdown
 # GQE-GPT-QPINN: Generative Quantum Eigensolver with GPT for Quantum Physics-Informed Neural Networks
 
 ## Overview
 
-This repository implements a novel approach to solving the 3D heat equation using both classical Physics-Informed Neural Networks (PINNs) and Quantum Physics-Informed Neural Networks (QPINNs) enhanced with Generative Quantum Eigensolver (GQE) and GPT-based circuit generation. The quantum implementation features an innovative optimization strategy using Real-Coded Genetic Algorithm (RCGA).
+This repository implements a novel approach to solving the 3D heat equation using both classical Physics-Informed Neural Networks (PINNs) and Quantum Physics-Informed Neural Networks (QPINNs) enhanced with Generative Quantum Eigensolver (GQE) and GPT-based circuit generation. The quantum implementation features an innovative optimization strategy using Real-Coded Genetic Algorithm (RCGA) and comprehensive circuit visualization capabilities.
 
 ## Key Features
 
@@ -17,6 +20,7 @@ This repository implements a novel approach to solving the 3D heat equation usin
 - **Generative Quantum Eigensolver (GQE)**: Novel approach that optimizes circuit structure rather than just parameters
 - **Hardware-aware optimization**: Designed for real quantum devices with noise resilience
 - **Parallel quantum device simulation**: Efficient batch processing across multiple quantum devices
+- **Comprehensive Circuit Visualization**: Detailed quantum circuit diagrams and performance metrics
 
 ### 🧬 RCGA Optimization
 - **Real-Coded Genetic Algorithm** implemented in C++ for high performance
@@ -25,16 +29,18 @@ This repository implements a novel approach to solving the 3D heat equation usin
 - **JGG Selection**: Just Generation Gap selection strategy
 - Python bindings via pybind11
 
+### 📊 Visualization and Analysis
+- **Quantum Circuit Diagrams**: Visual representation of GQE-generated circuits
+- **Performance Metrics**: Radar charts for circuit characteristics
+- **Evolution Tracking**: RCGA optimization progress visualization
+- **Detailed Circuit Information**: JSON and text format circuit specifications
+
 ## Requirements
-- Python ≥ 3.12
-
-- C++17 compiler (GCC ≥ 10 / Clang ≥ 12 / MSVC ≥ 19.3)
-
-- CMake≥ 3.25
-
-- CUDA≥12.6(If using GPU)
-
-- PyPl package
+- Python ≥ 3.12
+- C++17 compiler (GCC ≥ 10 / Clang ≥ 12 / MSVC ≥ 19.3)
+- CMake ≥ 3.25
+- CUDA ≥ 12.6 (If using GPU)
+- PyPI packages:
 
 ```
 numpy>=2.2.6
@@ -52,7 +58,7 @@ setuptools>=80.7.0
 ### 1. Clone the repository
 ```bash
 git clone https://github.com/thedaemon-wizard/pinn-qpinn.git
-cd pinn-qpinn.git
+cd pinn-qpinn
 ```
 
 ### 2. Install Python dependencies
@@ -62,7 +68,7 @@ pip install -r requirements.txt
 
 ### 3. Build RCGA optimizer
 ```bash
-pip install -U  . rcga_optimizer
+pip install -U . rcga_optimizer
 ```
 
 ## Usage
@@ -105,6 +111,18 @@ qsolver = GQEQuantumPINN(
 )
 ```
 
+### Accessing Circuit Visualization
+```python
+# After training, visualize the quantum circuit
+circuit_image_path = qsolver.visualize_quantum_circuit('results/')
+
+# Save detailed circuit information
+json_path, summary_path = qsolver.save_circuit_information('results/')
+
+# Visualize circuit performance metrics
+metrics_path = qsolver.visualize_circuit_metrics('results/')
+```
+
 ## Implementation Details
 
 ### Heat Equation
@@ -118,12 +136,20 @@ with Dirichlet boundary conditions (u = 0 on all boundaries) and Gaussian initia
 1. **GPT Model**: Generates quantum circuit sequences as tokens
 2. **Circuit Templates**: Hardware-efficient ansätze with noise resilience
 3. **Adaptive Optimization**: Switches between RCGA, SPSA, and Adam based on hardware constraints
+4. **Circuit Evaluation**: Comprehensive metrics for noise resilience, hardware efficiency, and expressivity
 
 ### RCGA Implementation
 - **Population Size**: 50 individuals (configurable)
 - **REX Parameters**: ξ = 1.2 (expansion factor)
 - **JGG Parameters**: 3 parents, 10 offspring per generation
 - **Termination**: Maximum generations or convergence criteria
+
+### Circuit Visualization Features
+- **Gate-level circuit diagrams** with color-coded gate types
+- **Parameter annotations** for trainable gates
+- **Performance radar charts** showing multiple circuit metrics
+- **Gate distribution analysis** via pie charts
+- **RCGA evolution tracking** with fitness progression plots
 
 ## Results
 
@@ -133,19 +159,57 @@ The implementation produces:
 - Boundary condition satisfaction metrics
 - Training loss curves
 - Performance benchmarks
+- Quantum circuit diagrams and specifications
 
-Output files(at results directory):
+### Output Files (in results directory):
+
+#### Solution Comparison
 - `heat_equation_comparison_gqe_gpt.png`: Solution comparison
 - `heat_equation_profile_comparison_gqe_gpt.png`: 1D temperature profiles
 - `heat_equation_error_analysis_gqe_gpt.png`: Error metrics
 - `heat_equation_boundary_analysis_gqe_gpt.png`: Boundary condition analysis
 
+#### Quantum Circuit Information
+- `gqe_quantum_circuit.png`: Visual quantum circuit diagram
+- `gqe_circuit_text.txt`: PennyLane text representation
+- `gqe_circuit_info.json`: Detailed circuit specification in JSON
+- `gqe_circuit_summary.txt`: Human-readable circuit summary
+- `gqe_circuit_latex.tex`: LaTeX circuit description (for publications)
+- `gqe_circuit_metrics.png`: Circuit performance metrics visualization
+- `gqe_rcga_evolution.png`: RCGA optimization progress (if RCGA used)
+- `gpt_generation_history.json`: GPT model generation history
+
 ## Performance
 
 Typical performance characteristics:
-- **PINN**: ~100-200 seconds training time(benchmark using CUDA with NVIDIA RTX A2000 12GB) , MSE ~1e-5
+- **PINN**: ~100-200 seconds training time (benchmark using CUDA with NVIDIA RTX A2000 12GB), MSE ~1e-5
 - **GQE-GPT-QPINN**: ~1-2 hours training time (with quantum simulation and benchmark i5-13600K 4core CPU)
 - **RCGA Convergence**: 500 generations typical for good solutions
+- **Circuit Generation**: GPT model generates circuits with 20-50 gates typically
+
+## Circuit Information Output
+
+The implementation provides comprehensive circuit information in multiple formats:
+
+### JSON Format
+Contains complete circuit specification including:
+- Gate sequence with qubit assignments
+- Parameter mappings
+- Performance metrics
+- Hardware configuration
+
+### Text Summary
+Human-readable summary including:
+- Circuit statistics
+- Gate counts by type
+- Performance scores
+- Training results
+
+### Visual Outputs
+- Circuit diagram with gate representations
+- Performance radar chart
+- Gate distribution pie chart
+- Evolution progress plots (for RCGA)
 
 ## Citation
 
@@ -169,11 +233,24 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Based on the GQE algorithm proposed by Nakaji et al.
 - GPT architecture inspired by nanoGPT implementation
 - RCGA implementation follows standard real-coded genetic algorithm principles
+- Circuit visualization inspired by quantum circuit diagram standards
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Please feel free to submit a Pull Request. Areas of particular interest:
+- Additional circuit optimization strategies
+- Enhanced visualization features
+- Support for more quantum backends
+- Performance improvements
+
+## Troubleshooting
+
+### Common Issues
+
+1. **RCGA optimizer not available**: Ensure C++ compiler is properly installed and run the build command again
+2. **Circuit visualization errors**: Check matplotlib and required fonts are installed
+3. **Memory issues with large circuits**: Reduce batch size or use sequential evaluation
 
 ## Contact
 
-For questions or issues, please open an issue on GitHub or contact.
+For questions or issues, please open an issue on GitHub or contact the maintainers.
