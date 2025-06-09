@@ -1,0 +1,39 @@
+================================================================================
+GQE-GPT Quantum Circuit Summary
+================================================================================
+
+1. Circuit Configuration
+----------------------------------------
+  - Qubits: 6
+  - Total Gates: 17
+  - Trainable Parameters: 12
+  - Circuit Depth: 7
+  - Generation Method: GPT
+  - Optimization: RCGA
+
+2. Performance Metrics
+----------------------------------------
+  - Noise Resilience Score: 0.800
+  - Hardware Efficiency: 0.850
+  - Expressivity Score: 0.800
+
+3. Gate Statistics
+----------------------------------------
+  - CNOT: 3
+  - RY: 12
+  - SWAP: 1
+  - T: 1
+
+4. Hardware Constraints
+----------------------------------------
+  - Backend: default.mixed
+  - Shots: 1000
+  - Noise Model: realistic
+  - Parallel Devices: 4
+
+5. Training Statistics
+----------------------------------------
+  - Initial Loss: 5.374610
+  - Final Loss: 1.495804
+  - Improvement: 72.17%
+  - Total Epochs: 500

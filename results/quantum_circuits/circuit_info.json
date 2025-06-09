@@ -1,0 +1,176 @@
+{
+    "n_qubits": 6,
+    "depth": 18,
+    "n_params": 13,
+    "score": 0.7048888888888889,
+    "gate_sequence": [
+        {
+            "gate": "RY",
+            "qubits": [
+                0
+            ],
+            "param_idx": 0,
+            "trainable": true
+        },
+        {
+            "gate": "RY",
+            "qubits": [
+                1
+            ],
+            "param_idx": 1,
+            "trainable": true
+        },
+        {
+            "gate": "RY",
+            "qubits": [
+                5
+            ],
+            "param_idx": 2,
+            "trainable": true
+        },
+        {
+            "gate": "RY",
+            "qubits": [
+                2
+            ],
+            "param_idx": 3,
+            "trainable": true
+        },
+        {
+            "gate": "SWAP",
+            "qubits": [
+                4,
+                0
+            ],
+            "param_idx": null,
+            "trainable": false
+        },
+        {
+            "gate": "RY",
+            "qubits": [
+                2
+            ],
+            "param_idx": 4,
+            "trainable": true
+        },
+        {
+            "gate": "RY",
+            "qubits": [
+                3
+            ],
+            "param_idx": 5,
+            "trainable": true
+        },
+        {
+            "gate": "RY",
+            "qubits": [
+                2
+            ],
+            "param_idx": 6,
+            "trainable": true
+        },
+        {
+            "gate": "CNOT",
+            "qubits": [
+                1,
+                2
+            ],
+            "param_idx": null,
+            "trainable": false
+        },
+        {
+            "gate": "CNOT",
+            "qubits": [
+                2,
+                3
+            ],
+            "param_idx": null,
+            "trainable": false
+        },
+        {
+            "gate": "CNOT",
+            "qubits": [
+                3,
+                4
+            ],
+            "param_idx": null,
+            "trainable": false
+        },
+        {
+            "gate": "CNOT",
+            "qubits": [
+                4,
+                5
+            ],
+            "param_idx": null,
+            "trainable": false
+        },
+        {
+            "gate": "RY",
+            "qubits": [
+                0
+            ],
+            "param_idx": 7,
+            "trainable": true
+        },
+        {
+            "gate": "RY",
+            "qubits": [
+                1
+            ],
+            "param_idx": 8,
+            "trainable": true
+        },
+        {
+            "gate": "RY",
+            "qubits": [
+                2
+            ],
+            "param_idx": 9,
+            "trainable": true
+        },
+        {
+            "gate": "RY",
+            "qubits": [
+                3
+            ],
+            "param_idx": 10,
+            "trainable": true
+        },
+        {
+            "gate": "RY",
+            "qubits": [
+                4
+            ],
+            "param_idx": 11,
+            "trainable": true
+        },
+        {
+            "gate": "RY",
+            "qubits": [
+                5
+            ],
+            "param_idx": 12,
+            "trainable": true
+        }
+    ],
+    "parameter_map": {
+        "RY_gate_0": 0,
+        "RY_gate_1": 1,
+        "RY_gate_2": 2,
+        "RY_gate_3": 3,
+        "RY_gate_5": 4,
+        "RY_gate_6": 5,
+        "RY_gate_7": 6,
+        "RY_gate_12": 7,
+        "RY_gate_13": 8,
+        "RY_gate_14": 9,
+        "RY_gate_15": 10,
+        "RY_gate_16": 11,
+        "RY_gate_17": 12
+    },
+    "metrics": {
+        "round": 2,
+        "method": "gpt"
+    }
+}
