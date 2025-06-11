@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+import csv
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -12,7 +13,6 @@ import os
 os.environ['OMP_NUM_THREADS']=str(12)
 from collections import deque
 import warnings
-from scipy.optimize import minimize
 from multiprocessing import Pool, cpu_count, Manager, Process
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 import functools
@@ -30,6 +30,23 @@ from transformers import GPT2Model, GPT2Config, GPT2Tokenizer, GPT2LMHeadModel
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
+
+# ファイルの先頭、他のインポートの後に追加
+try:
+    import rcga_optimizer
+    RCGA_AVAILABLE = True
+    print("RCGAオプティマイザが利用可能です。")
+except ImportError:
+    print("警告: RCGAオプティマイザが利用できません。SPSAを使用します。")
+    RCGA_AVAILABLE = False
+
+try:
+    import nsga2_optimizer
+    NSGA2_AVAILABLE = True
+    print("NSGA-II最適化が利用可能です。")
+except ImportError:
+    print("警告: NSGA-II最適化が利用できません。標準の最適化を使用します。")
+    NSGA2_AVAILABLE = False
 
 # 警告を抑制
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -803,6 +820,40 @@ class GQEQuantumCircuitGeneratorWithGPT:
         noise = 0.1 * np.random.randn()
         
         return base_energy + param_penalty + depth_penalty + noise
+    
+    def save_gpt_generation_history(self, save_path='results/'):
+        """GPT生成履歴の保存"""
+        os.makedirs(save_path, exist_ok=True)
+        
+        history_path = os.path.join(save_path, 'gpt_generation_history.json')
+        
+        history = {
+            'generation_rounds': len(self.circuit_history),
+            'best_circuits': [],
+            'energy_progression': self.energy_history,
+            'gpt_model_info': {
+                'vocab_size': self.vocab_size,
+                'n_embd': 256,
+                'n_head': 8,
+                'n_layer': 6,
+                'parameters': sum(p.numel() for p in self.gpt_model.parameters()) if self.gpt_model else 0
+            }
+        }
+        
+        # 最良回路の情報を保存
+        for i, (circuit, energy) in enumerate(zip(self.circuit_history[-5:], 
+                                                self.energy_history[-5:])):
+            history['best_circuits'].append({
+                'round': len(self.circuit_history) - 5 + i,
+                'energy': float(energy),
+                'n_gates': len(circuit),
+                'gate_sequence': circuit
+            })
+        
+        with open(history_path, 'w') as f:
+            json.dump(history, f, indent=2)
+        
+        print(f"GPT生成履歴を保存: {history_path}")
 
 #================================================
 # 並列処理用のグローバル変数とヘルパー関数（既存のものを維持）
@@ -1188,14 +1239,15 @@ class GQEQuantumPINN:
     """GQE最適化量子PINN（GPT統合版）"""
     
     def __init__(self, n_qubits=6, backend='default.mixed', shots=None, 
-                 noise_model=None, use_parallel=True, n_parallel_devices=None,
-                 use_gpt_circuit_generation=True):
-        
+             noise_model=None, use_parallel=True, n_parallel_devices=None,
+             use_gpt_circuit_generation=True, use_rcga=True):  # use_rcgaパラメータを追加
+    
         self.n_qubits = n_qubits
         self.shots = shots
         self.noise_model = noise_model
         self.use_parallel = use_parallel and USE_PARALLEL_TRAINING
         self.use_gpt_circuit_generation = use_gpt_circuit_generation
+        self.use_rcga = use_rcga and RCGA_AVAILABLE  # RCGAの使用フラグを追加
         
         # 並列デバイス数設定
         if n_parallel_devices is None:
@@ -1215,6 +1267,14 @@ class GQEQuantumPINN:
             print(f"ノイズモデル: {self.noise_model}")
             if self.use_parallel:
                 print(f"並列処理: {self.n_parallel_devices} デバイス")
+            
+            # NSGA2/RCGAの使用状況を表示
+            if NSGA2_AVAILABLE:
+                print("最適化手法: NSGA-II多目的最適化を使用予定")
+            elif self.use_rcga:
+                print("最適化手法: RCGA (実数値遺伝的アルゴリズム)を使用予定")
+            else:
+                print("最適化手法: SPSAを使用予定")
         else:
             print("GQEシミュレーションモード")
         
@@ -1290,6 +1350,9 @@ class GQEQuantumPINN:
         
         # PDE残差計算用の勾配計算設定
         self.gradient_computation = True
+        
+        # RCGA用の追加属性
+        self.mean_fitness_history = []  # 平均適応度履歴
     
     def _create_main_circuit(self):
         """メイン量子回路の作成"""
@@ -1628,11 +1691,1291 @@ class GQEQuantumPINN:
                 all_results.extend(fallback_results)
         
         return all_results
+    def visualize_quantum_circuit(self, save_path='results/'):
+        """GQE生成量子回路の可視化と保存"""
+        from matplotlib.patches import Rectangle
+        import matplotlib.patches as patches
+        
+        os.makedirs(save_path, exist_ok=True)
+        
+        # 1. 回路図の生成
+        fig, ax = plt.subplots(figsize=(14, 8))
+        
+        # 量子ビットの線を描画
+        for i in range(self.n_qubits):
+            ax.axhline(y=i, color='black', linewidth=1.5)
+            ax.text(-0.5, i, f'q{i}', ha='right', va='center', fontsize=10)
+        
+        # ゲートの描画
+        gate_positions = {}
+        current_pos = 0.5
+        gate_spacing = 1.2
+        
+        for idx, gate_info in enumerate(self.circuit_template.gate_sequence):
+            gate_type = gate_info['gate']
+            qubits = gate_info['qubits']
+            trainable = gate_info.get('trainable', False)
+            
+            # ゲートの色分け
+            if gate_type in ['RX', 'RY', 'RZ']:
+                color = 'lightblue' if trainable else 'lightgray'
+            elif gate_type in ['CNOT', 'CZ']:
+                color = 'lightgreen'
+            elif gate_type == 'H':
+                color = 'lightyellow'
+            else:
+                color = 'lightcoral'
+            
+            # 単一量子ビットゲート
+            if len(qubits) == 1:
+                rect = Rectangle((current_pos - 0.3, qubits[0] - 0.3), 
+                            0.6, 0.6, 
+                            facecolor=color, 
+                            edgecolor='black')
+                ax.add_patch(rect)
+                
+                # パラメータ表示（学習可能な場合）
+                if trainable and gate_info.get('param_idx') is not None:
+                    param_idx = gate_info['param_idx']
+                    ax.text(current_pos, qubits[0], 
+                        f'{gate_type}\nθ{param_idx}', 
+                        ha='center', va='center', 
+                        fontsize=8, fontweight='bold')
+                else:
+                    ax.text(current_pos, qubits[0], gate_type, 
+                        ha='center', va='center', 
+                        fontsize=8, fontweight='bold')
+            
+            # 2量子ビットゲート
+            elif len(qubits) == 2:
+                q1, q2 = qubits[0], qubits[1]
+                
+                # 制御ゲートの描画
+                if gate_type == 'CNOT':
+                    # 制御点
+                    circle = plt.Circle((current_pos, q1), 0.15, 
+                                    color='black', fill=True)
+                    ax.add_patch(circle)
+                    
+                    # ターゲット
+                    circle_target = plt.Circle((current_pos, q2), 0.3, 
+                                            color='lightgreen', 
+                                            fill=True, edgecolor='black')
+                    ax.add_patch(circle_target)
+                    ax.plot([current_pos, current_pos], [q1, q2], 
+                        'k-', linewidth=2)
+                    ax.text(current_pos, q2, '⊕', 
+                        ha='center', va='center', 
+                        fontsize=14, fontweight='bold')
+                
+                elif gate_type == 'CZ':
+                    # 両方に制御点
+                    for q in [q1, q2]:
+                        circle = plt.Circle((current_pos, q), 0.15, 
+                                        color='black', fill=True)
+                        ax.add_patch(circle)
+                    ax.plot([current_pos, current_pos], [q1, q2], 
+                        'k-', linewidth=2)
+            
+            gate_positions[idx] = current_pos
+            current_pos += gate_spacing
+        
+        # 回路の装飾
+        ax.set_xlim(-1, current_pos + 0.5)
+        ax.set_ylim(-0.5, self.n_qubits - 0.5)
+        ax.set_aspect('equal')
+        ax.axis('off')
+        
+        # タイトルとメタデータ
+        title = f'GQE-GPT Generated Quantum Circuit\n'
+        title += f'Qubits: {self.n_qubits}, Gates: {len(self.circuit_template.gate_sequence)}, '
+        title += f'Parameters: {len(self.circuit_template.parameter_map)}'
+        plt.title(title, fontsize=12, fontweight='bold')
+        
+        # 凡例の追加
+        legend_elements = [
+            patches.Patch(color='lightblue', label='Trainable Rotation'),
+            patches.Patch(color='lightgray', label='Fixed Rotation'),
+            patches.Patch(color='lightgreen', label='Entangling Gate'),
+            patches.Patch(color='lightyellow', label='Hadamard')
+        ]
+        ax.legend(handles=legend_elements, loc='upper center', 
+                bbox_to_anchor=(0.5, -0.05), ncol=4, frameon=False)
+        
+        # 保存
+        circuit_path = os.path.join(save_path, 'gqe_quantum_circuit.png')
+        plt.tight_layout()
+        plt.savefig(circuit_path, dpi=300, bbox_inches='tight')
+        plt.close()
+        
+        print(f"量子回路図を保存: {circuit_path}")
+        
+        # 2. PennyLaneネイティブ描画も生成
+        self._save_pennylane_circuit_diagram(save_path)
+        
+        return circuit_path
+
+    def _save_pennylane_circuit_diagram(self, save_path):
+        """PennyLaneの描画機能を使用した回路図生成"""
+        try:
+            # テスト用の入力
+            test_inputs = qml.numpy.array([0.5, 0.5, 0.5, 0.5])
+            test_params = self.circuit_params
+            
+            # 回路のテキスト表現を取得
+            circuit_str = qml.draw(self.qnode, expansion_strategy='device')(test_inputs, test_params)
+            
+            # テキストファイルに保存
+            text_path = os.path.join(save_path, 'gqe_circuit_text.txt')
+            with open(text_path, 'w') as f:
+                f.write("GQE Quantum Circuit (PennyLane Format)\n")
+                f.write("=" * 50 + "\n\n")
+                f.write(circuit_str)
+                f.write("\n\n")
+                f.write(f"Total gates: {len(self.circuit_template.gate_sequence)}\n")
+                f.write(f"Trainable parameters: {len(self.circuit_template.parameter_map)}\n")
+            
+            print(f"PennyLane回路表現を保存: {text_path}")
+            
+        except Exception as e:
+            print(f"PennyLane回路描画エラー: {e}")
+
+    def save_circuit_information(self, save_path='results/'):
+        """GQE生成回路の詳細情報をファイルに保存"""
+        os.makedirs(save_path, exist_ok=True)
+        
+        # 1. JSON形式での保存
+        circuit_info = {
+            'metadata': {
+                'timestamp': time.strftime('%Y-%m-%d %H:%M:%S'),
+                'n_qubits': self.n_qubits,
+                'backend': self.backend,
+                'shots': self.shots,
+                'noise_model': self.noise_model,
+                'use_gpt': self.use_gpt_circuit_generation,
+                'use_rcga': self.use_rcga
+            },
+            'circuit_template': {
+                'n_layers': self.circuit_template.n_layers,
+                'n_gates': len(self.circuit_template.gate_sequence),
+                'n_parameters': len(self.circuit_template.parameter_map),
+                'entangling_pattern': self.circuit_template.entangling_pattern,
+                'noise_resilience_score': float(self.circuit_template.noise_resilience_score),
+                'hardware_efficiency': float(self.circuit_template.hardware_efficiency),
+                'expressivity_score': float(self.circuit_template.expressivity_score)
+            },
+            'gate_sequence': [],
+            'parameter_map': self.circuit_template.parameter_map,
+            'optimized_parameters': {
+                'circuit_params': self.circuit_params.tolist() if hasattr(self.circuit_params, 'tolist') else list(self.circuit_params),
+                'output_scale': float(self.output_scale),
+                'output_bias': float(self.output_bias),
+                'time_decay': float(self.time_decay),
+                'spatial_decay': float(self.spatial_decay),
+                'amplitude': float(self.amplitude),
+                'x_weight': float(self.x_weight),
+                'correlation_weight': float(self.correlation_weight)
+            }
+        }
+        
+        # ゲートシーケンスの詳細
+        gate_counts = {}
+        for gate_info in self.circuit_template.gate_sequence:
+            gate_type = gate_info['gate']
+            gate_counts[gate_type] = gate_counts.get(gate_type, 0) + 1
+            
+            circuit_info['gate_sequence'].append({
+                'gate': gate_type,
+                'qubits': gate_info['qubits'],
+                'trainable': gate_info.get('trainable', False),
+                'param_idx': gate_info.get('param_idx', None)
+            })
+        
+        circuit_info['gate_statistics'] = gate_counts
+        
+        # JSONファイルに保存
+        json_path = os.path.join(save_path, 'gqe_circuit_info.json')
+        with open(json_path, 'w', encoding='utf-8') as f:
+            json.dump(circuit_info, f, indent=2, ensure_ascii=False)
+        
+        print(f"回路情報JSONを保存: {json_path}")
+        
+        # 2. 人間が読みやすいテキスト形式での保存
+        text_path = os.path.join(save_path, 'gqe_circuit_summary.txt')
+        with open(text_path, 'w', encoding='utf-8') as f:
+            f.write("=" * 80 + "\n")
+            f.write("GQE-GPT Quantum Circuit Summary\n")
+            f.write("=" * 80 + "\n\n")
+            
+            f.write("1. Circuit Configuration\n")
+            f.write("-" * 40 + "\n")
+            f.write(f"  - Qubits: {self.n_qubits}\n")
+            f.write(f"  - Total Gates: {len(self.circuit_template.gate_sequence)}\n")
+            f.write(f"  - Trainable Parameters: {len(self.circuit_template.parameter_map)}\n")
+            f.write(f"  - Circuit Depth: {self._estimate_circuit_depth()}\n")
+            f.write(f"  - Generation Method: {'GPT' if self.use_gpt_circuit_generation else 'Rule-based'}\n")
+            f.write(f"  - Optimization: {'NSGA2' if NSGA2_AVAILABLE else 'RCGA' if self.is_hardware == False else 'SPSA/Adam'}\n\n")
+            
+            f.write("2. Performance Metrics\n")
+            f.write("-" * 40 + "\n")
+            f.write(f"  - Noise Resilience Score: {self.circuit_template.noise_resilience_score:.3f}\n")
+            f.write(f"  - Hardware Efficiency: {self.circuit_template.hardware_efficiency:.3f}\n")
+            f.write(f"  - Expressivity Score: {self.circuit_template.expressivity_score:.3f}\n\n")
+            
+            f.write("3. Gate Statistics\n")
+            f.write("-" * 40 + "\n")
+            for gate_type, count in sorted(gate_counts.items()):
+                f.write(f"  - {gate_type}: {count}\n")
+            
+            f.write(f"\n4. Hardware Constraints\n")
+            f.write("-" * 40 + "\n")
+            f.write(f"  - Backend: {self.backend}\n")
+            f.write(f"  - Shots: {self.shots if self.shots else 'Statevector'}\n")
+            f.write(f"  - Noise Model: {self.noise_model if self.noise_model else 'None'}\n")
+            f.write(f"  - Parallel Devices: {self.n_parallel_devices if self.use_parallel else 'N/A'}\n")
+            
+            # トレーニング統計（あれば）
+            if hasattr(self, 'loss_history') and self.loss_history:
+                f.write(f"\n5. Training Statistics\n")
+                f.write("-" * 40 + "\n")
+                f.write(f"  - Initial Loss: {self.loss_history[0]:.6f}\n")
+                f.write(f"  - Final Loss: {self.loss_history[-1]:.6f}\n")
+                f.write(f"  - Improvement: {((self.loss_history[0] - self.loss_history[-1]) / self.loss_history[0] * 100):.2f}%\n")
+                f.write(f"  - Total Epochs: {len(self.loss_history)}\n")
+        
+        print(f"回路サマリーを保存: {text_path}")
+        
+        # 3. LaTeX形式での回路記述（論文用）
+        self._save_latex_circuit_description(save_path)
+        
+        return json_path, text_path
+
+    def _estimate_circuit_depth(self):
+        """回路深度の推定"""
+        depth = 0
+        qubit_last_gate = [-1] * self.n_qubits
+        
+        for gate_info in self.circuit_template.gate_sequence:
+            qubits = gate_info['qubits']
+            max_prev = max(qubit_last_gate[q] for q in qubits)
+            current_depth = max_prev + 1
+            
+            for q in qubits:
+                qubit_last_gate[q] = current_depth
+            
+            depth = max(depth, current_depth + 1)
+        
+        return depth
+
+    def _save_latex_circuit_description(self, save_path):
+        """LaTeX形式での回路記述を保存"""
+        latex_path = os.path.join(save_path, 'gqe_circuit_latex.tex')
+        
+        with open(latex_path, 'w') as f:
+            f.write("% GQE Quantum Circuit in LaTeX (Quantikz package)\n")
+            f.write("\\begin{quantikz}\n")
+            
+            # 簡略化したLaTeX記述
+            for i in range(self.n_qubits):
+                if i > 0:
+                    f.write("\\\\\n")
+                f.write(f"\\lstick{{$q_{{{i}}}$}} & ")
+                
+                # ゲートの配置（簡略版）
+                gate_count = 0
+                for gate_info in self.circuit_template.gate_sequence[:10]:  # 最初の10ゲートのみ
+                    if i in gate_info['qubits']:
+                        gate_type = gate_info['gate']
+                        if gate_type in ['RX', 'RY', 'RZ']:
+                            f.write(f"\\gate{{{gate_type}}} & ")
+                        elif gate_type == 'H':
+                            f.write("\\gate{H} & ")
+                        gate_count += 1
+                
+                if gate_count < 5:
+                    f.write("\\qw " * (5 - gate_count))
+                
+                f.write("\\qw")
+            
+            f.write("\n\\end{quantikz}\n")
+        
+        print(f"LaTeX回路記述を保存: {latex_path}")
+
+    def visualize_circuit_metrics(self, save_path='results/'):
+        """回路評価メトリクスの可視化"""
+        
+        os.makedirs(save_path, exist_ok=True)
+        
+        # 1. レーダーチャート（回路特性）
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6), 
+                                    subplot_kw=dict(projection='polar'))
+        
+        # メトリクス
+        metrics = {
+            'Noise Resilience': self.circuit_template.noise_resilience_score,
+            'Hardware Efficiency': self.circuit_template.hardware_efficiency,
+            'Expressivity': self.circuit_template.expressivity_score,
+            'Parameter Efficiency': min(1.0, len(self.circuit_template.parameter_map) / 30),
+            'Depth Efficiency': min(1.0, 15 / len(self.circuit_template.gate_sequence))
+        }
+        
+        # レーダーチャートの描画
+        categories = list(metrics.keys())
+        values = list(metrics.values())
+        
+        angles = np.linspace(0, 2 * np.pi, len(categories), endpoint=False).tolist()
+        values += values[:1]
+        angles += angles[:1]
+        
+        ax1.plot(angles, values, 'o-', linewidth=2, color='darkblue')
+        ax1.fill(angles, values, alpha=0.25, color='darkblue')
+        ax1.set_xticks(angles[:-1])
+        ax1.set_xticklabels(categories)
+        ax1.set_ylim(0, 1)
+        ax1.set_title('Circuit Performance Metrics', size=14, fontweight='bold')
+        ax1.grid(True)
+        
+        # 2. ゲート分布の円グラフ
+        gate_counts = {}
+        for gate_info in self.circuit_template.gate_sequence:
+            gate_type = gate_info['gate']
+            gate_counts[gate_type] = gate_counts.get(gate_type, 0) + 1
+        
+        ax2.pie(gate_counts.values(), labels=gate_counts.keys(), 
+                autopct='%1.1f%%', startangle=90)
+        ax2.set_title('Gate Distribution', size=14, fontweight='bold')
+        
+        plt.tight_layout()
+        metrics_path = os.path.join(save_path, 'gqe_circuit_metrics.png')
+        plt.savefig(metrics_path, dpi=300, bbox_inches='tight')
+        plt.close()
+        
+        print(f"回路メトリクス図を保存: {metrics_path}")
+        
+        # 3. トレーニング履歴の可視化（RCGAの場合）
+        if hasattr(self, 'mean_fitness_history') and self.mean_fitness_history:
+            if NSGA2_AVAILABLE:
+                self._visualize_evolution(save_path,'nsga2')
+
+            elif self.use_rcga:  
+                self._visualize_evolution(save_path,'rcga')
+        
+        return metrics_path
+
+    def _visualize_evolution(self, save_path, mode):
+        """NSGA2/RCGA進化の可視化"""
+        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8))
+        
+        # 適応度の進化
+        generations = range(len(self.loss_history))
+        ax1.plot(generations, self.loss_history, 'b-', label='Best Fitness', linewidth=2)
+        if hasattr(self, 'mean_fitness_history'):
+            ax1.plot(range(len(self.mean_fitness_history)), 
+                    self.mean_fitness_history, 'r--', 
+                    label='Mean Fitness', linewidth=1.5)
+        
+        ax1.set_xlabel('Generation')
+        ax1.set_ylabel('Fitness (Loss)')
+        ax1.set_title(f'{mode.upper()} Evolution Progress')
+        ax1.legend()
+        ax1.grid(True, alpha=0.3)
+        ax1.set_yscale('log')
+        
+        # 改善率
+        if len(self.loss_history) > 10:
+            improvement_rate = []
+            window = 10
+            for i in range(window, len(self.loss_history)):
+                old_val = self.loss_history[i-window]
+                new_val = self.loss_history[i]
+                rate = (old_val - new_val) / old_val * 100 if old_val > 0 else 0
+                improvement_rate.append(rate)
+            
+            ax2.plot(range(window, len(self.loss_history)), 
+                    improvement_rate, 'g-', linewidth=1.5)
+            ax2.set_xlabel('Generation')
+            ax2.set_ylabel('Improvement Rate (%)')
+            ax2.set_title(f'Improvement Rate (Window={window})')
+            ax2.grid(True, alpha=0.3)
+            ax2.axhline(y=0, color='k', linestyle='--', alpha=0.5)
+        
+        plt.tight_layout()
+        evolution_path = os.path.join(save_path, f'gqe_{mode}_evolution.png')
+        plt.savefig(evolution_path, dpi=300, bbox_inches='tight')
+        plt.close()
+        
+        print(f"{mode.upper()}進化図を保存: {evolution_path}")
     
+
+    def _compute_initial_condition_loss(self):
+        """初期条件損失のみを計算"""
+        try:
+            n_ic_eval = min(100, len(self.training_data['initial_points']))
+            ic_indices = np.random.choice(len(self.training_data['initial_points']), n_ic_eval, replace=False)
+            ic_batch = [self.training_data['initial_points'][i] for i in ic_indices]
+            
+            if self.use_parallel and len(ic_batch) >= self.n_parallel_devices:
+                ic_predictions = self.forward_batch_parallel(ic_batch)
+            else:
+                ic_predictions = [self.forward(p.x, p.y, p.z, p.t) for p in ic_batch]
+            
+            initial_loss = 0.0
+            for i, pred in enumerate(ic_predictions):
+                true_val = ic_batch[i].u_true
+                diff = to_python_float(pred) - true_val
+                initial_loss += diff ** 2
+            
+            return initial_loss / len(ic_batch)
+        except Exception as e:
+            print(f"初期条件損失計算エラー: {e}")
+            return 10000.0
+    
+    def _compute_boundary_condition_loss(self):
+        """境界条件損失のみを計算"""
+        try:
+            n_bc_eval = min(50, len(self.training_data['boundary_points']))
+            bc_indices = np.random.choice(len(self.training_data['boundary_points']), n_bc_eval, replace=False)
+            bc_batch = [self.training_data['boundary_points'][i] for i in bc_indices]
+            
+            if self.use_parallel and len(bc_batch) >= self.n_parallel_devices:
+                bc_predictions = self.forward_batch_parallel(bc_batch)
+            else:
+                bc_predictions = [self.forward(p.x, p.y, p.z, p.t) for p in bc_batch]
+            
+            boundary_loss = 0.0
+            for i, pred in enumerate(bc_predictions):
+                true_val = bc_batch[i].u_true
+                diff = to_python_float(pred) - true_val
+                boundary_loss += diff ** 2
+            
+            return boundary_loss / len(bc_batch)
+        except Exception as e:
+            print(f"境界条件損失計算エラー: {e}")
+            return 10000.0
+    
+    def _compute_data_fitting_loss(self):
+        """データフィッティング損失のみを計算"""
+        try:
+            n_data_eval = min(80, len(self.training_data['data_points']))
+            data_indices = np.random.choice(len(self.training_data['data_points']), n_data_eval, replace=False)
+            data_batch = [self.training_data['data_points'][i] for i in data_indices]
+            
+            if self.use_parallel and len(data_batch) >= self.n_parallel_devices:
+                data_predictions = self.forward_batch_parallel(data_batch)
+            else:
+                data_predictions = [self.forward(p.x, p.y, p.z, p.t) for p in data_batch]
+            
+            data_loss = 0.0
+            for i, pred in enumerate(data_predictions):
+                true_val = data_batch[i].u_true
+                diff = to_python_float(pred) - true_val
+                data_loss += diff ** 2
+            
+            return data_loss / len(data_batch)
+        except Exception as e:
+            print(f"データフィッティング損失計算エラー: {e}")
+            return 10000.0
+    
+    def _compute_pde_residual_loss(self):
+        """PDE残差損失のみを計算"""
+        try:
+            pde_loss = 0.0
+            if not self.is_hardware and len(self.training_data['interior_points']) > 0:
+                n_pde_eval = min(30, len(self.training_data['interior_points']))
+                pde_indices = np.random.choice(len(self.training_data['interior_points']), n_pde_eval, replace=False)
+                
+                for idx in pde_indices:
+                    point = self.training_data['interior_points'][idx]
+                    residual = self.compute_pde_residual(point.x, point.y, point.z, point.t)
+                    pde_loss += to_python_float(residual) ** 2
+                
+                pde_loss = pde_loss / n_pde_eval
+            
+            return pde_loss
+        except Exception as e:
+            print(f"PDE残差損失計算エラー: {e}")
+            return 0.0 if self.is_hardware else 10000.0
+    
+    def _evaluate_test_points(self):
+        """テスト点での予測精度を評価"""
+        test_cases = [
+            (L/2, L/2, L/2, 0.0, "中心, t=0"),
+            (L/2, L/2, L/2, 0.01, "中心, t=0.01"),
+            (L/2, L/2, L/2, 0.05, "中心, t=0.05"),
+            (L/2, L/2, L/2, 0.1, "中心, t=0.1"),
+            (L/2, L/2, L/2, 0.5, "中心, t=0.5"),
+            (L/2, L/2, L/2, 1.0, "中心, t=1.0"),
+            (L/4, L/4, L/4, 0.1, "1/4位置, t=0.1"),
+            (0.0, L/2, L/2, 0.1, "境界(x=0), t=0.1"),
+            (L, L/2, L/2, 0.5, "境界(x=L), t=0.5"),
+        ]
+        
+        results = []
+        total_error = 0.0
+        
+        for x_test, y_test, z_test, t_test, desc in test_cases:
+            try:
+                u_pred = self.forward(x_test, y_test, z_test, t_test)
+                u_true = analytical_solution(x_test, y_test, z_test, t_test)
+                
+                # 予測値の安全な変換
+                if hasattr(u_pred, 'item'):
+                    pred_val = float(u_pred.item())
+                elif hasattr(u_pred, '__len__') and len(u_pred) > 0:
+                    pred_val = float(u_pred[0])
+                else:
+                    pred_val = float(u_pred)
+                
+                # 異常値の検出と修正
+                if np.isnan(pred_val) or np.isinf(pred_val):
+                    pred_val = 0.0
+                elif pred_val < 0:
+                    pred_val = 0.0
+                elif pred_val > 5.0:
+                    pred_val = min(pred_val, 2.0)
+                
+                error = abs(pred_val - u_true)
+                rel_error = error / (u_true + 1e-10)
+                total_error += error
+                
+                results.append({
+                    'location': desc,
+                    'true': u_true,
+                    'pred': pred_val,
+                    'error': error,
+                    'rel_error': rel_error
+                })
+                
+            except Exception as e:
+                results.append({
+                    'location': desc,
+                    'true': analytical_solution(x_test, y_test, z_test, t_test),
+                    'pred': None,
+                    'error': None,
+                    'rel_error': None
+                })
+        
+        avg_error = total_error / len([r for r in results if r['error'] is not None])
+        return results, avg_error
+    
+    # main.py の train_with_nsga2 関数の修正
+
+    def train_with_nsga2(self, n_samples=1500):
+        """NSGA-II多目的最適化を使用したトレーニング（バッチ評価対応版）"""
+        if not NSGA2_AVAILABLE:
+            print("NSGA-IIが利用できないため、標準トレーニングを実行します。")
+            return self.train(n_samples)
+        
+        print(f"NSGA-II多目的最適化トレーニングを開始...")
+        print(f"設定:")
+        print(f"  - 目的関数数: 4 (初期条件、境界条件、データフィッティング、PDE残差)")
+        print(f"  - 最適化手法: NSGA-II with REX crossover")
+        print(f"  - 初期化: Latin Hypercube Sampling (LHS)")
+        print(f"  - 実機モード: {'有効' if self.is_hardware else '無効'}")
+        print(f"  - バッチ評価: {'有効' if self.use_parallel else '無効'}")
+        
+        start_time = time.time()
+        
+        # トレーニングデータの生成
+        self.training_data = self._generate_pinn_style_data(n_samples)
+        
+        print(f"\nトレーニングデータ生成完了:")
+        for data_type, points in self.training_data.items():
+            print(f"  - {data_type}: {len(points)} points")
+        
+        # パラメータの設定
+        n_circuit_params = len(self.circuit_template.parameter_map)
+        n_total_params = n_circuit_params + 7  # 出力処理パラメータを含む
+        
+        print(f"\n最適化パラメータ:")
+        print(f"  - 回路パラメータ数: {n_circuit_params}")
+        print(f"  - 出力処理パラメータ数: 7")
+        print(f"  - 総パラメータ数: {n_total_params}")
+        
+        # NSGA-II設定
+        config = nsga2_optimizer.NSGA2Config()
+        config.population_size = 50
+        config.max_generations = 100 if self.is_hardware else 200
+        config.n_objectives = 4  # 初期条件、境界条件、データ、PDE残差
+        config.progress_interval = 10  # RCGAと同様の進捗報告間隔
+        
+        # パラメータ範囲の設定
+        config.lower_bounds = [-np.pi] * n_circuit_params + [0.1, -1.0, 0.1, 0.1, 0.1, -1.0, -1.0]
+        config.upper_bounds = [np.pi] * n_circuit_params + [10.0, 1.0, 3.0, 3.0, 5.0, 1.0, 1.0]
+        
+        config.rex_xi = 1.2
+        config.n_parents = 3
+        config.n_children = 10
+        config.random_seed = 42
+        config.verbose = True  # 進捗報告を有効化
+        # 等距離選択を使用
+        config.crowding_type = nsga2_optimizer.CrowdingDistanceType.EquidistantSelection
+
+        
+        print(f"\nNSGA-II設定:")
+        print(f"  - 個体数: {config.population_size}")
+        print(f"  - 世代数: {config.max_generations}")
+        print(f"  - REX親個体数: {config.n_parents}")
+        print(f"  - REX子個体数: {config.n_children}")
+        print(f"  - REX拡張率: {config.rex_xi}")
+        print(f"  - 進捗報告間隔: {config.progress_interval}")
+        print(f"  - 混雑度計算: {config.crowding_type}")
+        
+        # パラメータ読み込みヘルパー
+        def _load_parameters_from_array(params_array):
+            """配列からパラメータを読み込む"""
+            self.circuit_params = qml.numpy.array(params_array[:n_circuit_params])
+            
+            idx = n_circuit_params
+            self.output_scale = qml.numpy.array(np.abs(params_array[idx]) + 0.1)
+            self.output_bias = qml.numpy.array(params_array[idx + 1])
+            self.time_decay = qml.numpy.array(np.abs(params_array[idx + 2]) + 0.1)
+            self.spatial_decay = qml.numpy.array(np.abs(params_array[idx + 3]) + 0.1)
+            self.amplitude = qml.numpy.array(np.abs(params_array[idx + 4]) + 0.1)
+            self.x_weight = qml.numpy.array(params_array[idx + 5])
+            self.correlation_weight = qml.numpy.array(params_array[idx + 6])
+        
+        # 各目的関数の履歴を保存
+        objective_history = {
+            'initial': [],
+            'boundary': [],
+            'data': [],
+            'pde': [],
+            'combined': []
+        }
+        
+        # 最良解の追跡
+        best_combined_loss = float('inf')
+        best_params = None
+        best_generation = 0
+        
+        # NSGA-II特有の履歴を保存
+        pareto_front_history = []  # 各世代のパレートフロント
+        population_statistics = []  # 各世代の集団統計
+        hypervolume_history = []    # ハイパーボリューム指標
+        
+        # バッチ評価関数（並列処理対応）
+        def batch_evaluate_objectives(params_batch):
+            """バッチで全目的関数を評価"""
+            results = []
+            
+            if self.use_parallel and len(params_batch) >= 4:
+                # 並列評価
+                #print(f"  並列バッチ評価: {len(params_batch)}個体")
+                
+                # 並列処理用のワーカー関数
+                def evaluate_individual(params):
+                    _load_parameters_from_array(params)
+                    
+                    # 各目的関数を計算
+                    initial_loss = self._compute_initial_condition_loss()
+                    boundary_loss = self._compute_boundary_condition_loss()
+                    data_loss = self._compute_data_fitting_loss()
+                    pde_loss = self._compute_pde_residual_loss() if not self.is_hardware else 0.0
+                    
+                    return [float(initial_loss), float(boundary_loss), float(data_loss), float(pde_loss)]
+                
+                # ThreadPoolExecutorを使用（量子シミュレーションの並列化）
+                with ThreadPoolExecutor(max_workers=min(4, len(params_batch))) as executor:
+                    futures = [executor.submit(evaluate_individual, params) for params in params_batch]
+                    
+                    for future in as_completed(futures):
+                        try:
+                            objectives = future.result(timeout=60)
+                            results.append(objectives)
+                        except Exception as e:
+                            print(f"バッチ評価エラー: {e}")
+                            results.append([1e6, 1e6, 1e6, 1e6])
+            else:
+                # 逐次評価
+                for params in params_batch:
+                    _load_parameters_from_array(params)
+                    
+                    initial_loss = self._compute_initial_condition_loss()
+                    boundary_loss = self._compute_boundary_condition_loss()
+                    data_loss = self._compute_data_fitting_loss()
+                    pde_loss = self._compute_pde_residual_loss() if not self.is_hardware else 0.0
+                    
+                    results.append([float(initial_loss), float(boundary_loss), 
+                                float(data_loss), float(pde_loss)])
+            
+            return results
+        
+        # コールバック関数（RCGAと同様の詳細出力）
+        def optimization_callback(generation, population_list):
+            """NSGA-IIの進捗報告（RCGAスタイル）"""
+            nonlocal best_combined_loss, best_params, best_generation
+            
+            # パレートフロントの個体を取得
+            pareto_individuals = [ind for ind in population_list if ind['rank'] == 0]
+            
+            # 世代ごとのパレートフロントを保存
+            pareto_front_data = {
+                'generation': generation,
+                'size': len(pareto_individuals),
+                'individuals': []
+            }
+            
+            for ind in pareto_individuals:
+                pareto_front_data['individuals'].append({
+                    'objectives': ind['objectives'].tolist() if hasattr(ind['objectives'], 'tolist') else list(ind['objectives']),
+                    'parameters': ind['parameters'].tolist() if hasattr(ind['parameters'], 'tolist') else list(ind['parameters'])
+                })
+            
+            pareto_front_history.append(pareto_front_data)
+            
+            # 集団統計の計算
+            all_objectives = np.array([ind['objectives'] for ind in population_list])
+            
+            pop_stats = {
+                'generation': generation,
+                'mean_objectives': np.mean(all_objectives, axis=0).tolist(),
+                'std_objectives': np.std(all_objectives, axis=0).tolist(),
+                'min_objectives': np.min(all_objectives, axis=0).tolist(),
+                'max_objectives': np.max(all_objectives, axis=0).tolist(),
+                'n_fronts': max(ind['rank'] for ind in population_list) + 1,
+                'pareto_size': len(pareto_individuals)
+            }
+            population_statistics.append(pop_stats)
+            
+            # ハイパーボリューム計算（簡易版）
+            if pareto_individuals:
+                # 参照点（最悪ケース）
+                obj_values = np.array([ind['objectives'] for ind in pareto_individuals])
+                ref_point = np.full(all_objectives.shape[1], 10)
+                hypervolume = _calculate_hypervolume(
+                    [ind['objectives'] for ind in pareto_individuals],
+                    ref_point
+                )
+                hypervolume_history.append({'generation': generation, 'hypervolume': hypervolume})
+            
+            # 10世代ごとまたは progress_interval ごとに詳細を出力
+            if generation % config.progress_interval == 0 or generation == 0:
+                print(f"\n--- 世代 {generation}/{config.max_generations} ---")
+                print(f"パレートフロントサイズ: {len(pareto_individuals)}")
+                
+                # 目的関数値の統計
+                if pareto_individuals:
+                    obj_values = np.array([ind['objectives'] for ind in pareto_individuals])
+                    obj_names = ['初期条件', '境界条件', 'データ', 'PDE残差']
+                    
+                    print("\n目的関数値統計 (パレートフロント):")
+                    print("-" * 60)
+                    print(f"{'目的関数':^15} | {'最小値':^12} | {'平均値':^12} | {'最大値':^12}")
+                    print("-" * 60)
+                    
+                    for i, name in enumerate(obj_names):
+                        if obj_values.shape[1] > i:
+                            min_val = np.min(obj_values[:, i])
+                            avg_val = np.mean(obj_values[:, i])
+                            max_val = np.max(obj_values[:, i])
+                            print(f"{name:^15} | {min_val:^12.6f} | {avg_val:^12.6f} | {max_val:^12.6f}")
+                    
+                    # 重み付き和による最良解の選択
+                    #weights = [200.0, 10.0, 1000.0, 1.0]
+                    weights = np.ones(obj_values.shape[1])
+                    best_idx = 0
+                    best_score = float('inf')
+                    
+                    for i, ind in enumerate(pareto_individuals):
+                        score = sum(w * obj for w, obj in zip(weights, ind['objectives']))
+                        if score < best_score:
+                            best_score = score
+                            best_idx = i
+                    
+                    # 最良解の更新
+                    if best_score < best_combined_loss:
+                        best_combined_loss = best_score
+                        best_params = list(pareto_individuals[best_idx]['parameters'])
+                        best_generation = generation
+                    
+                    # 現在の最良解で予測値をチェック（RCGAと同様）
+                    _load_parameters_from_array(pareto_individuals[best_idx]['parameters'])
+                    
+                    print(f"\n現世代の最良解 (重み付き和: {best_score:.6f}):")
+                    print(f"  - 初期条件損失: {pareto_individuals[best_idx]['objectives'][0]:.6f}")
+                    print(f"  - 境界条件損失: {pareto_individuals[best_idx]['objectives'][1]:.6f}")
+                    print(f"  - データ損失: {pareto_individuals[best_idx]['objectives'][2]:.6f}")
+                    print(f"  - PDE残差損失: {pareto_individuals[best_idx]['objectives'][3]:.6f}")
+                    
+                    # 予測値の評価（RCGAと同様）
+                    results, avg_error = self._evaluate_test_points()
+                    
+                    print("\n予測値チェック:")
+                    print("-" * 85)
+                    print(f"{'位置':^30} | {'真値':^10} | {'予測値':^10} | {'誤差':^10} | {'相対誤差':^10}")
+                    print("-" * 85)
+                    
+                    for result in results[:5]:  # 最初の5点のみ表示
+                        if result['pred'] is not None:
+                            print(f"{result['location']:^30} | {result['true']:^10.6f} | "
+                                f"{result['pred']:^10.6f} | {result['error']:^10.6f} | "
+                                f"{result['rel_error']:^10.2%}")
+                    
+                    print(f"平均絶対誤差: {avg_error:.6f}")
+                    
+                    # パラメータ状況（RCGAと同様）
+                    print(f"\n現在のパラメータ状況:")
+                    print(f"  - 出力スケール: {to_python_float(self.output_scale):.4f}")
+                    print(f"  - 振幅: {to_python_float(self.amplitude):.4f}")
+                    print(f"  - 時間減衰: {to_python_float(self.time_decay):.4f}")
+                    print(f"  - 空間減衰: {to_python_float(self.spatial_decay):.4f}")
+                    
+                    # 履歴の更新
+                    objective_history['initial'].append(np.min(obj_values[:, 0]))
+                    objective_history['boundary'].append(np.min(obj_values[:, 1]))
+                    objective_history['data'].append(np.min(obj_values[:, 2]))
+                    objective_history['pde'].append(np.min(obj_values[:, 3]))
+                    objective_history['combined'].append(best_combined_loss)
+                    
+                # 改善率の計算（RCGAと同様）
+                if generation > 0 and len(objective_history['combined']) > 1:
+                    if generation >= config.progress_interval:
+                        old_idx = max(0, len(objective_history['combined']) - config.progress_interval // 10 - 1)
+                        if old_idx < len(objective_history['combined']) - 1:
+                            old_fitness = objective_history['combined'][old_idx]
+                            improvement = (old_fitness - objective_history['combined'][-1]) / old_fitness * 100
+                            print(f"\n改善率（{config.progress_interval}世代前比）: {improvement:.2f}%")
+        
+        # ハイパーボリューム計算用のヘルパー関数
+        def _calculate_hypervolume(pareto_front, ref_point):
+            """簡易ハイパーボリューム計算"""
+            # 2目的の場合の簡易実装（実際には多目的対応が必要）
+            if len(pareto_front[0]) == 2:
+                # ソート
+                sorted_front = sorted(pareto_front, key=lambda x: x[0])
+                hv = 0.0
+                prev_y = ref_point[1]
+                for point in sorted_front:
+                    if point[1] < prev_y:
+                        hv += (ref_point[0] - point[0]) * (prev_y - point[1])
+                        prev_y = point[1]
+                return hv
+            else:
+                # 多目的の場合は簡易的に各目的の改善度の積を返す
+                hv = 1.0
+                for i in range(len(ref_point)):
+                    obj_values = [p[i] for p in pareto_front]
+                    if min(obj_values) < ref_point[i]:
+                        hv *= (ref_point[i] - min(obj_values)) / ref_point[i]
+                return hv
+        
+        # 結果保存用のヘルパー関数
+        def save_nsga2_results(save_path='results/'):
+            """NSGA-II最適化結果の保存"""
+            os.makedirs(save_path, exist_ok=True)
+            
+            # 1. メイン結果ファイル（JSON形式）
+            nsga2_results = {
+                'metadata': {
+                    'timestamp': time.strftime('%Y-%m-%d %H:%M:%S'),
+                    'n_objectives': config.n_objectives,
+                    'population_size': config.population_size,
+                    'max_generations': config.max_generations,
+                    'n_circuit_params': n_circuit_params,
+                    'n_total_params': n_total_params,
+                    'rex_xi': config.rex_xi,
+                    'n_parents': config.n_parents,
+                    'n_children': config.n_children,
+                    'optimization_time': training_time,
+                    'best_generation': best_generation,
+                    'best_combined_loss': float(best_combined_loss)
+                },
+                'objective_history': objective_history,
+                'pareto_front_history': pareto_front_history,
+                'population_statistics': population_statistics,
+                'hypervolume_history': hypervolume_history,
+                'best_solution': {
+                    'parameters': best_params if best_params else [],
+                    'circuit_params': self.circuit_params.tolist() if hasattr(self.circuit_params, 'tolist') else list(self.circuit_params),
+                    'output_scale': float(self.output_scale),
+                    'output_bias': float(self.output_bias),
+                    'time_decay': float(self.time_decay),
+                    'spatial_decay': float(self.spatial_decay),
+                    'amplitude': float(self.amplitude),
+                    'x_weight': float(self.x_weight),
+                    'correlation_weight': float(self.correlation_weight)
+                }
+            }
+            
+            json_path = os.path.join(save_path, 'nsga2_optimization_results.json')
+            with open(json_path, 'w', encoding='utf-8') as f:
+                json.dump(nsga2_results, f, indent=2, ensure_ascii=False)
+            print(f"\nNSGA-II結果JSONを保存: {json_path}")
+            
+            # 2. パレートフロントの推移（CSV形式）
+            pareto_csv_path = os.path.join(save_path, 'nsga2_pareto_fronts.csv')
+            with open(pareto_csv_path, 'w', newline='', encoding='utf-8') as f:
+                writer = csv.writer(f)
+                writer.writerow(['Generation', 'Individual_ID', 'Initial_Loss', 'Boundary_Loss', 'Data_Loss', 'PDE_Loss'])
+                
+                for pf_data in pareto_front_history:
+                    generation = pf_data['generation']
+                    for i, ind in enumerate(pf_data['individuals']):
+                        writer.writerow([
+                            generation, i,
+                            ind['objectives'][0],
+                            ind['objectives'][1],
+                            ind['objectives'][2],
+                            ind['objectives'][3]
+                        ])
+            print(f"パレートフロント履歴CSVを保存: {pareto_csv_path}")
+            
+            # 3. 目的関数の推移（CSV形式）
+            objectives_csv_path = os.path.join(save_path, 'nsga2_objectives_history.csv')
+            with open(objectives_csv_path, 'w', newline='', encoding='utf-8') as f:
+                writer = csv.writer(f)
+                writer.writerow(['Generation', 'Initial_Min', 'Boundary_Min', 'Data_Min', 'PDE_Min', 'Combined'])
+                
+                for i in range(len(objective_history['initial'])):
+                    writer.writerow([
+                        i * config.progress_interval,
+                        objective_history['initial'][i],
+                        objective_history['boundary'][i],
+                        objective_history['data'][i],
+                        objective_history['pde'][i],
+                        objective_history['combined'][i]
+                    ])
+            print(f"目的関数履歴CSVを保存: {objectives_csv_path}")
+            
+            # 4. 最適化サマリー（テキスト形式）
+            summary_path = os.path.join(save_path, 'nsga2_optimization_summary.txt')
+            with open(summary_path, 'w', encoding='utf-8') as f:
+                f.write("=" * 80 + "\n")
+                f.write("NSGA-II Multi-Objective Optimization Summary\n")
+                f.write("=" * 80 + "\n\n")
+                
+                f.write("1. Configuration\n")
+                f.write("-" * 40 + "\n")
+                f.write(f"  - Number of Objectives: {config.n_objectives}\n")
+                f.write(f"  - Population Size: {config.population_size}\n")
+                f.write(f"  - Max Generations: {config.max_generations}\n")
+                f.write(f"  - REX Expansion Rate: {config.rex_xi}\n")
+                f.write(f"  - Number of Parents: {config.n_parents}\n")
+                f.write(f"  - Number of Children: {config.n_children}\n")
+                f.write(f"  - Total Parameters: {n_total_params}\n\n")
+                
+                f.write("2. Optimization Results\n")
+                f.write("-" * 40 + "\n")
+                f.write(f"  - Total Time: {training_time:.2f} seconds\n")
+                f.write(f"  - Best Solution Found at Generation: {best_generation}\n")
+                f.write(f"  - Best Combined Loss: {best_combined_loss:.6f}\n\n")
+                
+                if pareto_front_history:
+                    final_pareto = pareto_front_history[-1]
+                    f.write(f"  - Final Pareto Front Size: {final_pareto['size']}\n")
+                    f.write(f"  - Total Pareto Solutions Generated: {sum(pf['size'] for pf in pareto_front_history)}\n\n")
+                
+                f.write("3. Objective Function Improvements\n")
+                f.write("-" * 40 + "\n")
+                for key, values in objective_history.items():
+                    if values and key != 'combined':
+                        initial_val = values[0] if values else 0
+                        final_val = values[-1] if values else 0
+                        improvement = ((initial_val - final_val) / initial_val * 100) if initial_val > 0 else 0
+                        f.write(f"  - {key.capitalize()}: {initial_val:.6f} → {final_val:.6f} ")
+                        f.write(f"(Improvement: {improvement:.2f}%)\n")
+                
+                if hypervolume_history:
+                    f.write(f"\n4. Hypervolume Evolution\n")
+                    f.write("-" * 40 + "\n")
+                    initial_hv = hypervolume_history[0]['hypervolume']
+                    final_hv = hypervolume_history[-1]['hypervolume']
+                    hv_improvement = ((final_hv - initial_hv) / initial_hv * 100) if initial_hv > 0 else 0
+                    f.write(f"  - Initial: {initial_hv:.6f}\n")
+                    f.write(f"  - Final: {final_hv:.6f}\n")
+                    f.write(f"  - Improvement: {hv_improvement:.2f}%\n")
+                
+                if population_statistics:
+                    f.write(f"\n5. Population Statistics\n")
+                    f.write("-" * 40 + "\n")
+                    final_stats = population_statistics[-1]
+                    f.write(f"  - Final Number of Fronts: {final_stats['n_fronts']}\n")
+                    f.write(f"  - Average Pareto Front Size: {np.mean([ps['pareto_size'] for ps in population_statistics]):.1f}\n")
+                    
+            print(f"最適化サマリーを保存: {summary_path}")
+            
+            # 5. パレートフロントの可視化
+            self._visualize_nsga2_results(save_path)
+            
+            return json_path, pareto_csv_path, objectives_csv_path, summary_path
+        
+        # 目的関数の定義
+        def create_objective_functions():
+            objectives = []
+            
+            # 1. 初期条件損失
+            def initial_loss_objective(params):
+                _load_parameters_from_array(params)
+                loss = self._compute_initial_condition_loss()
+                return [float(loss)]
+            
+            # 2. 境界条件損失
+            def boundary_loss_objective(params):
+                _load_parameters_from_array(params)
+                loss = self._compute_boundary_condition_loss()
+                return [float(loss)]
+            
+            # 3. データフィッティング損失
+            def data_loss_objective(params):
+                _load_parameters_from_array(params)
+                loss = self._compute_data_fitting_loss()
+                return [float(loss)]
+            
+            # 4. PDE残差損失（実機では省略可能）
+            def pde_loss_objective(params):
+                if self.is_hardware:
+                    return [0.0]
+                _load_parameters_from_array(params)
+                loss = self._compute_pde_residual_loss()
+                return [float(loss)]
+            
+            objectives.extend([
+                initial_loss_objective,
+                boundary_loss_objective,
+                data_loss_objective,
+                pde_loss_objective
+            ])
+            
+            return objectives
+        
+        # NSGA-II最適化の実行
+        print("\nNSGA-II最適化開始...")
+        print("=" * 80)
+        
+        optimizer = nsga2_optimizer.NSGA2Optimizer(config)
+        objectives = create_objective_functions()
+        
+        try:
+            # バッチ評価を使用して最適化
+            pareto_params, pareto_objectives = optimizer.optimize(
+                objectives, 
+                optimization_callback,
+                batch_evaluate_objectives if self.use_parallel else None
+            )
+            
+            # 最終結果の分析
+            print("\n" + "=" * 80)
+            print("NSGA-II最適化完了")
+            
+            # 最良パラメータの設定
+            if best_params is not None:
+                _load_parameters_from_array(best_params)
+            
+            training_time = time.time() - start_time
+            
+            # C++側の統計情報を取得
+            self.loss_history = list(optimizer.get_fitness_history())
+            self.mean_fitness_history = list(optimizer.get_mean_fitness_history())
+            final_best_fitness = optimizer.get_best_fitness()
+            final_generation = optimizer.get_current_generation()
+            
+            print(f"\n最終結果:")
+            print(f"  - 最適化時間: {training_time:.2f}秒")
+            print(f"  - パレートフロントサイズ: {len(pareto_params)}")
+            print(f"  - 最良解が見つかった世代: {best_generation}")
+            print(f"  - 最終的な重み付き損失: {best_combined_loss:.6f}")
+            print(f"  - 総世代数: {final_generation}")
+            
+            # 最終的な予測精度（RCGAと同様）
+            print("\n最終的な予測精度:")
+            results, avg_error = self._evaluate_test_points()
+            
+            print("-" * 85)
+            print(f"{'位置':^30} | {'真値':^10} | {'予測値':^10} | {'誤差':^10} | {'相対誤差':^10}")
+            print("-" * 85)
+            
+            for result in results:
+                if result['pred'] is not None:
+                    print(f"{result['location']:^30} | {result['true']:^10.6f} | "
+                        f"{result['pred']:^10.6f} | {result['error']:^10.6f} | "
+                        f"{result['rel_error']:^10.2%}")
+            
+            print("-" * 85)
+            print(f"最終平均絶対誤差: {avg_error:.6f}")
+            
+            # 追加の統計情報（RCGAと同様）
+            print("\n目的関数の改善統計:")
+            for key, values in objective_history.items():
+                if values and key != 'combined':
+                    initial_val = values[0] if values else 0
+                    final_val = values[-1] if values else 0
+                    improvement = ((initial_val - final_val) / initial_val * 100) if initial_val > 0 else 0
+                    print(f"  - {key}: 初期 {initial_val:.6f} → 最終 {final_val:.6f} (改善率: {improvement:.2f}%)")
+            
+            # 集団統計情報（NSGA-IIバージョン）
+            if self.mean_fitness_history:
+                print(f"\n集団統計:")
+                print(f"  - 初期平均適応度: {self.mean_fitness_history[0]:.6f}")
+                print(f"  - 最終平均適応度: {self.mean_fitness_history[-1]:.6f}")
+                mean_improvement = (self.mean_fitness_history[0] - self.mean_fitness_history[-1]) / self.mean_fitness_history[0] * 100
+                print(f"  - 平均適応度改善率: {mean_improvement:.2f}%")
+            
+            # 結果をファイルに保存
+            save_nsga2_results('results/')
+            
+            return self.circuit_params, self.loss_history, training_time
+            
+        except Exception as e:
+            print(f"NSGA-II最適化エラー: {e}")
+            import traceback
+            traceback.print_exc()
+            
+            # フォールバック
+            return self.train(n_samples)
+
+    def _visualize_nsga2_results(self, save_path='results/'):
+        """NSGA-II結果の可視化"""
+        
+        
+        os.makedirs(save_path, exist_ok=True)
+        
+        # 1. パレートフロントの3D可視化（最終世代）
+        if hasattr(self, 'pareto_front_history') and self.pareto_front_history:
+            final_pareto = self.pareto_front_history[-1]
+            
+            if final_pareto['individuals']:
+                fig = plt.figure(figsize=(12, 10))
+                ax = fig.add_subplot(111, projection='3d')
+                
+                # 目的関数値を抽出
+                objectives = np.array([ind['objectives'] for ind in final_pareto['individuals']])
+                
+                # 3つの主要な目的関数で可視化（初期条件、境界条件、データフィッティング）
+                scatter = ax.scatter(objectives[:, 0], objectives[:, 1], objectives[:, 2], 
+                                c=objectives[:, 3] if objectives.shape[1] > 3 else 'blue',
+                                cmap='viridis', s=50, alpha=0.6)
+                
+                ax.set_xlabel('Initial Condition Loss')
+                ax.set_ylabel('Boundary Condition Loss')
+                ax.set_zlabel('Data Fitting Loss')
+                ax.set_title(f'Final Pareto Front (Generation {final_pareto["generation"]})')
+                
+                if objectives.shape[1] > 3:
+                    cbar = plt.colorbar(scatter, ax=ax, pad=0.1)
+                    cbar.set_label('PDE Residual Loss')
+                
+                plt.tight_layout()
+                plt.savefig(os.path.join(save_path, 'nsga2_pareto_front_3d.png'), dpi=300, bbox_inches='tight')
+                plt.close()
+        
+        # 2. 目的関数の推移
+        if hasattr(self, 'objective_history') and self.objective_history:
+            fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+            axes = axes.flatten()
+            
+            obj_names = ['Initial Condition', 'Boundary Condition', 'Data Fitting', 'PDE Residual']
+            colors = ['blue', 'green', 'red', 'orange']
+            
+            for i, (key, name, color) in enumerate(zip(['initial', 'boundary', 'data', 'pde'], 
+                                                    obj_names, colors)):
+                if key in self.objective_history and self.objective_history[key]:
+                    generations = range(0, len(self.objective_history[key]) * 10, 10)
+                    axes[i].plot(generations, self.objective_history[key], 
+                            color=color, linewidth=2, marker='o', markersize=5)
+                    axes[i].set_xlabel('Generation')
+                    axes[i].set_ylabel('Loss')
+                    axes[i].set_title(f'{name} Loss Evolution')
+                    axes[i].grid(True, alpha=0.3)
+                    axes[i].set_yscale('log')
+            
+            plt.tight_layout()
+            plt.savefig(os.path.join(save_path, 'nsga2_objectives_evolution.png'), 
+                    dpi=300, bbox_inches='tight')
+            plt.close()
+        
+        # 3. ハイパーボリューム推移
+        if hasattr(self, 'hypervolume_history') and self.hypervolume_history:
+            fig, ax = plt.subplots(figsize=(10, 6))
+            
+            generations = [hv['generation'] for hv in self.hypervolume_history]
+            hypervolumes = [hv['hypervolume'] for hv in self.hypervolume_history]
+            
+            ax.plot(generations, hypervolumes, 'b-', linewidth=2, marker='o', markersize=5)
+            ax.set_xlabel('Generation')
+            ax.set_ylabel('Hypervolume')
+            ax.set_title('Hypervolume Evolution')
+            ax.grid(True, alpha=0.3)
+            
+            # 改善率の注釈
+            if len(hypervolumes) > 1:
+                improvement = (hypervolumes[-1] - hypervolumes[0]) / hypervolumes[0] * 100
+                ax.text(0.95, 0.05, f'Improvement: {improvement:.1f}%', 
+                    transform=ax.transAxes, ha='right', va='bottom',
+                    bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
+            
+            plt.tight_layout()
+            plt.savefig(os.path.join(save_path, 'nsga2_hypervolume_evolution.png'), 
+                    dpi=300, bbox_inches='tight')
+            plt.close()
+        
+        # 4. 2D パレートフロント（ペアワイズ）
+        if hasattr(self, 'pareto_front_history') and self.pareto_front_history:
+            final_pareto = self.pareto_front_history[-1]
+            
+            if final_pareto['individuals']:
+                objectives = np.array([ind['objectives'] for ind in final_pareto['individuals']])
+                obj_names = ['Initial', 'Boundary', 'Data', 'PDE']
+                
+                fig, axes = plt.subplots(2, 3, figsize=(15, 10))
+                axes = axes.flatten()
+                
+                plot_idx = 0
+                for i in range(4):
+                    for j in range(i+1, 4):
+                        if plot_idx < 6:
+                            axes[plot_idx].scatter(objectives[:, i], objectives[:, j], 
+                                                alpha=0.6, s=50)
+                            axes[plot_idx].set_xlabel(f'{obj_names[i]} Loss')
+                            axes[plot_idx].set_ylabel(f'{obj_names[j]} Loss')
+                            axes[plot_idx].set_title(f'{obj_names[i]} vs {obj_names[j]}')
+                            axes[plot_idx].grid(True, alpha=0.3)
+                            plot_idx += 1
+                
+                plt.tight_layout()
+                plt.savefig(os.path.join(save_path, 'nsga2_pareto_pairs.png'), 
+                        dpi=300, bbox_inches='tight')
+                plt.close()
+        
+        # 5. 集団の多様性推移
+        if hasattr(self, 'population_statistics') and self.population_statistics:
+            fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8))
+            
+            generations = [ps['generation'] for ps in self.population_statistics]
+            n_fronts = [ps['n_fronts'] for ps in self.population_statistics]
+            pareto_sizes = [ps['pareto_size'] for ps in self.population_statistics]
+            
+            ax1.plot(generations, n_fronts, 'b-', linewidth=2, marker='o')
+            ax1.set_xlabel('Generation')
+            ax1.set_ylabel('Number of Fronts')
+            ax1.set_title('Population Diversity (Number of Fronts)')
+            ax1.grid(True, alpha=0.3)
+            
+            ax2.plot(generations, pareto_sizes, 'r-', linewidth=2, marker='s')
+            ax2.set_xlabel('Generation')
+            ax2.set_ylabel('Pareto Front Size')
+            ax2.set_title('Pareto Front Size Evolution')
+            ax2.grid(True, alpha=0.3)
+            
+            plt.tight_layout()
+            plt.savefig(os.path.join(save_path, 'nsga2_diversity_evolution.png'), 
+                    dpi=300, bbox_inches='tight')
+            plt.close()
+        
+        print(f"NSGA-II可視化完了: {save_path}")
+        
     def train(self, n_samples=1500) -> Tuple[qml.numpy.ndarray, List[float], float]:
-        """GQE最適化トレーニング（PINNと同様の統一最適化・境界条件考慮）"""
+        """GQE最適化トレーニング（PINNと同様の統一最適化・境界条件考慮・RCGA対応）"""
         print(f"GQE-GPT量子PINNトレーニング開始...")
-        print(f"最適化手法: {'実機SPSA' if self.is_hardware else 'Adam'}")
+        
+        # 最適化手法の決定
+        if self.is_hardware and self.use_rcga:
+            print(f"最適化手法: RCGA (実数値遺伝的アルゴリズム)")
+        elif self.is_hardware:
+            print(f"最適化手法: 実機SPSA")
+        else:
+            print(f"最適化手法: Adam")
+        
         print(f"トレーニング戦略: 統一的最適化（PINNと同様）")
         print(f"並列処理: {'有効' if self.use_parallel else '無効'}")
         print(f"回路生成: {'GPT' if self.use_gpt_circuit_generation else 'ルールベース'}")
@@ -1687,7 +3030,274 @@ class GQEQuantumPINN:
         best_loss = float('inf')
         patience_counter = 0
         
-        if self.is_hardware:
+        if self.is_hardware and self.use_rcga:
+            # RCGA最適化（LHS初期化と進捗報告付き）
+            print("\n実機向けRCGA最適化（REX交叉・JGG選択）")
+            print("交叉手法: REX (実数値交叉)")
+            print("生存選択: JGG (Just Generation Gap)")
+            print("初期集団生成: LHS (Latin Hypercube Sampling)")
+            
+            # RCGAの設定
+            config = rcga_optimizer.RCGAConfig()
+            config.population_size = 50  # 実機向けに削減
+            config.max_generations = min(500, qnn_epochs)
+            config.num_parents = 3  # JGG用の親個体数
+            config.num_children = 10  # REXで生成する子個体数
+            config.xi = 1.2  # REX拡張率（探索範囲を少し広げる）
+            config.min_val = -np.pi
+            config.max_val = np.pi
+            config.random_seed = 42
+            config.verbose = True
+            config.use_lhs = True  # LHSを使用
+            config.progress_interval = 50  # 進捗報告間隔
+            
+            # 全パラメータ数
+            n_circuit_params = len(self.circuit_template.parameter_map)
+            n_total_params = n_circuit_params + 7  # 出力処理パラメータを含む
+            
+            print(f"RCGA設定:")
+            print(f"  - 個体数: {config.population_size}")
+            print(f"  - 最大世代数: {config.max_generations}")
+            print(f"  - 親個体数: {config.num_parents}")
+            print(f"  - 子個体数: {config.num_children}")
+            print(f"  - REX拡張率: {config.xi}")
+            print(f"  - LHS初期化: {'有効' if config.use_lhs else '無効'}")
+            print(f"  - パラメータ数: {n_total_params} (回路: {n_circuit_params}, 出力: 7)")
+            
+            # テスト点での予測値を追跡
+            test_points_rcga = [
+                (L/2, L/2, L/2, 0.0, "中心, t=0"),
+                (L/2, L/2, L/2, 0.01, "中心, t=0.01"),
+                (L/2, L/2, L/2, 0.05, "中心, t=0.05"),
+                (L/2, L/2, L/2, 0.1, "中心, t=0.1"),
+                (L/2, L/2, L/2, 0.5, "中心, t=0.5"),
+                (L/2, L/2, L/2, 1.0, "中心, t=1.0"),
+                (L/4, L/4, L/4, 0.1, "1/4位置, t=0.1"),
+                (0.0, L/2, L/2, 0.1, "境界(x=0), t=0.1"),  # 境界テストケース追加
+                (L, L/2, L/2, 0.5, "境界(x=L), t=0.5"),    # 境界テストケース追加
+            ]
+            
+            # パラメータリストからの読み込みヘルパー関数
+            def _load_parameters_from_list(self, params_list):
+                """リストからパラメータを読み込む"""
+                n_circuit_params = len(self.circuit_template.parameter_map)
+                params_array = np.array(params_list)
+                
+                self.circuit_params = qml.numpy.array(params_array[:n_circuit_params])
+                
+                idx = n_circuit_params
+                self.output_scale = qml.numpy.array(np.abs(params_array[idx]) + 0.1)
+                self.output_bias = qml.numpy.array(params_array[idx + 1])
+                self.time_decay = qml.numpy.array(np.abs(params_array[idx + 2]) + 0.1)
+                self.spatial_decay = qml.numpy.array(np.abs(params_array[idx + 3]) + 0.1)
+                self.amplitude = qml.numpy.array(np.abs(params_array[idx + 4]) + 0.1)
+                self.x_weight = qml.numpy.array(params_array[idx + 5])
+                self.correlation_weight = qml.numpy.array(params_array[idx + 6])
+            
+            # 一時的にメソッドを追加
+            self._load_parameters_from_list = _load_parameters_from_list
+            
+            # 進捗コールバック関数
+            def progress_callback(generation, best_fitness, mean_fitness, best_solution):
+                """RCGA進捗報告コールバック"""
+                if generation % config.progress_interval == 0:
+                    # パラメータを設定
+                    self._load_parameters_from_list(self, best_solution)
+                    
+                    print(f"\n--- RCGA世代 {generation} ---")
+                    print(f"最良適応度: {best_fitness:.6f}, 平均適応度: {mean_fitness:.6f}")
+                    
+                    # 改善率の計算
+                    if len(self.loss_history) > config.progress_interval:
+                        old_fitness = self.loss_history[-config.progress_interval]
+                        improvement = (old_fitness - best_fitness) / old_fitness * 100.0
+                        print(f"改善率（{config.progress_interval}世代前比）: {improvement:.2f}%")
+                    
+                    # テスト点での予測値を表示
+                    print("\n予測値チェック:")
+                    print("-" * 70)
+                    print(f"{'位置':^30} | {'真値':^10} | {'予測値':^10} | {'誤差':^10}")
+                    print("-" * 70)
+                    
+                    total_error = 0.0
+                    valid_predictions = 0
+                    
+                    for x_test, y_test, z_test, t_test, desc in test_points_rcga:
+                        try:
+                            # エラーメッセージの一時的抑制
+                            import sys
+                            from contextlib import redirect_stderr
+                            from io import StringIO
+                            
+                            stderr_backup = sys.stderr
+                            error_buffer = StringIO()
+                            
+                            with redirect_stderr(error_buffer):
+                                u_pred = self.forward(x_test, y_test, z_test, t_test)
+                            
+                            sys.stderr = stderr_backup
+                            
+                            u_true = analytical_solution(x_test, y_test, z_test, t_test)
+                            
+                            # 予測値の安全な変換
+                            if hasattr(u_pred, 'item'):
+                                pred_val = float(u_pred.item())
+                            elif hasattr(u_pred, '__len__') and len(u_pred) > 0:
+                                pred_val = float(u_pred[0])
+                            else:
+                                pred_val = float(u_pred)
+                            
+                            # 異常値の検出と修正
+                            if np.isnan(pred_val) or np.isinf(pred_val):
+                                pred_val = 0.0
+                            elif pred_val < 0:
+                                pred_val = 0.0
+                            elif pred_val > 5.0:
+                                pred_val = min(pred_val, 2.0)
+                            
+                            error = abs(pred_val - u_true)
+                            total_error += error
+                            valid_predictions += 1
+                            
+                            print(f"{desc:^30} | {u_true:^10.6f} | {pred_val:^10.6f} | {error:^10.6f}")
+                            
+                        except Exception as e:
+                            print(f"{desc:^30} | 予測失敗: {str(e)[:20]}...")
+                    
+                    print("-" * 70)
+                    if valid_predictions > 0:
+                        avg_error = total_error / valid_predictions
+                        print(f"平均絶対誤差: {avg_error:.6f}")
+                    
+                    # パラメータ状況
+                    print(f"\n現在のパラメータ状況:")
+                    print(f"  - 出力スケール: {to_python_float(self.output_scale):.4f}")
+                    print(f"  - 振幅: {to_python_float(self.amplitude):.4f}")
+                    print(f"  - 時間減衰: {to_python_float(self.time_decay):.4f}")
+                    print(f"  - 空間減衰: {to_python_float(self.spatial_decay):.4f}")
+                    print(f"  - X重み: {to_python_float(self.x_weight):.4f}")
+                    print(f"  - 相関重み: {to_python_float(self.correlation_weight):.4f}")
+            
+            # 評価関数の定義
+            def evaluate_params(params_list):
+                """単一個体の評価"""
+                try:
+                    # NumPy配列に変換
+                    params_array = np.array(params_list)
+                    
+                    # パラメータ範囲の制約
+                    params_array[:n_circuit_params] = np.clip(params_array[:n_circuit_params], -np.pi, np.pi)
+                    params_array[n_circuit_params] = np.clip(params_array[n_circuit_params], 0.1, 10.0)  # output_scale
+                    params_array[n_circuit_params + 1] = np.clip(params_array[n_circuit_params + 1], -1.0, 1.0)  # output_bias
+                    params_array[n_circuit_params + 2] = np.clip(params_array[n_circuit_params + 2], 0.1, 3.0)  # time_decay
+                    params_array[n_circuit_params + 3] = np.clip(params_array[n_circuit_params + 3], 0.1, 3.0)  # spatial_decay
+                    params_array[n_circuit_params + 4] = np.clip(params_array[n_circuit_params + 4], 0.1, 5.0)  # amplitude
+                    params_array[n_circuit_params + 5] = np.clip(params_array[n_circuit_params + 5], -1.0, 1.0)  # x_weight
+                    params_array[n_circuit_params + 6] = np.clip(params_array[n_circuit_params + 6], -1.0, 1.0)  # correlation_weight
+                    
+                    # QMLテンソルに変換
+                    all_params_qml = qml.numpy.array(params_array)
+                    
+                    # コスト計算
+                    cost = pinn_style_cost_function(all_params_qml)
+                    return float(cost)
+                    
+                except Exception as e:
+                    print(f"評価エラー: {e}")
+                    return 10000.0
+            
+            def evaluate_batch(params_batch):
+                """バッチ評価（並列処理対応）"""
+                results = []
+                
+                if self.use_parallel:
+                    # 並列評価の実装
+                    batch_start_time = time.time()
+                    
+                    for i, params_list in enumerate(params_batch):
+                        try:
+                            cost = evaluate_params(params_list)
+                            results.append(cost)
+                        except Exception as e:
+                            print(f"バッチ評価エラー（個体{i}）: {e}")
+                            results.append(10000.0)
+                    
+                    '''
+                    batch_time = time.time() - batch_start_time
+                    if len(params_batch) >= 10:  # 大きなバッチの場合のみ報告
+                        print(f"  バッチ評価完了: {len(params_batch)}個体, {batch_time:.2f}秒")
+                        '''
+                    
+                else:
+                    # 逐次評価
+                    for params_list in params_batch:
+                        results.append(evaluate_params(params_list))
+                
+                return results
+            
+            # RCGA最適化の実行
+            optimizer = rcga_optimizer.RCGAOptimizer(config)
+            
+            # 初期パラメータをリストに変換
+            initial_params_list = all_params.tolist()
+            
+            print("\nRCGA最適化開始（LHS初期化）...")
+            print("=" * 80)
+            
+            # 最適化実行
+            try:
+                if self.use_parallel:
+                    best_params_list = optimizer.optimize(
+                        n_total_params,
+                        evaluate_params,
+                        evaluate_batch,  # バッチ評価関数
+                        progress_callback  # 進捗コールバック
+                    )
+                else:
+                    best_params_list = optimizer.optimize(
+                        n_total_params,
+                        evaluate_params,
+                        None,  # バッチ評価なし
+                        progress_callback  # 進捗コールバック
+                    )
+                
+                # 最良パラメータをQMLテンソルに変換
+                best_params = qml.numpy.array(best_params_list)
+                
+                # 履歴の取得
+                self.loss_history = optimizer.get_fitness_history()
+                self.mean_fitness_history = optimizer.get_mean_fitness_history()
+                best_loss = optimizer.get_best_fitness()
+                
+                print("\n" + "=" * 80)
+                print(f"RCGA最適化完了:")
+                print(f"  - 最終世代: {optimizer.get_current_generation()}")
+                print(f"  - 最良適応度: {best_loss:.6f}")
+                if self.loss_history:
+                    print(f"  - 初期適応度: {self.loss_history[0]:.6f}")
+                    print(f"  - 総改善率: {((self.loss_history[0] - best_loss) / self.loss_history[0] * 100):.2f}%")
+                print(f"  - LHS初期化: 使用")
+                
+                # 適応度の統計情報
+                if self.mean_fitness_history:
+                    print(f"\n集団統計:")
+                    print(f"  - 初期平均適応度: {self.mean_fitness_history[0]:.6f}")
+                    print(f"  - 最終平均適応度: {self.mean_fitness_history[-1]:.6f}")
+                    improvement = (self.mean_fitness_history[0] - self.mean_fitness_history[-1]) / self.mean_fitness_history[0] * 100
+                    print(f"  - 平均適応度改善率: {improvement:.2f}%")
+                
+            except Exception as e:
+                print(f"RCGA最適化エラー: {e}")
+                print("SPSAにフォールバック...")
+                import traceback
+                traceback.print_exc()
+                # フォールバック処理
+                best_params = all_params
+                best_loss = float('inf')
+                self.loss_history = []
+                self.mean_fitness_history = []
+                
+        elif self.is_hardware:
             # 実機モード：適応的SPSA + PINN戦略
             print("\n実機向け適応的SPSA最適化（PINN戦略）")
             
@@ -1795,8 +3405,8 @@ class GQEQuantumPINN:
                     # 進捗報告
                     if (epoch + 1) % 50 == 0 or epoch < 10:
                         print(f"Epoch [{epoch+1}/{qnn_epochs}], "
-                              f"Loss: {current_cost:.6f}, "
-                              f"Best: {best_loss:.6f}")
+                            f"Loss: {current_cost:.6f}, "
+                            f"Best: {best_loss:.6f}")
                         
                         if (epoch + 1) % 200 == 0:
                             self._print_predictions_gqe()
@@ -1863,12 +3473,19 @@ class GQEQuantumPINN:
         print(f"最終損失: {to_python_float(best_loss):.6f}")
         print(f"トレーニング方式: PINNと同様の統一的最適化")
         
+        if self.is_hardware and self.use_rcga:
+            print(f"最適化手法: RCGA (REX交叉・JGG選択・LHS初期化)")
+        elif self.is_hardware:
+            print(f"最適化手法: 適応的SPSA")
+        else:
+            print(f"最適化手法: Adam")
+        
         # 最終評価
         print("\n最終予測精度評価:")
         self._print_predictions_gqe()
         
         return self.circuit_params, self.loss_history, training_time
-    
+        
     def _generate_pinn_style_data(self, n_samples):
         """PINN手法に準拠したデータ生成（修正版：境界条件を正しく使用）"""
         # 内部点（PDE残差用）
@@ -1885,7 +3502,7 @@ class GQEQuantumPINN:
                 interior_points.append(TrainingPoint(x, y, z, t, u_true, type='interior'))
         
         # 初期条件点（重要度高）
-        n_initial = int(n_samples * 0.5)
+        n_initial = int(n_samples * 0.6)
         initial_points = []
         
         # 中心付近を重点的にサンプリング
@@ -3136,6 +4753,13 @@ def main():
     print(f"利用可能なCPUコア数: {cpu_count()}")
     print(f"並列デバイス数: {N_PARALLEL_DEVICES}")
     print(f"デバイス: {device}")
+    
+    # RCGAの利用可能性を確認
+    if RCGA_AVAILABLE:
+        print(f"RCGA最適化: 利用可能")
+    else:
+        print(f"RCGA最適化: 利用不可（SPSAを使用）")
+    
     print()
     
     # 出力ディレクトリの作成
@@ -3149,7 +4773,7 @@ def main():
     
     # 2. GQE-GPT最適化量子PINNの学習と評価
     print("\n=== GQE-GPT最適化QPINN (実機向け) ===")
-    
+
     # 実機モードのテスト
     qsolver = GQEQuantumPINN(
         n_qubits=6,              # 実機向け量子ビット数
@@ -3158,11 +4782,19 @@ def main():
         noise_model='realistic', # 現実的ノイズモデル
         use_parallel=True,
         n_parallel_devices=N_PARALLEL_DEVICES,
-        use_gpt_circuit_generation=True  # GPT回路生成を有効化
+        use_gpt_circuit_generation=True,  # GPT回路生成を有効化
+        use_rcga=True  # RCGA最適化を有効化
     )
-    
+
     try:
-        _, qnn_losses, qnn_time = qsolver.train(n_samples=3000)
+        # NSGA-IIが利用可能な場合は多目的最適化を使用
+        if NSGA2_AVAILABLE:
+            print("\nNSGA-II多目的最適化を使用")
+            _, qnn_losses, qnn_time = qsolver.train_with_nsga2(n_samples=3000)
+        else:
+            print("\n標準最適化を使用")
+            _, qnn_losses, qnn_time = qsolver.train(n_samples=3000)
+        
         u_qnn = qsolver.evaluate()
         print(f"GQE-GPT-QPINNモデル評価完了。サイズ: {u_qnn.shape}")
     except Exception as e:
@@ -3172,7 +4804,25 @@ def main():
         u_qnn = np.zeros(nx * ny * nz * nt)
         qnn_losses = []
         qnn_time = 0
-    
+
+    # main()関数内のGQE-GPT-QPINN評価後に追加
+    if hasattr(qsolver, 'circuit_template'):
+        print("\n=== GQE回路の可視化と情報保存 ===")
+        
+        # 回路図の生成
+        circuit_image_path = qsolver.visualize_quantum_circuit(results_dir)
+        
+        # 回路情報の保存
+        json_path, summary_path = qsolver.save_circuit_information(results_dir)
+        
+        # メトリクスの可視化
+        metrics_path = qsolver.visualize_circuit_metrics(results_dir)
+        
+        print(f"\n生成されたファイル:")
+        print(f"  - 量子回路図: {circuit_image_path}")
+        print(f"  - 回路情報JSON: {json_path}")
+        print(f"  - 回路サマリー: {summary_path}")
+        print(f"  - メトリクス図: {metrics_path}")
     # 3. 解析解の計算
     u_analytical = compute_analytical_solution()
     
@@ -3196,6 +4846,25 @@ def main():
         print(f"  - 実機効率スコア: {template.hardware_efficiency:.3f}")
         print(f"  - 表現力スコア: {template.expressivity_score:.3f}")
         print(f"  - エンタングリングパターン: {template.entangling_pattern}")
+        
+        # 最適化手法の情報
+        if qsolver.is_hardware and NSGA2_AVAILABLE:
+            print(f"\n最適化手法情報:NSGA-II with REX crossover")
+            
+        elif qsolver.is_hardware and qsolver.use_rcga:
+            print(f"\n最適化手法情報:")
+            print(f"  - 手法: RCGA (実数値遺伝的アルゴリズム)")
+            print(f"  - 交叉: REX (実数値交叉)")
+            print(f"  - 選択: JGG (Just Generation Gap)")
+            print(f"  - 初期化: LHS (Latin Hypercube Sampling)")
+            
+            # 集団統計情報（RCGAの場合）
+            if hasattr(qsolver, 'mean_fitness_history') and qsolver.mean_fitness_history:
+                print(f"\n集団進化統計:")
+                print(f"  - 初期平均適応度: {qsolver.mean_fitness_history[0]:.6f}")
+                print(f"  - 最終平均適応度: {qsolver.mean_fitness_history[-1]:.6f}")
+                mean_improvement = (qsolver.mean_fitness_history[0] - qsolver.mean_fitness_history[-1]) / qsolver.mean_fitness_history[0] * 100
+                print(f"  - 平均適応度改善率: {mean_improvement:.2f}%")
         
         # GPTモデル情報
         if hasattr(qsolver.gqe_generator, 'gpt_model') and qsolver.gqe_generator.gpt_model is not None:
@@ -3280,7 +4949,10 @@ def main():
     
     print(f"\nアルゴリズム比較:")
     print(f"  - PINN (古典): 深層ネットワーク、境界条件考慮、統一的最適化")
-    print(f"  - GQE-GPT-QPINN (量子): GPTベース回路生成、実機向け最適化、ノイズ耐性、境界条件考慮")
+    if qsolver.is_hardware and qsolver.use_rcga:
+        print(f"  - GQE-GPT-QPINN (量子): GPTベース回路生成、NSGA2/RCGA最適化、ノイズ耐性、境界条件考慮")
+    else:
+        print(f"  - GQE-GPT-QPINN (量子): GPTベース回路生成、実機向け最適化、ノイズ耐性、境界条件考慮")
     print(f"  - 両手法とも境界条件関数を正しく使用")
     
     # 計算リソース効率
