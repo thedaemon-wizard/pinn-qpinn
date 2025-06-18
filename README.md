@@ -67,6 +67,7 @@ pip install -r requirements.txt
 ### 3. Build RCGA optimizer
 ```bash
 pip install -U . rcga_optimizer
+pip install -U . nsga2_optimizer
 ```
 
 ## Usage
