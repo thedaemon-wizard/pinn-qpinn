@@ -1,0 +1,41 @@
+================================================================================
+NSGA-II Multi-Objective Optimization Summary
+================================================================================
+
+1. Configuration
+----------------------------------------
+  - Number of Objectives: 5
+  - Population Size: 100
+  - Max Generations: 100
+  - REX Expansion Rate: 1.2
+  - Number of Parents: 3
+  - Number of Children: 10
+  - Total Parameters: 12
+
+2. Optimization Results
+----------------------------------------
+  - Total Time: 4281.96 seconds
+  - Best Solution Found at Generation: 90
+  - Best Combined Loss: 0.063518
+
+  - Final Pareto Front Size: 34
+  - Total Pareto Solutions Generated: 3351
+
+3. Objective Function Improvements
+----------------------------------------
+  - Initial: 0.075746 → 0.038837 (Improvement: 48.73%)
+  - Peak: 0.000007 → 0.000000 (Improvement: 100.00%)
+  - Boundary: 0.000000 → 0.000000 (Improvement: 0.00%)
+  - Data: 0.034688 → 0.013965 (Improvement: 59.74%)
+  - Pde: 0.000000 → 0.000000 (Improvement: 0.00%)
+
+4. Hypervolume Evolution
+----------------------------------------
+  - Initial: 0.988982
+  - Final: 0.994725
+  - Improvement: 0.58%
+
+5. Population Statistics
+----------------------------------------
+  - Final Number of Fronts: 2
+  - Average Pareto Front Size: 33.5
