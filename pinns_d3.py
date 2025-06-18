@@ -18,6 +18,7 @@ from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_compl
 import functools
 from dataclasses import dataclass, field
 import pickle
+import math
 import threading
 from queue import Queue
 import psutil
@@ -30,6 +31,9 @@ from transformers import GPT2Model, GPT2Config, GPT2Tokenizer, GPT2LMHeadModel
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.preprocessing import StandardScaler
+
 
 # ファイルの先頭、他のインポートの後に追加
 try:
@@ -125,6 +129,15 @@ class CircuitSequenceData:
     score: float        # 回路評価スコア
     metadata: Dict[str, Any] = field(default_factory=dict)
 
+
+if hasattr(torch.serialization, 'add_safe_globals'):
+    # カスタムクラスを安全なグローバルとして登録
+    torch.serialization.add_safe_globals([QuantumCircuitTemplate])
+    torch.serialization.add_safe_globals([np._core.multiarray.scalar])
+    torch.serialization.add_safe_globals([np.dtype])
+    torch.serialization.add_safe_globals([np.dtypes.Float32DType])
+    torch.serialization.add_safe_globals([np.dtypes.Float64DType])
+    torch.serialization.add_safe_globals([np.dtypes.StrDType])
 #================================================
 # 初期条件と境界条件の定義（修正版）
 #================================================
@@ -341,11 +354,1366 @@ class QuantumCircuitDataset(Dataset):
 #================================================
 # GQE (Generative Quantum Eigensolver) with GPT
 #================================================
+
+
+class CircuitEnergyPredictor(nn.Module):
+    """回路特徴量からエネルギーを予測するニューラルネットワーク"""
+    
+    def __init__(self, input_dim=20, hidden_dims=[128, 64, 32]):
+        super().__init__()
+        
+        layers = []
+        prev_dim = input_dim
+        
+        for hidden_dim in hidden_dims:
+            layers.extend([
+                nn.Linear(prev_dim, hidden_dim),
+                nn.ReLU(),
+                nn.Dropout(0.2),
+                nn.BatchNorm1d(hidden_dim)
+            ])
+            prev_dim = hidden_dim
+        
+        layers.append(nn.Linear(prev_dim, 1))
+        self.network = nn.Sequential(*layers)
+        
+        # 出力の正規化
+        self.output_scale = nn.Parameter(torch.tensor(1.0))
+        self.output_shift = nn.Parameter(torch.tensor(0.0))
+    
+    def forward(self, x):
+        output = self.network(x)
+        return output * self.output_scale + self.output_shift
+
+class CircuitFeatureExtractor:
+    """量子回路から特徴量を抽出"""
+    
+    def __init__(self, n_qubits):
+        self.n_qubits = n_qubits
+        self.gate_types = ['RX', 'RY', 'RZ', 'H', 'S', 'T', 'CNOT', 'CZ', 'SWAP']
+    
+    def extract_features(self, template):
+        """回路テンプレートから特徴量ベクトルを抽出"""
+        features = []
+        
+        # 1. 基本統計
+        features.append(len(template.gate_sequence))  # 総ゲート数
+        features.append(len(template.parameter_map))  # パラメータ数
+        features.append(self._calculate_circuit_depth(template))  # 回路深度
+        
+        # 2. ゲートタイプ分布
+        gate_counts = {gate_type: 0 for gate_type in self.gate_types}
+        for gate_info in template.gate_sequence:
+            if gate_info['gate'] in gate_counts:
+                gate_counts[gate_info['gate']] += 1
+        
+        total_gates = sum(gate_counts.values())
+        for gate_type in self.gate_types:
+            ratio = gate_counts[gate_type] / (total_gates + 1e-6)
+            features.append(ratio)
+        
+        # 3. エンタングリング構造
+        features.append(self._compute_entangling_ratio(template))
+        features.append(self._compute_connectivity_measure(template))
+        features.append(self._compute_layer_regularity(template))
+        
+        # 4. ハードウェア効率性指標
+        features.append(template.hardware_efficiency)
+        features.append(template.noise_resilience_score)
+        features.append(template.expressivity_score)
+        
+        # 5. 構造的特徴
+        features.append(self._compute_gate_diversity(template))
+        features.append(self._compute_parameter_density(template))
+        
+        return np.array(features, dtype=np.float32)
+    
+    def _calculate_circuit_depth(self, template):
+        """回路深度を計算"""
+        if not template.gate_sequence:
+            return 0
+        
+        qubit_layers = {}
+        max_layer = 0
+        
+        for gate_info in template.gate_sequence:
+            qubits = gate_info['qubits']
+            current_layer = 0
+            
+            for q in qubits:
+                if q in qubit_layers:
+                    current_layer = max(current_layer, qubit_layers[q] + 1)
+            
+            for q in qubits:
+                qubit_layers[q] = current_layer
+            
+            max_layer = max(max_layer, current_layer)
+        
+        return max_layer + 1
+    
+    def _compute_entangling_ratio(self, template):
+        """エンタングリング比率"""
+        entangling_gates = ['CNOT', 'CZ', 'SWAP']
+        entangling_count = sum(1 for gate in template.gate_sequence 
+                              if gate['gate'] in entangling_gates)
+        return entangling_count / (len(template.gate_sequence) + 1e-6)
+    
+    def _compute_connectivity_measure(self, template):
+        """接続性指標"""
+        connections = set()
+        for gate in template.gate_sequence:
+            if len(gate['qubits']) >= 2:
+                q1, q2 = gate['qubits'][0], gate['qubits'][1]
+                if q1 < self.n_qubits and q2 < self.n_qubits:
+                    connections.add((min(q1, q2), max(q1, q2)))
+        
+        max_connections = self.n_qubits * (self.n_qubits - 1) // 2
+        return len(connections) / max(max_connections, 1)
+    
+    def _compute_layer_regularity(self, template):
+        """層の規則性"""
+        layers = self._decompose_into_layers(template)
+        if len(layers) <= 1:
+            return 1.0
+        
+        layer_sizes = [len(layer) for layer in layers]
+        mean_size = np.mean(layer_sizes)
+        variance = np.var(layer_sizes)
+        
+        return 1.0 / (1.0 + variance / (mean_size + 1e-6))
+    
+    def _decompose_into_layers(self, template):
+        """回路を層に分解"""
+        layers = []
+        current_layer = []
+        used_qubits = set()
+        
+        for gate in template.gate_sequence:
+            gate_qubits = set(gate['qubits'])
+            
+            if gate_qubits & used_qubits:
+                if current_layer:
+                    layers.append(current_layer)
+                current_layer = [gate]
+                used_qubits = gate_qubits
+            else:
+                current_layer.append(gate)
+                used_qubits |= gate_qubits
+        
+        if current_layer:
+            layers.append(current_layer)
+        
+        return layers
+    
+    def _compute_gate_diversity(self, template):
+        """ゲートの多様性"""
+        unique_gates = set(gate['gate'] for gate in template.gate_sequence)
+        return len(unique_gates) / len(self.gate_types)
+    
+    def _compute_parameter_density(self, template):
+        """パラメータ密度"""
+        return len(template.parameter_map) / (len(template.gate_sequence) + 1e-6)
+
+class AIEnergyEstimator:
+    """AI強化エネルギー推定器"""
+    
+    def __init__(self, n_qubits=6, model_path='circuit_energy_model.pth'):
+        self.n_qubits = n_qubits
+        self.model_path = model_path
+        self.feature_extractor = CircuitFeatureExtractor(n_qubits)
+        
+        # 特徴量の次元数（上記のextract_featuresの出力次元）
+        feature_dim = 3 + len(self.feature_extractor.gate_types) + 7  # 約20次元
+        
+        self.predictor = CircuitEnergyPredictor(input_dim=feature_dim)
+        self.scaler = StandardScaler()
+        
+        # フォールバック用の軽量モデル
+        self.fallback_model = RandomForestRegressor(n_estimators=50, random_state=42)
+        
+        # 学習データ蓄積用
+        self.training_features = []
+        self.training_energies = []
+        self.is_trained = False
+        
+        # 事前学習済みモデルがあれば読み込み
+        self._load_pretrained_model()
+    
+    def _load_pretrained_model(self):
+        """事前学習済みモデルの読み込み"""
+        try:
+            if os.path.exists(self.model_path):
+                checkpoint = torch.load(self.model_path, map_location='cpu')
+                self.predictor.load_state_dict(checkpoint['model_state_dict'])
+                
+                if 'scaler_params' in checkpoint:
+                    self.scaler.mean_ = checkpoint['scaler_params']['mean']
+                    self.scaler.scale_ = checkpoint['scaler_params']['scale']
+                    self.scaler.n_features_in_ = checkpoint['scaler_params']['n_features']
+                
+                self.is_trained = True
+                print(f"事前学習済みエネルギー予測モデルを読み込み: {self.model_path}")
+        except Exception as e:
+            print(f"事前学習済みモデル読み込みエラー: {e}")
+    
+    def predict_energy(self, template, use_fallback=True):
+        """エネルギー予測（高速）"""
+        try:
+            features = self.feature_extractor.extract_features(template)
+            
+            if self.is_trained:
+                # ニューラルネットワークで予測
+                features_scaled = self.scaler.transform(features.reshape(1, -1))
+                features_tensor = torch.tensor(features_scaled, dtype=torch.float32)
+                
+                self.predictor.eval()
+                with torch.no_grad():
+                    predicted_energy = self.predictor(features_tensor).item()
+                
+                return predicted_energy
+            
+            elif use_fallback and len(self.training_features) >= 10:
+                # フォールバック用ランダムフォレスト
+                try:
+                    predicted_energy = self.fallback_model.predict(features.reshape(1, -1))[0]
+                    return predicted_energy
+                except:
+                    pass
+        
+        except Exception as e:
+            print(f"AI予測エラー: {e}")
+        
+        # 最終フォールバック：特徴量ベースの簡易推定
+        return self._heuristic_energy_estimate(template)
+    
+    def _heuristic_energy_estimate(self, template):
+        """特徴量ベースの簡易エネルギー推定"""
+        # 基本的な特徴量から経験的にエネルギーを推定
+        n_gates = len(template.gate_sequence)
+        n_params = len(template.parameter_map)
+        
+        # エンタングリング比率
+        entangling_gates = ['CNOT', 'CZ', 'SWAP']
+        entangling_count = sum(1 for gate in template.gate_sequence 
+                              if gate['gate'] in entangling_gates)
+        entangling_ratio = entangling_count / max(n_gates, 1)
+        
+        # 経験的公式（実際のデータで調整が必要）
+        base_energy = -2.0 * (self.n_qubits - 1)  # 基底状態の推定下限
+        
+        # 回路の複雑さによる補正
+        complexity_factor = 1.0 + 0.1 * np.log(n_gates + 1)
+        entangling_factor = 1.0 - 0.3 * entangling_ratio
+        parameter_factor = 1.0 + 0.05 * np.sqrt(n_params)
+        
+        estimated_energy = base_energy * complexity_factor * entangling_factor * parameter_factor
+        
+        # ランダムノイズを追加（多様性確保）
+        noise = np.random.normal(0, 0.1)
+        
+        return estimated_energy + noise
+    
+    def add_training_data(self, template, actual_energy):
+        """学習データを追加"""
+        try:
+            features = self.feature_extractor.extract_features(template)
+            self.training_features.append(features)
+            self.training_energies.append(actual_energy)
+            
+            # 一定数たまったらモデルを更新
+            if len(self.training_features) >= 50:
+                self._update_models()
+        
+        except Exception as e:
+            print(f"学習データ追加エラー: {e}")
+    
+    def _update_models(self):
+        """モデルの更新学習"""
+        try:
+            if len(self.training_features) < 10:
+                return
+            
+            X = np.array(self.training_features)
+            y = np.array(self.training_energies)
+            
+            # 外れ値除去
+            q75, q25 = np.percentile(y, [75, 25])
+            iqr = q75 - q25
+            lower_bound = q25 - 1.5 * iqr
+            upper_bound = q75 + 1.5 * iqr
+            
+            mask = (y >= lower_bound) & (y <= upper_bound)
+            X_clean = X[mask]
+            y_clean = y[mask]
+            
+            if len(X_clean) < 5:
+                return
+            
+            # 正規化
+            self.scaler.fit(X_clean)
+            X_scaled = self.scaler.transform(X_clean)
+            
+            # ニューラルネットワークの学習
+            self._train_neural_network(X_scaled, y_clean)
+            
+            # ランダムフォレストも更新
+            self.fallback_model.fit(X_clean, y_clean)
+            
+            self.is_trained = True
+            
+            # モデル保存
+            self._save_model()
+            
+            print(f"エネルギー予測モデルを更新: {len(X_clean)}サンプル")
+        
+        except Exception as e:
+            print(f"モデル更新エラー: {e}")
+    
+    def _train_neural_network(self, X, y, epochs=100):
+        """ニューラルネットワークの学習"""
+        X_tensor = torch.tensor(X, dtype=torch.float32)
+        y_tensor = torch.tensor(y, dtype=torch.float32).reshape(-1, 1)
+        
+        optimizer = torch.optim.Adam(self.predictor.parameters(), lr=0.001)
+        criterion = nn.MSELoss()
+        
+        self.predictor.train()
+        
+        for epoch in range(epochs):
+            optimizer.zero_grad()
+            
+            predictions = self.predictor(X_tensor)
+            loss = criterion(predictions, y_tensor)
+            
+            loss.backward()
+            optimizer.step()
+            
+            if epoch % 20 == 0:
+                print(f"  エネルギー予測学習 Epoch {epoch}, Loss: {loss.item():.6f}")
+    
+    def _save_model(self):
+        """モデルの保存"""
+        try:
+            checkpoint = {
+                'model_state_dict': self.predictor.state_dict(),
+                'scaler_params': {
+                    'mean': self.scaler.mean_,
+                    'scale': self.scaler.scale_,
+                    'n_features': self.scaler.n_features_in_
+                },
+                'training_samples': len(self.training_features)
+            }
+            
+            torch.save(checkpoint, self.model_path)
+            print(f"エネルギー予測モデルを保存: {self.model_path}")
+        
+        except Exception as e:
+            print(f"モデル保存エラー: {e}")
+            
+
+
+class CircuitTransformerPredictor(nn.Module):
+    """回路シーケンスからエネルギー予測するトランスフォーマー（修正版）"""
+    
+    def __init__(self, vocab_size: int, d_model: int = 256, nhead: int = 8, 
+                 num_layers: int = 4, dropout: float = 0.1, max_len: int = 500):
+        super().__init__()
+        
+        self.d_model = d_model
+        self.vocab_size = vocab_size
+        self.max_len = max_len
+        
+        # エンベディング層
+        self.embedding = nn.Embedding(vocab_size, d_model)
+        self.pos_encoder = PositionalEncoding(d_model, dropout, max_len)
+        
+        # トランスフォーマーエンコーダー（修正版）
+        encoder_layers = nn.TransformerEncoderLayer(
+            d_model=d_model,
+            nhead=nhead,
+            dim_feedforward=d_model * 4,
+            dropout=dropout,
+            activation='gelu',
+            batch_first=True,  # これが重要
+            norm_first=True
+        )
+        self.transformer_encoder = nn.TransformerEncoder(
+            encoder_layers, 
+            num_layers=num_layers,
+            norm=nn.LayerNorm(d_model)
+        )
+        
+        # アテンション重み可視化用
+        self.attention_weights = None
+        
+        # 出力ヘッド
+        self.energy_head = nn.Sequential(
+            nn.Linear(d_model, d_model // 2),
+            nn.GELU(),
+            nn.Dropout(dropout),
+            nn.LayerNorm(d_model // 2),
+            nn.Linear(d_model // 2, d_model // 4),
+            nn.GELU(),
+            nn.Dropout(dropout),
+            nn.Linear(d_model // 4, 1)
+        )
+        
+        # 補助タスク：回路特性予測
+        self.circuit_properties_head = nn.Sequential(
+            nn.Linear(d_model, d_model // 2),
+            nn.GELU(),
+            nn.Dropout(dropout),
+            nn.Linear(d_model // 2, 5)
+        )
+        
+        # 初期化
+        self._init_weights()
+    
+    def _init_weights(self):
+        """重みの初期化"""
+        for module in self.modules():
+            if isinstance(module, nn.Linear):
+                torch.nn.init.xavier_uniform_(module.weight)
+                if module.bias is not None:
+                    torch.nn.init.zeros_(module.bias)
+            elif isinstance(module, nn.Embedding):
+                torch.nn.init.normal_(module.weight, mean=0, std=0.02)
+    
+    def create_padding_mask(self, x: torch.Tensor, pad_token_id: int = 0) -> torch.Tensor:
+        """パディングマスクの作成（修正版）"""
+        # batch_first=Trueの場合、マスクは[batch_size, seq_len]である必要がある
+        return (x == pad_token_id)
+    
+    def forward(self, circuit_tokens: torch.Tensor, return_attention: bool = False) -> Dict[str, torch.Tensor]:
+        """
+        Args:
+            circuit_tokens: [batch_size, seq_len] 回路トークンシーケンス
+            return_attention: アテンション重みを返すかどうか
+        
+        Returns:
+            Dict containing energy prediction and auxiliary outputs
+        """
+        batch_size, seq_len = circuit_tokens.shape
+        
+        # 入力の検証
+        if seq_len > self.max_len:
+            circuit_tokens = circuit_tokens[:, :self.max_len]
+            seq_len = self.max_len
+        
+        # パディングマスクの作成（修正版）
+        padding_mask = self.create_padding_mask(circuit_tokens, pad_token_id=0)
+        
+        # エンベディングと位置エンコーディング（修正版）
+        embedded = self.embedding(circuit_tokens) * math.sqrt(self.d_model)
+        
+        # 位置エンコーディングの適用（batch_first=Trueに対応）
+        if hasattr(self.pos_encoder, 'pe'):
+            # PositionalEncodingクラスを使用する場合
+            # batch_firstに対応するため転置が必要
+            embedded_transposed = embedded.transpose(0, 1)  # [seq_len, batch_size, d_model]
+            embedded_with_pos = self.pos_encoder(embedded_transposed)
+            embedded = embedded_with_pos.transpose(0, 1)  # [batch_size, seq_len, d_model]
+        else:
+            # 手動で位置エンコーディングを追加
+            position_ids = torch.arange(seq_len, device=circuit_tokens.device).unsqueeze(0).expand(batch_size, -1)
+            embedded = embedded + self._get_positional_encoding(position_ids)
+        
+        # トランスフォーマーエンコーダー（修正版）
+        try:
+            if return_attention:
+                # アテンション重みを取得するためのフック
+                attention_weights = []
+                
+                def hook_fn(module, input, output):
+                    # アテンション重みを保存
+                    if len(output) > 1 and output[1] is not None:
+                        attention_weights.append(output[1].detach())
+                
+                handles = []
+                for layer in self.transformer_encoder.layers:
+                    handle = layer.self_attn.register_forward_hook(hook_fn)
+                    handles.append(handle)
+                
+                # src_key_padding_maskを正しく渡す
+                encoded = self.transformer_encoder(embedded, src_key_padding_mask=padding_mask)
+                
+                # フックを削除
+                for handle in handles:
+                    handle.remove()
+                
+                self.attention_weights = attention_weights
+            else:
+                # 通常の推論
+                encoded = self.transformer_encoder(embedded, src_key_padding_mask=padding_mask)
+        
+        except Exception as e:
+            print(f"トランスフォーマーエンコーダーエラー: {e}")
+            # フォールバック：マスクなしで実行
+            encoded = self.transformer_encoder(embedded)
+        
+        # グローバル表現の計算（修正版）
+        # パディングマスクを考慮した重み付き平均
+        if padding_mask is not None:
+            # パディング部分を除外するためのマスク
+            attention_mask = (~padding_mask).float().unsqueeze(-1)  # [batch_size, seq_len, 1]
+            
+            # 重み付き平均プーリング
+            weighted_encoded = encoded * attention_mask
+            sum_encoded = weighted_encoded.sum(dim=1)  # [batch_size, d_model]
+            sum_mask = attention_mask.sum(dim=1)  # [batch_size, 1]
+            global_repr = sum_encoded / (sum_mask + 1e-8)
+        else:
+            # シンプルな平均プーリング
+            global_repr = encoded.mean(dim=1)  # [batch_size, d_model]
+        
+        # エネルギー予測
+        energy_pred = self.energy_head(global_repr)
+        
+        # 補助タスク：回路特性予測
+        properties_pred = self.circuit_properties_head(global_repr)
+        
+        output = {
+            'energy': energy_pred.squeeze(-1),  # [batch_size]
+            'circuit_properties': properties_pred,  # [batch_size, 5]
+            'global_representation': global_repr,  # [batch_size, d_model]
+        }
+        
+        if return_attention and hasattr(self, 'attention_weights'):
+            output['attention_weights'] = self.attention_weights
+        
+        return output
+    
+    def _get_positional_encoding(self, position_ids: torch.Tensor) -> torch.Tensor:
+        """手動位置エンコーディング"""
+        batch_size, seq_len = position_ids.shape
+        
+        # 位置エンコーディングの計算
+        pos_encoding = torch.zeros(batch_size, seq_len, self.d_model, device=position_ids.device)
+        
+        position = position_ids.unsqueeze(-1).float()  # [batch_size, seq_len, 1]
+        
+        div_term = torch.exp(torch.arange(0, self.d_model, 2, device=position_ids.device).float() * 
+                           (-math.log(10000.0) / self.d_model))
+        
+        pos_encoding[:, :, 0::2] = torch.sin(position * div_term)
+        pos_encoding[:, :, 1::2] = torch.cos(position * div_term)
+        
+        return pos_encoding
+    
+    def predict_energy(self, circuit_tokens: torch.Tensor) -> torch.Tensor:
+        """エネルギーのみを予測（修正版）"""
+        self.eval()
+        with torch.no_grad():
+            # 入力の形状確認
+            if circuit_tokens.dim() == 1:
+                circuit_tokens = circuit_tokens.unsqueeze(0)  # バッチ次元を追加
+            
+            output = self.forward(circuit_tokens)
+            return output['energy']
+
+# PositionalEncodingクラスの修正
+class PositionalEncoding(nn.Module):
+    """位置エンコーディング（修正版）"""
+    
+    def __init__(self, d_model: int, dropout: float = 0.1, max_len: int = 1000):
+        super().__init__()
+        self.dropout = nn.Dropout(p=dropout)
+        
+        pe = torch.zeros(max_len, d_model)
+        position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
+        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model))
+        
+        pe[:, 0::2] = torch.sin(position * div_term)
+        pe[:, 1::2] = torch.cos(position * div_term)
+        pe = pe.unsqueeze(0).transpose(0, 1)  # [max_len, 1, d_model]
+        
+        self.register_buffer('pe', pe)
+    
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Args:
+            x: [seq_len, batch_size, d_model] (batch_first=Falseの場合)
+        """
+        seq_len = x.size(0)
+        x = x + self.pe[:seq_len, :, :]
+        return self.dropout(x)
+    
+class CircuitTokenizer:
+    """量子回路のトークナイザー"""
+    
+    def __init__(self, n_qubits: int):
+        self.n_qubits = n_qubits
+        self.special_tokens = ['[PAD]', '[START]', '[END]', '[SEP]', '[UNK]']
+        self.gate_tokens = []
+        
+        # 単一量子ビットゲート
+        for gate in ['RX', 'RY', 'RZ', 'H', 'S', 'T', 'X', 'Y', 'Z']:
+            for q in range(n_qubits):
+                self.gate_tokens.append(f'{gate}_{q}')
+        
+        # 2量子ビットゲート
+        for gate in ['CNOT', 'CZ', 'SWAP', 'CRX', 'CRY', 'CRZ']:
+            for q1 in range(n_qubits):
+                for q2 in range(n_qubits):
+                    if q1 != q2:
+                        self.gate_tokens.append(f'{gate}_{q1}_{q2}')
+        
+        # パラメータトークン
+        n_param_bins = 32
+        param_values = np.linspace(-np.pi, np.pi, n_param_bins)
+        for i, val in enumerate(param_values):
+            self.gate_tokens.append(f'PARAM_{i}')
+        
+        # 全トークンリスト
+        self.all_tokens = self.special_tokens + self.gate_tokens
+        
+        # トークン↔ID マッピング
+        self.token_to_id = {token: i for i, token in enumerate(self.all_tokens)}
+        self.id_to_token = {i: token for i, token in enumerate(self.all_tokens)}
+        self.vocab_size = len(self.all_tokens)
+        
+        # 特殊トークンID
+        self.pad_token_id = self.token_to_id['[PAD]']
+        self.start_token_id = self.token_to_id['[START]']
+        self.end_token_id = self.token_to_id['[END]']
+        self.unk_token_id = self.token_to_id['[UNK]']
+    
+    def circuit_to_tokens(self, gate_sequence: List[Dict], max_length: int = 200) -> List[int]:
+        """回路をトークンシーケンスに変換"""
+        tokens = [self.start_token_id]
+        
+        for gate_info in gate_sequence:
+            gate_type = gate_info['gate']
+            qubits = gate_info['qubits']
+            
+            # ゲートトークン
+            if len(qubits) == 1:
+                token_str = f'{gate_type}_{qubits[0]}'
+            elif len(qubits) == 2:
+                token_str = f'{gate_type}_{qubits[0]}_{qubits[1]}'
+            else:
+                continue
+            
+            token_id = self.token_to_id.get(token_str, self.unk_token_id)
+            tokens.append(token_id)
+            
+            # パラメータトークン（学習可能なゲートの場合）
+            if gate_info.get('trainable', False):
+                # パラメータ値を離散化
+                param_value = gate_info.get('param_value', 0.0)
+                param_bin = int((param_value + np.pi) / (2 * np.pi) * 32)
+                param_bin = np.clip(param_bin, 0, 31)
+                param_token = f'PARAM_{param_bin}'
+                param_token_id = self.token_to_id.get(param_token, self.unk_token_id)
+                tokens.append(param_token_id)
+        
+        tokens.append(self.end_token_id)
+        
+        # パディングまたは切り捨て
+        if len(tokens) > max_length:
+            tokens = tokens[:max_length-1] + [self.end_token_id]
+        else:
+            tokens.extend([self.pad_token_id] * (max_length - len(tokens)))
+        
+        return tokens
+    
+    def tokens_to_circuit(self, tokens: List[int]) -> List[Dict]:
+        """トークンシーケンスを回路に変換"""
+        gate_sequence = []
+        param_counter = 0
+        
+        i = 0
+        while i < len(tokens):
+            token_id = tokens[i]
+            
+            if token_id in [self.pad_token_id, self.start_token_id, self.end_token_id]:
+                i += 1
+                continue
+            
+            token_str = self.id_to_token.get(token_id, '[UNK]')
+            
+            if token_str.startswith('PARAM_'):
+                i += 1
+                continue
+            
+            # ゲートトークンの解析
+            if '_' in token_str and not token_str.startswith('['):
+                parts = token_str.split('_')
+                gate_type = parts[0]
+                
+                if len(parts) == 2:  # 単一量子ビットゲート
+                    try:
+                        qubit = int(parts[1])
+                        if qubit < self.n_qubits:
+                            trainable = gate_type in ['RX', 'RY', 'RZ', 'CRX', 'CRY', 'CRZ']
+                            
+                            gate_info = {
+                                'gate': gate_type,
+                                'qubits': [qubit],
+                                'param_idx': param_counter if trainable else None,
+                                'trainable': trainable
+                            }
+                            
+                            # 次のトークンがパラメータかチェック
+                            if trainable and i + 1 < len(tokens):
+                                next_token_str = self.id_to_token.get(tokens[i + 1], '')
+                                if next_token_str.startswith('PARAM_'):
+                                    param_bin = int(next_token_str.split('_')[1])
+                                    param_value = (param_bin / 32.0) * 2 * np.pi - np.pi
+                                    gate_info['param_value'] = param_value
+                                    i += 1  # パラメータトークンをスキップ
+                                    param_counter += 1
+                            
+                            gate_sequence.append(gate_info)
+                    except (ValueError, IndexError):
+                        pass
+                
+                elif len(parts) == 3:  # 2量子ビットゲート
+                    try:
+                        qubit1, qubit2 = int(parts[1]), int(parts[2])
+                        if qubit1 < self.n_qubits and qubit2 < self.n_qubits and qubit1 != qubit2:
+                            gate_info = {
+                                'gate': gate_type,
+                                'qubits': [qubit1, qubit2],
+                                'param_idx': None,
+                                'trainable': False
+                            }
+                            gate_sequence.append(gate_info)
+                    except (ValueError, IndexError):
+                        pass
+            
+            i += 1
+        
+        return gate_sequence
+
+class TransformerEnergyDataset(torch.utils.data.Dataset):
+    """トランスフォーマー学習用データセット"""
+    
+    def __init__(self, circuits_data: List[Dict], tokenizer: CircuitTokenizer, max_length: int = 200):
+        self.circuits_data = circuits_data
+        self.tokenizer = tokenizer
+        self.max_length = max_length
+        
+        # データの前処理
+        self.processed_data = []
+        for data in circuits_data:
+            tokens = tokenizer.circuit_to_tokens(data['gate_sequence'], max_length)
+            
+            self.processed_data.append({
+                'tokens': torch.tensor(tokens, dtype=torch.long),
+                'energy': torch.tensor(data['energy'], dtype=torch.float32),
+                'circuit_properties': torch.tensor([
+                    data.get('depth', 0),
+                    data.get('n_params', 0),
+                    data.get('entangling_ratio', 0),
+                    data.get('hardware_efficiency', 0.8),
+                    data.get('noise_resilience', 0.8)
+                ], dtype=torch.float32)
+            })
+    
+    def __len__(self):
+        return len(self.processed_data)
+    
+    def __getitem__(self, idx):
+        return self.processed_data[idx]
+
+def train_transformer_predictor(model: CircuitTransformerPredictor, 
+                               dataset: TransformerEnergyDataset, 
+                               epochs: int = 100,
+                               batch_size: int = 32,
+                               learning_rate: float = 1e-4,
+                               device: str = 'cpu') -> List[float]:
+    """トランスフォーマー予測器の学習（修正版）"""
+    
+    model = model.to(device)
+    model.train()
+    
+    dataloader = torch.utils.data.DataLoader(
+        dataset, 
+        batch_size=batch_size, 
+        shuffle=True,
+        num_workers=0
+    )
+    
+    optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=0.01)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs)
+    
+    # 損失関数
+    energy_criterion = nn.MSELoss()
+    properties_criterion = nn.MSELoss()
+    
+    loss_history = []
+    
+    for epoch in range(epochs):
+        total_loss = 0.0
+        total_energy_loss = 0.0
+        total_properties_loss = 0.0
+        
+        for batch in dataloader:
+            tokens = batch['tokens'].to(device)
+            target_energy = batch['energy'].to(device)
+            target_properties = batch['circuit_properties'].to(device)
+            
+            optimizer.zero_grad()
+            
+            try:
+                # フォワードパス（修正版）
+                output = model(tokens)
+                
+                # 損失計算
+                energy_loss = energy_criterion(output['energy'], target_energy)
+                properties_loss = properties_criterion(output['circuit_properties'], target_properties)
+                
+                # 総合損失（エネルギー予測を重視）
+                loss = energy_loss + 0.1 * properties_loss
+                
+                # バックプロパゲーション
+                loss.backward()
+                torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+                optimizer.step()
+                
+                # 統計情報の更新（detach()使用）
+                total_loss += loss.detach().cpu().item()
+                total_energy_loss += energy_loss.detach().cpu().item()
+                total_properties_loss += properties_loss.detach().cpu().item()
+            
+            except Exception as e:
+                print(f"バッチ処理エラー: {e}")
+                continue
+        
+        scheduler.step()
+        
+        if len(dataloader) > 0:
+            avg_loss = total_loss / len(dataloader)
+            avg_energy_loss = total_energy_loss / len(dataloader)
+            avg_properties_loss = total_properties_loss / len(dataloader)
+            
+            loss_history.append(avg_loss)
+            
+            if epoch % 10 == 0:
+                print(f"Epoch {epoch}/{epochs}, "
+                      f"Total Loss: {avg_loss:.6f}, "
+                      f"Energy Loss: {avg_energy_loss:.6f}, "
+                      f"Properties Loss: {avg_properties_loss:.6f}")
+    
+    return loss_history
+
+class EnsembleEnergyPredictor:
+    """複数モデルのアンサンブル予測システム（修正版）"""
+    
+    def __init__(self, n_qubits: int, feature_model_path: str = None, 
+                 transformer_model_path: str = None):
+        self.n_qubits = n_qubits
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        
+        # 特徴量ベース予測器
+        self.feature_extractor = CircuitFeatureExtractor(n_qubits)
+        self.feature_predictor = CircuitEnergyPredictor(input_dim=20)
+        self.feature_scaler = StandardScaler()
+        
+        # トランスフォーマーベース予測器
+        self.tokenizer = CircuitTokenizer(n_qubits)
+        self.transformer_predictor = CircuitTransformerPredictor(
+            vocab_size=self.tokenizer.vocab_size,
+            d_model=256,
+            nhead=8,
+            num_layers=4
+        )
+        
+        # アンサンブル重み（修正版：requires_gradを無効化）
+        self.ensemble_weights = torch.tensor([0.6, 0.4], dtype=torch.float32, requires_grad=False)
+        self.temperature = torch.tensor(1.0, requires_grad=False)
+        
+        # モデルロード
+        self._load_models(feature_model_path, transformer_model_path)
+        
+        # 学習データ蓄積
+        self.training_data = []
+        self.is_ensemble_trained = False
+        
+        # 予測履歴（不確実性推定用）
+        self.prediction_history = []
+        self.actual_energy_history = []
+        
+        # アンサンブル統計
+        self.model_accuracies = {'feature': [], 'transformer': []}
+        self.model_weights_history = []
+    
+    def _load_models(self, feature_model_path: str, transformer_model_path: str):
+        """事前学習済みモデルの読み込み（修正版）"""
+        try:
+            if feature_model_path and os.path.exists(feature_model_path):
+                checkpoint = torch.load(feature_model_path, map_location=self.device, weights_only=False)
+                self.feature_predictor.load_state_dict(checkpoint['model_state_dict'])
+                
+                if 'scaler_params' in checkpoint and checkpoint['scaler_params'] is not None:
+                    self.feature_scaler.mean_ = checkpoint['scaler_params']['mean']
+                    self.feature_scaler.scale_ = checkpoint['scaler_params']['scale']
+                    self.feature_scaler.n_features_in_ = checkpoint['scaler_params']['n_features']
+                
+                print(f"特徴量ベースモデルを読み込み: {feature_model_path}")
+        
+        except Exception as e:
+            print(f"特徴量モデル読み込みエラー: {e}")
+        
+        try:
+            if transformer_model_path and os.path.exists(transformer_model_path):
+                checkpoint = torch.load(transformer_model_path, map_location=self.device, weights_only=False)
+                self.transformer_predictor.load_state_dict(checkpoint['model_state_dict'])
+                print(f"トランスフォーマーモデルを読み込み: {transformer_model_path}")
+        
+        except Exception as e:
+            print(f"トランスフォーマーモデル読み込みエラー: {e}")
+        
+        # デバイスに移動
+        self.feature_predictor.to(self.device)
+        self.transformer_predictor.to(self.device)
+    
+    def predict_energy_with_uncertainty(self, template: 'QuantumCircuitTemplate') -> Tuple[float, float, Dict]:
+        """不確実性付きエネルギー予測（修正版）"""
+        
+        detailed_output = {
+            'feature_prediction': None,
+            'transformer_prediction': None,
+            'ensemble_weights': None,
+            'individual_uncertainties': {},
+            'ensemble_uncertainty': None,
+            'confidence_score': None
+        }
+        
+        try:
+            # 1. 特徴量ベース予測（修正版）
+            features = self.feature_extractor.extract_features(template)
+            
+            if hasattr(self.feature_scaler, 'mean_') and self.feature_scaler.mean_ is not None:
+                features_scaled = self.feature_scaler.transform(features.reshape(1, -1))
+                features_tensor = torch.tensor(features_scaled, dtype=torch.float32).to(self.device)
+                
+                self.feature_predictor.eval()
+                with torch.no_grad():
+                    feature_output = self.feature_predictor(features_tensor)
+                    # detach()を使用してPythonの値に変換
+                    feature_energy = feature_output.detach().cpu().item()
+                    
+                detailed_output['feature_prediction'] = feature_energy
+            else:
+                feature_energy = self._heuristic_energy_estimate(template)
+                detailed_output['feature_prediction'] = feature_energy
+        
+        except Exception as e:
+            print(f"特徴量予測エラー: {e}")
+            feature_energy = self._heuristic_energy_estimate(template)
+            detailed_output['feature_prediction'] = feature_energy
+        
+        try:
+            # 2. トランスフォーマーベース予測（修正版）
+            tokens = self.tokenizer.circuit_to_tokens(template.gate_sequence)
+            tokens_tensor = torch.tensor(tokens, dtype=torch.long).unsqueeze(0).to(self.device)
+            
+            self.transformer_predictor.eval()
+            with torch.no_grad():
+                transformer_output = self.transformer_predictor(tokens_tensor)
+                # detach()を使用してPythonの値に変換
+                transformer_energy = transformer_output['energy'].detach().cpu().item()
+                
+                detailed_output['transformer_prediction'] = transformer_energy
+        
+        except Exception as e:
+            print(f"トランスフォーマー予測エラー: {e}")
+            # import traceback
+            # traceback.print_exc()
+            transformer_energy = feature_energy  # フォールバック
+            detailed_output['transformer_prediction'] = transformer_energy
+        
+        # 3. アンサンブル重みの計算（修正版）
+        weights = torch.softmax(self.ensemble_weights / self.temperature, dim=0)
+        # detach()を使用してnumpyに変換
+        detailed_output['ensemble_weights'] = weights.detach().cpu().numpy()
+        
+        # 4. アンサンブル予測（修正版）
+        ensemble_energy_tensor = (weights[0] * feature_energy + weights[1] * transformer_energy)
+        # Pythonの値に変換
+        if isinstance(ensemble_energy_tensor, torch.Tensor):
+            ensemble_energy = ensemble_energy_tensor.detach().cpu().item()
+        else:
+            ensemble_energy = float(ensemble_energy_tensor)
+        
+        # 5. 不確実性の推定
+        individual_uncertainties = self._estimate_individual_uncertainties(template)
+        detailed_output['individual_uncertainties'] = individual_uncertainties
+        
+        # 予測間の分散（epistemic uncertainty）
+        weight0 = weights[0].detach().cpu().item() if isinstance(weights[0], torch.Tensor) else float(weights[0])
+        weight1 = weights[1].detach().cpu().item() if isinstance(weights[1], torch.Tensor) else float(weights[1])
+        
+        prediction_variance = ((feature_energy - ensemble_energy) ** 2 * weight0 + 
+                              (transformer_energy - ensemble_energy) ** 2 * weight1)
+        
+        # 総不確実性
+        total_uncertainty = prediction_variance + np.mean(list(individual_uncertainties.values()))
+        detailed_output['ensemble_uncertainty'] = total_uncertainty
+        
+        # 信頼度スコア
+        confidence_score = 1.0 / (1.0 + total_uncertainty)
+        detailed_output['confidence_score'] = confidence_score
+        
+        return ensemble_energy, total_uncertainty, detailed_output
+    
+    def _estimate_individual_uncertainties(self, template: 'QuantumCircuitTemplate') -> Dict[str, float]:
+        """個別モデルの不確実性推定"""
+        uncertainties = {}
+        
+        # 特徴量モデルの不確実性（回路の複雑さベース）
+        complexity_score = len(template.gate_sequence) / 100.0
+        parameter_ratio = len(template.parameter_map) / max(len(template.gate_sequence), 1)
+        feature_uncertainty = 0.1 * (complexity_score + parameter_ratio)
+        uncertainties['feature'] = feature_uncertainty
+        
+        # トランスフォーマーモデルの不確実性（シーケンス長ベース）
+        sequence_length = len(template.gate_sequence)
+        if sequence_length > 50:  # 長いシーケンスは不確実性が高い
+            transformer_uncertainty = 0.1 + 0.01 * (sequence_length - 50)
+        else:
+            transformer_uncertainty = 0.05
+        uncertainties['transformer'] = transformer_uncertainty
+        
+        return uncertainties
+    
+    def _heuristic_energy_estimate(self, template: 'QuantumCircuitTemplate') -> float:
+        """経験的エネルギー推定"""
+        n_gates = len(template.gate_sequence)
+        n_params = len(template.parameter_map)
+        
+        entangling_gates = ['CNOT', 'CZ', 'SWAP']
+        entangling_count = sum(1 for gate in template.gate_sequence 
+                              if gate['gate'] in entangling_gates)
+        entangling_ratio = entangling_count / max(n_gates, 1)
+        
+        base_energy = -2.0 * (self.n_qubits - 1)
+        complexity_factor = 1.0 + 0.1 * np.log(n_gates + 1)
+        entangling_factor = 1.0 - 0.3 * entangling_ratio
+        parameter_factor = 1.0 + 0.05 * np.sqrt(n_params)
+        
+        estimated_energy = base_energy * complexity_factor * entangling_factor * parameter_factor
+        noise = np.random.normal(0, 0.1)
+        
+        return estimated_energy + noise
+    
+    def add_training_data(self, template: 'QuantumCircuitTemplate', actual_energy: float):
+        """学習データの追加とオンライン学習（修正版）"""
+        
+        # 予測と実際の値を記録
+        predicted_energy, uncertainty, details = self.predict_energy_with_uncertainty(template)
+        
+        self.prediction_history.append(predicted_energy)
+        self.actual_energy_history.append(actual_energy)
+        
+        # 個別モデルの精度を更新
+        if details['feature_prediction'] is not None:
+            feature_error = abs(details['feature_prediction'] - actual_energy)
+            self.model_accuracies['feature'].append(feature_error)
+        
+        if details['transformer_prediction'] is not None:
+            transformer_error = abs(details['transformer_prediction'] - actual_energy)
+            self.model_accuracies['transformer'].append(transformer_error)
+        
+        # 学習データに追加
+        self.training_data.append({
+            'template': template,
+            'actual_energy': actual_energy,
+            'predicted_energy': predicted_energy,
+            'uncertainty': uncertainty,
+            'details': details
+        })
+        
+        # 定期的なアンサンブル重み更新
+        if len(self.training_data) % 20 == 0:
+            self._update_ensemble_weights()
+        
+        # 大量データが蓄積されたら個別モデルも再学習
+        if len(self.training_data) % 100 == 0:
+            self._retrain_individual_models()
+    
+    def _update_ensemble_weights(self):
+        """アンサンブル重みの更新（修正版）"""
+        if len(self.model_accuracies['feature']) < 10 or len(self.model_accuracies['transformer']) < 10:
+            return
+        
+        # 最近の精度で重みを計算
+        recent_feature_errors = self.model_accuracies['feature'][-20:]
+        recent_transformer_errors = self.model_accuracies['transformer'][-20:]
+        
+        feature_accuracy = 1.0 / (np.mean(recent_feature_errors) + 1e-6)
+        transformer_accuracy = 1.0 / (np.mean(recent_transformer_errors) + 1e-6)
+        
+        total_accuracy = feature_accuracy + transformer_accuracy
+        
+        # 重みを更新（指数移動平均）
+        alpha = 0.1
+        new_feature_weight = feature_accuracy / total_accuracy
+        new_transformer_weight = transformer_accuracy / total_accuracy
+        
+        # requires_grad=Falseのテンソルを直接更新
+        self.ensemble_weights[0] = (1 - alpha) * self.ensemble_weights[0] + alpha * new_feature_weight
+        self.ensemble_weights[1] = (1 - alpha) * self.ensemble_weights[1] + alpha * new_transformer_weight
+        
+        # 正規化
+        weight_sum = self.ensemble_weights.sum()
+        self.ensemble_weights = self.ensemble_weights / weight_sum
+        
+        # 履歴に保存（detach()使用）
+        self.model_weights_history.append(self.ensemble_weights.detach().cpu().numpy().copy())
+        
+        print(f"アンサンブル重み更新: Feature={self.ensemble_weights[0]:.3f}, "
+              f"Transformer={self.ensemble_weights[1]:.3f}")
+    
+    def _retrain_individual_models(self):
+        """個別モデルの再学習"""
+        if len(self.training_data) < 50:
+            return
+        
+        print(f"個別モデルの再学習開始: {len(self.training_data)}サンプル")
+        
+        # 特徴量モデルの再学習
+        try:
+            self._retrain_feature_model()
+        except Exception as e:
+            print(f"特徴量モデル再学習エラー: {e}")
+        
+        # トランスフォーマーモデルの再学習
+        try:
+            self._retrain_transformer_model()
+        except Exception as e:
+            print(f"トランスフォーマーモデル再学習エラー: {e}")
+    
+    def _retrain_feature_model(self):
+        """特徴量モデルの再学習（修正版）"""
+        # 特徴量とターゲットの準備
+        features_list = []
+        energies_list = []
+        
+        for data in self.training_data[-100:]:  # 最新の100サンプル
+            features = self.feature_extractor.extract_features(data['template'])
+            features_list.append(features)
+            energies_list.append(data['actual_energy'])
+        
+        if len(features_list) < 10:
+            return
+        
+        X = np.array(features_list)
+        y = np.array(energies_list)
+        
+        # 外れ値除去
+        q75, q25 = np.percentile(y, [75, 25])
+        iqr = q75 - q25
+        mask = (y >= q25 - 1.5 * iqr) & (y <= q75 + 1.5 * iqr)
+        X_clean = X[mask]
+        y_clean = y[mask]
+        
+        if len(X_clean) < 5:
+            return
+        
+        # 正規化
+        self.feature_scaler.fit(X_clean)
+        X_scaled = self.feature_scaler.transform(X_clean)
+        
+        # PyTorchテンソルに変換
+        X_tensor = torch.tensor(X_scaled, dtype=torch.float32).to(self.device)
+        y_tensor = torch.tensor(y_clean, dtype=torch.float32).reshape(-1, 1).to(self.device)
+        
+        # 学習
+        self.feature_predictor.train()
+        optimizer = torch.optim.Adam(self.feature_predictor.parameters(), lr=0.001)
+        criterion = nn.MSELoss()
+        
+        for epoch in range(50):
+            optimizer.zero_grad()
+            predictions = self.feature_predictor(X_tensor)
+            loss = criterion(predictions, y_tensor)
+            loss.backward()
+            optimizer.step()
+        
+        print(f"特徴量モデル再学習完了: 最終損失={loss.detach().cpu().item():.6f}")
+    
+    def _retrain_transformer_model(self):
+        """トランスフォーマーモデルの再学習（修正版）"""
+        # データセット準備
+        circuits_data = []
+        for data in self.training_data[-100:]:  # 最新の100サンプル
+            template = data['template']
+            
+            # 回路の特性を計算
+            entangling_gates = ['CNOT', 'CZ', 'SWAP']
+            entangling_count = sum(1 for gate in template.gate_sequence 
+                                  if gate['gate'] in entangling_gates)
+            entangling_ratio = entangling_count / max(len(template.gate_sequence), 1)
+            
+            circuits_data.append({
+                'gate_sequence': template.gate_sequence,
+                'energy': data['actual_energy'],
+                'depth': len(template.gate_sequence),
+                'n_params': len(template.parameter_map),
+                'entangling_ratio': entangling_ratio,
+                'hardware_efficiency': template.hardware_efficiency,
+                'noise_resilience': template.noise_resilience_score
+            })
+        
+        if len(circuits_data) < 10:
+            return
+        
+        # データセット作成
+        dataset = TransformerEnergyDataset(circuits_data, self.tokenizer)
+        dataloader = torch.utils.data.DataLoader(dataset, batch_size=8, shuffle=True)
+        
+        # 学習
+        self.transformer_predictor.train()
+        optimizer = torch.optim.AdamW(self.transformer_predictor.parameters(), lr=5e-5)
+        criterion = nn.MSELoss()
+        
+        for epoch in range(20):
+            total_loss = 0.0
+            for batch in dataloader:
+                tokens = batch['tokens'].to(self.device)
+                target_energy = batch['energy'].to(self.device)
+                
+                optimizer.zero_grad()
+                output = self.transformer_predictor(tokens)
+                loss = criterion(output['energy'], target_energy)
+                loss.backward()
+                torch.nn.utils.clip_grad_norm_(self.transformer_predictor.parameters(), 1.0)
+                optimizer.step()
+                
+                total_loss += loss.detach().cpu().item()
+            
+            avg_loss = total_loss / len(dataloader)
+        
+        print(f"トランスフォーマーモデル再学習完了: 最終損失={avg_loss:.6f}")
+    
+    def predict_energy(self, template: 'QuantumCircuitTemplate') -> float:
+        """シンプルなエネルギー予測（下位互換）"""
+        energy, _, _ = self.predict_energy_with_uncertainty(template)
+        return energy
+    
+    def get_prediction_confidence(self, template: 'QuantumCircuitTemplate') -> float:
+        """予測の信頼度を取得"""
+        _, _, details = self.predict_energy_with_uncertainty(template)
+        return details['confidence_score']
+    
+    def save_ensemble_model(self, save_dir: str):
+        """アンサンブルモデル全体の保存（修正版）"""
+        os.makedirs(save_dir, exist_ok=True)
+        
+        # 特徴量モデルの保存
+        feature_checkpoint = {
+            'model_state_dict': self.feature_predictor.state_dict(),
+            'scaler_params': {
+                'mean': self.feature_scaler.mean_,
+                'scale': self.feature_scaler.scale_,
+                'n_features': self.feature_scaler.n_features_in_
+            } if hasattr(self.feature_scaler, 'mean_') and self.feature_scaler.mean_ is not None else None
+        }
+        torch.save(feature_checkpoint, os.path.join(save_dir, 'feature_model.pth'))
+        
+        # トランスフォーマーモデルの保存
+        transformer_checkpoint = {
+            'model_state_dict': self.transformer_predictor.state_dict(),
+            'vocab_size': self.tokenizer.vocab_size
+        }
+        torch.save(transformer_checkpoint, os.path.join(save_dir, 'transformer_model.pth'))
+        
+        # アンサンブル設定の保存（修正版）
+        ensemble_config = {
+            'ensemble_weights': self.ensemble_weights.detach().cpu().numpy().tolist(),
+            'temperature': self.temperature.detach().cpu().item(),
+            'model_accuracies': self.model_accuracies,
+            'weights_history': self.model_weights_history,
+            'n_qubits': self.n_qubits
+        }
+        
+        import json
+        with open(os.path.join(save_dir, 'ensemble_config.json'), 'w') as f:
+            json.dump(ensemble_config, f, indent=2)
+        
+        print(f"アンサンブルモデルを保存: {save_dir}")
+    
+    def visualize_ensemble_performance(self, save_path: str = 'ensemble_performance.png'):
+        """アンサンブル性能の可視化（修正版）"""
+        if len(self.prediction_history) < 10:
+            print("可視化に十分なデータがありません")
+            return
+        
+        import matplotlib.pyplot as plt
+        
+        fig, axes = plt.subplots(2, 2, figsize=(15, 10))
+        
+        # 1. 予測 vs 実際の値
+        ax = axes[0, 0]
+        ax.scatter(self.actual_energy_history, self.prediction_history, alpha=0.6)
+        
+        min_val = min(min(self.actual_energy_history), min(self.prediction_history))
+        max_val = max(max(self.actual_energy_history), max(self.prediction_history))
+        ax.plot([min_val, max_val], [min_val, max_val], 'r--', label='Perfect Prediction')
+        
+        ax.set_xlabel('Actual Energy')
+        ax.set_ylabel('Predicted Energy')
+        ax.set_title('Prediction vs Actual')
+        ax.legend()
+        ax.grid(True, alpha=0.3)
+        
+        # 2. 予測誤差の推移
+        ax = axes[0, 1]
+        errors = [abs(p - a) for p, a in zip(self.prediction_history, self.actual_energy_history)]
+        ax.plot(errors, label='Absolute Error')
+        
+        # 移動平均
+        window = min(10, len(errors) // 4)
+        if window > 1:
+            moving_avg = np.convolve(errors, np.ones(window)/window, mode='valid')
+            ax.plot(range(window-1, len(errors)), moving_avg, 'r-', linewidth=2, label=f'Moving Average ({window})')
+        
+        ax.set_xlabel('Prediction Number')
+        ax.set_ylabel('Absolute Error')
+        ax.set_title('Prediction Error Over Time')
+        ax.legend()
+        ax.grid(True, alpha=0.3)
+        
+        # 3. アンサンブル重みの推移
+        if self.model_weights_history:
+            ax = axes[1, 0]
+            weights_array = np.array(self.model_weights_history)
+            ax.plot(weights_array[:, 0], label='Feature Model Weight', marker='o')
+            ax.plot(weights_array[:, 1], label='Transformer Model Weight', marker='s')
+            ax.set_xlabel('Update Number')
+            ax.set_ylabel('Weight')
+            ax.set_title('Ensemble Weights Evolution')
+            ax.legend()
+            ax.grid(True, alpha=0.3)
+            ax.set_ylim(0, 1)
+        
+        # 4. 個別モデルの精度比較
+        ax = axes[1, 1]
+        if self.model_accuracies['feature'] and self.model_accuracies['transformer']:
+            feature_errors = self.model_accuracies['feature'][-50:]
+            transformer_errors = self.model_accuracies['transformer'][-50:]
+            
+            ax.boxplot([feature_errors, transformer_errors], 
+                      labels=['Feature Model', 'Transformer Model'])
+            ax.set_ylabel('Absolute Error')
+            ax.set_title('Individual Model Accuracy Comparison')
+            ax.grid(True, alpha=0.3)
+        
+        plt.tight_layout()
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        plt.close()
+        
+        print(f"アンサンブル性能図を保存: {save_path}")
+           
 class GQEQuantumCircuitGeneratorWithGPT:
     """GPTベースGQE量子回路生成器"""
     
     def __init__(self, n_qubits=6, noise_budget=0.01, hardware_topology='linear',
-                 use_pretrained_gpt=False):
+                 use_pretrained_gpt=False, use_ai_energy_prediction=True, 
+             energy_prediction_mode='ensemble'):
         self.n_qubits = n_qubits
         self.noise_budget = noise_budget
         self.hardware_topology = hardware_topology
@@ -365,6 +1733,791 @@ class GQEQuantumCircuitGeneratorWithGPT:
         self.circuit_history = []
         self.energy_history = []
         
+        # 追加：ラウンド毎の詳細履歴
+        self.round_history = []
+        self.gpt_generation_history = []
+        
+        # 追加：探索パラメータ
+        self.exploration_rate = 0.9  # 初期探索率
+        self.exploration_decay = 0.85  # 探索率の減衰
+        self.diversity_bonus = 0.2  # 多様性ボーナス
+
+        # AI強化エネルギー推定器の初期化
+        self.initialize_novelty_tracking()
+        self.use_ai_energy_prediction = use_ai_energy_prediction
+        self.energy_prediction_mode = energy_prediction_mode  # 'ensemble', 'transformer', 'feature'
+        
+        if use_ai_energy_prediction:
+            if energy_prediction_mode == 'ensemble':
+                self.ai_energy_estimator = EnsembleEnergyPredictor(n_qubits)
+                print("AI強化アンサンブルエネルギー推定器を初期化")
+            
+            elif energy_prediction_mode == 'transformer':
+                tokenizer = CircuitTokenizer(n_qubits)
+                self.ai_energy_estimator = CircuitTransformerPredictor(
+                    vocab_size=tokenizer.vocab_size,
+                    d_model=256,
+                    nhead=8,
+                    num_layers=4
+                )
+                self.tokenizer = tokenizer
+                print("AI強化トランスフォーマーエネルギー推定器を初期化")
+            
+            elif energy_prediction_mode == 'feature':
+                self.ai_energy_estimator = AIEnergyEstimator(n_qubits)
+                print("AI強化特徴量ベースエネルギー推定器を初期化")
+            
+            else:
+                raise ValueError(f"未知のエネルギー予測モード: {energy_prediction_mode}")
+        
+        else:
+            self.ai_energy_estimator = None
+
+    def _compute_circuit_novelty(self, template):
+        """回路の新規性スコア計算"""
+        if not hasattr(self, 'circuit_history') or len(self.circuit_history) == 0:
+            return 1.0  # 履歴がない場合は最大新規性
+        
+        if not hasattr(self, 'novelty_history'):
+            self.novelty_history = []
+        
+        # 現在の回路の特徴ベクトルを計算
+        current_features = self._extract_circuit_features_for_novelty(template)
+        
+        # 過去の回路との類似度を計算
+        similarities = []
+        recent_circuits = self.circuit_history[-50:]  # 最新50回路と比較
+        
+        for past_circuit in recent_circuits:
+            if isinstance(past_circuit, dict) and 'gate_sequence' in past_circuit:
+                past_template = self._create_template_from_dict(past_circuit)
+            elif hasattr(past_circuit, 'gate_sequence'):
+                past_template = past_circuit
+            else:
+                continue
+            
+            try:
+                similarity = self._compute_circuit_similarity(template, past_template)
+                similarities.append(similarity)
+            except Exception as e:
+                print(f"類似度計算エラー: {e}")
+                continue
+        
+        if not similarities:
+            return 1.0
+        
+        # 新規性 = 1 - 最大類似度
+        max_similarity = max(similarities)
+        novelty_score = 1.0 - max_similarity
+        
+        # 時間的減衰を考慮（古い回路ほど影響を小さく）
+        weighted_similarities = []
+        for i, sim in enumerate(similarities):
+            weight = np.exp(-i * 0.05)  # 指数的減衰
+            weighted_similarities.append(sim * weight)
+        
+        if weighted_similarities:
+            weighted_max_similarity = max(weighted_similarities)
+            weighted_novelty = 1.0 - weighted_max_similarity
+            novelty_score = 0.7 * novelty_score + 0.3 * weighted_novelty
+        
+        # 新規性履歴に追加
+        self.novelty_history.append(novelty_score)
+        
+        return max(0.0, min(1.0, novelty_score))
+
+    def _extract_circuit_features_for_novelty(self, template):
+        """新規性計算用の回路特徴ベクトル抽出"""
+        features = {}
+        
+        # 1. 基本統計
+        features['n_gates'] = len(template.gate_sequence)
+        features['n_params'] = len(template.parameter_map)
+        features['circuit_depth'] = self._calculate_circuit_depth_internal(template.gate_sequence)
+        
+        # 2. ゲートタイプ分布
+        gate_types = ['RX', 'RY', 'RZ', 'H', 'S', 'T', 'CNOT', 'CZ', 'SWAP']
+        gate_counts = {gate_type: 0 for gate_type in gate_types}
+        
+        for gate_info in template.gate_sequence:
+            gate_type = gate_info['gate']
+            if gate_type in gate_counts:
+                gate_counts[gate_type] += 1
+        
+        total_gates = sum(gate_counts.values())
+        for gate_type in gate_types:
+            features[f'gate_ratio_{gate_type}'] = gate_counts[gate_type] / max(total_gates, 1)
+        
+        # 3. エンタングリング構造
+        features['entangling_ratio'] = self._compute_entangling_ratio_internal(template)
+        features['connectivity_measure'] = self._compute_connectivity_measure_internal(template)
+        
+        # 4. レイヤー構造
+        layers = self._decompose_into_layers_internal(template)
+        features['n_layers'] = len(layers)
+        features['avg_layer_size'] = np.mean([len(layer) for layer in layers]) if layers else 0
+        features['layer_variance'] = np.var([len(layer) for layer in layers]) if layers else 0
+        
+        # 5. パラメータ密度と分布
+        features['param_density'] = len(template.parameter_map) / max(len(template.gate_sequence), 1)
+        
+        # 6. 回路パターン（2-gram, 3-gram）
+        gate_sequence_str = [gate['gate'] for gate in template.gate_sequence]
+        
+        # 2-gram
+        bigrams = {}
+        for i in range(len(gate_sequence_str) - 1):
+            bigram = (gate_sequence_str[i], gate_sequence_str[i+1])
+            bigrams[bigram] = bigrams.get(bigram, 0) + 1
+        
+        # 最頻出2-gramの比率
+        if bigrams:
+            max_bigram_count = max(bigrams.values())
+            features['max_bigram_ratio'] = max_bigram_count / max(len(gate_sequence_str) - 1, 1)
+        else:
+            features['max_bigram_ratio'] = 0
+        
+        # 3-gram
+        trigrams = {}
+        for i in range(len(gate_sequence_str) - 2):
+            trigram = (gate_sequence_str[i], gate_sequence_str[i+1], gate_sequence_str[i+2])
+            trigrams[trigram] = trigrams.get(trigram, 0) + 1
+        
+        if trigrams:
+            max_trigram_count = max(trigrams.values())
+            features['max_trigram_ratio'] = max_trigram_count / max(len(gate_sequence_str) - 2, 1)
+        else:
+            features['max_trigram_ratio'] = 0
+        
+        # 7. 量子ビット使用パターン
+        qubit_usage = [0] * self.n_qubits
+        for gate_info in template.gate_sequence:
+            for qubit in gate_info['qubits']:
+                if qubit < self.n_qubits:
+                    qubit_usage[qubit] += 1
+        
+        features['qubit_usage_variance'] = np.var(qubit_usage)
+        features['qubit_usage_entropy'] = self._compute_entropy(qubit_usage)
+        
+        return features
+
+    def _compute_entropy(self, distribution):
+        """分布のエントロピーを計算"""
+        if not distribution or sum(distribution) == 0:
+            return 0.0
+        
+        total = sum(distribution)
+        probs = [x / total for x in distribution if x > 0]
+        
+        entropy = -sum(p * np.log2(p) for p in probs if p > 0)
+        return entropy
+
+    def _compute_circuit_similarity(self, template1, template2):
+        """2つの回路間の類似度を計算"""
+        # 特徴ベクトルを抽出
+        features1 = self._extract_circuit_features_for_novelty(template1)
+        features2 = self._extract_circuit_features_for_novelty(template2)
+        
+        # 共通のキーのみを使用
+        common_keys = set(features1.keys()) & set(features2.keys())
+        
+        if not common_keys:
+            return 0.0
+        
+        # 各特徴の類似度を計算
+        similarities = []
+        
+        for key in common_keys:
+            val1, val2 = features1[key], features2[key]
+            
+            if key.startswith('gate_ratio_') or key in ['entangling_ratio', 'connectivity_measure', 
+                                                    'param_density', 'max_bigram_ratio', 
+                                                    'max_trigram_ratio']:
+                # 比率系の特徴：差の絶対値から類似度を計算
+                diff = abs(val1 - val2)
+                sim = 1.0 - min(diff, 1.0)
+                similarities.append(sim)
+            
+            elif key in ['n_gates', 'n_params', 'circuit_depth', 'n_layers']:
+                # 整数値系の特徴：相対差から類似度を計算
+                max_val = max(val1, val2, 1)
+                diff = abs(val1 - val2) / max_val
+                sim = 1.0 - min(diff, 1.0)
+                similarities.append(sim)
+            
+            elif key in ['avg_layer_size', 'layer_variance', 'qubit_usage_variance', 'qubit_usage_entropy']:
+                # 連続値系の特徴：正規化した差から類似度を計算
+                max_val = max(abs(val1), abs(val2), 1e-6)
+                diff = abs(val1 - val2) / max_val
+                sim = 1.0 - min(diff, 1.0)
+                similarities.append(sim)
+        
+        # 重み付き平均
+        if not similarities:
+            return 0.0
+        
+        # 構造的特徴により重みを付ける
+        weights = []
+        for key in common_keys:
+            if key.startswith('gate_ratio_'):
+                weights.append(0.1)  # ゲート比率
+            elif key in ['entangling_ratio', 'connectivity_measure']:
+                weights.append(0.15)  # エンタングリング構造
+            elif key in ['n_gates', 'circuit_depth']:
+                weights.append(0.12)  # 基本統計
+            elif key in ['max_bigram_ratio', 'max_trigram_ratio']:
+                weights.append(0.08)  # パターン
+            else:
+                weights.append(0.05)  # その他
+        
+        # 正規化
+        total_weight = sum(weights)
+        if total_weight > 0:
+            weights = [w / total_weight for w in weights]
+            weighted_similarity = sum(sim * weight for sim, weight in zip(similarities, weights))
+        else:
+            weighted_similarity = np.mean(similarities)
+        
+        return max(0.0, min(1.0, weighted_similarity))
+
+    def _create_template_from_dict(self, circuit_dict):
+        """辞書形式から回路テンプレートを作成"""
+        # 簡易的なテンプレート作成
+        class SimpleTemplate:
+            def __init__(self, gate_sequence, parameter_map=None):
+                self.gate_sequence = gate_sequence
+                self.parameter_map = parameter_map or {}
+                self.hardware_efficiency = 0.8
+                self.noise_resilience_score = 0.8
+                self.expressivity_score = 0.8
+        
+        gate_sequence = circuit_dict.get('gate_sequence', [])
+        parameter_map = circuit_dict.get('parameter_map', {})
+        
+        return SimpleTemplate(gate_sequence, parameter_map)
+
+    def _calculate_circuit_depth_internal(self, gate_sequence):
+        """回路深度を計算（内部用）"""
+        if not gate_sequence:
+            return 0
+        
+        qubit_layers = {}
+        max_layer = 0
+        
+        for gate_info in gate_sequence:
+            qubits = gate_info['qubits']
+            current_layer = 0
+            
+            for q in qubits:
+                if q < self.n_qubits and q in qubit_layers:
+                    current_layer = max(current_layer, qubit_layers[q] + 1)
+            
+            for q in qubits:
+                if q < self.n_qubits:
+                    qubit_layers[q] = current_layer
+            
+            max_layer = max(max_layer, current_layer)
+        
+        return max_layer + 1
+
+    def _compute_entangling_ratio_internal(self, template):
+        """エンタングリング比率の計算（内部用）"""
+        if not template.gate_sequence:
+            return 0.0
+        
+        entangling_gates = ['CNOT', 'CZ', 'SWAP', 'CRX', 'CRY', 'CRZ']
+        entangling_count = sum(1 for gate in template.gate_sequence 
+                            if gate['gate'] in entangling_gates)
+        
+        return entangling_count / len(template.gate_sequence)
+
+    def _compute_connectivity_measure_internal(self, template):
+        """接続性指標の計算（内部用）"""
+        if not template.gate_sequence:
+            return 0.0
+        
+        connections = set()
+        for gate in template.gate_sequence:
+            if len(gate['qubits']) >= 2:
+                qubits = gate['qubits']
+                for i in range(len(qubits)):
+                    for j in range(i + 1, len(qubits)):
+                        q1, q2 = qubits[i], qubits[j]
+                        if q1 < self.n_qubits and q2 < self.n_qubits:
+                            connections.add((min(q1, q2), max(q1, q2)))
+        
+        max_connections = self.n_qubits * (self.n_qubits - 1) // 2
+        return len(connections) / max(max_connections, 1)
+
+    def _decompose_into_layers_internal(self, template):
+        """回路を層に分解（内部用）"""
+        if not template.gate_sequence:
+            return []
+        
+        layers = []
+        current_layer = []
+        used_qubits = set()
+        
+        for gate in template.gate_sequence:
+            gate_qubits = set(q for q in gate['qubits'] if q < self.n_qubits)
+            
+            if gate_qubits & used_qubits:
+                # 新しい層の開始
+                if current_layer:
+                    layers.append(current_layer)
+                current_layer = [gate]
+                used_qubits = gate_qubits
+            else:
+                current_layer.append(gate)
+                used_qubits |= gate_qubits
+        
+        if current_layer:
+            layers.append(current_layer)
+        
+        return layers
+
+    def _calculate_circuit_importance(self, template):
+        """回路の重要度スコア計算（完全版）"""
+        # 複数の指標で重要度を判定
+        
+        # 1. 現在の最良解からの距離
+        if hasattr(self, 'best_templates') and self.best_templates:
+            try:
+                similarity = self._compute_circuit_similarity(template, self.best_templates[-1])
+                importance_from_similarity = 1.0 - similarity
+            except Exception as e:
+                print(f"類似度計算エラー: {e}")
+                importance_from_similarity = 0.5
+        else:
+            importance_from_similarity = 0.5
+        
+        # 2. 回路の新規性
+        try:
+            novelty_score = self._compute_circuit_novelty(template)
+        except Exception as e:
+            print(f"新規性計算エラー: {e}")
+            novelty_score = 0.5
+        
+        # 3. 構造的複雑さ
+        complexity_score = min(1.0, len(template.gate_sequence) / 50.0)
+        
+        # 4. パラメータ効率性
+        if template.gate_sequence:
+            efficiency_score = len(template.parameter_map) / len(template.gate_sequence)
+            efficiency_score = min(1.0, efficiency_score)
+        else:
+            efficiency_score = 0.0
+        
+        # 5. エンタングリング能力
+        try:
+            entangling_score = self._compute_entangling_ratio_internal(template)
+        except Exception as e:
+            print(f"エンタングリング計算エラー: {e}")
+            entangling_score = 0.0
+        
+        # 6. 回路深度の適切さ
+        try:
+            depth = self._calculate_circuit_depth_internal(template.gate_sequence)
+            ideal_depth = max(3, self.n_qubits)
+            depth_score = 1.0 - abs(depth - ideal_depth) / ideal_depth
+            depth_score = max(0.0, depth_score)
+        except Exception as e:
+            print(f"深度計算エラー: {e}")
+            depth_score = 0.5
+        
+        # 重み付き合計
+        importance = (
+            0.25 * importance_from_similarity +
+            0.25 * novelty_score +
+            0.15 * complexity_score +
+            0.15 * efficiency_score +
+            0.10 * entangling_score +
+            0.10 * depth_score
+        )
+        
+        return max(0.0, min(1.0, importance))
+
+    def initialize_novelty_tracking(self):
+        """新規性追跡の初期化"""
+        if not hasattr(self, 'circuit_history'):
+            self.circuit_history = []
+        
+        if not hasattr(self, 'novelty_history'):
+            self.novelty_history = []
+        
+        if not hasattr(self, 'best_templates'):
+            self.best_templates = []
+
+    def update_circuit_history(self, template, score):
+        """回路履歴の更新"""
+        if not hasattr(self, 'circuit_history'):
+            self.circuit_history = []
+        
+        circuit_data = {
+            'gate_sequence': template.gate_sequence,
+            'parameter_map': template.parameter_map,
+            'score': score,
+            'timestamp': time.time()
+        }
+        
+        self.circuit_history.append(circuit_data)
+        
+        # 履歴のサイズ制限
+        if len(self.circuit_history) > 200:
+            self.circuit_history = self.circuit_history[-150:]
+        
+        # 最良テンプレートの更新
+        if not hasattr(self, 'best_templates'):
+            self.best_templates = []
+        
+        if not self.best_templates or score > getattr(self.best_templates[-1], 'best_score', -float('inf')):
+            template.best_score = score
+            self.best_templates.append(template)
+            
+            # 最良テンプレート履歴のサイズ制限
+            if len(self.best_templates) > 20:
+                self.best_templates = self.best_templates[-15:]
+
+    def get_novelty_statistics(self):
+        """新規性統計の取得"""
+        if not hasattr(self, 'novelty_history') or not self.novelty_history:
+            return {
+                'mean_novelty': 0.0,
+                'std_novelty': 0.0,
+                'min_novelty': 0.0,
+                'max_novelty': 1.0,
+                'recent_trend': 0.0
+            }
+        
+        novelty_array = np.array(self.novelty_history)
+        
+        stats = {
+            'mean_novelty': np.mean(novelty_array),
+            'std_novelty': np.std(novelty_array),
+            'min_novelty': np.min(novelty_array),
+            'max_novelty': np.max(novelty_array),
+        }
+        
+        # 最近の傾向（最新10個の平均 - 全体平均）
+        if len(self.novelty_history) >= 10:
+            recent_mean = np.mean(novelty_array[-10:])
+            stats['recent_trend'] = recent_mean - stats['mean_novelty']
+        else:
+            stats['recent_trend'] = 0.0
+        
+        return stats
+
+    def visualize_novelty_evolution(self, save_path='results/novelty_evolution.png'):
+        """新規性の進化を可視化"""
+        if not hasattr(self, 'novelty_history') or len(self.novelty_history) < 5:
+            print("新規性可視化に十分なデータがありません")
+            return
+        
+        import matplotlib.pyplot as plt
+        
+        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 8))
+        
+        # 1. 新規性スコアの推移
+        ax1.plot(self.novelty_history, 'b-', linewidth=1.5, alpha=0.7, label='Novelty Score')
+        
+        # 移動平均
+        window = min(10, len(self.novelty_history) // 4)
+        if window > 1:
+            moving_avg = np.convolve(self.novelty_history, np.ones(window)/window, mode='valid')
+            ax1.plot(range(window-1, len(self.novelty_history)), moving_avg, 
+                    'r-', linewidth=2, label=f'Moving Average ({window})')
+        
+        ax1.set_xlabel('Circuit Generation')
+        ax1.set_ylabel('Novelty Score')
+        ax1.set_title('Circuit Novelty Evolution')
+        ax1.legend()
+        ax1.grid(True, alpha=0.3)
+        ax1.set_ylim(0, 1)
+        
+        # 2. 新規性分布のヒストグラム
+        ax2.hist(self.novelty_history, bins=20, alpha=0.7, color='skyblue', edgecolor='black')
+        ax2.axvline(np.mean(self.novelty_history), color='red', linestyle='--', 
+                linewidth=2, label=f'Mean: {np.mean(self.novelty_history):.3f}')
+        ax2.set_xlabel('Novelty Score')
+        ax2.set_ylabel('Frequency')
+        ax2.set_title('Novelty Score Distribution')
+        ax2.legend()
+        ax2.grid(True, alpha=0.3, axis='y')
+        
+        plt.tight_layout()
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        plt.close()
+        
+        print(f"新規性進化図を保存: {save_path}")
+
+    def _calculate_circuit_importance(self, template):
+        """回路の重要度スコア計算"""
+        # 複数の指標で重要度を判定
+        
+        # 1. 現在の最良解からの距離
+        if hasattr(self, 'best_templates') and self.best_templates:
+            similarity = self._compute_circuit_similarity(template, self.best_templates[-1])
+            importance_from_similarity = 1.0 - similarity
+        else:
+            importance_from_similarity = 0.5
+        
+        # 2. 回路の新規性
+        novelty_score = self._compute_circuit_novelty(template)
+        
+        # 3. 構造的複雑さ
+        complexity_score = min(1.0, len(template.gate_sequence) / 50.0)
+        
+        # 4. パラメータ効率性
+        efficiency_score = len(template.parameter_map) / (len(template.gate_sequence) + 1)
+        
+        # 重み付き合計
+        importance = (
+            0.3 * importance_from_similarity +
+            0.3 * novelty_score +
+            0.2 * complexity_score +
+            0.2 * efficiency_score
+        )
+        
+        return importance
+
+    def _estimate_circuit_energy_enhanced(self, template):
+        """AI強化エネルギー推定（修正版）"""
+        
+        if not self.ai_energy_estimator or not self.use_ai_energy_prediction:
+            return self._estimate_circuit_energy(template)
+        
+        try:
+            if self.energy_prediction_mode == 'ensemble':
+                # アンサンブル予測（不確実性付き）
+                ai_predicted_energy, uncertainty, details = self.ai_energy_estimator.predict_energy_with_uncertainty(template)
+                confidence = details['confidence_score']
+                
+                # 信頼度に基づく戦略決定
+                confidence_threshold = 0.8
+                uncertainty_threshold = 0.5
+                
+                # 高信頼度または低不確実性の場合はAI予測を使用
+                if confidence > confidence_threshold or uncertainty < uncertainty_threshold:
+                    return float(ai_predicted_energy)
+                
+                # 重要度スコアも考慮
+                importance_score = self._calculate_circuit_importance(template)
+                
+                if importance_score > 0.7 or np.random.rand() < 0.1:
+                    # 精密計算を実行
+                    try:
+                        precise_energy = self._estimate_circuit_energy(template)
+                        
+                        # 学習データとして追加
+                        self.ai_energy_estimator.add_training_data(template, precise_energy)
+                        
+                        return float(precise_energy)
+                    
+                    except Exception as e:
+                        print(f"精密計算失敗、AI予測を使用: {e}")
+                        return float(ai_predicted_energy)
+                else:
+                    return float(ai_predicted_energy)
+            
+            elif self.energy_prediction_mode == 'transformer':
+                # トランスフォーマー予測（修正版）
+                tokens = self.tokenizer.circuit_to_tokens(template.gate_sequence)
+                tokens_tensor = torch.tensor(tokens, dtype=torch.long).unsqueeze(0).to(device)
+                
+                self.ai_energy_estimator.eval()
+                with torch.no_grad():
+                    if hasattr(self.ai_energy_estimator, 'predict_energy'):
+                        predicted_energy_tensor = self.ai_energy_estimator.predict_energy(tokens_tensor)
+                        predicted_energy = predicted_energy_tensor.detach().cpu().item()
+                    else:
+                        output = self.ai_energy_estimator(tokens_tensor)
+                        predicted_energy = output['energy'].detach().cpu().item()
+                
+                # 一定確率で精密計算も実行（学習データ収集）
+                if np.random.rand() < 0.15:
+                    try:
+                        precise_energy = self._estimate_circuit_energy(template)
+                        # 学習データとして保存（実装が必要）
+                        self._save_training_data(template, precise_energy)
+                        return float(precise_energy)
+                    except:
+                        pass
+                
+                return float(predicted_energy)
+            
+            elif self.energy_prediction_mode == 'feature':
+                # 特徴量ベース予測（修正版）
+                ai_predicted_energy = self.ai_energy_estimator.predict_energy(template)
+                
+                # 重要度に基づく精密計算判定
+                importance_score = self._calculate_circuit_importance(template)
+                
+                if importance_score > 0.6 or np.random.rand() < 0.12:
+                    try:
+                        precise_energy = self._estimate_circuit_energy(template)
+                        self.ai_energy_estimator.add_training_data(template, precise_energy)
+                        return float(precise_energy)
+                    except:
+                        pass
+                
+                return float(ai_predicted_energy)
+        
+        except Exception as e:
+            print(f"AI強化エネルギー推定エラー: {e}")
+            return self._estimate_circuit_energy(template)
+
+    def _save_training_data(self, template, actual_energy):
+        """学習データの保存（トランスフォーマー用）（修正版）"""
+        if not hasattr(self, 'transformer_training_data'):
+            self.transformer_training_data = []
+        
+        # 回路特性の計算
+        entangling_gates = ['CNOT', 'CZ', 'SWAP']
+        entangling_count = sum(1 for gate in template.gate_sequence 
+                            if gate['gate'] in entangling_gates)
+        entangling_ratio = entangling_count / max(len(template.gate_sequence), 1)
+        
+        circuit_data = {
+            'gate_sequence': template.gate_sequence,
+            'energy': float(actual_energy),  # Pythonのfloatに変換
+            'depth': len(template.gate_sequence),
+            'n_params': len(template.parameter_map),
+            'entangling_ratio': entangling_ratio,
+            'hardware_efficiency': float(template.hardware_efficiency),
+            'noise_resilience': float(template.noise_resilience_score)
+        }
+        
+        self.transformer_training_data.append(circuit_data)
+        
+        # 一定数蓄積されたら再学習
+        if len(self.transformer_training_data) >= 50:
+            self._retrain_transformer_model()
+
+
+    def _retrain_transformer_model(self):
+        """トランスフォーマーモデルの再学習（修正版）"""
+        if (not hasattr(self, 'transformer_training_data') or 
+            len(self.transformer_training_data) < 20 or
+            self.energy_prediction_mode != 'transformer'):
+            return
+        
+        try:
+            print(f"トランスフォーマーモデルの再学習: {len(self.transformer_training_data)}サンプル")
+            
+            # データセット作成
+            dataset = TransformerEnergyDataset(self.transformer_training_data, self.tokenizer)
+            
+            # 学習実行
+            loss_history = train_transformer_predictor(
+                model=self.ai_energy_estimator,
+                dataset=dataset,
+                epochs=30,
+                batch_size=16,
+                learning_rate=5e-5,
+                device=str(device)
+            )
+            
+            print(f"トランスフォーマー再学習完了: 最終損失={loss_history[-1]:.6f}")
+            
+            # 学習データをクリア（メモリ効率）
+            self.transformer_training_data = self.transformer_training_data[-20:]
+        
+        except Exception as e:
+            print(f"トランスフォーマー再学習エラー: {e}")
+            import traceback
+            traceback.print_exc()
+
+    def save_ai_energy_models(self, save_dir: str = 'ai_energy_models/'):
+        """AI強化エネルギー推定モデルの保存"""
+        if not self.ai_energy_estimator:
+            return
+        
+        os.makedirs(save_dir, exist_ok=True)
+        
+        try:
+            if self.energy_prediction_mode == 'ensemble':
+                self.ai_energy_estimator.save_ensemble_model(save_dir)
+            
+            elif self.energy_prediction_mode == 'transformer':
+                # トランスフォーマーモデルの保存
+                model_checkpoint = {
+                    'model_state_dict': self.ai_energy_estimator.state_dict(),
+                    'vocab_size': self.tokenizer.vocab_size,
+                    'model_config': {
+                        'd_model': 256,
+                        'nhead': 8,
+                        'num_layers': 4
+                    }
+                }
+                torch.save(model_checkpoint, os.path.join(save_dir, 'transformer_energy_model.pth'))
+                
+                # トークナイザーの保存
+                tokenizer_config = {
+                    'n_qubits': self.n_qubits,
+                    'vocab_size': self.tokenizer.vocab_size,
+                    'token_to_id': self.tokenizer.token_to_id,
+                    'id_to_token': self.tokenizer.id_to_token
+                }
+                
+                with open(os.path.join(save_dir, 'tokenizer_config.json'), 'w') as f:
+                    json.dump(tokenizer_config, f, indent=2)
+            
+            elif self.energy_prediction_mode == 'feature':
+                self.ai_energy_estimator._save_model()
+            
+            print(f"AI強化エネルギー推定モデルを保存: {save_dir}")
+        
+        except Exception as e:
+            print(f"AI強化モデル保存エラー: {e}")
+
+    def visualize_ai_energy_performance(self, save_path: str = 'results/'):
+        """AI強化エネルギー推定の性能可視化"""
+        if not self.ai_energy_estimator:
+            return
+        
+        if self.energy_prediction_mode == 'ensemble':
+            self.ai_energy_estimator.visualize_ensemble_performance(
+                os.path.join(save_path, 'ensemble_energy_performance.png')
+            )
+        
+        # 追加の可視化（共通）
+        self._visualize_prediction_accuracy(save_path)
+
+    def _visualize_prediction_accuracy(self, save_path: str):
+        """予測精度の可視化"""
+        if not hasattr(self, 'energy_prediction_history'):
+            return
+        
+        fig, ax = plt.subplots(figsize=(10, 6))
+        
+        # 予測精度の推移をプロット
+        accuracy_scores = []
+        for data in self.energy_prediction_history:
+            error = abs(data['predicted'] - data['actual'])
+            accuracy = 1.0 / (1.0 + error)
+            accuracy_scores.append(accuracy)
+        
+        ax.plot(accuracy_scores, marker='o', alpha=0.7)
+        ax.set_xlabel('Prediction Number')
+        ax.set_ylabel('Accuracy Score')
+        ax.set_title(f'AI Energy Prediction Accuracy ({self.energy_prediction_mode.title()} Mode)')
+        ax.grid(True, alpha=0.3)
+        
+        # 移動平均を追加
+        if len(accuracy_scores) > 10:
+            window = min(20, len(accuracy_scores) // 4)
+            moving_avg = np.convolve(accuracy_scores, np.ones(window)/window, mode='valid')
+            ax.plot(range(window-1, len(accuracy_scores)), moving_avg, 
+                'r-', linewidth=2, label=f'Moving Average ({window})')
+            ax.legend()
+        
+        plt.tight_layout()
+        plt.savefig(os.path.join(save_path, 'ai_energy_accuracy.png'), 
+                dpi=300, bbox_inches='tight')
+        plt.close()
+        
+        print(f"AI強化エネルギー予測精度図を保存: {save_path}")   
+
     def _initialize_gate_vocabulary(self):
         """ゲートボキャブラリーの初期化"""
         self.gate_tokens = ['[PAD]', '[START]', '[END]', '[SEP]']
@@ -411,8 +2564,20 @@ class GQEQuantumCircuitGeneratorWithGPT:
                 model_path = 'quantum_circuit_gpt.pth'
                 if os.path.exists(model_path):
                     print(f"事前学習済みGPTモデルを読み込み: {model_path}")
-                    checkpoint = torch.load(model_path, map_location=device)
-                    self.gpt_model.load_state_dict(checkpoint['model_state_dict'])
+                    try:
+                        # PyTorch 2.6以降の対応
+                        if hasattr(torch.serialization, 'safe_globals'):
+                            # コンテキストマネージャーを使用
+                            with torch.serialization.safe_globals([QuantumCircuitTemplate]):
+                                checkpoint = torch.load(model_path, map_location=device)
+                        else:
+                            # 古いバージョンまたは信頼できるソースの場合
+                            checkpoint = torch.load(model_path, map_location=device, weights_only=False)
+                        
+                        self.gpt_model.load_state_dict(checkpoint['model_state_dict'])
+                    except Exception as e:
+                        print(f"モデル読み込みエラー: {e}")
+                        print("新規モデルとして初期化します")
                 else:
                     print("新しいGPTモデルを初期化")
                     
@@ -473,8 +2638,8 @@ class GQEQuantumCircuitGeneratorWithGPT:
         i = 0
         while i < len(tokens):
             if tokens[i] in [self.token_to_id['[PAD]'], 
-                           self.token_to_id['[START]'], 
-                           self.token_to_id['[END]']]:
+                        self.token_to_id['[START]'], 
+                        self.token_to_id['[END]']]:
                 i += 1
                 continue
             
@@ -509,39 +2674,73 @@ class GQEQuantumCircuitGeneratorWithGPT:
                         qubit1 = int(parts[1])
                         qubit2 = int(parts[2])
                         
-                        gate_info = {
-                            'gate': gate_type,
-                            'qubits': [qubit1, qubit2],
-                            'param_idx': None,
-                            'trainable': False
-                        }
-                        
-                        gate_sequence.append(gate_info)
+                        # 制御量子ビットとターゲット量子ビットが異なることを確認
+                        if qubit1 != qubit2:
+                            gate_info = {
+                                'gate': gate_type,
+                                'qubits': [qubit1, qubit2],
+                                'param_idx': None,
+                                'trainable': False
+                            }
+                            
+                            gate_sequence.append(gate_info)
+                        # else: 同じ量子ビットの場合はスキップ
             
             i += 1
         
         return gate_sequence, parameter_map
     
     def _train_gpt_on_circuits(self, training_data, epochs=10):
-        """GPTモデルを回路データで学習"""
+        """GPTモデルを回路データで学習（改良版）"""
         if self.gpt_model is None:
             return
         
         print(f"GPTモデルの学習開始（{len(training_data)}データ、{epochs}エポック）")
         
-        # データセット準備
+        # データセット準備（多様性を保つ）
         sequences = []
         energies = []
+        scores = []
+        
+        # データの正規化
+        all_energies = [data['energy'] for data in training_data]
+        energy_mean = np.mean(all_energies)
+        energy_std = np.std(all_energies) + 1e-6
         
         for data in training_data:
             tokens = self._circuit_to_tokens(data['gate_sequence'])
             sequences.append(tokens)
-            energies.append(data['energy'])
+            # エネルギーを正規化
+            normalized_energy = (data['energy'] - energy_mean) / energy_std
+            energies.append(normalized_energy)
+            scores.append(data.get('score', 0.5))
+        
+        # 重み付きサンプリング（高スコアのデータを重視）
+        weights = np.array(scores)
+        weights = weights / weights.sum()
         
         dataset = QuantumCircuitDataset(sequences, energies)
-        dataloader = DataLoader(dataset, batch_size=16, shuffle=True)
+        
+        # 重み付きサンプラーを使用
+        sampler = torch.utils.data.WeightedRandomSampler(
+            weights=weights,
+            num_samples=len(dataset),
+            replacement=True
+        )
+        
+        dataloader = DataLoader(dataset, batch_size=16, sampler=sampler)
         
         self.gpt_model.train()
+        
+        # 学習率のスケジューリング
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+            self.gpt_optimizer, 
+            T_max=epochs,
+            eta_min=1e-5
+        )
+        
+        best_loss = float('inf')
+        patience = 0
         
         for epoch in range(epochs):
             total_loss = 0.0
@@ -557,47 +2756,112 @@ class GQEQuantumCircuitGeneratorWithGPT:
                     energies=energy_batch
                 )
                 
+                # 正則化項を追加
+                l2_reg = 0.0
+                for param in self.gpt_model.parameters():
+                    l2_reg += torch.norm(param, 2)
+                
+                total_batch_loss = loss + 0.0001 * l2_reg
+                
                 # バックプロパゲーション
                 self.gpt_optimizer.zero_grad()
-                loss.backward()
+                total_batch_loss.backward()
                 torch.nn.utils.clip_grad_norm_(self.gpt_model.parameters(), 1.0)
                 self.gpt_optimizer.step()
                 
                 total_loss += loss.item()
             
             avg_loss = total_loss / len(dataloader)
-            if (epoch + 1) % 2 == 0:
+            scheduler.step()
+            
+            # 早期停止
+            if avg_loss < best_loss:
+                best_loss = avg_loss
+                patience = 0
+            else:
+                patience += 1
+            
+            if patience > 20:
+                print(f"  早期停止: エポック {epoch + 1}")
+                break
+            
+            if (epoch + 1) % 5 == 0:
                 print(f"  エポック {epoch + 1}/{epochs}, 平均損失: {avg_loss:.4f}")
-    
+                
     def _generate_circuit_with_gpt(self, temperature=0.8, top_k=50, top_p=0.9):
-        """GPTモデルで量子回路を生成"""
+        """GPTモデルで量子回路を生成（改良版）"""
         if self.gpt_model is None:
             return self._generate_fallback_circuit()
         
         self.gpt_model.eval()
         
-        # 開始トークン
-        start_token = torch.tensor([[self.token_to_id['[START]']]], dtype=torch.long).to(device)
+        # 温度の動的調整（探索率に基づく）
+        adjusted_temperature = temperature * (0.5 + 0.5 * self.exploration_rate)
         
-        # シーケンス生成
-        with torch.no_grad():
-            generated = self.gpt_model.generate(
-                start_token,
-                max_new_tokens=min(self.max_circuit_depth * 2, 100),
-                temperature=temperature,
-                top_k=top_k,
-                top_p=top_p
-            )
+        # 開始トークン（ランダム性を追加）
+        start_tokens = [self.token_to_id['[START]']]
         
-        # トークンから回路へ変換
-        tokens = generated[0].cpu().tolist()
-        gate_sequence, parameter_map = self._tokens_to_circuit(tokens)
+        # 初期ゲートのランダム選択（多様性向上）
+        if np.random.rand() < self.exploration_rate * 0.5:
+            # ランダムな初期ゲートを追加
+            initial_gates = ['H', 'RY', 'RX']
+            gate = np.random.choice(initial_gates)
+            qubit = np.random.randint(0, self.n_qubits)
+            token_str = f'{gate}_{qubit}'
+            if token_str in self.token_to_id:
+                start_tokens.append(self.token_to_id[token_str])
         
-        # 空の回路の場合はフォールバック
-        if len(gate_sequence) == 0:
-            return self._generate_fallback_circuit()
+        start_tensor = torch.tensor([start_tokens], dtype=torch.long).to(device)
         
-        return gate_sequence, parameter_map
+        # シーケンス生成（複数候補を生成して最良を選択）
+        n_candidates = 3
+        candidates = []
+        
+        for _ in range(n_candidates):
+            with torch.no_grad():
+                # 温度とtop_k/top_pをランダムに調整
+                temp_variation = adjusted_temperature * (0.8 + 0.4 * np.random.rand())
+                k_variation = max(20, int(top_k * (0.5 + np.random.rand())))
+                p_variation = min(0.95, top_p * (0.9 + 0.2 * np.random.rand()))
+                
+                generated = self.gpt_model.generate(
+                    start_tensor,
+                    max_new_tokens=min(self.max_circuit_depth * 2, 100),
+                    temperature=temp_variation,
+                    top_k=k_variation,
+                    top_p=p_variation
+                )
+            
+            # トークンから回路へ変換
+            tokens = generated[0].cpu().tolist()
+            gate_sequence, parameter_map = self._tokens_to_circuit(tokens)
+            
+            if len(gate_sequence) > 0:
+                candidates.append((gate_sequence, parameter_map))
+        
+        # 候補から最良を選択（多様性を考慮）
+        if candidates:
+            # 各候補のスコアを簡易評価
+            best_candidate = None
+            best_score = -float('inf')
+            
+            for gate_seq, param_map in candidates:
+                # 簡易スコア計算
+                diversity_score = self._calculate_diversity_score(gate_seq)
+                depth = self._calculate_circuit_depth(gate_seq)
+                depth_penalty = max(0, (depth - self.max_circuit_depth) * 0.1)
+                
+                score = diversity_score - depth_penalty
+                
+                if score > best_score:
+                    best_score = score
+                    best_candidate = (gate_seq, param_map)
+            
+            if best_candidate:
+                return best_candidate
+        
+        # フォールバック
+        return self._generate_fallback_circuit()
     
     def _generate_fallback_circuit(self):
         """フォールバック回路生成（GPTが使えない場合）"""
@@ -632,100 +2896,313 @@ class GQEQuantumCircuitGeneratorWithGPT:
         
         return gate_sequence, parameter_map
     
-    def generate_optimal_circuit(self, problem_type='pde', optimization_rounds=5,
-                               use_gpt_generation=True):
-        """GQE with GPTによる最適回路生成"""
-        print(f"GQE-GPT回路最適化を開始（{optimization_rounds}ラウンド）...")
+    def _generate_diverse_fallback_circuit(self):
+        """多様性を持たせたフォールバック回路生成"""
+        gate_sequence = []
+        parameter_map = {}
+        param_counter = 0
         
-        best_template = None
-        best_score = -float('inf')
-        training_data = []
+        # ランダムなレイヤー数
+        n_layers = np.random.randint(2, min(5, self.max_circuit_depth // self.n_qubits))
         
-        for round_idx in range(optimization_rounds):
-            print(f"最適化ラウンド {round_idx + 1}/{optimization_rounds}")
-            
-            # 複数の候補回路を生成
-            candidates = []
-            
-            for i in range(10):  # 10個の候補
-                if use_gpt_generation and self.gpt_model is not None and round_idx > 0:
-                    # GPTで生成（2回目以降）
-                    temperature = 0.8 + 0.1 * np.random.randn()
-                    gate_sequence, parameter_map = self._generate_circuit_with_gpt(
-                        temperature=temperature,
-                        top_k=50,
-                        top_p=0.9
-                    )
+        # 異なるアンザッツパターンからランダムに選択
+        pattern = np.random.choice(['hardware_efficient', 'alternating', 'cascade', 'random'])
+        
+        if pattern == 'hardware_efficient':
+            # ハードウェア効率的アンザッツ
+            for layer in range(n_layers):
+                # 回転ゲート層
+                for q in range(self.n_qubits):
+                    gate_type = np.random.choice(['RY', 'RZ', 'RX'])
+                    gate_sequence.append({
+                        'gate': gate_type,
+                        'qubits': [q],
+                        'param_idx': param_counter,
+                        'trainable': True
+                    })
+                    parameter_map[f'{gate_type.lower()}_l{layer}_q{q}'] = param_counter
+                    param_counter += 1
+                
+                # エンタングリング層
+                if layer < n_layers - 1:
+                    entangle_type = np.random.choice(['linear', 'circular', 'all_to_all'])
+                    if entangle_type == 'linear':
+                        for q in range(self.n_qubits - 1):
+                            gate_sequence.append({
+                                'gate': 'CNOT',
+                                'qubits': [q, q + 1],
+                                'param_idx': None,
+                                'trainable': False
+                            })
+                    elif entangle_type == 'circular':
+                        for q in range(self.n_qubits):
+                            next_q = (q + 1) % self.n_qubits
+                            if q != next_q:  # 安全性チェック（n_qubits=1の場合）
+                                gate_sequence.append({
+                                    'gate': 'CNOT',
+                                    'qubits': [q, next_q],
+                                    'param_idx': None,
+                                    'trainable': False
+                                })
+                    else:  # all_to_all
+                        for q1 in range(self.n_qubits):
+                            q2 = (q1 + np.random.randint(1, max(2, self.n_qubits))) % self.n_qubits
+                            if q1 != q2:  # 安全性チェック
+                                gate_sequence.append({
+                                    'gate': np.random.choice(['CNOT', 'CZ']),
+                                    'qubits': [q1, q2],
+                                    'param_idx': None,
+                                    'trainable': False
+                                })
+        
+        elif pattern == 'alternating':
+            # 交互パターン
+            for layer in range(n_layers):
+                # 奇数層と偶数層で異なるゲート
+                if layer % 2 == 0:
+                    for q in range(0, self.n_qubits - 1, 2):
+                        gate_sequence.append({
+                            'gate': 'RY',
+                            'qubits': [q],
+                            'param_idx': param_counter,
+                            'trainable': True
+                        })
+                        parameter_map[f'ry_l{layer}_q{q}'] = param_counter
+                        param_counter += 1
+                        
+                        if q + 1 < self.n_qubits:
+                            gate_sequence.append({
+                                'gate': 'CNOT',
+                                'qubits': [q, q + 1],
+                                'param_idx': None,
+                                'trainable': False
+                            })
                 else:
-                    # 初回はランダム生成
-                    gate_sequence, parameter_map = self._generate_fallback_circuit()
-                
-                # テンプレート作成
-                template = QuantumCircuitTemplate(
-                    n_qubits=self.n_qubits,
-                    n_layers=len(gate_sequence) // self.n_qubits,
-                    gate_sequence=gate_sequence,
-                    parameter_map=parameter_map,
-                    entangling_pattern='gpt_generated',
-                    noise_resilience_score=0.8,
-                    hardware_efficiency=0.85,
-                    expressivity_score=0.8,
-                    metadata={'round': round_idx, 'method': 'gpt' if use_gpt_generation else 'fallback'}
-                )
-                
-                # 回路評価
-                score = self._evaluate_circuit_template(template, problem_type)
-                energy = self._estimate_circuit_energy(template)
-                
-                candidates.append({
-                    'template': template,
-                    'score': score,
-                    'energy': energy,
-                    'gate_sequence': gate_sequence
-                })
-                
-                # 学習データに追加
-                training_data.append({
-                    'gate_sequence': gate_sequence,
-                    'energy': energy,
-                    'score': score
-                })
-            
-            # 最良候補を選択
-            candidates.sort(key=lambda x: x['score'], reverse=True)
-            round_best = candidates[0]
-            
-            if round_best['score'] > best_score:
-                best_score = round_best['score']
-                best_template = round_best['template']
-            
-            print(f"  ラウンド最高スコア: {round_best['score']:.4f}")
-            print(f"  回路深度: {len(round_best['gate_sequence'])}")
-            
-            # GPTモデルの学習（2回目以降）
-            if use_gpt_generation and self.gpt_model is not None and len(training_data) >= 20:
-                self._train_gpt_on_circuits(training_data[-50:], epochs=5)
+                    for q in range(1, self.n_qubits - 1, 2):
+                        gate_sequence.append({
+                            'gate': 'RZ',
+                            'qubits': [q],
+                            'param_idx': param_counter,
+                            'trainable': True
+                        })
+                        parameter_map[f'rz_l{layer}_q{q}'] = param_counter
+                        param_counter += 1
+                        
+                        if q + 1 < self.n_qubits:
+                            gate_sequence.append({
+                                'gate': 'CZ',
+                                'qubits': [q, q + 1],
+                                'param_idx': None,
+                                'trainable': False
+                            })
         
-        # GPTモデルの保存
-        if self.gpt_model is not None:
-            model_path = 'quantum_circuit_gpt.pth'
-            torch.save({
-                'model_state_dict': self.gpt_model.state_dict(),
-                'optimizer_state_dict': self.gpt_optimizer.state_dict(),
-                'vocab_size': self.vocab_size,
-                'training_rounds': optimization_rounds
-            }, model_path)
-            print(f"GPTモデルを保存: {model_path}")
+        elif pattern == 'cascade':
+            # カスケードパターン
+            for layer in range(n_layers):
+                start_q = layer % self.n_qubits
+                for offset in range(self.n_qubits):
+                    q = (start_q + offset) % self.n_qubits
+                    gate_type = np.random.choice(['RY', 'RX'])
+                    gate_sequence.append({
+                        'gate': gate_type,
+                        'qubits': [q],
+                        'param_idx': param_counter,
+                        'trainable': True
+                    })
+                    parameter_map[f'{gate_type.lower()}_l{layer}_q{q}'] = param_counter
+                    param_counter += 1
+                    
+                    if offset < self.n_qubits - 1:
+                        next_q = (q + 1) % self.n_qubits
+                        if q != next_q:  # 安全性チェック
+                            gate_sequence.append({
+                                'gate': 'CNOT',
+                                'qubits': [q, next_q],
+                                'param_idx': None,
+                                'trainable': False
+                            })
         
-        print(f"最適回路生成完了: スコア = {best_score:.4f}")
-        print(f"回路生成方法: {'GPT' if use_gpt_generation else 'Fallback'}")
-        print(f"回路深度: {len(best_template.gate_sequence)}")
-        print(f"パラメータ数: {len(best_template.parameter_map)}")
+        else:  # random
+            # 完全ランダム
+            n_gates = np.random.randint(self.n_qubits * 2, self.max_circuit_depth)
+            for _ in range(n_gates):
+                if np.random.rand() < 0.7:  # 70%の確率で単一量子ビットゲート
+                    gate_type = np.random.choice(['RY', 'RZ', 'RX', 'H'])
+                    q = np.random.randint(self.n_qubits)
+                    trainable = gate_type != 'H'
+                    
+                    gate_info = {
+                        'gate': gate_type,
+                        'qubits': [q],
+                        'param_idx': param_counter if trainable else None,
+                        'trainable': trainable
+                    }
+                    
+                    if trainable:
+                        parameter_map[f'{gate_type.lower()}_gate_{len(gate_sequence)}'] = param_counter
+                        param_counter += 1
+                    
+                    gate_sequence.append(gate_info)
+                else:  # 2量子ビットゲート
+                    if self.n_qubits > 1:  # 2量子ビット以上の場合のみ
+                        gate_type = np.random.choice(['CNOT', 'CZ'])
+                        q1 = np.random.randint(self.n_qubits)
+                        q2 = np.random.randint(self.n_qubits)
+                        
+                        # 異なる量子ビットを選択
+                        attempts = 0
+                        while q2 == q1 and attempts < 10:
+                            q2 = np.random.randint(self.n_qubits)
+                            attempts += 1
+                        
+                        if q1 != q2:  # 最終確認
+                            gate_sequence.append({
+                                'gate': gate_type,
+                                'qubits': [q1, q2],
+                                'param_idx': None,
+                                'trainable': False
+                            })
         
-        return best_template
+        return gate_sequence, parameter_map
+    
+    def _mutate_circuit(self, gate_sequence, parameter_map):
+        """既存回路の変異"""
+        mutated_sequence = copy.deepcopy(gate_sequence)
+        mutated_map = copy.deepcopy(parameter_map)
+        
+        # 変異の種類をランダムに選択
+        mutation_type = np.random.choice(['add', 'remove', 'modify', 'swap'])
+        
+        if mutation_type == 'add' and len(mutated_sequence) < self.max_circuit_depth:
+            # ゲートを追加
+            position = np.random.randint(len(mutated_sequence) + 1)
+            
+            if np.random.rand() < 0.6:
+                # 単一量子ビットゲート
+                gate_type = np.random.choice(['RY', 'RZ', 'RX', 'H'])
+                q = np.random.randint(self.n_qubits)
+                trainable = gate_type != 'H'
+                
+                new_param_idx = max(mutated_map.values()) + 1 if mutated_map and trainable else None
+                
+                new_gate = {
+                    'gate': gate_type,
+                    'qubits': [q],
+                    'param_idx': new_param_idx,
+                    'trainable': trainable
+                }
+                
+                if trainable:
+                    mutated_map[f'{gate_type.lower()}_mutated_{position}'] = new_param_idx
+            else:
+                # 2量子ビットゲート
+                if self.n_qubits > 1:  # 2量子ビット以上の場合のみ
+                    gate_type = np.random.choice(['CNOT', 'CZ'])
+                    q1 = np.random.randint(self.n_qubits)
+                    q2 = np.random.randint(self.n_qubits)
+                    
+                    # 異なる量子ビットを選択
+                    attempts = 0
+                    while q2 == q1 and attempts < 10:
+                        q2 = np.random.randint(self.n_qubits)
+                        attempts += 1
+                    
+                    if q1 != q2:  # 最終確認
+                        new_gate = {
+                            'gate': gate_type,
+                            'qubits': [q1, q2],
+                            'param_idx': None,
+                            'trainable': False
+                        }
+                        mutated_sequence.insert(position, new_gate)
+                else:
+                    # 1量子ビットの場合は単一量子ビットゲートを追加
+                    gate_type = np.random.choice(['RY', 'RZ', 'RX', 'H'])
+                    new_gate = {
+                        'gate': gate_type,
+                        'qubits': [0],
+                        'param_idx': None,
+                        'trainable': gate_type != 'H'
+                    }
+                    mutated_sequence.insert(position, new_gate)
+        
+        elif mutation_type == 'remove' and len(mutated_sequence) > 5:
+            # ゲートを削除
+            position = np.random.randint(len(mutated_sequence))
+            mutated_sequence.pop(position)
+        
+        elif mutation_type == 'modify' and mutated_sequence:
+            # ゲートを修正
+            position = np.random.randint(len(mutated_sequence))
+            gate = mutated_sequence[position]
+            
+            if len(gate['qubits']) == 1:
+                # 量子ビットを変更
+                new_q = np.random.randint(self.n_qubits)
+                gate['qubits'] = [new_q]
+            else:
+                # 2量子ビットゲートのターゲットを変更
+                if np.random.rand() < 0.5:
+                    # 第1量子ビットを変更
+                    old_q2 = gate['qubits'][1]
+                    new_q1 = np.random.randint(self.n_qubits)
+                    # 第2量子ビットと異なることを確認
+                    attempts = 0
+                    while new_q1 == old_q2 and attempts < 10:
+                        new_q1 = np.random.randint(self.n_qubits)
+                        attempts += 1
+                    if new_q1 != old_q2:
+                        gate['qubits'][0] = new_q1
+                else:
+                    # 第2量子ビットを変更
+                    old_q1 = gate['qubits'][0]
+                    new_q2 = np.random.randint(self.n_qubits)
+                    # 第1量子ビットと異なることを確認
+                    attempts = 0
+                    while new_q2 == old_q1 and attempts < 10:
+                        new_q2 = np.random.randint(self.n_qubits)
+                        attempts += 1
+                    if new_q2 != old_q1:
+                        gate['qubits'][1] = new_q2
+        
+        elif mutation_type == 'swap' and len(mutated_sequence) > 1:
+            # 2つのゲートの位置を交換
+            pos1 = np.random.randint(len(mutated_sequence))
+            pos2 = np.random.randint(len(mutated_sequence))
+            while pos2 == pos1:
+                pos2 = np.random.randint(len(mutated_sequence))
+            
+            mutated_sequence[pos1], mutated_sequence[pos2] = mutated_sequence[pos2], mutated_sequence[pos1]
+        
+        return mutated_sequence, mutated_map
+    
+    def _calculate_diversity_score(self, gate_sequence):
+        """回路の多様性スコアを計算"""
+        if not gate_sequence:
+            return 0.0
+        
+        # ゲートタイプの多様性
+        gate_types = set(gate['gate'] for gate in gate_sequence)
+        type_diversity = len(gate_types) / 7.0  # 正規化
+        
+        # 量子ビット使用の多様性
+        used_qubits = set()
+        for gate in gate_sequence:
+            used_qubits.update(gate['qubits'])
+        qubit_diversity = len(used_qubits) / self.n_qubits
+        
+        # ゲートパターンの多様性
+        gate_patterns = []
+        for i in range(len(gate_sequence) - 1):
+            pattern = (gate_sequence[i]['gate'], gate_sequence[i+1]['gate'])
+            gate_patterns.append(pattern)
+        
+        pattern_diversity = len(set(gate_patterns)) / max(1, len(gate_patterns))
+        
+        return 0.4 * type_diversity + 0.3 * qubit_diversity + 0.3 * pattern_diversity
     
     def _evaluate_circuit_template(self, template, problem_type):
-        """回路テンプレートの評価（GPT生成回路対応）"""
+        """回路テンプレートの評価（改良版）"""
         # 実機効率性
         hardware_score = self._compute_hardware_efficiency(template)
         
@@ -737,89 +3214,565 @@ class GQEQuantumCircuitGeneratorWithGPT:
         
         # パラメータ効率
         param_count = len(template.parameter_map)
-        param_score = min(1.0, param_count / 20.0)
+        param_efficiency = 1.0 / (1.0 + np.exp((param_count - 15) / 5))  # シグモイド関数
         
-        # 深度ペナルティ
-        depth_penalty = max(0, (len(template.gate_sequence) - self.max_circuit_depth) * 0.02)
+        # 深度スコア（改良版）
+        depth = len(template.gate_sequence)
+        depth_score = 1.0 / (1.0 + np.exp((depth - self.max_circuit_depth) / 3))
         
-        # GPT生成ボーナス
-        gpt_bonus = 0.1 if template.metadata.get('method') == 'gpt' else 0.0
+        # GPT生成ボーナス（動的）
+        gpt_bonus = 0.0
+        if template.metadata.get('method') == 'gpt':
+            # ラウンドに応じてボーナスを調整
+            round_idx = template.metadata.get('round', 0)
+            gpt_bonus = 0.01 + 0.05 * min(round_idx / 5, 1.0)
         
-        # 総合スコア
+        # 多様性ボーナス
+        diversity_score = self._calculate_diversity_score(template.gate_sequence)
+        
+        # エネルギー推定値を考慮
+        energy_score = 0.0
+        if hasattr(template, 'estimated_energy'):
+            # エネルギーが低いほど高スコア
+            energy_score = 1.0 / (1.0 + np.exp(template.estimated_energy))
+        
+        # 総合スコア（重み調整）
         total_score = (
-            0.25 * hardware_score +
-            0.25 * noise_score +
-            0.2 * expressivity_score +
-            0.2 * param_score +
-            0.1 * gpt_bonus -
-            depth_penalty
+            0.20 * hardware_score +
+            0.20 * noise_score +
+            0.15 * expressivity_score +
+            0.15 * param_efficiency +
+            0.10 * depth_score +
+            0.10 * diversity_score +
+            0.10 * energy_score +
+            0.05 * gpt_bonus
         )
+        
+        # スコアに小さなランダム性を追加（同一スコア回避）
+        #total_score += np.random.uniform(-0.01, 0.01)
         
         return total_score
     
+    def _evaluate_parallelization(self, template):
+        """回路の並列化可能性を評価"""
+        # 各時刻でのゲート依存関係を分析
+        time_slots = []
+        qubit_busy_until = [0] * self.n_qubits
+        
+        for gate_info in template.gate_sequence:
+            qubits = gate_info['qubits']
+            
+            # このゲートが実行可能な最早時刻
+            earliest_time = max(qubit_busy_until[q] for q in qubits if q < self.n_qubits)
+            
+            # 時刻スロットに追加
+            if earliest_time >= len(time_slots):
+                time_slots.extend([[] for _ in range(earliest_time - len(time_slots) + 1)])
+            time_slots[earliest_time].append(gate_info)
+            
+            # 量子ビットの使用時刻を更新
+            for q in qubits:
+                if q < self.n_qubits:
+                    qubit_busy_until[q] = earliest_time + 1
+        
+        # 並列化効率の計算
+        if not time_slots:
+            return 1.0
+        
+        total_gates = len(template.gate_sequence)
+        actual_depth = len(time_slots)
+        theoretical_min_depth = max(1, total_gates // self.n_qubits)
+        
+        parallelization_efficiency = theoretical_min_depth / actual_depth
+        
+        return min(1.0, parallelization_efficiency)
+    
     def _compute_hardware_efficiency(self, template):
-        """ハードウェア効率性の計算"""
+        """ハードウェア効率性の計算（改良版）"""
         score = 1.0
         
-        # 2量子ビットゲート数のペナルティ
-        two_qubit_gates = sum(1 for gate in template.gate_sequence 
-                            if len(gate['qubits']) > 1)
-        score -= 0.01 * two_qubit_gates
+        # 実機のゲート時間を考慮（IBM Quantum等の典型的な値）
+        gate_times = {
+            'H': 35,      # ns
+            'RX': 35,
+            'RY': 35,
+            'RZ': 0,      # 仮想Zゲート
+            'S': 35,
+            'T': 35,
+            'CNOT': 300,  # 2量子ビットゲートは遅い
+            'CZ': 300,
+            'SWAP': 900   # 3つのCNOTで実装
+        }
         
-        # 隣接量子ビット接続性ボーナス
-        for gate in template.gate_sequence:
-            if len(gate['qubits']) == 2:
-                q1, q2 = gate['qubits']
-                if abs(q1 - q2) == 1:  # 隣接
-                    score += 0.005
+        # ゲートエラー率（典型的な値）
+        gate_errors = {
+            'H': 0.001,
+            'RX': 0.001,
+            'RY': 0.001,
+            'RZ': 0.0,     # 仮想ゲートなのでエラーなし
+            'S': 0.001,
+            'T': 0.001,
+            'CNOT': 0.01,  # 2量子ビットゲートはエラー率が高い
+            'CZ': 0.01,
+            'SWAP': 0.03   # 複合ゲートなのでさらに高い
+        }
+        
+        total_time = 0
+        total_error_prob = 0
+        connectivity_penalty = 0
+        
+        # 量子ビット接続マップ（線形トポロジーの場合）
+        if self.hardware_topology == 'linear':
+            connectivity = {i: [i-1, i+1] for i in range(1, self.n_qubits-1)}
+            connectivity[0] = [1]
+            connectivity[self.n_qubits-1] = [self.n_qubits-2]
+        elif self.hardware_topology == 'grid':
+            # 2Dグリッドトポロジー
+            grid_size = int(np.sqrt(self.n_qubits))
+            connectivity = {}
+            for i in range(self.n_qubits):
+                row, col = i // grid_size, i % grid_size
+                neighbors = []
+                if row > 0: neighbors.append(i - grid_size)
+                if row < grid_size - 1: neighbors.append(i + grid_size)
+                if col > 0: neighbors.append(i - 1)
+                if col < grid_size - 1: neighbors.append(i + 1)
+                connectivity[i] = neighbors
+        else:
+            # 全結合（理想的）
+            connectivity = {i: list(range(self.n_qubits)) for i in range(self.n_qubits)}
+        
+        # 各ゲートの評価
+        gate_count = {}
+        for gate_info in template.gate_sequence:
+            gate_type = gate_info['gate']
+            qubits = gate_info['qubits']
+            
+            # ゲートカウント
+            gate_count[gate_type] = gate_count.get(gate_type, 0) + 1
+            
+            # ゲート時間の加算
+            total_time += gate_times.get(gate_type, 50)
+            
+            # エラー確率の累積（改良版）
+            gate_error = gate_errors.get(gate_type, 0.005)
+            total_error_prob = 1 - (1 - total_error_prob) * (1 - gate_error)
+            
+            # 2量子ビットゲートの接続性チェック
+            if len(qubits) == 2:
+                q1, q2 = qubits[0], qubits[1]
+                
+                # 直接接続されていない場合のペナルティ
+                if q1 < self.n_qubits and q2 < self.n_qubits:
+                    if q2 not in connectivity.get(q1, []):
+                        # SWAPゲートが必要
+                        distance = abs(q1 - q2)
+                        swap_count = distance - 1 if self.hardware_topology == 'linear' else distance
+                        connectivity_penalty += swap_count * 0.03
+                        total_time += swap_count * gate_times['SWAP']
+                        swap_error = gate_errors['SWAP']
+                        for _ in range(swap_count):
+                            total_error_prob = 1 - (1 - total_error_prob) * (1 - swap_error)
+        
+        # 並列化可能性の評価
+        parallelization_score = self._evaluate_parallelization(template)
+        
+        # ゲートバランススコア（特定のゲートに偏りすぎていないか）
+        total_gates = len(template.gate_sequence)
+        if total_gates > 0:
+            gate_balance = 0.0
+            for gate_type, count in gate_count.items():
+                ratio = count / total_gates
+                # エントロピー的な評価
+                if ratio > 0:
+                    gate_balance -= ratio * np.log(ratio)
+            gate_balance = gate_balance / np.log(len(gate_count)) if len(gate_count) > 1 else 0.5
+        else:
+            gate_balance = 0.0
+        
+        # 総合スコアの計算（改良版）
+        # 時間スコア（マイクロ秒単位、短いほど良い）
+        time_score = np.exp(-total_time / 5000.0)  # 5μsを基準
+        
+        # エラースコア（エラー率が低いほど良い）
+        error_score = (1 - total_error_prob) ** 2  # より厳しい評価
+        
+        # 接続性スコア
+        connectivity_score = np.exp(-connectivity_penalty * 10)
+        
+        # 総合スコア
+        score = (
+            0.25 * time_score + 
+            0.25 * error_score + 
+            0.20 * connectivity_score + 
+            0.15 * parallelization_score +
+            0.15 * gate_balance
+        )
         
         return max(0.0, min(1.0, score))
     
+    def _evaluate_error_correction_potential(self, template):
+        """エラー訂正の可能性を評価"""
+        # スタビライザー形式に近いかどうかを評価
+        stabilizer_gates = ['H', 'S', 'CNOT', 'CZ']
+        stabilizer_count = sum(1 for gate in template.gate_sequence 
+                            if gate['gate'] in stabilizer_gates)
+        
+        stabilizer_ratio = stabilizer_count / len(template.gate_sequence) if template.gate_sequence else 0
+        
+        # クリフォードゲートの割合が高いほどエラー訂正しやすい
+        return stabilizer_ratio
+
     def _compute_noise_resilience(self, template):
-        """ノイズ耐性の計算"""
-        score = 1.0
+        """ノイズ耐性の計算（より詳細なノイズモデル）"""
+        noise_score = 1.0
         
-        # ゲート時間を考慮
-        for gate in template.gate_sequence:
-            if gate['gate'] in ['RX', 'RY', 'RZ']:
-                score -= 0.002  # 単一量子ビットゲートは高速
-            elif gate['gate'] in ['CNOT', 'CZ']:
-                score -= 0.01   # 2量子ビットゲートは遅い
+        # デコヒーレンス時間（マイクロ秒）
+        T1 = 100  # 緩和時間
+        T2 = 150  # 位相緩和時間
         
-        return max(0.0, min(1.0, score))
+        # 総回路実行時間の推定
+        total_time = 0
+        gate_times = {
+            'H': 35e-3,    # マイクロ秒
+            'RX': 35e-3,
+            'RY': 35e-3,
+            'RZ': 0,
+            'CNOT': 300e-3,
+            'CZ': 300e-3,
+            'SWAP': 900e-3
+        }
+        
+        for gate_info in template.gate_sequence:
+            total_time += gate_times.get(gate_info['gate'], 50e-3)
+        
+        # デコヒーレンスによる忠実度の低下
+        coherence_factor = np.exp(-total_time / T2) * np.sqrt(np.exp(-total_time / T1))
+        
+        # ゲートエラーの累積効果
+        gate_fidelities = {
+            'H': 0.999,
+            'RX': 0.999,
+            'RY': 0.999,
+            'RZ': 1.0,
+            'CNOT': 0.99,
+            'CZ': 0.99,
+            'SWAP': 0.97
+        }
+        
+        total_fidelity = 1.0
+        for gate_info in template.gate_sequence:
+            gate_fidelity = gate_fidelities.get(gate_info['gate'], 0.995)
+            total_fidelity *= gate_fidelity
+        
+        # エラー緩和手法の効果を考慮
+        error_mitigation_factor = 1.0
+        
+        # 動的デカップリングが使用可能な場合
+        idle_time = total_time * 0.2  # 推定アイドル時間
+        if idle_time > 10e-3:  # 10マイクロ秒以上のアイドル時間
+            # 動的デカップリングによる改善
+            error_mitigation_factor = 1.2
+        
+        # ポストセレクションが可能な場合
+        if template.metadata.get('supports_postselection', False):
+            error_mitigation_factor *= 1.1
+        
+        # 総合ノイズ耐性スコア
+        noise_score = coherence_factor * total_fidelity * error_mitigation_factor
+        
+        # エラー訂正可能性の評価
+        if self.n_qubits >= 5:  # 最小限のエラー訂正に必要
+            # 簡易的なエラー訂正可能性評価
+            error_correction_score = self._evaluate_error_correction_potential(template)
+            noise_score *= (1 + 0.3 * error_correction_score)
+        
+        return max(0.0, min(1.0, noise_score))
     
-    def _compute_expressivity(self, template):
-        """表現力の計算"""
-        # パラメータ数
-        param_score = len(template.parameter_map) / 30.0
+
+    def _count_entangling_layers(self, template):
+        """エンタングリング層の数をカウント"""
+        entangling_gates = ['CNOT', 'CZ', 'SWAP']
+        layers = 0
+        current_layer_qubits = set()
         
-        # エンタングリング層数
-        entangling_layers = sum(1 for gate in template.gate_sequence 
-                              if gate['gate'] in ['CNOT', 'CZ'])
-        entangle_score = entangling_layers / 10.0
+        for gate in template.gate_sequence:
+            if gate['gate'] in entangling_gates:
+                qubits = set(gate['qubits'])
+                
+                # 新しい層の開始判定
+                if current_layer_qubits and qubits & current_layer_qubits:
+                    layers += 1
+                    current_layer_qubits = qubits
+                else:
+                    current_layer_qubits |= qubits
+        
+        if current_layer_qubits:
+            layers += 1
+        
+        return layers
+
+    def _evaluate_entangling_capability(self, template):
+        """エンタングリング能力の詳細評価"""
+        if not template.gate_sequence:
+            return 0.0
+        
+        # エンタングリングゲートの分析
+        entangling_gates = ['CNOT', 'CZ', 'SWAP']
+        entangling_ops = [g for g in template.gate_sequence if g['gate'] in entangling_gates]
+        
+        if not entangling_ops:
+            return 0.0
+        
+        # エンタングリングゲートの分布を評価
+        qubit_pairs = set()
+        for gate in entangling_ops:
+            if len(gate['qubits']) >= 2:
+                q1, q2 = gate['qubits'][0], gate['qubits'][1]
+                if q1 < self.n_qubits and q2 < self.n_qubits:
+                    qubit_pairs.add((min(q1, q2), max(q1, q2)))
+        
+        # 可能な量子ビットペアの総数
+        max_pairs = self.n_qubits * (self.n_qubits - 1) // 2
+        
+        # カバレッジスコア
+        coverage_score = len(qubit_pairs) / max_pairs if max_pairs > 0 else 0
+        
+        # エンタングリング層の数
+        entangling_layers = self._count_entangling_layers(template)
+        layer_score = min(1.0, entangling_layers / np.log2(self.n_qubits))
+        
+        # 総合スコア
+        return 0.6 * coverage_score + 0.4 * layer_score
+
+    def _evaluate_layer_structure(self, template):
+        """レイヤー構造の評価"""
+        # 回路をレイヤーに分解
+        layers = []
+        current_layer = []
+        used_qubits = set()
+        
+        for gate in template.gate_sequence:
+            gate_qubits = set(gate['qubits'])
+            
+            if gate_qubits & used_qubits:
+                # 新しいレイヤー
+                if current_layer:
+                    layers.append(current_layer)
+                current_layer = [gate]
+                used_qubits = gate_qubits
+            else:
+                current_layer.append(gate)
+                used_qubits |= gate_qubits
+        
+        if current_layer:
+            layers.append(current_layer)
+        
+        if not layers:
+            return 0.0
+        
+        # レイヤーの規則性を評価
+        layer_sizes = [len(layer) for layer in layers]
+        
+        # 理想的なレイヤーサイズ（全量子ビットが使用される）
+        ideal_layer_size = self.n_qubits
+        
+        # 各レイヤーのスコア
+        layer_scores = []
+        for size in layer_sizes:
+            score = min(1.0, size / ideal_layer_size)
+            layer_scores.append(score)
+        
+        # 平均スコアと一貫性
+        avg_score = np.mean(layer_scores)
+        consistency = 1.0 - np.std(layer_scores) / (np.mean(layer_scores) + 1e-6)
+        
+        return 0.7 * avg_score + 0.3 * consistency
+
+    def _compute_expressivity(self, template):
+        """表現力の計算（エンタングルメント能力を詳細に評価）"""
+        # パラメータ数による基本スコア
+        param_count = len(template.parameter_map)
+        param_score = min(1.0, param_count / (2 * self.n_qubits))
+        
+        # エンタングリング能力の評価
+        entangling_score = self._evaluate_entangling_capability(template)
         
         # ゲートの多様性
         gate_types = set(gate['gate'] for gate in template.gate_sequence)
-        diversity_score = len(gate_types) / 6.0
+        diversity_score = len(gate_types) / 8.0  # 8種類のゲートを想定
         
-        return min(1.0, (param_score + entangle_score + diversity_score) / 3.0)
+        # 回路の深さと幅のバランス
+        circuit_depth = self._calculate_circuit_depth(template.gate_sequence)
+        depth_score = 1.0 - np.exp(-circuit_depth / self.n_qubits)
+        
+        # レイヤー構造の評価
+        layer_score = self._evaluate_layer_structure(template)
+        
+        # 総合表現力スコア
+        expressivity = (
+            0.25 * param_score +
+            0.35 * entangling_score +
+            0.15 * diversity_score +
+            0.15 * depth_score +
+            0.10 * layer_score
+        )
+        
+        return min(1.0, expressivity)
     
     def _estimate_circuit_energy(self, template):
-        """回路のエネルギー推定（簡易版）"""
-        # 実際の量子シミュレーションの代わりに簡易推定
-        # 実際の実装では量子シミュレータを使用
-        base_energy = -1.0
-        
-        # パラメータ数による補正
-        param_penalty = 0.01 * len(template.parameter_map)
-        
-        # 深度による補正
-        depth_penalty = 0.005 * len(template.gate_sequence)
-        
-        # ランダムノイズ
-        noise = 0.1 * np.random.randn()
-        
-        return base_energy + param_penalty + depth_penalty + noise
+        """回路のエネルギー推定（熱伝導方程式特化版）"""
+        try:
+            n_qubits = template.n_qubits
+            
+            # デバイス設定（ノイズを含む実機シミュレーション）
+            if self.noise_budget > 0:
+                dev = qml.device('default.mixed', wires=n_qubits, shots=2048)
+            else:
+                dev = qml.device('default.qubit', wires=n_qubits)
+            
+            # 熱伝導方程式に対応したハミルトニアンの定義
+            coeffs = []
+            obs = []
+            
+            # 1. 空間微分項（ラプラシアン）を表現
+            # 隣接相互作用で2階微分を近似
+            laplacian_strength = 2.0 * alpha  # 熱拡散率を反映
+            for i in range(n_qubits - 1):
+                # XX + YY相互作用（横場項）
+                coeffs.append(laplacian_strength)
+                obs.append(qml.PauliX(i) @ qml.PauliX(i+1))
+                coeffs.append(laplacian_strength)
+                obs.append(qml.PauliY(i) @ qml.PauliY(i+1))
+                
+                # ZZ相互作用（縦場項）
+                coeffs.append(-laplacian_strength * 0.5)
+                obs.append(qml.PauliZ(i) @ qml.PauliZ(i+1))
+            
+            # 2. 時間発展項
+            time_evolution_strength = 0.5
+            for i in range(n_qubits):
+                coeffs.append(time_evolution_strength)
+                obs.append(qml.PauliZ(i))
+                
+                # 初期条件の影響を反映（ガウス分布中心付近を強調）
+                center_weight = np.exp(-((i - n_qubits//2)**2) / (n_qubits/4)**2)
+                coeffs.append(0.1 * center_weight)
+                obs.append(qml.PauliX(i))
+            
+            # 3. 境界条件項（端のキュービットに境界の影響）
+            boundary_strength = 1.0
+            coeffs.append(boundary_strength)
+            obs.append(qml.PauliZ(0))
+            coeffs.append(boundary_strength)
+            obs.append(qml.PauliZ(n_qubits-1))
+            
+            H = qml.Hamiltonian(coeffs, obs)
+            
+            # 複数の時刻でエネルギーを評価
+            time_points = [0.0, 0.1, 0.5]
+            energy_values = []
+            
+            for t in time_points:
+                @qml.qnode(dev)
+                def energy_circuit():
+                    # 時刻tに依存した初期状態の準備
+                    # 熱伝導の物理に基づいた状態準備
+                    for i in range(n_qubits):
+                        # 空間位置に対応
+                        x_normalized = i / (n_qubits - 1)
+                        
+                        # 初期ガウス分布を反映した角度
+                        initial_angle = np.pi * np.exp(-((x_normalized - 0.5)**2) / 0.1)
+                        
+                        # 時間発展を考慮した角度調整
+                        time_factor = np.exp(-alpha * t)
+                        angle = initial_angle * time_factor
+                        
+                        qml.RY(angle, wires=i)
+                    
+                    # エンタングリング層（熱の拡散を表現）
+                    if t > 0:
+                        diffusion_depth = min(int(t * 10) + 1, 3)
+                        for _ in range(diffusion_depth):
+                            for i in range(0, n_qubits-1, 2):
+                                qml.CNOT(wires=[i, i+1])
+                            for i in range(1, n_qubits-1, 2):
+                                qml.CNOT(wires=[i, i+1])
+                    
+                    # テンプレートに基づく回路実行
+                    param_values = np.random.uniform(-np.pi/4, np.pi/4, 
+                                                size=len(template.parameter_map))
+                    param_counter = 0
+                    
+                    for gate_info in template.gate_sequence:
+                        gate_type = gate_info['gate']
+                        qubits = gate_info['qubits']
+                        
+                        # 量子ビットインデックスの検証
+                        if any(q >= n_qubits for q in qubits):
+                            continue
+                        
+                        # ゲートの適用（物理的制約を考慮）
+                        if gate_type == 'H':
+                            qml.Hadamard(wires=qubits[0])
+                        elif gate_type == 'RX' and gate_info.get('trainable', False):
+                            if param_counter < len(param_values):
+                                angle = param_values[param_counter]
+                                qml.RX(angle, wires=qubits[0])
+                                param_counter += 1
+                        elif gate_type == 'RY' and gate_info.get('trainable', False):
+                            if param_counter < len(param_values):
+                                angle = param_values[param_counter]
+                                qml.RY(angle, wires=qubits[0])
+                                param_counter += 1
+                        elif gate_type == 'RZ' and gate_info.get('trainable', False):
+                            if param_counter < len(param_values):
+                                angle = param_values[param_counter]
+                                qml.RZ(angle, wires=qubits[0])
+                                param_counter += 1
+                        elif gate_type == 'CNOT' and len(qubits) >= 2:
+                            if qubits[0] != qubits[1]:
+                                qml.CNOT(wires=qubits[:2])
+                        elif gate_type == 'CZ' and len(qubits) >= 2:
+                            if qubits[0] != qubits[1]:
+                                qml.CZ(wires=qubits[:2])
+                        
+                        # ノイズの適用（実機シミュレーション）
+                        if self.noise_budget > 0 and np.random.rand() < 0.01:
+                            for q in qubits[:1]:
+                                qml.DepolarizingChannel(self.noise_budget, wires=q)
+                    
+                    return qml.expval(H)
+                
+                # エネルギー期待値を計算
+                energy = float(energy_circuit())
+                energy_values.append(energy)
+            
+            # 時間平均エネルギーと変動を考慮
+            mean_energy = np.mean(energy_values)
+            energy_variance = np.var(energy_values)
+            
+            # 熱伝導方程式の物理的制約を反映したスコア
+            # エネルギーが時間とともに減少することを評価
+            if len(energy_values) > 1:
+                energy_decay = (energy_values[0] - energy_values[-1]) / (energy_values[0] + 1e-6)
+                decay_bonus = max(0, energy_decay) * 0.5
+            else:
+                decay_bonus = 0
+            
+            # 最終的なエネルギー推定値
+            # 低いエネルギーと適切な時間発展を持つ回路を高評価
+            estimated_energy = mean_energy - decay_bonus - 0.1 * np.sqrt(energy_variance)
+            
+            return estimated_energy
+            
+        except Exception as e:
+            print(f"エネルギー計算エラー: {e}")
+            # フォールバック：簡易推定
+            return -1.0 + 0.01 * len(template.parameter_map) + 0.005 * len(template.gate_sequence)
+
+
     
     def save_gpt_generation_history(self, save_path='results/'):
         """GPT生成履歴の保存"""
@@ -855,6 +3808,835 @@ class GQEQuantumCircuitGeneratorWithGPT:
         
         print(f"GPT生成履歴を保存: {history_path}")
 
+    def generate_optimal_circuit(self, problem_type='pde', optimization_rounds=5,
+                               use_gpt_generation=True):
+        """GQE with GPTによる最適回路生成（改良版）"""
+        print(f"GQE-GPT回路最適化を開始（{optimization_rounds}ラウンド）...")
+        
+        best_template = None
+        best_score = -float('inf')
+        training_data = []
+        
+        # ラウンド履歴をクリア
+        self.round_history = []
+        self.gpt_generation_history = []
+        
+        # 探索率の初期化
+        self.exploration_rate = 0.9
+        
+        # エリート保存
+        elite_templates = []
+        elite_size = 10
+        
+        for round_idx in range(optimization_rounds):
+            print(f"最適化ラウンド {round_idx + 1}/{optimization_rounds}")
+            
+            # 探索率の更新
+            self.exploration_rate *= self.exploration_decay
+            
+            # ラウンド情報を記録
+            round_info = {
+                'round': round_idx,
+                'candidates': [],
+                'best_score': -float('inf'),
+                'best_template': None,
+                'gpt_used': use_gpt_generation and self.gpt_model is not None and round_idx > 0,
+                'statistics': {},
+                'exploration_rate': self.exploration_rate
+            }
+            
+            # 複数の候補回路を生成
+            candidates = []
+            
+            # 候補数を動的に調整
+            n_candidates = 100 + round_idx * 20  # ラウンドごとに増加
+            
+            for i in range(n_candidates):
+                if use_gpt_generation and self.gpt_model is not None and round_idx > 0:
+                    # GPTで生成（2回目以降）
+                    # 温度を動的に調整
+                    base_temp = 0.8
+                    temp_range = 0.4 * self.exploration_rate
+                    temperature = base_temp + temp_range * (2 * np.random.rand() - 1)
+                    
+                    # top_k と top_p も動的に
+                    top_k = int(30 + 40 * np.random.rand())
+                    top_p = 0.7 + 0.25 * np.random.rand()
+                    
+                    gate_sequence, parameter_map = self._generate_circuit_with_gpt(
+                        temperature=temperature,
+                        top_k=top_k,
+                        top_p=top_p
+                    )
+                else:
+                    # 初回はランダム生成（多様性を持たせる）
+                    gate_sequence, parameter_map = self._generate_diverse_fallback_circuit()
+                
+                # エリートからの変異（後半のラウンドで）
+                if round_idx > 2 and elite_templates and np.random.rand() < 0.3:
+                    # エリートテンプレートから一つ選択
+                    elite = np.random.choice(elite_templates)
+                    gate_sequence, parameter_map = self._mutate_circuit(
+                        elite.gate_sequence, 
+                        elite.parameter_map
+                    )
+                
+                # テンプレート作成
+                template = QuantumCircuitTemplate(
+                    n_qubits=self.n_qubits,
+                    n_layers=len(gate_sequence) // self.n_qubits,
+                    gate_sequence=gate_sequence,
+                    parameter_map=parameter_map,
+                    entangling_pattern='gpt_generated',
+                    noise_resilience_score=0.8,
+                    hardware_efficiency=0.85,
+                    expressivity_score=0.8,
+                    metadata={
+                        'round': round_idx, 
+                        'method': 'gpt' if use_gpt_generation else 'fallback',
+                        'candidate_id': i
+                    }
+                )
+                
+                # エネルギー推定
+                energy = self._estimate_circuit_energy_enhanced(template)
+                template.estimated_energy = energy
+                
+                # 回路評価
+                score = self._evaluate_circuit_template(template, problem_type)
+                
+                # 履歴を更新
+                self.update_circuit_history(template, score)
+                
+                candidate_info = {
+                    'template': template,
+                    'score': score,
+                    'energy': energy,
+                    'gate_sequence': gate_sequence,
+                    'circuit_depth': self._calculate_circuit_depth(gate_sequence),
+                    'n_params': len(parameter_map),
+                    'n_gates': len(gate_sequence)
+                }
+                
+                candidates.append(candidate_info)
+                round_info['candidates'].append(candidate_info)
+                
+                # 学習データに追加（スコアが一定以上のもののみ）
+                if score > 0.5 or (round_idx == 0 and i < 50):  # 初回は多めに
+                    training_data.append({
+                        'gate_sequence': gate_sequence,
+                        'energy': energy,
+                        'score': score
+                    })
+            
+            # 最良候補を選択
+            candidates.sort(key=lambda x: x['score'], reverse=True)
+            round_best = candidates[0]
+            
+            # エリートの更新
+            elite_templates = [c['template'] for c in candidates[:elite_size]]
+            
+            round_info['best_score'] = round_best['score']
+            round_info['best_template'] = round_best['template']
+            
+            # 統計情報を計算
+            scores = [c['score'] for c in candidates]
+            energies = [c['energy'] for c in candidates]
+            depths = [c['circuit_depth'] for c in candidates]
+            
+            round_info['statistics'] = {
+                'avg_score': np.mean(scores),
+                'std_score': np.std(scores),
+                'min_score': np.min(scores),
+                'max_score': np.max(scores),
+                'avg_energy': np.mean(energies),
+                'std_energy': np.std(energies),
+                'avg_depth': np.mean(depths),
+                'std_depth': np.std(depths),
+                'unique_scores': len(set(scores))  # スコアの多様性
+            }
+            
+            if round_best['score'] > best_score:
+                best_score = round_best['score']
+                best_template = round_best['template']
+            
+            print(f"  ラウンド最高スコア: {round_best['score']:.4f}")
+            print(f"  回路深度: {round_best['circuit_depth']}")
+            print(f"  平均スコア: {round_info['statistics']['avg_score']:.4f}")
+            print(f"  スコアの多様性: {round_info['statistics']['unique_scores']}")
+            
+            # ラウンド履歴に追加
+            self.round_history.append(round_info)
+            
+            # GPTモデルの学習（2回目以降、十分なデータがある場合）
+            if use_gpt_generation and self.gpt_model is not None and len(training_data) >= 50:
+                # 最新の高品質データを優先
+                recent_data = sorted(training_data, key=lambda x: x['score'], reverse=True)[:200]
+                
+                # エポック数を動的に調整
+                train_epochs = min(100, 50 + round_idx * 10)
+                
+                self._train_gpt_on_circuits(recent_data, epochs=train_epochs)
+                
+                # GPT学習履歴を記録
+                self.gpt_generation_history.append({
+                    'round': round_idx,
+                    'training_size': len(recent_data),
+                    'epochs': train_epochs
+                })
+        
+        # GPTモデルの保存
+        if self.gpt_model is not None:
+            model_path = 'quantum_circuit_gpt.pth'
+            # 保存データの準備
+            save_data = {
+                'model_state_dict': self.gpt_model.state_dict(),
+                'optimizer_state_dict': self.gpt_optimizer.state_dict(),
+                'vocab_size': self.vocab_size,
+                'training_rounds': optimization_rounds,
+                'round_history': self.round_history,
+                'best_score': best_score
+            }
+            
+            # PyTorch 2.6以降でも読み込み可能な形式で保存
+            torch.save(save_data, model_path, _use_new_zipfile_serialization=True)
+            print(f"GPTモデルと履歴を保存: {model_path}")
+        
+        print(f"最適回路生成完了: スコア = {best_score:.4f}")
+        print(f"回路生成方法: {'GPT' if use_gpt_generation else 'Fallback'}")
+        print(f"回路深度: {len(best_template.gate_sequence)}")
+        print(f"パラメータ数: {len(best_template.parameter_map)}")
+        
+        return best_template
+    
+    def _calculate_circuit_depth(self, gate_sequence):
+        """回路深度を計算"""
+        if not gate_sequence:
+            return 0
+        
+        qubit_layers = {}
+        max_layer = 0
+        
+        for gate_info in gate_sequence:
+            qubits = gate_info['qubits']
+            
+            # 関連する量子ビットの最大層を見つける
+            current_layer = 0
+            for q in qubits:
+                if q in qubit_layers:
+                    current_layer = max(current_layer, qubit_layers[q] + 1)
+            
+            # 全ての関連量子ビットを更新
+            for q in qubits:
+                qubit_layers[q] = current_layer
+            
+            max_layer = max(max_layer, current_layer)
+        
+        return max_layer + 1
+    
+    def visualize_optimization_history(self, save_path='results/'):
+        """最適化履歴の可視化"""
+        os.makedirs(save_path, exist_ok=True)
+        
+        if not self.round_history:
+            print("最適化履歴がありません")
+            return
+        
+        # 1. スコアの推移
+        fig, axes = plt.subplots(2, 2, figsize=(15, 12))
+        
+        rounds = range(len(self.round_history))
+        best_scores = [r['best_score'] for r in self.round_history]
+        avg_scores = [r['statistics']['avg_score'] for r in self.round_history]
+        min_scores = [r['statistics']['min_score'] for r in self.round_history]
+        max_scores = [r['statistics']['max_score'] for r in self.round_history]
+        
+        # スコアの推移
+        ax = axes[0, 0]
+        ax.plot(rounds, best_scores, 'ro-', linewidth=2, markersize=8, label='Best Score')
+        ax.plot(rounds, avg_scores, 'b--', linewidth=2, label='Average Score')
+        ax.fill_between(rounds, min_scores, max_scores, alpha=0.2, color='blue')
+        ax.set_xlabel('Optimization Round')
+        ax.set_ylabel('Score')
+        ax.set_title('Circuit Score Evolution')
+        ax.legend()
+        ax.grid(True, alpha=0.3)
+        
+        # エネルギーの推移
+        ax = axes[0, 1]
+        avg_energies = [r['statistics']['avg_energy'] for r in self.round_history]
+        best_energies = [min(c['energy'] for c in r['candidates']) for r in self.round_history]
+        
+        ax.plot(rounds, best_energies, 'go-', linewidth=2, markersize=8, label='Best Energy')
+        ax.plot(rounds, avg_energies, 'g--', linewidth=2, label='Average Energy')
+        ax.set_xlabel('Optimization Round')
+        ax.set_ylabel('Energy')
+        ax.set_title('Energy Evolution')
+        ax.legend()
+        ax.grid(True, alpha=0.3)
+        
+        # 回路深度の推移
+        ax = axes[1, 0]
+        avg_depths = [r['statistics']['avg_depth'] for r in self.round_history]
+        std_depths = [r['statistics']['std_depth'] for r in self.round_history]
+        
+        ax.errorbar(rounds, avg_depths, yerr=std_depths, fmt='mo-', linewidth=2, 
+                   markersize=8, capsize=5, label='Average Depth')
+        ax.set_xlabel('Optimization Round')
+        ax.set_ylabel('Circuit Depth')
+        ax.set_title('Circuit Depth Evolution')
+        ax.legend()
+        ax.grid(True, alpha=0.3)
+        
+        # ゲート数のヒストグラム（最終ラウンド）
+        ax = axes[1, 1]
+        final_round = self.round_history[-1]
+        gate_counts = [c['n_gates'] for c in final_round['candidates']]
+        
+        ax.hist(gate_counts, bins=10, alpha=0.7, color='purple', edgecolor='black')
+        ax.set_xlabel('Number of Gates')
+        ax.set_ylabel('Count')
+        ax.set_title(f'Gate Count Distribution (Final Round)')
+        ax.grid(True, alpha=0.3, axis='y')
+        
+        plt.tight_layout()
+        plt.savefig(os.path.join(save_path, 'gqe_optimization_history.png'), 
+                   dpi=300, bbox_inches='tight')
+        plt.close()
+        
+        # 2. 各ラウンドの最良回路の可視化
+        self._visualize_round_circuits(save_path)
+        
+        print(f"最適化履歴の可視化を保存: {save_path}")
+    
+    def _visualize_round_circuits(self, save_path):
+        """各ラウンドの最良回路を個別のPNGファイルとして可視化（テキスト重複防止版）"""
+        n_rounds = len(self.round_history)
+        if n_rounds == 0:
+            return
+        
+        # 最大5ラウンドまで表示
+        rounds_to_show = n_rounds
+        selected_rounds = np.linspace(0, n_rounds-1, rounds_to_show, dtype=int)
+        
+        # 各ラウンドごとに個別のファイルを作成
+        for idx, round_idx in enumerate(selected_rounds):
+            # サブプロットを使用してレイアウトを整理
+            fig = plt.figure(figsize=(16, 10))
+            
+            # グリッドレイアウトの設定
+            gs = fig.add_gridspec(3, 3, height_ratios=[1, 4, 1], width_ratios=[1, 4, 1],
+                                hspace=0.3, wspace=0.3)
+            
+            # メインの回路図エリア
+            ax_circuit = fig.add_subplot(gs[1, 1])
+            
+            # 上部のタイトルエリア
+            ax_title = fig.add_subplot(gs[0, :])
+            ax_title.axis('off')
+            
+            # 左側の統計情報エリア
+            ax_stats = fig.add_subplot(gs[1, 0])
+            ax_stats.axis('off')
+            
+            # 右側のゲート分布エリア
+            ax_gates = fig.add_subplot(gs[1, 2])
+            ax_gates.axis('off')
+            
+            # 下部の追加情報エリア
+            ax_bottom = fig.add_subplot(gs[2, :])
+            ax_bottom.axis('off')
+            
+            round_info = self.round_history[round_idx]
+            best_template = round_info['best_template']
+            
+            # タイトルを上部に配置
+            title_text = f'GQE Optimization Round {round_idx + 1}'
+            subtitle_text = f'Best Score: {round_info["best_score"]:.4f} | Method: {"GPT" if round_info["gpt_used"] else "Fallback"}'
+            
+            ax_title.text(0.5, 0.7, title_text, transform=ax_title.transAxes,
+                        fontsize=18, fontweight='bold', ha='center', va='center')
+            ax_title.text(0.5, 0.3, subtitle_text, transform=ax_title.transAxes,
+                        fontsize=14, ha='center', va='center', color='darkblue')
+            
+            # 回路図を中央に描画
+            self._draw_simplified_circuit(ax_circuit, best_template, round_idx)
+            ax_circuit.set_title('')  # タイトルは上部に移動したので削除
+            
+            # 左側に統計情報を配置
+            stats_text = "Round Statistics\n" + "="*20 + "\n"
+            stats_text += f"Total Gates: {len(best_template.gate_sequence)}\n"
+            stats_text += f"Circuit Depth: {self._calculate_circuit_depth(best_template.gate_sequence)}\n"
+            stats_text += f"Parameters: {len(best_template.parameter_map)}\n"
+            stats_text += f"Candidates: {len(round_info['candidates'])}\n\n"
+            stats_text += "Score Statistics\n" + "-"*20 + "\n"
+            stats_text += f"Best: {round_info['best_score']:.4f}\n"
+            stats_text += f"Average: {round_info['statistics']['avg_score']:.4f}\n"
+            stats_text += f"Std Dev: {round_info['statistics']['std_score']:.4f}\n"
+            stats_text += f"Min: {round_info['statistics']['min_score']:.4f}\n"
+            stats_text += f"Max: {round_info['statistics']['max_score']:.4f}"
+            
+            ax_stats.text(0.1, 0.5, stats_text, transform=ax_stats.transAxes,
+                        fontsize=10, va='center', ha='left',
+                        bbox=dict(boxstyle='round,pad=0.5', facecolor='lightblue', alpha=0.8))
+            
+            # 右側にゲート分布を配置
+            gate_counts = {}
+            for gate in best_template.gate_sequence:
+                gate_type = gate['gate']
+                gate_counts[gate_type] = gate_counts.get(gate_type, 0) + 1
+            
+            gate_text = "Gate Distribution\n" + "="*20 + "\n"
+            total_gates = sum(gate_counts.values())
+            for gate_type, count in sorted(gate_counts.items(), key=lambda x: x[1], reverse=True):
+                percentage = (count / total_gates) * 100
+                gate_text += f"{gate_type:6s}: {count:3d} ({percentage:5.1f}%)\n"
+            
+            # ゲートタイプ別の統計
+            single_qubit_gates = sum(count for gate, count in gate_counts.items() 
+                                if gate in ['RX', 'RY', 'RZ', 'H', 'S', 'T'])
+            two_qubit_gates = sum(count for gate, count in gate_counts.items() 
+                                if gate in ['CNOT', 'CZ', 'SWAP'])
+            
+            gate_text += "\n" + "-"*20 + "\n"
+            gate_text += f"1-qubit: {single_qubit_gates:3d}\n"
+            gate_text += f"2-qubit: {two_qubit_gates:3d}"
+            
+            ax_gates.text(0.9, 0.5, gate_text, transform=ax_gates.transAxes,
+                        fontsize=10, va='center', ha='right',
+                        bbox=dict(boxstyle='round,pad=0.5', facecolor='wheat', alpha=0.8))
+            
+            # 下部に追加情報を配置
+            additional_info = f"Exploration Rate: {round_info.get('exploration_rate', 'N/A'):.3f} | "
+            additional_info += f"Circuit Efficiency: {best_template.hardware_efficiency:.3f} | "
+            additional_info += f"Noise Resilience: {best_template.noise_resilience_score:.3f} | "
+            additional_info += f"Expressivity: {best_template.expressivity_score:.3f}"
+            
+            ax_bottom.text(0.5, 0.5, additional_info, transform=ax_bottom.transAxes,
+                        fontsize=11, ha='center', va='center', style='italic',
+                        bbox=dict(boxstyle='round,pad=0.3', facecolor='lightgray', alpha=0.7))
+            
+            # 個別のファイル名で保存
+            filename = os.path.join(save_path, f'gqe_round_{round_idx + 1}_circuit.png')
+            plt.savefig(filename, dpi=300, bbox_inches='tight')
+            plt.close()
+            
+            print(f"ラウンド {round_idx + 1} の回路図を保存: {filename}")
+        
+        # 追加：全ラウンドのサマリー図も作成
+        self._create_rounds_summary_figure(save_path, selected_rounds)
+
+    def _draw_simplified_circuit(self, ax, template, round_idx):
+        """簡略化した回路図を描画（改良版）"""
+        from matplotlib.patches import Rectangle, Circle, FancyBboxPatch
+        import matplotlib.lines as mlines
+        
+        # 背景色を設定（オプション）
+        ax.set_facecolor('#f9f9f9')
+        
+        # 量子ビットの線
+        for i in range(template.n_qubits):
+            ax.axhline(y=i, color='black', linewidth=1.2, alpha=0.8)
+            # 量子ビットラベルを左側に配置
+            ax.text(-1.5, i, f'q{i}', ha='right', va='center', fontsize=10, fontweight='bold')
+        
+        # ゲートを描画（最初の15ゲートのみ、見やすさのため）
+        gate_pos = 0.5
+        gate_spacing = 0.9  # ゲート間隔を少し広げる
+        max_gates = min(15, len(template.gate_sequence))
+        
+        gate_counts = {'RY': 0, 'RZ': 0, 'RX': 0, 'CNOT': 0, 'CZ': 0, 'H': 0, 'Other': 0}
+        
+        for idx, gate_info in enumerate(template.gate_sequence[:max_gates]):
+            gate_type = gate_info['gate']
+            qubits = gate_info['qubits']
+            
+            # ゲートカウント
+            if gate_type in gate_counts:
+                gate_counts[gate_type] += 1
+            else:
+                gate_counts['Other'] += 1
+            
+            # 単一量子ビットゲート
+            if len(qubits) == 1:
+                color = 'lightblue' if gate_info.get('trainable', False) else 'lightgray'
+                
+                # 角丸の矩形を使用
+                rect = FancyBboxPatch((gate_pos - 0.25, qubits[0] - 0.25), 0.5, 0.5,
+                                    boxstyle="round,pad=0.05",
+                                    facecolor=color, edgecolor='black', linewidth=1.2)
+                ax.add_patch(rect)
+                
+                # ゲートラベル
+                font_size = 7 if len(gate_type) > 2 else 8
+                ax.text(gate_pos, qubits[0], gate_type[:2], ha='center', va='center', 
+                    fontsize=font_size, fontweight='bold')
+            
+            # 2量子ビットゲート
+            elif len(qubits) == 2:
+                q1, q2 = qubits[0], qubits[1]
+                
+                if gate_type == 'CNOT':
+                    # 制御点（塗りつぶし円）
+                    circle = Circle((gate_pos, q1), 0.12, color='black', fill=True, zorder=10)
+                    ax.add_patch(circle)
+                    # ターゲット（白抜き円＋⊕）
+                    circle_target = Circle((gate_pos, q2), 0.22, 
+                                        facecolor='white', edgecolor='black', linewidth=2, zorder=10)
+                    ax.add_patch(circle_target)
+                    ax.plot([gate_pos, gate_pos], [q1, q2], 'k-', linewidth=2, zorder=5)
+                    ax.text(gate_pos, q2, '⊕', ha='center', va='center', fontsize=12, zorder=11)
+                elif gate_type == 'CZ':
+                    # 両方に制御点
+                    for q in [q1, q2]:
+                        circle = Circle((gate_pos, q), 0.12, color='black', fill=True, zorder=10)
+                        ax.add_patch(circle)
+                    ax.plot([gate_pos, gate_pos], [q1, q2], 'k-', linewidth=2, zorder=5)
+            
+            gate_pos += gate_spacing
+        
+        # 残りのゲート数を表示
+        if len(template.gate_sequence) > max_gates:
+            remaining = len(template.gate_sequence) - max_gates
+            ax.text(gate_pos + 0.5, template.n_qubits/2, 
+                f'... +{remaining} gates',
+                ha='center', va='center', fontsize=10, style='italic',
+                bbox=dict(boxstyle='round,pad=0.3', facecolor='yellow', alpha=0.5))
+        
+        # 軸の設定
+        ax.set_xlim(-2, gate_pos + 2)
+        ax.set_ylim(-0.8, template.n_qubits - 0.2)
+        ax.set_aspect('equal')
+        
+        # グリッドと軸を非表示
+        ax.axis('off')
+        
+        # 枠線を追加（オプション）
+        rect = Rectangle((-2, -0.8), gate_pos + 4, template.n_qubits + 0.6,
+                        linewidth=2, edgecolor='darkgray', facecolor='none', alpha=0.5)
+        ax.add_patch(rect)
+
+    def _create_rounds_summary_figure(self, save_path, selected_rounds):
+        """全ラウンドのサマリー図を作成"""
+        fig, axes = plt.subplots(2, 3, figsize=(18, 12))
+        axes = axes.flatten()
+        
+        # 1. スコアの推移
+        ax = axes[0]
+        rounds = range(len(self.round_history))
+        best_scores = [r['best_score'] for r in self.round_history]
+        avg_scores = [r['statistics']['avg_score'] for r in self.round_history]
+        
+        ax.plot(rounds, best_scores, 'ro-', linewidth=2, markersize=8, label='Best Score')
+        ax.plot(rounds, avg_scores, 'b--', linewidth=2, label='Average Score')
+        
+        # 選択されたラウンドをハイライト
+        for round_idx in selected_rounds:
+            ax.axvline(x=round_idx, color='green', linestyle=':', alpha=0.5)
+            ax.text(round_idx, ax.get_ylim()[1] * 0.95, f'R{round_idx+1}', 
+                    ha='center', va='top', fontsize=8, color='green')
+        
+        ax.set_xlabel('Optimization Round')
+        ax.set_ylabel('Score')
+        ax.set_title('Score Evolution with Highlighted Rounds')
+        ax.legend()
+        ax.grid(True, alpha=0.3)
+        
+        # 2. 回路深度の推移
+        ax = axes[1]
+        depths = []
+        for round_info in self.round_history:
+            best_template = round_info['best_template']
+            depth = self._calculate_circuit_depth(best_template.gate_sequence)
+            depths.append(depth)
+        
+        ax.plot(rounds, depths, 'go-', linewidth=2, markersize=8)
+        
+        # 選択されたラウンドをハイライト
+        for round_idx in selected_rounds:
+            ax.scatter(round_idx, depths[round_idx], s=200, c='red', 
+                    marker='*', zorder=5, edgecolors='black', linewidth=2)
+        
+        ax.set_xlabel('Optimization Round')
+        ax.set_ylabel('Circuit Depth')
+        ax.set_title('Circuit Depth Evolution')
+        ax.grid(True, alpha=0.3)
+        
+        # 3. パラメータ数の推移
+        ax = axes[2]
+        param_counts = []
+        for round_info in self.round_history:
+            best_template = round_info['best_template']
+            param_counts.append(len(best_template.parameter_map))
+        
+        ax.plot(rounds, param_counts, 'mo-', linewidth=2, markersize=8)
+        
+        # 選択されたラウンドをハイライト
+        for round_idx in selected_rounds:
+            ax.scatter(round_idx, param_counts[round_idx], s=200, c='red', 
+                    marker='*', zorder=5, edgecolors='black', linewidth=2)
+        
+        ax.set_xlabel('Optimization Round')
+        ax.set_ylabel('Number of Parameters')
+        ax.set_title('Parameter Count Evolution')
+        ax.grid(True, alpha=0.3)
+        
+        # 4. ゲートタイプの分布（選択されたラウンドのみ）
+        ax = axes[3]
+        gate_types = ['RX', 'RY', 'RZ', 'H', 'CNOT', 'CZ', 'SWAP']
+        
+        # 各ラウンドのゲート数を集計
+        gate_data = {}
+        for round_idx in selected_rounds:
+            round_info = self.round_history[round_idx]
+            best_template = round_info['best_template']
+            
+            gate_counts = {gate_type: 0 for gate_type in gate_types}
+            for gate in best_template.gate_sequence:
+                if gate['gate'] in gate_counts:
+                    gate_counts[gate['gate']] += 1
+            
+            gate_data[f'R{round_idx+1}'] = list(gate_counts.values())
+        
+        # 積み上げ棒グラフ
+        x = np.arange(len(gate_types))
+        width = 0.15
+        
+        for i, (round_label, counts) in enumerate(gate_data.items()):
+            offset = (i - len(gate_data)/2) * width
+            ax.bar(x + offset, counts, width, label=round_label)
+        
+        ax.set_xlabel('Gate Type')
+        ax.set_ylabel('Count')
+        ax.set_title('Gate Distribution in Selected Rounds')
+        ax.set_xticks(x)
+        ax.set_xticklabels(gate_types)
+        ax.legend()
+        ax.grid(True, alpha=0.3, axis='y')
+        
+        # 5. 探索率の推移
+        ax = axes[4]
+        exploration_rates = [r.get('exploration_rate', 0.9) for r in self.round_history]
+        
+        ax.plot(rounds, exploration_rates, 'c-', linewidth=2)
+        ax.fill_between(rounds, 0, exploration_rates, alpha=0.3, color='cyan')
+        
+        # 選択されたラウンドをハイライト
+        for round_idx in selected_rounds:
+            ax.scatter(round_idx, exploration_rates[round_idx], s=150, c='red', 
+                    marker='o', zorder=5, edgecolors='black', linewidth=2)
+        
+        ax.set_xlabel('Optimization Round')
+        ax.set_ylabel('Exploration Rate')
+        ax.set_title('Exploration Rate Decay')
+        ax.grid(True, alpha=0.3)
+        ax.set_ylim(0, 1)
+        
+        # 6. 回路の多様性（選択されたラウンドの詳細）
+        ax = axes[5]
+        
+        # 各ラウンドの特徴をレーダーチャートで表示
+        categories = ['Score', 'Depth\n(inv)', 'Params\n(norm)', 'Diversity', 'GPT']
+        
+        # レーダーチャートの準備
+        angles = np.linspace(0, 2 * np.pi, len(categories), endpoint=False).tolist()
+        angles += angles[:1]
+        
+        ax = plt.subplot(2, 3, 6, projection='polar')
+        
+        for round_idx in selected_rounds[:3]:  # 最大3ラウンドまで
+            round_info = self.round_history[round_idx]
+            best_template = round_info['best_template']
+            
+            # 各メトリクスを正規化
+            values = [
+                round_info['best_score'],  # Score (0-1)
+                1.0 - min(1.0, self._calculate_circuit_depth(best_template.gate_sequence) / 50),  # Depth (逆)
+                min(1.0, len(best_template.parameter_map) / 30),  # Params (正規化)
+                self._calculate_diversity_score(best_template.gate_sequence),  # Diversity
+                1.0 if round_info['gpt_used'] else 0.0  # GPT使用
+            ]
+            values += values[:1]
+            
+            ax.plot(angles, values, 'o-', linewidth=2, label=f'Round {round_idx+1}')
+            ax.fill(angles, values, alpha=0.15)
+        
+        ax.set_xticks(angles[:-1])
+        ax.set_xticklabels(categories)
+        ax.set_ylim(0, 1)
+        ax.set_title('Circuit Characteristics (Selected Rounds)', pad=20)
+        ax.legend(loc='upper right', bbox_to_anchor=(1.3, 1.1))
+        ax.grid(True)
+        
+        plt.tight_layout()
+        
+        # サマリー図を保存
+        summary_filename = os.path.join(save_path, 'gqe_rounds_summary.png')
+        plt.savefig(summary_filename, dpi=300, bbox_inches='tight')
+        plt.close()
+        
+        print(f"ラウンドサマリー図を保存: {summary_filename}")
+    
+    def _draw_simplified_circuit(self, ax, template, round_idx):
+        """簡略化した回路図を描画"""
+        from matplotlib.patches import Rectangle, Circle, FancyBboxPatch
+        import matplotlib.lines as mlines
+        
+        # 量子ビットの線
+        for i in range(template.n_qubits):
+            ax.axhline(y=i, color='black', linewidth=1)
+            ax.text(-0.5, i, f'q{i}', ha='right', va='center', fontsize=8)
+        
+        # ゲートを描画（最初の10ゲートのみ）
+        gate_pos = 0.5
+        gate_spacing = 0.8
+        max_gates = min(10, len(template.gate_sequence))
+        
+        gate_counts = {'RY': 0, 'RZ': 0, 'RX': 0, 'CNOT': 0, 'CZ': 0, 'Other': 0}
+        
+        for idx, gate_info in enumerate(template.gate_sequence[:max_gates]):
+            gate_type = gate_info['gate']
+            qubits = gate_info['qubits']
+            
+            # ゲートカウント
+            if gate_type in gate_counts:
+                gate_counts[gate_type] += 1
+            else:
+                gate_counts['Other'] += 1
+            
+            # 単一量子ビットゲート
+            if len(qubits) == 1:
+                color = 'lightblue' if gate_info.get('trainable', False) else 'lightgray'
+                rect = Rectangle((gate_pos - 0.2, qubits[0] - 0.2), 0.4, 0.4,
+                               facecolor=color, edgecolor='black', linewidth=1)
+                ax.add_patch(rect)
+                ax.text(gate_pos, qubits[0], gate_type[:2], ha='center', va='center', 
+                       fontsize=6, fontweight='bold')
+            
+            # 2量子ビットゲート
+            elif len(qubits) == 2:
+                q1, q2 = qubits[0], qubits[1]
+                
+                if gate_type == 'CNOT':
+                    # 制御点
+                    circle = Circle((gate_pos, q1), 0.1, color='black', fill=True)
+                    ax.add_patch(circle)
+                    # ターゲット
+                    circle_target = Circle((gate_pos, q2), 0.2, 
+                                         facecolor='white', edgecolor='black', linewidth=2)
+                    ax.add_patch(circle_target)
+                    ax.plot([gate_pos, gate_pos], [q1, q2], 'k-', linewidth=1.5)
+                    ax.text(gate_pos, q2, '⊕', ha='center', va='center', fontsize=10)
+                elif gate_type == 'CZ':
+                    # 両方に制御点
+                    for q in [q1, q2]:
+                        circle = Circle((gate_pos, q), 0.1, color='black', fill=True)
+                        ax.add_patch(circle)
+                    ax.plot([gate_pos, gate_pos], [q1, q2], 'k-', linewidth=1.5)
+            
+            gate_pos += gate_spacing
+        
+        # 残りのゲート数を表示
+        if len(template.gate_sequence) > max_gates:
+            ax.text(gate_pos, template.n_qubits/2, 
+                   f'... +{len(template.gate_sequence) - max_gates} gates',
+                   ha='center', va='center', fontsize=8, style='italic')
+        
+        # 統計情報を追加
+        stats_text = f"Total: {len(template.gate_sequence)} gates\n"
+        stats_text += f"Depth: {self._calculate_circuit_depth(template.gate_sequence)}\n"
+        stats_text += f"Params: {len(template.parameter_map)}"
+        
+        ax.text(0.02, 0.98, stats_text, transform=ax.transAxes, 
+               fontsize=8, verticalalignment='top',
+               bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
+        
+        ax.set_xlim(-1, gate_pos + 1)
+        ax.set_ylim(-0.5, template.n_qubits - 0.5)
+        ax.set_aspect('equal')
+        ax.axis('off')
+    
+    def generate_detailed_report(self, save_path='results/'):
+        """詳細な最適化レポートを生成"""
+        os.makedirs(save_path, exist_ok=True)
+        
+        report_path = os.path.join(save_path, 'gqe_optimization_report.txt')
+        
+        with open(report_path, 'w', encoding='utf-8') as f:
+            f.write("=" * 80 + "\n")
+            f.write("GQE-GPT Quantum Circuit Optimization Report\n")
+            f.write("=" * 80 + "\n\n")
+            
+            f.write(f"Generated at: {time.strftime('%Y-%m-%d %H:%M:%S')}\n\n")
+            
+            # 1. 設定情報
+            f.write("1. Configuration\n")
+            f.write("-" * 40 + "\n")
+            f.write(f"  - Number of Qubits: {self.n_qubits}\n")
+            f.write(f"  - Optimization Rounds: {len(self.round_history)}\n")
+            f.write(f"  - Candidates per Round: {len(self.round_history[0]['candidates']) if self.round_history else 0}\n")
+            f.write(f"  - GPT Model Used: {'Yes' if self.gpt_model is not None else 'No'}\n")
+            f.write(f"  - Vocabulary Size: {self.vocab_size}\n\n")
+            
+            # 2. 各ラウンドの詳細
+            f.write("2. Round-by-Round Analysis\n")
+            f.write("-" * 40 + "\n")
+            
+            for round_info in self.round_history:
+                f.write(f"\nRound {round_info['round'] + 1}:\n")
+                f.write(f"  - Method: {'GPT' if round_info['gpt_used'] else 'Fallback'}\n")
+                f.write(f"  - Best Score: {round_info['best_score']:.6f}\n")
+                f.write(f"  - Average Score: {round_info['statistics']['avg_score']:.6f}\n")
+                f.write(f"  - Score Std Dev: {round_info['statistics']['std_score']:.6f}\n")
+                f.write(f"  - Best Energy: {min(c['energy'] for c in round_info['candidates']):.6f}\n")
+                f.write(f"  - Average Depth: {round_info['statistics']['avg_depth']:.2f}\n")
+                
+                # ゲート統計
+                best_candidate = max(round_info['candidates'], key=lambda x: x['score'])
+                gate_types = {}
+                for gate in best_candidate['gate_sequence']:
+                    gate_type = gate['gate']
+                    gate_types[gate_type] = gate_types.get(gate_type, 0) + 1
+                
+                f.write(f"  - Best Circuit Gate Distribution:\n")
+                for gate_type, count in sorted(gate_types.items()):
+                    f.write(f"      {gate_type}: {count}\n")
+            
+            # 3. 全体的な改善
+            if len(self.round_history) > 1:
+                f.write("\n3. Overall Improvement\n")
+                f.write("-" * 40 + "\n")
+                
+                initial_best = self.round_history[0]['best_score']
+                final_best = self.round_history[-1]['best_score']
+                improvement = (final_best - initial_best) / abs(initial_best) * 100
+                
+                f.write(f"  - Initial Best Score: {initial_best:.6f}\n")
+                f.write(f"  - Final Best Score: {final_best:.6f}\n")
+                f.write(f"  - Improvement: {improvement:.2f}%\n")
+                
+                # エネルギーの改善
+                initial_energies = [c['energy'] for c in self.round_history[0]['candidates']]
+                final_energies = [c['energy'] for c in self.round_history[-1]['candidates']]
+                
+                f.write(f"  - Initial Min Energy: {min(initial_energies):.6f}\n")
+                f.write(f"  - Final Min Energy: {min(final_energies):.6f}\n")
+                f.write(f"  - Initial Avg Energy: {np.mean(initial_energies):.6f}\n")
+                f.write(f"  - Final Avg Energy: {np.mean(final_energies):.6f}\n")
+            
+            # 4. GPT学習統計
+            if self.gpt_generation_history:
+                f.write("\n4. GPT Training Statistics\n")
+                f.write("-" * 40 + "\n")
+                
+                for gpt_info in self.gpt_generation_history:
+                    f.write(f"  Round {gpt_info['round'] + 1}: ")
+                    f.write(f"Trained on {gpt_info['training_size']} circuits ")
+                    f.write(f"for {gpt_info['epochs']} epochs\n")
+        
+        print(f"詳細レポートを保存: {report_path}")
+        
+        return report_path
 #================================================
 # 並列処理用のグローバル変数とヘルパー関数（既存のものを維持）
 #================================================
@@ -947,6 +4729,12 @@ class OptimizedQuantumDevice:
                     if any(q >= self.template.n_qubits for q in qubits):
                         continue
                     
+                    # 2量子ビットゲートの場合、制御とターゲットが異なることを確認
+                    if len(qubits) >= 2 and gate_type in ['CNOT', 'CZ', 'SWAP']:
+                        if qubits[0] == qubits[1]:
+                            # 同じ量子ビットの場合はスキップ
+                            continue
+                    
                     if gate_type == 'H':
                         qml.Hadamard(wires=qubits[0])
                     elif gate_type == 'RX' and is_trainable:
@@ -965,11 +4753,17 @@ class OptimizedQuantumDevice:
                             qml.RZ(angle, wires=qubits[0])
                             param_idx += 1
                     elif gate_type == 'CNOT' and len(qubits) >= 2:
-                        qml.CNOT(wires=qubits[:2])
+                        # 再度確認（冗長だが安全）
+                        if qubits[0] != qubits[1]:
+                            qml.CNOT(wires=qubits[:2])
                     elif gate_type == 'CZ' and len(qubits) >= 2:
-                        qml.CZ(wires=qubits[:2])
+                        # 再度確認（冗長だが安全）
+                        if qubits[0] != qubits[1]:
+                            qml.CZ(wires=qubits[:2])
                     elif gate_type == 'SWAP' and len(qubits) >= 2:
-                        qml.SWAP(wires=qubits[:2])
+                        # 再度確認（冗長だが安全）
+                        if qubits[0] != qubits[1]:
+                            qml.SWAP(wires=qubits[:2])
                     
                     # ゲート後ノイズ（実機）
                     if self.shots is not None and is_trainable and np.random.rand() < 0.01:
@@ -1260,13 +5054,14 @@ class GQEQuantumPINN:
         self.backend = backend
         
         if self.is_hardware:
-            self.min_shots = max(800, self.shots)  # 実機向け最適化
+            self.min_shots = max(1000, self.shots)  # 実機向け最適化
             if self.use_parallel:
-                self.shots_per_device = max(200, self.min_shots // self.n_parallel_devices)
+                self.shots_per_device = max(600, self.min_shots // self.n_parallel_devices)
             print(f"GQE実機モード: ショット数 = {self.min_shots}")
             print(f"ノイズモデル: {self.noise_model}")
             if self.use_parallel:
                 print(f"並列処理: {self.n_parallel_devices} デバイス")
+                print(f"各ショット数: {self.shots_per_device} ショット")
             
             # NSGA2/RCGAの使用状況を表示
             if NSGA2_AVAILABLE:
@@ -1284,13 +5079,15 @@ class GQEQuantumPINN:
             n_qubits=n_qubits,
             noise_budget=0.01 if noise_model else 0.001,
             hardware_topology='linear',
-            use_pretrained_gpt=True  # 事前学習済みGPTを使用
+            use_pretrained_gpt=True,  # 事前学習済みGPTを使用
+            use_ai_energy_prediction=True, 
+            energy_prediction_mode='ensemble'
         )
         
         # 最適回路の生成
         self.circuit_template = self.gqe_generator.generate_optimal_circuit(
             problem_type='pde',
-            optimization_rounds=3,  # 実機向けに削減
+            optimization_rounds=10,  # 実機向けに削減
             use_gpt_generation=use_gpt_circuit_generation
         )
         
@@ -2061,6 +5858,211 @@ class GQEQuantumPINN:
                 self._visualize_evolution(save_path,'rcga')
         
         return metrics_path
+    
+    def visualize_gqe_generation_process(self, save_path='results/'):
+        """GQE生成プロセスの詳細可視化"""
+        os.makedirs(save_path, exist_ok=True)
+        
+        if not hasattr(self.gqe_generator, 'round_history') or not self.gqe_generator.round_history:
+            print("GQE生成履歴がありません")
+            return
+        
+        # 1. 最適化履歴の可視化
+        self.gqe_generator.visualize_optimization_history(save_path)
+        
+        # 2. 詳細レポートの生成
+        report_path = self.gqe_generator.generate_detailed_report(save_path)
+        
+        # 3. GPT生成統計の可視化
+        self._visualize_gpt_statistics(save_path)
+        
+        # 4. 回路パラメータの進化
+        self._visualize_circuit_evolution(save_path)
+        
+        return report_path
+    
+    def _visualize_gpt_statistics(self, save_path):
+        """GPT生成統計の可視化"""
+        if not hasattr(self.gqe_generator, 'round_history'):
+            return
+        
+        fig, axes = plt.subplots(2, 2, figsize=(15, 10))
+        
+        # 1. GPT vs Fallback の使用率
+        ax = axes[0, 0]
+        gpt_rounds = sum(1 for r in self.gqe_generator.round_history if r['gpt_used'])
+        fallback_rounds = len(self.gqe_generator.round_history) - gpt_rounds
+        
+        ax.pie([gpt_rounds, fallback_rounds], labels=['GPT', 'Fallback'], 
+               autopct='%1.1f%%', startangle=90)
+        ax.set_title('Circuit Generation Method Distribution')
+        
+        # 2. スコア分布の比較
+        ax = axes[0, 1]
+        gpt_scores = []
+        fallback_scores = []
+        
+        for round_info in self.gqe_generator.round_history:
+            if round_info['gpt_used']:
+                gpt_scores.extend([c['score'] for c in round_info['candidates']])
+            else:
+                fallback_scores.extend([c['score'] for c in round_info['candidates']])
+        
+        if gpt_scores:
+            ax.hist(gpt_scores, bins=20, alpha=0.5, label='GPT', color='blue')
+        if fallback_scores:
+            ax.hist(fallback_scores, bins=20, alpha=0.5, label='Fallback', color='orange')
+        
+        ax.set_xlabel('Score')
+        ax.set_ylabel('Count')
+        ax.set_title('Score Distribution by Generation Method')
+        ax.legend()
+        ax.grid(True, alpha=0.3)
+        
+        # 3. 回路複雑度の推移
+        ax = axes[1, 0]
+        rounds = range(len(self.gqe_generator.round_history))
+        complexities = []
+        
+        for round_info in self.gqe_generator.round_history:
+            best_candidate = max(round_info['candidates'], key=lambda x: x['score'])
+            complexity = best_candidate['n_gates'] * best_candidate['circuit_depth']
+            complexities.append(complexity)
+        
+        ax.plot(rounds, complexities, 'go-', linewidth=2, markersize=8)
+        ax.set_xlabel('Round')
+        ax.set_ylabel('Circuit Complexity (Gates × Depth)')
+        ax.set_title('Circuit Complexity Evolution')
+        ax.grid(True, alpha=0.3)
+        
+        # 4. パラメータ効率性
+        ax = axes[1, 1]
+        param_efficiency = []
+        
+        for round_info in self.gqe_generator.round_history:
+            best_candidate = max(round_info['candidates'], key=lambda x: x['score'])
+            efficiency = best_candidate['score'] / (best_candidate['n_params'] + 1)
+            param_efficiency.append(efficiency)
+        
+        ax.plot(rounds, param_efficiency, 'mo-', linewidth=2, markersize=8)
+        ax.set_xlabel('Round')
+        ax.set_ylabel('Parameter Efficiency (Score / Params)')
+        ax.set_title('Parameter Efficiency Evolution')
+        ax.grid(True, alpha=0.3)
+        
+        plt.tight_layout()
+        plt.savefig(os.path.join(save_path, 'gqe_gpt_statistics.png'), 
+                   dpi=300, bbox_inches='tight')
+        plt.close()
+    
+    def _visualize_circuit_evolution(self, save_path):
+        """回路パラメータの進化を可視化"""
+        if not hasattr(self.gqe_generator, 'round_history'):
+            return
+        
+        # ゲートタイプの進化をヒートマップで表示
+        gate_types = ['RX', 'RY', 'RZ', 'H', 'CNOT', 'CZ', 'SWAP']
+        rounds = len(self.gqe_generator.round_history)
+        
+        gate_evolution = np.zeros((len(gate_types), rounds))
+        
+        for round_idx, round_info in enumerate(self.gqe_generator.round_history):
+            best_candidate = max(round_info['candidates'], key=lambda x: x['score'])
+            
+            # ゲートカウント
+            gate_counts = {}
+            for gate in best_candidate['gate_sequence']:
+                gate_type = gate['gate']
+                gate_counts[gate_type] = gate_counts.get(gate_type, 0) + 1
+            
+            # マトリックスに記録
+            for gate_idx, gate_type in enumerate(gate_types):
+                gate_evolution[gate_idx, round_idx] = gate_counts.get(gate_type, 0)
+        
+        # ヒートマップ
+        fig, ax = plt.subplots(figsize=(12, 8))
+        
+        im = ax.imshow(gate_evolution, aspect='auto', cmap='YlOrRd', interpolation='nearest')
+        
+        # 軸ラベル
+        ax.set_xticks(range(rounds))
+        ax.set_xticklabels([f'R{i+1}' for i in range(rounds)])
+        ax.set_yticks(range(len(gate_types)))
+        ax.set_yticklabels(gate_types)
+        
+        ax.set_xlabel('Optimization Round')
+        ax.set_ylabel('Gate Type')
+        ax.set_title('Gate Type Evolution Across Optimization Rounds')
+        
+        # カラーバー
+        cbar = plt.colorbar(im, ax=ax)
+        cbar.set_label('Number of Gates')
+        
+        # 値を表示
+        for i in range(len(gate_types)):
+            for j in range(rounds):
+                text = ax.text(j, i, f'{int(gate_evolution[i, j])}',
+                             ha='center', va='center', color='black' if gate_evolution[i, j] < 5 else 'white')
+        
+        plt.tight_layout()
+        plt.savefig(os.path.join(save_path, 'gqe_gate_evolution_heatmap.png'), 
+                   dpi=300, bbox_inches='tight')
+        plt.close()
+    
+    def save_gqe_animation(self, save_path='results/'):
+        """GQE最適化プロセスのアニメーションを作成"""
+        os.makedirs(save_path, exist_ok=True)
+        
+        if not hasattr(self.gqe_generator, 'round_history'):
+            print("アニメーション作成用の履歴がありません")
+            return
+        
+        from matplotlib.animation import FuncAnimation, PillowWriter
+        
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
+        
+        rounds = []
+        best_scores = []
+        avg_scores = []
+        
+        # アニメーション更新関数
+        def update(frame):
+            ax1.clear()
+            ax2.clear()
+            
+            # 現在のラウンドまでのデータ
+            current_rounds = range(frame + 1)
+            current_best = [self.gqe_generator.round_history[i]['best_score'] for i in range(frame + 1)]
+            current_avg = [self.gqe_generator.round_history[i]['statistics']['avg_score'] for i in range(frame + 1)]
+            
+            # スコアプロット
+            ax1.plot(current_rounds, current_best, 'ro-', linewidth=2, markersize=8, label='Best Score')
+            ax1.plot(current_rounds, current_avg, 'b--', linewidth=2, label='Average Score')
+            ax1.set_xlabel('Optimization Round')
+            ax1.set_ylabel('Score')
+            ax1.set_title(f'GQE Optimization Progress - Round {frame + 1}')
+            ax1.legend()
+            ax1.grid(True, alpha=0.3)
+            ax1.set_xlim(-0.5, len(self.gqe_generator.round_history) - 0.5)
+            ax1.set_ylim(min(current_avg) * 0.9, max(current_best) * 1.1)
+            
+            # 現在のラウンドの回路を表示
+            round_info = self.gqe_generator.round_history[frame]
+            best_template = round_info['best_template']
+            self.gqe_generator._draw_simplified_circuit(ax2, best_template, frame)
+            
+            return ax1, ax2
+        
+        # アニメーション作成
+        anim = FuncAnimation(fig, update, frames=len(self.gqe_generator.round_history),
+                           interval=1000, repeat=True)
+        
+        # GIFとして保存
+        writer = PillowWriter(fps=1)
+        anim.save(os.path.join(save_path, 'gqe_optimization_animation.gif'), writer=writer)
+        plt.close()
+        
+        print(f"GQE最適化アニメーションを保存: {save_path}gqe_optimization_animation.gif")
 
     def _visualize_evolution(self, save_path, mode):
         """NSGA2/RCGA進化の可視化"""
@@ -2294,9 +6296,9 @@ class GQEQuantumPINN:
         
         # NSGA-II設定
         config = nsga2_optimizer.NSGA2Config()
-        config.population_size = 50
+        config.population_size = 100
         config.max_generations = 100 if self.is_hardware else 200
-        config.n_objectives = 4  # 初期条件、境界条件、データ、PDE残差
+        config.n_objectives = 5  # 初期条件、境界条件、データ、PDE残差, peak_loss
         config.progress_interval = 10  # RCGAと同様の進捗報告間隔
         
         # パラメータ範囲の設定
@@ -2338,6 +6340,7 @@ class GQEQuantumPINN:
         # 各目的関数の履歴を保存
         objective_history = {
             'initial': [],
+            'peak': [],
             'boundary': [],
             'data': [],
             'pde': [],
@@ -2369,11 +6372,18 @@ class GQEQuantumPINN:
                     
                     # 各目的関数を計算
                     initial_loss = self._compute_initial_condition_loss()
+                    
+                    # ピーク値損失（新規追加）
+                    center_pred = self.forward(L/2, L/2, L/2, 0.0)
+                    center_true = initial_condition(L/2, L/2, L/2)
+                    peak_loss = (to_python_float(center_pred) - center_true) ** 2
+                    
                     boundary_loss = self._compute_boundary_condition_loss()
                     data_loss = self._compute_data_fitting_loss()
                     pde_loss = self._compute_pde_residual_loss() if not self.is_hardware else 0.0
                     
-                    return [float(initial_loss), float(boundary_loss), float(data_loss), float(pde_loss)]
+                    return [float(initial_loss), float(peak_loss), float(boundary_loss), 
+                            float(data_loss), float(pde_loss)]
                 
                 # ThreadPoolExecutorを使用（量子シミュレーションの並列化）
                 with ThreadPoolExecutor(max_workers=min(4, len(params_batch))) as executor:
@@ -2457,7 +6467,7 @@ class GQEQuantumPINN:
                 # 目的関数値の統計
                 if pareto_individuals:
                     obj_values = np.array([ind['objectives'] for ind in pareto_individuals])
-                    obj_names = ['初期条件', '境界条件', 'データ', 'PDE残差']
+                    obj_names = ['初期条件', 'ピーク値', '境界条件', 'データ', 'PDE残差']  # ピーク値を追加
                     
                     print("\n目的関数値統計 (パレートフロント):")
                     print("-" * 60)
@@ -2494,10 +6504,11 @@ class GQEQuantumPINN:
                     
                     print(f"\n現世代の最良解 (重み付き和: {best_score:.6f}):")
                     print(f"  - 初期条件損失: {pareto_individuals[best_idx]['objectives'][0]:.6f}")
-                    print(f"  - 境界条件損失: {pareto_individuals[best_idx]['objectives'][1]:.6f}")
-                    print(f"  - データ損失: {pareto_individuals[best_idx]['objectives'][2]:.6f}")
-                    print(f"  - PDE残差損失: {pareto_individuals[best_idx]['objectives'][3]:.6f}")
-                    
+                    print(f"  - ピーク値損失: {pareto_individuals[best_idx]['objectives'][1]:.6f}")  # 新規追加
+                    print(f"  - 境界条件損失: {pareto_individuals[best_idx]['objectives'][2]:.6f}")  # インデックス変更
+                    print(f"  - データ損失: {pareto_individuals[best_idx]['objectives'][3]:.6f}")     # インデックス変更
+                    print(f"  - PDE残差損失: {pareto_individuals[best_idx]['objectives'][4]:.6f}")    # インデックス変更
+                                
                     # 予測値の評価（RCGAと同様）
                     results, avg_error = self._evaluate_test_points()
                     
@@ -2523,9 +6534,10 @@ class GQEQuantumPINN:
                     
                     # 履歴の更新
                     objective_history['initial'].append(np.min(obj_values[:, 0]))
-                    objective_history['boundary'].append(np.min(obj_values[:, 1]))
-                    objective_history['data'].append(np.min(obj_values[:, 2]))
-                    objective_history['pde'].append(np.min(obj_values[:, 3]))
+                    objective_history['peak'].append(np.min(obj_values[:, 1]))      # 新規追加
+                    objective_history['boundary'].append(np.min(obj_values[:, 2]))  # インデックス変更
+                    objective_history['data'].append(np.min(obj_values[:, 3]))      # インデックス変更
+                    objective_history['pde'].append(np.min(obj_values[:, 4]))       # インデックス変更
                     objective_history['combined'].append(best_combined_loss)
                     
                 # 改善率の計算（RCGAと同様）
@@ -2607,30 +6619,34 @@ class GQEQuantumPINN:
             pareto_csv_path = os.path.join(save_path, 'nsga2_pareto_fronts.csv')
             with open(pareto_csv_path, 'w', newline='', encoding='utf-8') as f:
                 writer = csv.writer(f)
-                writer.writerow(['Generation', 'Individual_ID', 'Initial_Loss', 'Boundary_Loss', 'Data_Loss', 'PDE_Loss'])
-                
+                writer.writerow(['Generation', 'Individual_ID', 'Initial_Loss', 'Peak_Loss', 
+                     'Boundary_Loss', 'Data_Loss', 'PDE_Loss'])  # Peak_Lossを追加
+    
                 for pf_data in pareto_front_history:
                     generation = pf_data['generation']
                     for i, ind in enumerate(pf_data['individuals']):
                         writer.writerow([
                             generation, i,
                             ind['objectives'][0],
-                            ind['objectives'][1],
-                            ind['objectives'][2],
-                            ind['objectives'][3]
+                            ind['objectives'][1],  # Peak_Loss
+                            ind['objectives'][2],  # Boundary_Loss（インデックス変更）
+                            ind['objectives'][3],  # Data_Loss（インデックス変更）
+                            ind['objectives'][4]   # PDE_Loss（インデックス変更）
                         ])
-            print(f"パレートフロント履歴CSVを保存: {pareto_csv_path}")
+                print(f"パレートフロント履歴CSVを保存: {pareto_csv_path}")
             
             # 3. 目的関数の推移（CSV形式）
             objectives_csv_path = os.path.join(save_path, 'nsga2_objectives_history.csv')
             with open(objectives_csv_path, 'w', newline='', encoding='utf-8') as f:
                 writer = csv.writer(f)
-                writer.writerow(['Generation', 'Initial_Min', 'Boundary_Min', 'Data_Min', 'PDE_Min', 'Combined'])
-                
+                writer.writerow(['Generation', 'Initial_Min', 'Peak_Min', 'Boundary_Min', 
+                     'Data_Min', 'PDE_Min', 'Combined'])  # Peak_Minを追加
+    
                 for i in range(len(objective_history['initial'])):
                     writer.writerow([
                         i * config.progress_interval,
                         objective_history['initial'][i],
+                        objective_history['peak'][i],      # 新規追加
                         objective_history['boundary'][i],
                         objective_history['data'][i],
                         objective_history['pde'][i],
@@ -2710,19 +6726,28 @@ class GQEQuantumPINN:
                 loss = self._compute_initial_condition_loss()
                 return [float(loss)]
             
-            # 2. 境界条件損失
+            # 2. ピーク値損失（新規追加）
+            def peak_loss_objective(params):
+                _load_parameters_from_array(params)
+                # 中心点での予測精度を評価
+                center_pred = self.forward(L/2, L/2, L/2, 0.0)
+                center_true = initial_condition(L/2, L/2, L/2)
+                peak_loss = (to_python_float(center_pred) - center_true) ** 2
+                return [float(peak_loss)]
+            
+            # 3. 境界条件損失
             def boundary_loss_objective(params):
                 _load_parameters_from_array(params)
                 loss = self._compute_boundary_condition_loss()
                 return [float(loss)]
             
-            # 3. データフィッティング損失
+            # 4. データフィッティング損失
             def data_loss_objective(params):
                 _load_parameters_from_array(params)
                 loss = self._compute_data_fitting_loss()
                 return [float(loss)]
             
-            # 4. PDE残差損失（実機では省略可能）
+            # 5. PDE残差損失
             def pde_loss_objective(params):
                 if self.is_hardware:
                     return [0.0]
@@ -2732,11 +6757,12 @@ class GQEQuantumPINN:
             
             objectives.extend([
                 initial_loss_objective,
+                peak_loss_objective,  # 新規追加
                 boundary_loss_objective,
                 data_loss_objective,
                 pde_loss_objective
             ])
-            
+        
             return objectives
         
         # NSGA-II最適化の実行
@@ -2864,10 +6890,11 @@ class GQEQuantumPINN:
             fig, axes = plt.subplots(2, 2, figsize=(14, 10))
             axes = axes.flatten()
             
-            obj_names = ['Initial Condition', 'Boundary Condition', 'Data Fitting', 'PDE Residual']
-            colors = ['blue', 'green', 'red', 'orange']
-            
-            for i, (key, name, color) in enumerate(zip(['initial', 'boundary', 'data', 'pde'], 
+            obj_names = ['Initial Condition', 'Peak Value', 'Boundary Condition', 
+                        'Data Fitting', 'PDE Residual']  # Peak Valueを追加
+            colors = ['blue', 'purple', 'green', 'red', 'orange']  # purpleを追加
+
+            for i, (key, name, color) in enumerate(zip(['initial', 'peak', 'boundary', 'data', 'pde'], 
                                                     obj_names, colors)):
                 if key in self.objective_history and self.objective_history[key]:
                     generations = range(0, len(self.objective_history[key]) * 10, 10)
@@ -2915,15 +6942,16 @@ class GQEQuantumPINN:
             
             if final_pareto['individuals']:
                 objectives = np.array([ind['objectives'] for ind in final_pareto['individuals']])
-                obj_names = ['Initial', 'Boundary', 'Data', 'PDE']
-                
-                fig, axes = plt.subplots(2, 3, figsize=(15, 10))
+                obj_names = ['Initial', 'Peak', 'Boundary', 'Data', 'PDE']  # Peakを追加
+
+                # ペアの数が増えるため、プロット数の調整が必要
+                fig, axes = plt.subplots(3, 4, figsize=(20, 15))  # 2x3から3x4に変更
                 axes = axes.flatten()
-                
+
                 plot_idx = 0
-                for i in range(4):
-                    for j in range(i+1, 4):
-                        if plot_idx < 6:
+                for i in range(5):  # 4から5に変更
+                    for j in range(i+1, 5):  # 4から5に変更
+                        if plot_idx < 12:  # 6から12に変更
                             axes[plot_idx].scatter(objectives[:, i], objectives[:, j], 
                                                 alpha=0.6, s=50)
                             axes[plot_idx].set_xlabel(f'{obj_names[i]} Loss')
@@ -3487,32 +7515,35 @@ class GQEQuantumPINN:
         return self.circuit_params, self.loss_history, training_time
         
     def _generate_pinn_style_data(self, n_samples):
-        """PINN手法に準拠したデータ生成（修正版：境界条件を正しく使用）"""
+        """PINN手法に準拠したデータ生成（改良版：初期時刻重視）"""
         # 内部点（PDE残差用）
-        n_interior = int(n_samples * 0.15) if not self.is_hardware else 0  # 実機では省略
+        n_interior = int(n_samples * 0.1) if not self.is_hardware else 0  # 削減
         interior_points = []
         
         if n_interior > 0:
             for _ in range(n_interior):
-                x = np.random.uniform(0.1, L-0.1)  # 境界を避ける
+                x = np.random.uniform(0.1, L-0.1)
                 y = np.random.uniform(0.1, L-0.1)
                 z = np.random.uniform(0.1, L-0.1)
-                t = np.random.uniform(0.01, T)    # t=0を避ける
+                t = np.random.uniform(0.01, T)
                 u_true = analytical_solution(x, y, z, t)
                 interior_points.append(TrainingPoint(x, y, z, t, u_true, type='interior'))
         
-        # 初期条件点（重要度高）
-        n_initial = int(n_samples * 0.6)
+        # 初期条件点（重要度をさらに高める）
+        n_initial = int(n_samples * 0.6)  # 60%に増加
         initial_points = []
         
-        # 中心付近を重点的にサンプリング
-        for _ in range(n_initial):
-            # 80%は中心付近、20%は全体
-            if np.random.rand() < 0.8:
-                x = np.clip(np.random.normal(L/2, 0.1), 0, L)
-                y = np.clip(np.random.normal(L/2, 0.1), 0, L)
-                z = np.clip(np.random.normal(L/2, 0.1), 0, L)
+        # 初期条件のサンプリング戦略を改善
+        for i in range(n_initial):
+            # 90%は中心付近を密にサンプリング（ガウス分布のピーク）
+            if i < int(0.9 * n_initial):
+                # より狭い範囲でサンプリング
+                sigma_sample = 0.05  # 初期条件のσと同じ
+                x = np.clip(np.random.normal(L/2, sigma_sample), 0, L)
+                y = np.clip(np.random.normal(L/2, sigma_sample), 0, L)
+                z = np.clip(np.random.normal(L/2, sigma_sample), 0, L)
             else:
+                # 10%は全体から
                 x = np.random.uniform(0, L)
                 y = np.random.uniform(0, L)
                 z = np.random.uniform(0, L)
@@ -3521,59 +7552,72 @@ class GQEQuantumPINN:
             u_true = initial_condition(x, y, z)
             initial_points.append(TrainingPoint(x, y, z, t, u_true, type='initial'))
         
-        # 境界条件点（修正版：boundary_condition関数を使用）
-        n_boundary = int(n_samples * 0.15)
+        # 初期時刻付近のデータも追加（時間連続性のため）
+        n_early_time = int(n_samples * 0.05)
+        for _ in range(n_early_time):
+            x = np.clip(np.random.normal(L/2, 0.1), 0, L)
+            y = np.clip(np.random.normal(L/2, 0.1), 0, L)
+            z = np.clip(np.random.normal(L/2, 0.1), 0, L)
+            t = np.random.uniform(0.0, 0.01)  # 非常に初期の時刻
+            u_true = analytical_solution(x, y, z, t)
+            initial_points.append(TrainingPoint(x, y, z, t, u_true, type='initial'))
+        
+        # 境界条件点
+        n_boundary = int(n_samples * 0.1)  # 削減
         boundary_points = []
         
         for i in range(n_boundary):
             face = i % 6
             t_b = np.random.uniform(0, T)
             
-            # 6つの面
-            if face == 0:    # x=0面
+            if face == 0:
                 x_b, y_b, z_b = 0, np.random.uniform(0, L), np.random.uniform(0, L)
-            elif face == 1:  # x=L面
+            elif face == 1:
                 x_b, y_b, z_b = L, np.random.uniform(0, L), np.random.uniform(0, L)
-            elif face == 2:  # y=0面
+            elif face == 2:
                 x_b, y_b, z_b = np.random.uniform(0, L), 0, np.random.uniform(0, L)
-            elif face == 3:  # y=L面
+            elif face == 3:
                 x_b, y_b, z_b = np.random.uniform(0, L), L, np.random.uniform(0, L)
-            elif face == 4:  # z=0面
+            elif face == 4:
                 x_b, y_b, z_b = np.random.uniform(0, L), np.random.uniform(0, L), 0
-            else:            # z=L面
+            else:
                 x_b, y_b, z_b = np.random.uniform(0, L), np.random.uniform(0, L), L
             
-            # boundary_condition関数を使用（修正箇所）
             u_boundary_value = boundary_condition(x_b, y_b, z_b, t_b)
             boundary_points.append(TrainingPoint(x_b, y_b, z_b, t_b, u_boundary_value, type='boundary'))
         
-        # データ点（解析解フィッティング用）
-        n_data = n_samples - n_interior - n_initial - n_boundary
+        # データ点（時間軸を改善）
+        n_data = n_samples - n_interior - len(initial_points) - n_boundary
         data_points = []
         
-        # 時間軸を戦略的にサンプリング
+        # 時間軸のサンプリングを改善（初期時刻を重視）
         t_values = np.concatenate([
-            np.array([0.0, 0.001, 0.005]),           # 初期
-            np.linspace(0.01, 0.1, 5),              # 早期
-            np.linspace(0.1, 0.5, 5),               # 中期
-            np.linspace(0.5, 1.0, 5)                # 後期
+            np.array([0.0] * 5),                    # t=0を重点的に
+            np.linspace(0.001, 0.01, 10),          # 初期段階を密に
+            np.linspace(0.01, 0.1, 8),             # 早期
+            np.linspace(0.1, 0.5, 5),              # 中期
+            np.linspace(0.5, 1.0, 5)               # 後期
         ])
         
         for t_val in t_values:
-            n_per_time = n_data // len(t_values)
+            n_per_time = max(1, n_data // len(t_values))
             
             for _ in range(n_per_time):
-                # 空間的多様性
-                if np.random.rand() < 0.7:
-                    # ガウス中心付近
-                    x_val = np.clip(np.random.normal(L/2, 0.15), 0, L)
-                    y_val = np.clip(np.random.normal(L/2, 0.15), 0, L)
-                    z_val = np.clip(np.random.normal(L/2, 0.15), 0, L)
+                # 初期時刻ほど中心付近を重点的にサンプリング
+                if t_val < 0.1:
+                    sampling_sigma = 0.05 + 0.1 * t_val  # 時間とともに広がる
+                    x_val = np.clip(np.random.normal(L/2, sampling_sigma), 0, L)
+                    y_val = np.clip(np.random.normal(L/2, sampling_sigma), 0, L)
+                    z_val = np.clip(np.random.normal(L/2, sampling_sigma), 0, L)
                 else:
-                    # 全域
-                    x_val = np.random.uniform(0, L)
-                    y_val = np.random.uniform(0, L)
-                    z_val = np.random.uniform(0, L)
+                    if np.random.rand() < 0.5:
+                        x_val = np.clip(np.random.normal(L/2, 0.2), 0, L)
+                        y_val = np.clip(np.random.normal(L/2, 0.2), 0, L)
+                        z_val = np.clip(np.random.normal(L/2, 0.2), 0, L)
+                    else:
+                        x_val = np.random.uniform(0, L)
+                        y_val = np.random.uniform(0, L)
+                        z_val = np.random.uniform(0, L)
                 
                 u_val = analytical_solution(x_val, y_val, z_val, t_val)
                 data_points.append(TrainingPoint(x_val, y_val, z_val, t_val, u_val, type='data'))
@@ -4237,7 +8281,7 @@ def train_pinn() -> Tuple[PINN, List[float], float]:
         optimizer.zero_grad()
         
         # PDE残差（バッチ処理・メモリ効率化）
-        batch_size = 2000  # 大幅に削減
+        batch_size = 500  # 大幅に削減
         n_batches = len(x_interior) // batch_size + (1 if len(x_interior) % batch_size != 0 else 0)
         loss_pde = 0.0
         
@@ -4430,7 +8474,7 @@ def evaluate_pinn(model: PINN) -> np.ndarray:
     T_tensor = torch.FloatTensor(T_flat).to(device)
     
     # バッチサイズを設定して評価
-    batch_size = 10000  # 増加
+    batch_size = 500  # 増加
     n_batches = len(X_flat) // batch_size + (1 if len(X_flat) % batch_size != 0 else 0)
     
     u_pred_list = []
@@ -4743,7 +8787,7 @@ def visualize_results(results_dir: str, u_pinn: np.ndarray, u_qnn: np.ndarray,
     print("可視化完了")
 
 def main():
-    """メイン関数"""
+    """メイン関数（修正版）"""
     global pinn_losses, qsolver
     
     print("3次元熱伝導方程式のPINN/GQE-GPT-QPINN比較を開始...")
@@ -4805,7 +8849,7 @@ def main():
         qnn_losses = []
         qnn_time = 0
 
-    # main()関数内のGQE-GPT-QPINN評価後に追加
+    # GQE-GPT-QPINN評価後に追加
     if hasattr(qsolver, 'circuit_template'):
         print("\n=== GQE回路の可視化と情報保存 ===")
         
@@ -4818,11 +8862,29 @@ def main():
         # メトリクスの可視化
         metrics_path = qsolver.visualize_circuit_metrics(results_dir)
         
+        # 追加：GQE生成プロセスの詳細可視化
+        print("\n=== GQE生成プロセスの詳細可視化 ===")
+        gqe_report_path = qsolver.visualize_gqe_generation_process(results_dir)
+        
+        # 追加：アニメーションの作成
+        print("\n=== GQE最適化アニメーション作成 ===")
+        qsolver.save_gqe_animation(results_dir)
+        
         print(f"\n生成されたファイル:")
         print(f"  - 量子回路図: {circuit_image_path}")
         print(f"  - 回路情報JSON: {json_path}")
         print(f"  - 回路サマリー: {summary_path}")
         print(f"  - メトリクス図: {metrics_path}")
+        print(f"  - GQE最適化履歴: {results_dir}gqe_optimization_history.png")
+        print(f"  - ラウンド毎回路図: {results_dir}gqe_round_circuits.png")
+        print(f"  - GPT統計: {results_dir}gqe_gpt_statistics.png")
+        print(f"  - ゲート進化ヒートマップ: {results_dir}gqe_gate_evolution_heatmap.png")
+        print(f"  - 最適化レポート: {gqe_report_path}")
+        print(f"  - 最適化アニメーション: {results_dir}gqe_optimization_animation.gif")
+        
+        # GPT生成履歴も保存
+        qsolver.gqe_generator.save_gpt_generation_history(results_dir)
+    
     # 3. 解析解の計算
     u_analytical = compute_analytical_solution()
     
@@ -4846,6 +8908,17 @@ def main():
         print(f"  - 実機効率スコア: {template.hardware_efficiency:.3f}")
         print(f"  - 表現力スコア: {template.expressivity_score:.3f}")
         print(f"  - エンタングリングパターン: {template.entangling_pattern}")
+        
+        # 最適化ラウンドの統計
+        if hasattr(qsolver.gqe_generator, 'round_history'):
+            print(f"\nGQE最適化統計:")
+            print(f"  - 総ラウンド数: {len(qsolver.gqe_generator.round_history)}")
+            initial_score = qsolver.gqe_generator.round_history[0]['best_score']
+            final_score = qsolver.gqe_generator.round_history[-1]['best_score']
+            improvement = (final_score - initial_score) / abs(initial_score) * 100
+            print(f"  - 初期スコア: {initial_score:.6f}")
+            print(f"  - 最終スコア: {final_score:.6f}")
+            print(f"  - スコア改善率: {improvement:.2f}%")
         
         # 最適化手法の情報
         if qsolver.is_hardware and NSGA2_AVAILABLE:
@@ -4963,9 +9036,23 @@ def main():
     # GPTモデルの保存状況
     if os.path.exists('quantum_circuit_gpt.pth'):
         print(f"\nGPTモデルが保存されています: quantum_circuit_gpt.pth")
-        checkpoint = torch.load('quantum_circuit_gpt.pth', map_location=device)
-        print(f"  - トレーニングラウンド数: {checkpoint.get('training_rounds', 'N/A')}")
-        
+        try:
+            # PyTorch 2.6以降の対応
+            if hasattr(torch.serialization, 'safe_globals'):
+                # コンテキストマネージャーを使用
+                with torch.serialization.safe_globals([QuantumCircuitTemplate]):
+                    checkpoint = torch.load('quantum_circuit_gpt.pth', map_location=device)
+            else:
+                # 古いバージョンまたは信頼できるソースの場合
+                checkpoint = torch.load('quantum_circuit_gpt.pth', map_location=device, weights_only=False)
+            
+            print(f"  - トレーニングラウンド数: {checkpoint.get('training_rounds', 'N/A')}")
+            if 'round_history' in checkpoint and checkpoint['round_history']:
+                print(f"  - 最適化ラウンド数: {len(checkpoint['round_history'])}")
+        except Exception as e:
+            print(f"  - チェックポイント読み込みエラー: {e}")
+            print("  - モデルファイルは存在しますが、詳細情報を読み込めませんでした")
+            
     print("\n実験完了")
 
 if __name__ == "__main__":
