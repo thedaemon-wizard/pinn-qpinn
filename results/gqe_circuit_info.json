@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "timestamp": "2025-06-17 22:36:37",
+    "timestamp": "2025-06-20 13:52:38",
     "n_qubits": 6,
     "backend": "default.mixed",
     "shots": 1000,
@@ -10,7 +10,7 @@
   },
   "circuit_template": {
     "n_layers": 1,
-    "n_gates": 9,
+    "n_gates": 7,
     "n_parameters": 5,
     "entangling_pattern": "gpt_generated",
     "noise_resilience_score": 0.8,
@@ -21,15 +21,16 @@
     {
       "gate": "RX",
       "qubits": [
-        4
+        3
       ],
       "trainable": true,
       "param_idx": 0
     },
     {
-      "gate": "H",
+      "gate": "CNOT",
       "qubits": [
-        0
+        0,
+        1
       ],
       "trainable": false,
       "param_idx": null
@@ -37,15 +38,22 @@
     {
       "gate": "RY",
       "qubits": [
-        2
+        5
       ],
       "trainable": true,
-      "param_idx": 1
+      "param_idx": 2
     },
     {
-      "gate": "CNOT",
+      "gate": "RZ",
       "qubits": [
-        2,
+        4
+      ],
+      "trainable": true,
+      "param_idx": 3
+    },
+    {
+      "gate": "H",
+      "qubits": [
         3
       ],
       "trainable": false,
@@ -61,69 +69,43 @@
       "param_idx": null
     },
     {
-      "gate": "CZ",
-      "qubits": [
-        3,
-        4
-      ],
-      "trainable": false,
-      "param_idx": null
-    },
-    {
-      "gate": "RY",
-      "qubits": [
-        4
-      ],
-      "trainable": true,
-      "param_idx": 2
-    },
-    {
       "gate": "RZ",
       "qubits": [
-        3
+        0
       ],
       "trainable": true,
       "param_idx": 4
-    },
-    {
-      "gate": "CNOT",
-      "qubits": [
-        4,
-        5
-      ],
-      "trainable": false,
-      "param_idx": null
     }
   ],
   "parameter_map": {
     "RX_gate_0": 0,
-    "RY_gate_2": 1,
-    "RY_gate_4": 2,
-    "RZ_gate_6": 3,
-    "RZ_gate_8": 4
+    "RY_gate_1": 1,
+    "RY_gate_3": 2,
+    "RZ_gate_4": 3,
+    "RZ_gate_7": 4
   },
   "optimized_parameters": {
     "circuit_params": [
-      1.0334851849240532,
-      0.10130401978235057,
-      2.1320188856405506,
-      -1.269609801727521,
-      0.6924021883384816
+      0.22051645945342707,
+      -0.9563074581461808,
+      1.156780712690435,
+      0.10376067984410345,
+      -1.8432230790101969
     ],
-    "output_scale": 1.9864575817859287,
-    "output_bias": -0.7176801686228662,
-    "time_decay": 2.00596707582313,
-    "spatial_decay": 1.1781232757709985,
-    "amplitude": 1.1353863288603756,
-    "x_weight": 0.19987446489862434,
-    "correlation_weight": 0.2610699851841747
+    "output_scale": 5.8607574162711265,
+    "output_bias": -0.49575692946099137,
+    "time_decay": 1.8138962723788314,
+    "spatial_decay": 1.2992971617353468,
+    "amplitude": 0.8139105607538396,
+    "x_weight": 0.08606992208440356,
+    "correlation_weight": -0.14558728628120615
   },
   "gate_statistics": {
     "RX": 1,
+    "CNOT": 1,
+    "RY": 1,
+    "RZ": 2,
     "H": 1,
-    "RY": 2,
-    "CNOT": 2,
-    "CZ": 2,
-    "RZ": 1
+    "CZ": 1
   }
 }

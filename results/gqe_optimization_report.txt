@@ -2,7 +2,7 @@
 GQE-GPT Quantum Circuit Optimization Report
 ================================================================================
 
-Generated at: 2025-06-17 22:36:43
+Generated at: 2025-06-20 13:52:42
 
 1. Configuration
 ----------------------------------------
@@ -17,112 +17,113 @@ Generated at: 2025-06-17 22:36:43
 
 Round 1:
   - Method: Fallback
-  - Best Score: 0.838680
-  - Average Score: 0.753443
-  - Score Std Dev: 0.054825
-  - Best Energy: -8.924152
-  - Average Depth: 8.56
+  - Best Score: 0.796056
+  - Average Score: 0.700458
+  - Score Std Dev: 0.054639
+  - Best Energy: -0.008915
+  - Average Depth: 9.05
   - Best Circuit Gate Distribution:
-      CNOT: 2
-      CZ: 1
-      H: 2
-      RX: 4
-      RY: 3
+      CNOT: 1
+      CZ: 2
+      H: 4
+      RX: 2
+      RY: 2
+      RZ: 3
 
 Round 2:
   - Method: GPT
-  - Best Score: 0.830153
-  - Average Score: 0.799104
-  - Score Std Dev: 0.042782
-  - Best Energy: -8.776701
-  - Average Depth: 5.22
+  - Best Score: 0.795450
+  - Average Score: 0.751577
+  - Score Std Dev: 0.039858
+  - Best Energy: -0.010058
+  - Average Depth: 5.43
   - Best Circuit Gate Distribution:
-      CNOT: 3
+      CNOT: 1
       CZ: 2
-      RY: 3
-      RZ: 2
+      H: 1
+      RY: 2
+      RZ: 3
 
 Round 3:
   - Method: GPT
-  - Best Score: 0.844202
-  - Average Score: 0.809268
-  - Score Std Dev: 0.037618
-  - Best Energy: -8.639546
-  - Average Depth: 4.74
+  - Best Score: 0.796008
+  - Average Score: 0.752717
+  - Score Std Dev: 0.035926
+  - Best Energy: -0.009797
+  - Average Depth: 5.11
   - Best Circuit Gate Distribution:
-      CNOT: 2
-      H: 3
-      RX: 2
-      RY: 3
+      CNOT: 1
+      CZ: 2
+      H: 1
+      RY: 2
       RZ: 3
 
 Round 4:
   - Method: GPT
-  - Best Score: 0.855704
-  - Average Score: 0.816905
-  - Score Std Dev: 0.031690
-  - Best Energy: -8.358284
-  - Average Depth: 4.29
+  - Best Score: 0.802945
+  - Average Score: 0.772862
+  - Score Std Dev: 0.022875
+  - Best Energy: -0.003875
+  - Average Depth: 4.35
   - Best Circuit Gate Distribution:
       CNOT: 2
+      CZ: 2
+      H: 1
+      RY: 2
+      RZ: 3
+
+Round 5:
+  - Method: GPT
+  - Best Score: 0.811524
+  - Average Score: 0.784401
+  - Score Std Dev: 0.013351
+  - Best Energy: -0.003937
+  - Average Depth: 4.07
+  - Best Circuit Gate Distribution:
+      CNOT: 1
+      CZ: 1
+      H: 1
+      RX: 1
+      RY: 2
+      RZ: 3
+
+Round 6:
+  - Method: GPT
+  - Best Score: 0.813677
+  - Average Score: 0.788588
+  - Score Std Dev: 0.011263
+  - Best Energy: -0.004632
+  - Average Depth: 3.99
+  - Best Circuit Gate Distribution:
+      CNOT: 1
       CZ: 2
       H: 1
       RX: 1
       RY: 2
       RZ: 2
 
-Round 5:
-  - Method: GPT
-  - Best Score: 0.860035
-  - Average Score: 0.825814
-  - Score Std Dev: 0.026011
-  - Best Energy: -8.304112
-  - Average Depth: 4.19
-  - Best Circuit Gate Distribution:
-      CNOT: 2
-      CZ: 2
-      H: 1
-      RX: 1
-      RY: 2
-      RZ: 1
-
-Round 6:
-  - Method: GPT
-  - Best Score: 0.868042
-  - Average Score: 0.830827
-  - Score Std Dev: 0.025312
-  - Best Energy: -8.121962
-  - Average Depth: 4.16
-  - Best Circuit Gate Distribution:
-      CNOT: 2
-      CZ: 2
-      H: 1
-      RX: 1
-      RY: 2
-      RZ: 1
-
 Round 7:
   - Method: GPT
-  - Best Score: 0.868302
-  - Average Score: 0.816490
-  - Score Std Dev: 0.033697
-  - Best Energy: -7.821239
-  - Average Depth: 4.51
+  - Best Score: 0.815253
+  - Average Score: 0.800353
+  - Score Std Dev: 0.008854
+  - Best Energy: -0.003938
+  - Average Depth: 3.77
   - Best Circuit Gate Distribution:
-      CNOT: 2
-      CZ: 2
+      CNOT: 1
+      CZ: 1
       H: 1
       RX: 1
       RY: 2
-      RZ: 1
+      RZ: 2
 
 Round 8:
   - Method: GPT
-  - Best Score: 0.837179
-  - Average Score: 0.815737
-  - Score Std Dev: 0.014772
-  - Best Energy: -1.248469
-  - Average Depth: 4.43
+  - Best Score: 0.820052
+  - Average Score: 0.805290
+  - Score Std Dev: 0.007793
+  - Best Energy: -0.004274
+  - Average Depth: 4.14
   - Best Circuit Gate Distribution:
       CNOT: 1
       CZ: 1
@@ -133,14 +134,14 @@ Round 8:
 
 Round 9:
   - Method: GPT
-  - Best Score: 0.835745
-  - Average Score: 0.816133
-  - Score Std Dev: 0.013946
-  - Best Energy: -0.740428
-  - Average Depth: 4.39
+  - Best Score: 0.820085
+  - Average Score: 0.811458
+  - Score Std Dev: 0.006052
+  - Best Energy: -0.004177
+  - Average Depth: 3.22
   - Best Circuit Gate Distribution:
-      CNOT: 2
-      CZ: 2
+      CNOT: 1
+      CZ: 1
       H: 1
       RX: 1
       RY: 2
@@ -148,28 +149,28 @@ Round 9:
 
 Round 10:
   - Method: GPT
-  - Best Score: 0.836087
-  - Average Score: 0.819382
-  - Score Std Dev: 0.013079
-  - Best Energy: -0.816385
-  - Average Depth: 4.22
+  - Best Score: 0.822908
+  - Average Score: 0.812749
+  - Score Std Dev: 0.006177
+  - Best Energy: -0.003932
+  - Average Depth: 3.15
   - Best Circuit Gate Distribution:
-      CNOT: 2
-      CZ: 2
+      CNOT: 1
+      CZ: 1
       H: 1
       RX: 1
-      RY: 2
+      RY: 1
       RZ: 2
 
 3. Overall Improvement
 ----------------------------------------
-  - Initial Best Score: 0.838680
-  - Final Best Score: 0.836087
-  - Improvement: -0.31%
-  - Initial Min Energy: -8.924152
-  - Final Min Energy: -0.816385
-  - Initial Avg Energy: -7.556716
-  - Final Avg Energy: -0.473480
+  - Initial Best Score: 0.796056
+  - Final Best Score: 0.822908
+  - Improvement: 3.37%
+  - Initial Min Energy: -0.008915
+  - Final Min Energy: -0.003932
+  - Initial Avg Energy: -0.006132
+  - Final Avg Energy: -0.002551
 
 4. GPT Training Statistics
 ----------------------------------------

@@ -352,22 +352,28 @@ class QuantumCircuitDataset(Dataset):
         return torch.tensor(seq, dtype=torch.long), torch.tensor(energy, dtype=torch.float32)
 
 #================================================
-# GQE (Generative Quantum Eigensolver) with GPT
+# UnsupervisedQuantumEnergyEstimator
 #================================================
 
-
 class UnsupervisedQuantumEnergyEstimator:
-    """教師なし学習による量子エネルギー推定器
+    """教師なし学習による量子エネルギー推定器（ノイズ対応版）
     
     References:
     - Mitarai et al. "Quantum circuit learning" Phys. Rev. A 98, 032309 (2018)
     - Abbas et al. "The power of quantum neural networks" Nat Comput Sci 1, 403-409 (2021)
     - Schuld et al. "Evaluating analytic gradients on quantum hardware" Phys. Rev. A 99, 032331 (2019)
+    - Endo et al. "Practical Quantum Error Mitigation for Near-Future Applications" Phys. Rev. X 11, 031057 (2021)
     """
     
-    def __init__(self, n_qubits: int, n_layers: int = 4):
+    def __init__(self, n_qubits: int, n_layers: int = 4, 
+                 use_noise: bool = False, noise_model: str = 'realistic',
+                 shots: Optional[int] = None):
         self.n_qubits = n_qubits
         self.n_layers = n_layers
+        self.use_noise = use_noise
+        self.noise_model = noise_model
+        self.shots = shots if shots is not None else (2048 if use_noise else None)
+        
         self.measurement_history = []
         self.circuit_features = []
         
@@ -378,13 +384,455 @@ class UnsupervisedQuantumEnergyEstimator:
         # 教師なしクラスタリング用
         self.n_energy_clusters = 10
         self.energy_estimator = None
-
+        
         # 特徴量の次元数を固定
         self.feature_dim = None
         self.pca = None
         self.kmeans = None
         self.scaler = None
+        
+        # ノイズパラメータ
+        self.noise_params = self._initialize_noise_params()
+        
+        # エラー緩和用のパラメータ
+        self.error_mitigation_enabled = use_noise
+        self.zero_noise_extrapolation_factors = [1.0, 1.5, 2.0] if use_noise else [1.0]
+        
+    def _initialize_noise_params(self) -> Dict[str, float]:
+        """ノイズパラメータの初期化"""
+        if self.noise_model == 'light':
+            return {
+                'depolarizing_1q': 0.001,
+                'depolarizing_2q': 0.01,
+                'amplitude_damping': 0.0005,
+                'phase_damping': 0.0005,
+                'readout_error': 0.01
+            }
+        elif self.noise_model == 'realistic':
+            return {
+                'depolarizing_1q': 0.002,
+                'depolarizing_2q': 0.02,
+                'amplitude_damping': 0.001,
+                'phase_damping': 0.001,
+                'readout_error': 0.02
+            }
+        elif self.noise_model == 'heavy':
+            return {
+                'depolarizing_1q': 0.005,
+                'depolarizing_2q': 0.05,
+                'amplitude_damping': 0.002,
+                'phase_damping': 0.002,
+                'readout_error': 0.05
+            }
+        else:
+            return {
+                'depolarizing_1q': 0.0,
+                'depolarizing_2q': 0.0,
+                'amplitude_damping': 0.0,
+                'phase_damping': 0.0,
+                'readout_error': 0.0
+            }
     
+    def _create_device(self, shots: Optional[int] = None):
+        """適切な量子デバイスを作成"""
+        if self.use_noise:
+            # ノイズありデバイス
+            return qml.device('default.mixed', wires=self.n_qubits, 
+                             shots=shots if shots is not None else self.shots)
+        else:
+            # ノイズなしデバイス
+            if shots is not None:
+                return qml.device('default.qubit', wires=self.n_qubits, shots=shots)
+            else:
+                return qml.device('default.qubit', wires=self.n_qubits)
+    
+    def _apply_noise_to_circuit(self, wire: int, gate_type: str = '1q'):
+        """回路にノイズを適用"""
+        if not self.use_noise:
+            return
+        
+        # ゲートノイズ
+        if gate_type == '1q':
+            if np.random.rand() < self.noise_params['depolarizing_1q']:
+                qml.DepolarizingChannel(self.noise_params['depolarizing_1q'], wires=wire)
+        else:  # 2q gate
+            if np.random.rand() < self.noise_params['depolarizing_2q']:
+                qml.DepolarizingChannel(self.noise_params['depolarizing_2q'], wires=wire)
+        
+        # 振幅減衰
+        if np.random.rand() < self.noise_params['amplitude_damping']:
+            qml.AmplitudeDamping(self.noise_params['amplitude_damping'], wires=wire)
+        
+        # 位相減衰
+        if np.random.rand() < self.noise_params['phase_damping']:
+            qml.PhaseDamping(self.noise_params['phase_damping'], wires=wire)
+    
+    def _apply_circuit_template_with_noise(self, template, params: np.ndarray, 
+                                          noise_scale: float = 1.0):
+        """ノイズを含む回路テンプレートの適用"""
+        param_idx = 0
+        
+        for gate_info in template.gate_sequence:
+            gate_type = gate_info['gate']
+            qubits = gate_info['qubits']
+            
+            # 量子ビットインデックスの検証
+            if any(q >= self.n_qubits for q in qubits):
+                continue
+            
+            # ゲート前のノイズ（スケーリング付き）
+            if self.use_noise and noise_scale > 0:
+                for q in qubits:
+                    if np.random.rand() < noise_scale * 0.1:
+                        self._apply_noise_to_circuit(q, '1q' if len(qubits) == 1 else '2q')
+            
+            # パラメータ化されたゲート
+            if gate_type == 'RY' and gate_info.get('trainable', False):
+                if param_idx < len(params):
+                    qml.RY(params[param_idx], wires=qubits[0])
+                    param_idx += 1
+            elif gate_type == 'RZ' and gate_info.get('trainable', False):
+                if param_idx < len(params):
+                    qml.RZ(params[param_idx], wires=qubits[0])
+                    param_idx += 1
+            elif gate_type == 'RX' and gate_info.get('trainable', False):
+                if param_idx < len(params):
+                    qml.RX(params[param_idx], wires=qubits[0])
+                    param_idx += 1
+            # 固定ゲート
+            elif gate_type == 'H':
+                qml.Hadamard(wires=qubits[0])
+            elif gate_type == 'CNOT' and len(qubits) >= 2:
+                if qubits[0] != qubits[1]:
+                    qml.CNOT(wires=qubits[:2])
+            elif gate_type == 'CZ' and len(qubits) >= 2:
+                if qubits[0] != qubits[1]:
+                    qml.CZ(wires=qubits[:2])
+            
+            # ゲート後のノイズ（スケーリング付き）
+            if self.use_noise and noise_scale > 0:
+                for q in qubits:
+                    self._apply_noise_to_circuit(q, '1q' if len(qubits) == 1 else '2q')
+    
+    def _extract_quantum_features(self, template, input_data: np.ndarray) -> np.ndarray:
+        """量子特徴の抽出（ノイズ対応版）"""
+        dev = self._create_device(shots=self.shots if self.use_noise else None)
+        measurement_bases = self._generate_measurement_bases()
+        features = []
+        
+        # 入力データの準備
+        prepared_data = self._prepare_input_data(input_data)
+        
+        # 異なる測定基底での期待値を計算
+        for basis in measurement_bases:
+            if self.use_noise and self.error_mitigation_enabled:
+                # ゼロノイズ外挿法を使用
+                extrapolated_features = self._zero_noise_extrapolation(
+                    template, prepared_data, basis
+                )
+                features.extend(extrapolated_features)
+            else:
+                # 通常の測定
+                @qml.qnode(dev)
+                def feature_circuit():
+                    # データエンコーディング
+                    if self.use_noise:
+                        # ノイズありの場合は初期状態準備にもノイズを考慮
+                        qml.AmplitudeEmbedding(
+                            prepared_data, 
+                            wires=range(self.n_qubits), 
+                            normalize=True,
+                            pad_with=0.0
+                        )
+                        # 状態準備後のノイズ
+                        for i in range(self.n_qubits):
+                            if np.random.rand() < 0.05:
+                                self._apply_noise_to_circuit(i, '1q')
+                    else:
+                        qml.AmplitudeEmbedding(
+                            prepared_data, 
+                            wires=range(self.n_qubits), 
+                            normalize=True,
+                            pad_with=0.0
+                        )
+                    
+                    # 変分回路の適用
+                    param_values = np.random.uniform(-np.pi, np.pi, 
+                                                   size=len(template.parameter_map))
+                    self._apply_circuit_template_with_noise(template, param_values)
+                    
+                    # 測定
+                    expectations = []
+                    for obs in basis:
+                        expectations.append(qml.expval(obs))
+                    return expectations
+                
+                try:
+                    result = feature_circuit()
+                    features.extend(result)
+                except Exception as e:
+                    print(f"特徴抽出エラー: {e}")
+                    features.extend([0.0] * len(basis))
+        
+        features_array = np.array(features)
+        
+        # 初回実行時に特徴量の次元数を記録
+        if self.feature_dim is None:
+            self.feature_dim = len(features_array)
+            print(f"特徴量次元数を設定: {self.feature_dim}")
+        
+        return features_array
+    
+    def _zero_noise_extrapolation(self, template, prepared_data: np.ndarray, 
+                                  basis: List[qml.operation.Observable]) -> List[float]:
+        """ゼロノイズ外挿法による測定
+        
+        References:
+        - Li & Benjamin "Efficient Variational Quantum Simulator Incorporating Active Error Minimization"
+          Phys. Rev. X 7, 021050 (2017)
+        """
+        results_at_different_noise = []
+        
+        for noise_scale in self.zero_noise_extrapolation_factors:
+            dev = self._create_device(shots=self.shots)
+            
+            @qml.qnode(dev)
+            def scaled_noise_circuit():
+                # データエンコーディング
+                qml.AmplitudeEmbedding(
+                    prepared_data, 
+                    wires=range(self.n_qubits), 
+                    normalize=True,
+                    pad_with=0.0
+                )
+                
+                # スケールされたノイズで状態準備
+                if noise_scale > 1.0:
+                    for i in range(self.n_qubits):
+                        if np.random.rand() < 0.05 * (noise_scale - 1.0):
+                            self._apply_noise_to_circuit(i, '1q')
+                
+                # 変分回路の適用（スケールされたノイズ）
+                param_values = np.random.uniform(-np.pi, np.pi, 
+                                               size=len(template.parameter_map))
+                self._apply_circuit_template_with_noise(template, param_values, noise_scale)
+                
+                # 測定
+                expectations = []
+                for obs in basis:
+                    expectations.append(qml.expval(obs))
+                return expectations
+            
+            try:
+                result = scaled_noise_circuit()
+                results_at_different_noise.append(result)
+            except Exception as e:
+                print(f"ゼロノイズ外挿エラー: {e}")
+                results_at_different_noise.append([0.0] * len(basis))
+        
+        # Richardson外挿
+        if len(results_at_different_noise) >= 2:
+            # 線形外挿
+            extrapolated = []
+            for i in range(len(basis)):
+                values = [r[i] for r in results_at_different_noise]
+                # 最小二乗法で外挿
+                coeffs = np.polyfit(self.zero_noise_extrapolation_factors[:len(values)], 
+                                   values, deg=1)
+                extrapolated_value = np.polyval(coeffs, 0.0)  # ノイズ=0での値
+                extrapolated.append(extrapolated_value)
+            return extrapolated
+        else:
+            return results_at_different_noise[0]
+    
+    def _analyze_measurements(self, template, input_data: np.ndarray) -> Dict[str, float]:
+        """測定結果の統計解析（ノイズ対応版）"""
+        dev = self._create_device(shots=self.shots if self.shots else 1000)
+        
+        # 入力データの準備
+        prepared_data = self._prepare_input_data(input_data)
+        
+        @qml.qnode(dev)
+        def measurement_circuit():
+            # データエンコーディング
+            qml.AmplitudeEmbedding(
+                prepared_data, 
+                wires=range(self.n_qubits), 
+                normalize=True,
+                pad_with=0.0
+            )
+            
+            # ノイズありの状態準備
+            if self.use_noise:
+                for i in range(self.n_qubits):
+                    if np.random.rand() < 0.05:
+                        self._apply_noise_to_circuit(i, '1q')
+            
+            # 回路実行
+            param_values = np.random.uniform(-np.pi, np.pi, 
+                                           size=len(template.parameter_map))
+            self._apply_circuit_template_with_noise(template, param_values)
+            
+            # 読み出しエラーの追加
+            if self.use_noise and self.noise_params['readout_error'] > 0:
+                for i in range(self.n_qubits):
+                    if np.random.rand() < self.noise_params['readout_error']:
+                        qml.BitFlip(self.noise_params['readout_error'], wires=i)
+            
+            # 計算基底での測定
+            return qml.counts(wires=range(self.n_qubits))
+        
+        try:
+            # 複数回測定して統計を改善
+            all_counts = {}
+            n_repetitions = 3 if self.use_noise else 1
+            
+            for _ in range(n_repetitions):
+                counts = measurement_circuit()
+                for state, count in counts.items():
+                    all_counts[state] = all_counts.get(state, 0) + count
+            
+            # 統計量の計算
+            total_shots = sum(all_counts.values())
+            probabilities = {state: count/total_shots for state, count in all_counts.items()}
+            
+            # エネルギー統計
+            mean_bitstring_value = np.mean([
+                int(state, 2) * prob 
+                for state, prob in probabilities.items()
+            ])
+            
+            variance = np.var([
+                int(state, 2) 
+                for state, count in all_counts.items() 
+                for _ in range(count)
+            ])
+            
+            # 読み出しエラーの補正
+            if self.use_noise and self.noise_params['readout_error'] > 0:
+                # 簡易的な読み出しエラー緩和
+                correction_factor = 1.0 / (1.0 - 2 * self.noise_params['readout_error'])
+                mean_bitstring_value *= correction_factor
+                variance *= correction_factor**2
+            
+            return {
+                'mean': mean_bitstring_value,
+                'variance': variance,
+                'entropy': self._compute_shannon_entropy(probabilities),
+                'purity': self._estimate_purity(probabilities)
+            }
+            
+        except Exception as e:
+            print(f"測定解析エラー: {e}")
+            return {
+                'mean': 2**(self.n_qubits-1),
+                'variance': 1.0,
+                'entropy': 0.5,
+                'purity': 0.5
+            }
+    
+    def _estimate_purity(self, probabilities: Dict[str, float]) -> float:
+        """状態の純粋度を推定"""
+        # 測定結果から純粋度を推定
+        purity = sum(prob**2 for prob in probabilities.values())
+        return purity
+    
+    def _apply_quantum_error_mitigation(self, raw_energy: float, 
+                                      measurement_stats: Dict[str, float]) -> float:
+        """量子エラー緩和（強化版）
+        
+        References:
+        - Temme et al. "Error mitigation for short-depth quantum circuits" 
+          Phys. Rev. Lett. 119, 180509 (2017)
+        - Endo et al. "Hybrid quantum-classical algorithms and quantum error mitigation"
+          J. Phys. Soc. Jpn. 90, 032001 (2021)
+        """
+        if not self.use_noise:
+            # ノイズなしの場合は簡易補正のみ
+            return raw_energy
+        
+        # 1. 統計的誤差に基づく補正
+        noise_factor = 1.0 + 0.1 * measurement_stats['variance'] / (measurement_stats['mean'] + 1e-10)
+        
+        # 2. 純粋度に基づく補正
+        purity = measurement_stats.get('purity', 1.0)
+        purity_correction = 1.0 / (purity + 0.1)  # 純粋度が低いほど大きな補正
+        
+        # 3. エントロピーに基づく補正
+        entropy = measurement_stats.get('entropy', 0.0)
+        entropy_correction = 1.0 + 0.05 * entropy
+        
+        # 総合的な補正
+        mitigated_energy = raw_energy / (noise_factor * purity_correction * entropy_correction)
+        
+        # 4. 物理的制約の適用
+        min_energy = -2.0 * (self.n_qubits - 1)
+        mitigated_energy = max(mitigated_energy, min_energy)
+        
+        # 5. 変動の制限
+        if hasattr(self, '_last_mitigated_energy'):
+            # 前回の値との差が大きすぎる場合は平滑化
+            max_change = 0.5 * abs(self._last_mitigated_energy)
+            if abs(mitigated_energy - self._last_mitigated_energy) > max_change:
+                mitigated_energy = self._last_mitigated_energy + np.sign(
+                    mitigated_energy - self._last_mitigated_energy) * max_change
+        
+        self._last_mitigated_energy = mitigated_energy
+        
+        return mitigated_energy
+    
+    def estimate_energy_unsupervised(self, template, input_data: np.ndarray) -> float:
+        """教師なし学習によるエネルギー推定（ノイズ対応版）"""
+        try:
+            # 入力データの準備
+            prepared_input = self._prepare_input_data(input_data)
+            
+            # 1. 量子特徴マップの計算
+            quantum_features = self._extract_quantum_features(template, prepared_input)
+            
+            # 2. 変分エネルギー推定
+            energy = self._variational_energy_estimation(template, quantum_features)
+            
+            # 3. 測定結果の統計的解析
+            measurement_stats = self._analyze_measurements(template, prepared_input)
+            
+            # 4. エネルギーの補正（ノイズがある場合はより強力な補正）
+            corrected_energy = self._apply_quantum_error_mitigation(energy, measurement_stats)
+            
+            # 5. 追加の統計的補正（ノイズがある場合）
+            if self.use_noise:
+                # ベイズ推定による補正
+                if hasattr(self, 'energy_history') and len(self.energy_history) > 10:
+                    # 過去のエネルギー値から事前分布を推定
+                    prior_mean = np.mean(self.energy_history[-10:])
+                    prior_std = np.std(self.energy_history[-10:])
+                    
+                    # ベイズ更新
+                    likelihood_std = measurement_stats['variance']**0.5
+                    posterior_variance = 1.0 / (1.0/prior_std**2 + 1.0/likelihood_std**2)
+                    posterior_mean = posterior_variance * (
+                        prior_mean/prior_std**2 + corrected_energy/likelihood_std**2
+                    )
+                    
+                    corrected_energy = 0.7 * corrected_energy + 0.3 * posterior_mean
+                
+                # エネルギー履歴の更新
+                if not hasattr(self, 'energy_history'):
+                    self.energy_history = []
+                self.energy_history.append(corrected_energy)
+                if len(self.energy_history) > 100:
+                    self.energy_history = self.energy_history[-100:]
+            
+            return corrected_energy
+            
+        except Exception as e:
+            print(f"教師なしエネルギー推定エラー: {e}")
+            import traceback
+            traceback.print_exc()
+            return -1.0 * self.n_qubits
+    
+    # その他の必要なメソッド（_prepare_input_data, _generate_measurement_bases等）は
+    # 前の実装と同じなので省略
     def _prepare_input_data(self, input_data: np.ndarray) -> np.ndarray:
         """入力データを適切な次元に準備"""
         required_dim = 2**self.n_qubits
@@ -407,14 +855,9 @@ class UnsupervisedQuantumEnergyEstimator:
             prepared_data = prepared_data / np.linalg.norm(prepared_data)
             
         return prepared_data
-     
+    
     def _generate_measurement_bases(self) -> List[List[qml.operation.Observable]]:
-        """ランダムな測定基底を生成（Haar測度に基づく）
-        
-        References:
-        - Elben et al. "Statistical correlations between locally randomized measurements" 
-          Phys. Rev. Lett. 125, 200501 (2020)
-        """
+        """ランダムな測定基底を生成（Haar測度に基づく）"""
         measurement_bases = []
         
         # Pauli測定基底
@@ -439,158 +882,8 @@ class UnsupervisedQuantumEnergyEstimator:
         
         return measurement_bases
     
-    def _compute_quantum_kernel(self, circuit_template, params1: np.ndarray, 
-                               params2: np.ndarray) -> float:
-        """量子カーネル関数の計算
-        
-        References:
-        - Havlíček et al. "Supervised learning with quantum-enhanced feature spaces" 
-          Nature 567, 209-212 (2019)
-        """
-        dev = qml.device('default.qubit', wires=self.n_qubits)
-        
-        @qml.qnode(dev)
-        def kernel_circuit():
-            # 第1の回路（params1でエンコード）
-            self._apply_circuit_template(circuit_template, params1)
-            
-            # 逆回路（params2でエンコード）
-            qml.adjoint(self._apply_circuit_template)(circuit_template, params2)
-            
-            # 全量子ビットでの射影測定
-            return qml.probs(wires=range(self.n_qubits))
-        
-        probs = kernel_circuit()
-        # |<0|ψ>|^2 を返す（状態の重なり）
-        return float(probs[0])
-    
-    def _apply_circuit_template(self, template, params: np.ndarray):
-        """回路テンプレートの適用（問題非依存）"""
-        param_idx = 0
-        
-        for gate_info in template.gate_sequence:
-            gate_type = gate_info['gate']
-            qubits = gate_info['qubits']
-            
-            # 量子ビットインデックスの検証
-            if any(q >= self.n_qubits for q in qubits):
-                continue
-            
-            # パラメータ化されたゲート
-            if gate_type == 'RY' and gate_info.get('trainable', False):
-                if param_idx < len(params):
-                    qml.RY(params[param_idx], wires=qubits[0])
-                    param_idx += 1
-            elif gate_type == 'RZ' and gate_info.get('trainable', False):
-                if param_idx < len(params):
-                    qml.RZ(params[param_idx], wires=qubits[0])
-                    param_idx += 1
-            elif gate_type == 'RX' and gate_info.get('trainable', False):
-                if param_idx < len(params):
-                    qml.RX(params[param_idx], wires=qubits[0])
-                    param_idx += 1
-            # 固定ゲート
-            elif gate_type == 'H':
-                qml.Hadamard(wires=qubits[0])
-            elif gate_type == 'CNOT' and len(qubits) >= 2:
-                if qubits[0] != qubits[1]:
-                    qml.CNOT(wires=qubits[:2])
-            elif gate_type == 'CZ' and len(qubits) >= 2:
-                if qubits[0] != qubits[1]:
-                    qml.CZ(wires=qubits[:2])
-    
-    def estimate_energy_unsupervised(self, template, input_data: np.ndarray) -> float:
-        """教師なし学習によるエネルギー推定（修正版）
-        
-        データ駆動型アプローチで回路のエネルギーを推定
-        """
-        try:
-            # 入力データの準備
-            prepared_input = self._prepare_input_data(input_data)
-            
-            # 1. 量子特徴マップの計算
-            quantum_features = self._extract_quantum_features(template, prepared_input)
-            
-            # 2. 変分エネルギー推定
-            energy = self._variational_energy_estimation(template, quantum_features)
-            
-            # 3. 測定結果の統計的解析
-            measurement_stats = self._analyze_measurements(template, prepared_input)
-            
-            # 4. エネルギーの補正
-            corrected_energy = self._apply_quantum_error_mitigation(energy, measurement_stats)
-            
-            return corrected_energy
-            
-        except Exception as e:
-            print(f"教師なしエネルギー推定エラー: {e}")
-            import traceback
-            traceback.print_exc()
-            # フォールバック値を返す
-            return -1.0 * self.n_qubits
-    
-    def _extract_quantum_features(self, template, input_data: np.ndarray) -> np.ndarray:
-        """量子特徴の抽出（修正版）
-        
-        References:
-        - Schuld & Killoran "Quantum machine learning in feature Hilbert spaces" 
-          Phys. Rev. Lett. 122, 040504 (2019)
-        """
-        dev = qml.device('default.qubit', wires=self.n_qubits)
-        measurement_bases = self._generate_measurement_bases()
-        features = []
-        
-        # 入力データの準備
-        prepared_data = self._prepare_input_data(input_data)
-        
-        # 異なる測定基底での期待値を計算
-        for basis in measurement_bases:
-            @qml.qnode(dev)
-            def feature_circuit():
-                # データエンコーディング（振幅エンコーディング）
-                # pad_with引数を使用して自動的にパディング
-                qml.AmplitudeEmbedding(
-                    prepared_data, 
-                    wires=range(self.n_qubits), 
-                    normalize=True,
-                    pad_with=0.0  # ゼロでパディング
-                )
-                
-                # 変分回路の適用
-                param_values = np.random.uniform(-np.pi, np.pi, 
-                                               size=len(template.parameter_map))
-                self._apply_circuit_template(template, param_values)
-                
-                # 測定
-                expectations = []
-                for obs in basis:
-                    expectations.append(qml.expval(obs))
-                return expectations
-            
-            try:
-                result = feature_circuit()
-                features.extend(result)
-            except Exception as e:
-                print(f"特徴抽出エラー: {e}")
-                # エラー時はデフォルト値を追加
-                features.extend([0.0] * len(basis))
-        
-        features_array = np.array(features)
-        
-        # 初回実行時に特徴量の次元数を記録
-        if self.feature_dim is None:
-            self.feature_dim = len(features_array)
-            print(f"特徴量次元数を設定: {self.feature_dim}")
-        
-        return features_array
-    
     def _variational_energy_estimation(self, template, quantum_features: np.ndarray) -> float:
-        """変分法によるエネルギー推定（修正版）
-        
-        References:
-        - Peruzzo et al. "A variational eigenvalue solver on a photonic quantum processor" 
-          Nat. Commun. 5, 4213 (2014)
-        """
+        """変分法によるエネルギー推定（前の実装と同じ）"""
         from sklearn.preprocessing import StandardScaler
         
         # 特徴量を履歴に追加
@@ -654,12 +947,7 @@ class UnsupervisedQuantumEnergyEstimator:
         return energy
     
     def _compute_quantum_entropy(self, features: np.ndarray) -> float:
-        """量子エントロピーの計算
-        
-        References:
-        - Nielsen & Chuang "Quantum Computation and Quantum Information" 
-          Cambridge University Press (2010)
-        """
+        """量子エントロピーの計算"""
         # 特徴ベクトルから確率分布を構築
         probs = np.abs(features)**2
         probs = probs / (np.sum(probs) + 1e-10)
@@ -670,65 +958,6 @@ class UnsupervisedQuantumEnergyEstimator:
         
         return normalized_entropy
     
-    def _analyze_measurements(self, template, input_data: np.ndarray) -> Dict[str, float]:
-        """測定結果の統計解析（修正版）"""
-        dev = qml.device('default.qubit', wires=self.n_qubits, shots=1000)
-        
-        # 入力データの準備
-        prepared_data = self._prepare_input_data(input_data)
-        
-        @qml.qnode(dev)
-        def measurement_circuit():
-            # データエンコーディング
-            qml.AmplitudeEmbedding(
-                prepared_data, 
-                wires=range(self.n_qubits), 
-                normalize=True,
-                pad_with=0.0
-            )
-            
-            # 回路実行
-            param_values = np.random.uniform(-np.pi, np.pi, 
-                                           size=len(template.parameter_map))
-            self._apply_circuit_template(template, param_values)
-            
-            # 計算基底での測定
-            return qml.counts(wires=range(self.n_qubits))
-        
-        try:
-            counts = measurement_circuit()
-            
-            # 統計量の計算
-            total_shots = sum(counts.values())
-            probabilities = {state: count/total_shots for state, count in counts.items()}
-            
-            # エネルギー統計
-            mean_bitstring_value = np.mean([
-                int(state, 2) * prob 
-                for state, prob in probabilities.items()
-            ])
-            
-            variance = np.var([
-                int(state, 2) 
-                for state, count in counts.items() 
-                for _ in range(count)
-            ])
-            
-            return {
-                'mean': mean_bitstring_value,
-                'variance': variance,
-                'entropy': self._compute_shannon_entropy(probabilities)
-            }
-            
-        except Exception as e:
-            print(f"測定解析エラー: {e}")
-            # デフォルト値を返す
-            return {
-                'mean': 2**(self.n_qubits-1),
-                'variance': 1.0,
-                'entropy': 0.5
-            }
-    
     def _compute_shannon_entropy(self, probabilities: Dict[str, float]) -> float:
         """Shannon エントロピーの計算"""
         entropy = 0.0
@@ -736,27 +965,6 @@ class UnsupervisedQuantumEnergyEstimator:
             if prob > 0:
                 entropy -= prob * np.log2(prob)
         return entropy
-    
-    def _apply_quantum_error_mitigation(self, raw_energy: float, 
-                                      measurement_stats: Dict[str, float]) -> float:
-        """量子エラー緩和
-        
-        References:
-        - Temme et al. "Error mitigation for short-depth quantum circuits" 
-          Phys. Rev. Lett. 119, 180509 (2017)
-        """
-        # ゼロノイズ外挿法の簡易実装
-        noise_factor = 1.0 + 0.1 * measurement_stats['variance'] / (measurement_stats['mean'] + 1e-10)
-        
-        # Richardson外挿
-        mitigated_energy = raw_energy / noise_factor
-        
-        # 物理的制約の適用
-        # エネルギーの下限（基底状態の理論的下限）
-        min_energy = -2.0 * (self.n_qubits - 1)
-        mitigated_energy = max(mitigated_energy, min_energy)
-        
-        return mitigated_energy
     
     def update_learning(self, template, measurement_results: np.ndarray):
         """測定結果による学習の更新（修正版）"""
@@ -772,11 +980,14 @@ class UnsupervisedQuantumEnergyEstimator:
         # 特徴量の更新はestimate_energy_unsupervised内で自動的に行われる
         
         # 履歴サイズの制限
-        max_history = 1000
+        max_history = 2000
         if len(self.measurement_history) > max_history:
             self.measurement_history = self.measurement_history[-max_history:]
             self.circuit_features = self.circuit_features[-max_history:]
 
+#================================================
+# GQE (Generative Quantum Eigensolver) with GPT
+#================================================
 class GQEQuantumCircuitGeneratorWithGPT:
     """GPTベースGQE量子回路生成器"""
     
@@ -819,7 +1030,7 @@ class GQEQuantumCircuitGeneratorWithGPT:
         if use_ai_energy_prediction:
             if energy_prediction_mode == 'unsupervised':
                 # 新しい教師なし学習エネルギー推定器
-                self.ai_energy_estimator = UnsupervisedQuantumEnergyEstimator(n_qubits)
+                self.ai_energy_estimator = UnsupervisedQuantumEnergyEstimator(n_qubits, use_noise = True, shots = 1000 )
                 print("教師なし量子エネルギー推定器を初期化")
             else:
                 raise ValueError(f"未知のエネルギー予測モード: {energy_prediction_mode}")
