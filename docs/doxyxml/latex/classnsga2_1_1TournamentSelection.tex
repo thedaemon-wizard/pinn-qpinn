@@ -1,0 +1,131 @@
+\hypertarget{classnsga2_1_1TournamentSelection}{}\doxysection{nsga2\+::Tournament\+Selection Class Reference}
+\label{classnsga2_1_1TournamentSelection}\index{nsga2::TournamentSelection@{nsga2::TournamentSelection}}
+
+
+{\ttfamily \#include $<$nsga2\+\_\+optimizer.\+hpp$>$}
+
+
+
+Inheritance diagram for nsga2\+::Tournament\+Selection\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=220pt]{classnsga2_1_1TournamentSelection__inherit__graph}
+\end{center}
+\end{figure}
+
+
+Collaboration diagram for nsga2\+::Tournament\+Selection\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=220pt]{classnsga2_1_1TournamentSelection__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+std\+::vector$<$ \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{Individual\+Ptr}} $>$ \mbox{\hyperlink{classnsga2_1_1TournamentSelection_aa96672dd08d890082d1ac556f87a6be1}{select}} (const \mbox{\hyperlink{classnsga2_1_1Population}{Population}} \&population, size\+\_\+t n\+\_\+select, std\+::mt19937 \&gen) override
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Member Functions inherited from \mbox{\hyperlink{classnsga2_1_1ISelectionStrategy}{nsga2\+::\+ISelection\+Strategy}}}
+\begin{DoxyCompactItemize}
+\item 
+virtual \mbox{\hyperlink{classnsga2_1_1ISelectionStrategy_affef79b97446640a8776a5ed88f68c17}{$\sim$\+ISelection\+Strategy}} ()=default
+\item 
+virtual std\+::vector$<$ \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{Individual\+Ptr}} $>$ \mbox{\hyperlink{classnsga2_1_1ISelectionStrategy_a278f8ce70ef2ab3483adcd2e16ca8508}{select}} (const \mbox{\hyperlink{classnsga2_1_1Population}{Population}} \&population, size\+\_\+t n\+\_\+select, std\+::mt19937 \&gen)=0
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+bool \mbox{\hyperlink{classnsga2_1_1TournamentSelection_a68e37a8b15de35977d465fb20b12c3eb}{crowding\+\_\+operator}} (const \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{Individual\+Ptr}} \&a, const \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{Individual\+Ptr}} \&b) const
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00181}{181}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
+
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classnsga2_1_1TournamentSelection_a68e37a8b15de35977d465fb20b12c3eb}\label{classnsga2_1_1TournamentSelection_a68e37a8b15de35977d465fb20b12c3eb}} 
+\index{nsga2::TournamentSelection@{nsga2::TournamentSelection}!crowding\_operator@{crowding\_operator}}
+\index{crowding\_operator@{crowding\_operator}!nsga2::TournamentSelection@{nsga2::TournamentSelection}}
+\doxysubsubsection{\texorpdfstring{crowding\_operator()}{crowding\_operator()}}
+{\footnotesize\ttfamily bool nsga2\+::\+Tournament\+Selection\+::crowding\+\_\+operator (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{Individual\+Ptr}} \&}]{a,  }\item[{const \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{Individual\+Ptr}} \&}]{b }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00550}{550}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00550\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00551\ \ \ \ \ \textcolor{keywordflow}{if}\ (a-\/>rank\ <\ b-\/>rank)\ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00552\ \ \ \ \ \textcolor{keywordflow}{if}\ (a-\/>rank\ >\ b-\/>rank)\ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00553\ \ \ \ \ \textcolor{keywordflow}{return}\ a-\/>crowding\_distance\ >\ b-\/>crowding\_distance;}
+\DoxyCodeLine{00554\ \}}
+
+\end{DoxyCode}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classnsga2_1_1TournamentSelection_a68e37a8b15de35977d465fb20b12c3eb_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{classnsga2_1_1TournamentSelection_aa96672dd08d890082d1ac556f87a6be1}\label{classnsga2_1_1TournamentSelection_aa96672dd08d890082d1ac556f87a6be1}} 
+\index{nsga2::TournamentSelection@{nsga2::TournamentSelection}!select@{select}}
+\index{select@{select}!nsga2::TournamentSelection@{nsga2::TournamentSelection}}
+\doxysubsubsection{\texorpdfstring{select()}{select()}}
+{\footnotesize\ttfamily std\+::vector$<$ \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{Individual\+Ptr}} $>$ nsga2\+::\+Tournament\+Selection\+::select (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classnsga2_1_1Population}{Population}} \&}]{population,  }\item[{size\+\_\+t}]{n\+\_\+select,  }\item[{std\+::mt19937 \&}]{gen }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Implements \mbox{\hyperlink{classnsga2_1_1ISelectionStrategy_a278f8ce70ef2ab3483adcd2e16ca8508}{nsga2\+::\+ISelection\+Strategy}}.
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00556}{556}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00558\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00559\ \ \ \ \ std::vector<IndividualPtr>\ selected;}
+\DoxyCodeLine{00560\ \ \ \ \ std::uniform\_int\_distribution<>\ dist(0,\ population.size()\ -\/\ 1);}
+\DoxyCodeLine{00561\ \ \ \ \ }
+\DoxyCodeLine{00562\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ n\_select;\ ++i)\ \{}
+\DoxyCodeLine{00563\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ idx1\ =\ dist(gen);}
+\DoxyCodeLine{00564\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ idx2\ =\ dist(gen);}
+\DoxyCodeLine{00565\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00566\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{while}\ (idx1\ ==\ idx2)\ \{}
+\DoxyCodeLine{00567\ \ \ \ \ \ \ \ \ \ \ \ \ idx2\ =\ dist(gen);}
+\DoxyCodeLine{00568\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00569\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00570\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classnsga2_1_1TournamentSelection_a68e37a8b15de35977d465fb20b12c3eb}{crowding\_operator}}(population[idx1],\ population[idx2]))\ \{}
+\DoxyCodeLine{00571\ \ \ \ \ \ \ \ \ \ \ \ \ selected.push\_back(population[idx1]);}
+\DoxyCodeLine{00572\ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00573\ \ \ \ \ \ \ \ \ \ \ \ \ selected.push\_back(population[idx2]);}
+\DoxyCodeLine{00574\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00575\ \ \ \ \ \}}
+\DoxyCodeLine{00576\ \ \ \ \ }
+\DoxyCodeLine{00577\ \ \ \ \ \textcolor{keywordflow}{return}\ selected;}
+\DoxyCodeLine{00578\ \}}
+
+\end{DoxyCode}
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classnsga2_1_1TournamentSelection_aa96672dd08d890082d1ac556f87a6be1_cgraph}
+\end{center}
+\end{figure}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/run/media/a-\/koike/ボリューム/\+DATA/pinns/module/nsga2\+\_\+optimizer/include/\mbox{\hyperlink{nsga2__optimizer_8hpp}{nsga2\+\_\+optimizer.\+hpp}}\item 
+/run/media/a-\/koike/ボリューム/\+DATA/pinns/module/nsga2\+\_\+optimizer/src/\mbox{\hyperlink{nsga2__optimizer_8cpp}{nsga2\+\_\+optimizer.\+cpp}}\end{DoxyCompactItemize}

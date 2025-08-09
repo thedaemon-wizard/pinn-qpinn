@@ -1,0 +1,254 @@
+\hypertarget{classnsga2_1_1EquidistantSelectionCrowdingDistance}{}\doxysection{nsga2\+::Equidistant\+Selection\+Crowding\+Distance Class Reference}
+\label{classnsga2_1_1EquidistantSelectionCrowdingDistance}\index{nsga2::EquidistantSelectionCrowdingDistance@{nsga2::EquidistantSelectionCrowdingDistance}}
+
+
+{\ttfamily \#include $<$nsga2\+\_\+optimizer.\+hpp$>$}
+
+
+
+Inheritance diagram for nsga2\+::Equidistant\+Selection\+Crowding\+Distance\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=218pt]{classnsga2_1_1EquidistantSelectionCrowdingDistance__inherit__graph}
+\end{center}
+\end{figure}
+
+
+Collaboration diagram for nsga2\+::Equidistant\+Selection\+Crowding\+Distance\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=218pt]{classnsga2_1_1EquidistantSelectionCrowdingDistance__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classnsga2_1_1EquidistantSelectionCrowdingDistance_a1f44c45dd208402f810e090ec6bf3441}{Equidistant\+Selection\+Crowding\+Distance}} (size\+\_\+t selection\+\_\+size=0)
+\item 
+\mbox{\hyperlink{classnsga2_1_1EquidistantSelectionCrowdingDistance_a80e61641e3b0ac8445689093d3369c78}{Equidistant\+Selection\+Crowding\+Distance}} (const \mbox{\hyperlink{classnsga2_1_1EquidistantSelectionCrowdingDistance}{Equidistant\+Selection\+Crowding\+Distance}} \&other)=default
+\item 
+void \mbox{\hyperlink{classnsga2_1_1EquidistantSelectionCrowdingDistance_a2348394f9d2974b329f0545677b4949d}{set\+Selection\+Size}} (size\+\_\+t size)
+\item 
+void \mbox{\hyperlink{classnsga2_1_1EquidistantSelectionCrowdingDistance_a5ea3936b121d121e66efa9c1fc0add02}{calculate}} (std\+::vector$<$ \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{Individual\+Ptr}} $>$ \&front) override
+\item 
+std\+::string \mbox{\hyperlink{classnsga2_1_1EquidistantSelectionCrowdingDistance_a74ddc9bd2a728231d5f885291f0c1802}{get\+Name}} () const override
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Member Functions inherited from \mbox{\hyperlink{classnsga2_1_1ICrowdingDistanceCalculator}{nsga2\+::\+ICrowding\+Distance\+Calculator}}}
+\begin{DoxyCompactItemize}
+\item 
+virtual \mbox{\hyperlink{classnsga2_1_1ICrowdingDistanceCalculator_afd68247f9ab22aa406c5b9321ae2cb99}{$\sim$\+ICrowding\+Distance\+Calculator}} ()=default
+\item 
+virtual void \mbox{\hyperlink{classnsga2_1_1ICrowdingDistanceCalculator_aba734883489f093ad8c8faadc21f7f43}{calculate}} (std\+::vector$<$ \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{Individual\+Ptr}} $>$ \&front)=0
+\item 
+virtual std\+::string \mbox{\hyperlink{classnsga2_1_1ICrowdingDistanceCalculator_ad993f171ab4da9d503d98413afd50eef}{get\+Name}} () const =0
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+double \mbox{\hyperlink{classnsga2_1_1EquidistantSelectionCrowdingDistance_af05d94dfcfdcb2ae823baca2069a10d9}{calculate\+Distance}} (const \mbox{\hyperlink{classnsga2_1_1Individual}{Individual}} \&a, const \mbox{\hyperlink{classnsga2_1_1Individual}{Individual}} \&b) const
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+size\+\_\+t \mbox{\hyperlink{classnsga2_1_1EquidistantSelectionCrowdingDistance_a33513398babc27b164699837c94bb98e}{selection\+\_\+size\+\_\+}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00081}{81}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classnsga2_1_1EquidistantSelectionCrowdingDistance_a1f44c45dd208402f810e090ec6bf3441}\label{classnsga2_1_1EquidistantSelectionCrowdingDistance_a1f44c45dd208402f810e090ec6bf3441}} 
+\index{nsga2::EquidistantSelectionCrowdingDistance@{nsga2::EquidistantSelectionCrowdingDistance}!EquidistantSelectionCrowdingDistance@{EquidistantSelectionCrowdingDistance}}
+\index{EquidistantSelectionCrowdingDistance@{EquidistantSelectionCrowdingDistance}!nsga2::EquidistantSelectionCrowdingDistance@{nsga2::EquidistantSelectionCrowdingDistance}}
+\doxysubsubsection{\texorpdfstring{EquidistantSelectionCrowdingDistance()}{EquidistantSelectionCrowdingDistance()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily nsga2\+::\+Equidistant\+Selection\+Crowding\+Distance\+::\+Equidistant\+Selection\+Crowding\+Distance (\begin{DoxyParamCaption}\item[{size\+\_\+t}]{selection\+\_\+size = {\ttfamily 0} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [explicit]}}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00258}{258}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00259\ \ \ \ \ :\ \mbox{\hyperlink{classnsga2_1_1EquidistantSelectionCrowdingDistance_a33513398babc27b164699837c94bb98e}{selection\_size\_}}(selection\_size)\ \{\}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classnsga2_1_1EquidistantSelectionCrowdingDistance_a80e61641e3b0ac8445689093d3369c78}\label{classnsga2_1_1EquidistantSelectionCrowdingDistance_a80e61641e3b0ac8445689093d3369c78}} 
+\index{nsga2::EquidistantSelectionCrowdingDistance@{nsga2::EquidistantSelectionCrowdingDistance}!EquidistantSelectionCrowdingDistance@{EquidistantSelectionCrowdingDistance}}
+\index{EquidistantSelectionCrowdingDistance@{EquidistantSelectionCrowdingDistance}!nsga2::EquidistantSelectionCrowdingDistance@{nsga2::EquidistantSelectionCrowdingDistance}}
+\doxysubsubsection{\texorpdfstring{EquidistantSelectionCrowdingDistance()}{EquidistantSelectionCrowdingDistance()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily nsga2\+::\+Equidistant\+Selection\+Crowding\+Distance\+::\+Equidistant\+Selection\+Crowding\+Distance (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classnsga2_1_1EquidistantSelectionCrowdingDistance}{Equidistant\+Selection\+Crowding\+Distance}} \&}]{other }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [default]}}
+
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classnsga2_1_1EquidistantSelectionCrowdingDistance_a5ea3936b121d121e66efa9c1fc0add02}\label{classnsga2_1_1EquidistantSelectionCrowdingDistance_a5ea3936b121d121e66efa9c1fc0add02}} 
+\index{nsga2::EquidistantSelectionCrowdingDistance@{nsga2::EquidistantSelectionCrowdingDistance}!calculate@{calculate}}
+\index{calculate@{calculate}!nsga2::EquidistantSelectionCrowdingDistance@{nsga2::EquidistantSelectionCrowdingDistance}}
+\doxysubsubsection{\texorpdfstring{calculate()}{calculate()}}
+{\footnotesize\ttfamily void nsga2\+::\+Equidistant\+Selection\+Crowding\+Distance\+::calculate (\begin{DoxyParamCaption}\item[{std\+::vector$<$ \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{Individual\+Ptr}} $>$ \&}]{front }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Implements \mbox{\hyperlink{classnsga2_1_1ICrowdingDistanceCalculator_aba734883489f093ad8c8faadc21f7f43}{nsga2\+::\+ICrowding\+Distance\+Calculator}}.
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00270}{270}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00270\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00271\ \ \ \ \ \textcolor{keywordflow}{if}\ (front.empty()\ ||\ front.size()\ <\ 2)\ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00272\ \ \ \ \ }
+\DoxyCodeLine{00273\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ numSelect\ =\ (\mbox{\hyperlink{classnsga2_1_1EquidistantSelectionCrowdingDistance_a33513398babc27b164699837c94bb98e}{selection\_size\_}}\ >\ 0)\ ?\ \mbox{\hyperlink{classnsga2_1_1EquidistantSelectionCrowdingDistance_a33513398babc27b164699837c94bb98e}{selection\_size\_}}\ :\ front.size();}
+\DoxyCodeLine{00274\ \ \ \ \ }
+\DoxyCodeLine{00275\ \ \ \ \ \textcolor{comment}{//\ Sort\ by\ lexicographic\ order\ of\ objectives}}
+\DoxyCodeLine{00276\ \ \ \ \ std::sort(front.begin(),\ front.end(),\ [](\textcolor{keyword}{const}\ \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{IndividualPtr}}\&\ a,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{IndividualPtr}}\&\ b)\ \{}
+\DoxyCodeLine{00277\ \ \ \ \ \ \ \ \ for\ (size\_t\ i\ =\ 0;\ i\ <\ a-\/>objectives.size();\ ++i)\ \{}
+\DoxyCodeLine{00278\ \ \ \ \ \ \ \ \ \ \ \ \ if\ (std::abs(a-\/>objectives[i]\ -\/\ b-\/>objectives[i])\ >\ std::numeric\_limits<double>::epsilon())\ \{}
+\DoxyCodeLine{00279\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ return\ a-\/>objectives[i]\ <\ b-\/>objectives[i];}
+\DoxyCodeLine{00280\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00281\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00282\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00283\ \ \ \ \ \});}
+\DoxyCodeLine{00284\ \ \ \ \ }
+\DoxyCodeLine{00285\ \ \ \ \ \textcolor{comment}{//\ Calculate\ path\ lengths}}
+\DoxyCodeLine{00286\ \ \ \ \ std::vector<double>\ D(front.size(),\ 0.0);}
+\DoxyCodeLine{00287\ \ \ \ \ }
+\DoxyCodeLine{00288\ \ \ \ \ \textcolor{comment}{//\ Initialize\ crowding\ distances}}
+\DoxyCodeLine{00289\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ ind\ :\ front)\ \{}
+\DoxyCodeLine{00290\ \ \ \ \ \ \ \ \ ind-\/>crowding\_distance\ =\ 0.0;}
+\DoxyCodeLine{00291\ \ \ \ \ \}}
+\DoxyCodeLine{00292\ \ \ \ \ }
+\DoxyCodeLine{00293\ \ \ \ \ \textcolor{comment}{//\ Calculate\ cumulative\ path\ length}}
+\DoxyCodeLine{00294\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 1;\ i\ <\ front.size();\ ++i)\ \{}
+\DoxyCodeLine{00295\ \ \ \ \ \ \ \ \ D[i]\ =\ D[i\ -\/\ 1]\ +\ \mbox{\hyperlink{classnsga2_1_1EquidistantSelectionCrowdingDistance_af05d94dfcfdcb2ae823baca2069a10d9}{calculateDistance}}(*front[i\ -\/\ 1],\ *front[i]);}
+\DoxyCodeLine{00296\ \ \ \ \ \}}
+\DoxyCodeLine{00297\ \ \ \ \ }
+\DoxyCodeLine{00298\ \ \ \ \ \textcolor{keywordtype}{double}\ Dmax\ =\ D.back();}
+\DoxyCodeLine{00299\ \ \ \ \ \textcolor{keywordflow}{if}\ (Dmax\ <\ std::numeric\_limits<double>::epsilon())\ \{}
+\DoxyCodeLine{00300\ \ \ \ \ \ \ \ \ std::cerr\ <<\ \textcolor{stringliteral}{"{}Warning:\ Total\ path\ length\ is\ near\ zero!"{}}\ <<\ std::endl;}
+\DoxyCodeLine{00301\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00302\ \ \ \ \ \}}
+\DoxyCodeLine{00303\ \ \ \ \ }
+\DoxyCodeLine{00304\ \ \ \ \ \textcolor{comment}{//\ Set\ boundary\ points}}
+\DoxyCodeLine{00305\ \ \ \ \ front[0]-\/>crowding\_distance\ =\ std::numeric\_limits<double>::infinity();}
+\DoxyCodeLine{00306\ \ \ \ \ front.back()-\/>crowding\_distance\ =\ std::numeric\_limits<double>::infinity();}
+\DoxyCodeLine{00307\ \ \ \ \ }
+\DoxyCodeLine{00308\ \ \ \ \ \textcolor{keywordflow}{if}\ (numSelect\ >\ 2)\ \{}
+\DoxyCodeLine{00309\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ equidistantStep\ =\ Dmax\ /\ (numSelect\ -\/\ 1);}
+\DoxyCodeLine{00310\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00311\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 1;\ i\ <\ numSelect\ -\/\ 1;\ ++i)\ \{}
+\DoxyCodeLine{00312\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ targetDistance\ =\ equidistantStep\ *\ i;}
+\DoxyCodeLine{00313\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00314\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Find\ closest\ point\ to\ target\ distance}}
+\DoxyCodeLine{00315\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ bestIdx\ =\ 1;}
+\DoxyCodeLine{00316\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ minDiff\ =\ std::abs(D[1]\ -\/\ targetDistance);}
+\DoxyCodeLine{00317\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00318\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ j\ =\ 2;\ j\ <\ front.size()\ -\/\ 1;\ ++j)\ \{}
+\DoxyCodeLine{00319\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ diff\ =\ std::abs(D[j]\ -\/\ targetDistance);}
+\DoxyCodeLine{00320\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (diff\ <\ minDiff)\ \{}
+\DoxyCodeLine{00321\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ minDiff\ =\ diff;}
+\DoxyCodeLine{00322\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ bestIdx\ =\ j;}
+\DoxyCodeLine{00323\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00324\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00325\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00326\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Update\ crowding\ distance\ for\ selected\ point}}
+\DoxyCodeLine{00327\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (front[bestIdx]-\/>crowding\_distance\ ==\ 0.0)\ \{}
+\DoxyCodeLine{00328\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ front[bestIdx]-\/>crowding\_distance\ =\ Dmax\ /\ numSelect;}
+\DoxyCodeLine{00329\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00330\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00331\ \ \ \ \ \}}
+\DoxyCodeLine{00332\ \}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classnsga2_1_1EquidistantSelectionCrowdingDistance_af05d94dfcfdcb2ae823baca2069a10d9}\label{classnsga2_1_1EquidistantSelectionCrowdingDistance_af05d94dfcfdcb2ae823baca2069a10d9}} 
+\index{nsga2::EquidistantSelectionCrowdingDistance@{nsga2::EquidistantSelectionCrowdingDistance}!calculateDistance@{calculateDistance}}
+\index{calculateDistance@{calculateDistance}!nsga2::EquidistantSelectionCrowdingDistance@{nsga2::EquidistantSelectionCrowdingDistance}}
+\doxysubsubsection{\texorpdfstring{calculateDistance()}{calculateDistance()}}
+{\footnotesize\ttfamily double nsga2\+::\+Equidistant\+Selection\+Crowding\+Distance\+::calculate\+Distance (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classnsga2_1_1Individual}{Individual}} \&}]{a,  }\item[{const \mbox{\hyperlink{classnsga2_1_1Individual}{Individual}} \&}]{b }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00261}{261}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00261\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00262\ \ \ \ \ \textcolor{keywordtype}{double}\ distance\ =\ 0.0;}
+\DoxyCodeLine{00263\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ a.objectives.size();\ ++i)\ \{}
+\DoxyCodeLine{00264\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ diff\ =\ b.objectives[i]\ -\/\ a.objectives[i];}
+\DoxyCodeLine{00265\ \ \ \ \ \ \ \ \ distance\ +=\ diff\ *\ diff;}
+\DoxyCodeLine{00266\ \ \ \ \ \}}
+\DoxyCodeLine{00267\ \ \ \ \ \textcolor{keywordflow}{return}\ std::sqrt(distance);}
+\DoxyCodeLine{00268\ \}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classnsga2_1_1EquidistantSelectionCrowdingDistance_a74ddc9bd2a728231d5f885291f0c1802}\label{classnsga2_1_1EquidistantSelectionCrowdingDistance_a74ddc9bd2a728231d5f885291f0c1802}} 
+\index{nsga2::EquidistantSelectionCrowdingDistance@{nsga2::EquidistantSelectionCrowdingDistance}!getName@{getName}}
+\index{getName@{getName}!nsga2::EquidistantSelectionCrowdingDistance@{nsga2::EquidistantSelectionCrowdingDistance}}
+\doxysubsubsection{\texorpdfstring{getName()}{getName()}}
+{\footnotesize\ttfamily std\+::string nsga2\+::\+Equidistant\+Selection\+Crowding\+Distance\+::get\+Name (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Implements \mbox{\hyperlink{classnsga2_1_1ICrowdingDistanceCalculator_ad993f171ab4da9d503d98413afd50eef}{nsga2\+::\+ICrowding\+Distance\+Calculator}}.
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00090}{90}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00090\ \{\ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}EquidistantSelection"{}};\ \}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classnsga2_1_1EquidistantSelectionCrowdingDistance_a2348394f9d2974b329f0545677b4949d}\label{classnsga2_1_1EquidistantSelectionCrowdingDistance_a2348394f9d2974b329f0545677b4949d}} 
+\index{nsga2::EquidistantSelectionCrowdingDistance@{nsga2::EquidistantSelectionCrowdingDistance}!setSelectionSize@{setSelectionSize}}
+\index{setSelectionSize@{setSelectionSize}!nsga2::EquidistantSelectionCrowdingDistance@{nsga2::EquidistantSelectionCrowdingDistance}}
+\doxysubsubsection{\texorpdfstring{setSelectionSize()}{setSelectionSize()}}
+{\footnotesize\ttfamily void nsga2\+::\+Equidistant\+Selection\+Crowding\+Distance\+::set\+Selection\+Size (\begin{DoxyParamCaption}\item[{size\+\_\+t}]{size }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00088}{88}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00088\ \{\ \mbox{\hyperlink{classnsga2_1_1EquidistantSelectionCrowdingDistance_a33513398babc27b164699837c94bb98e}{selection\_size\_}}\ =\ size;\ \}}
+
+\end{DoxyCode}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classnsga2_1_1EquidistantSelectionCrowdingDistance_a2348394f9d2974b329f0545677b4949d_icgraph}
+\end{center}
+\end{figure}
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classnsga2_1_1EquidistantSelectionCrowdingDistance_a33513398babc27b164699837c94bb98e}\label{classnsga2_1_1EquidistantSelectionCrowdingDistance_a33513398babc27b164699837c94bb98e}} 
+\index{nsga2::EquidistantSelectionCrowdingDistance@{nsga2::EquidistantSelectionCrowdingDistance}!selection\_size\_@{selection\_size\_}}
+\index{selection\_size\_@{selection\_size\_}!nsga2::EquidistantSelectionCrowdingDistance@{nsga2::EquidistantSelectionCrowdingDistance}}
+\doxysubsubsection{\texorpdfstring{selection\_size\_}{selection\_size\_}}
+{\footnotesize\ttfamily size\+\_\+t nsga2\+::\+Equidistant\+Selection\+Crowding\+Distance\+::selection\+\_\+size\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00083}{83}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/run/media/a-\/koike/ボリューム/\+DATA/pinns/module/nsga2\+\_\+optimizer/include/\mbox{\hyperlink{nsga2__optimizer_8hpp}{nsga2\+\_\+optimizer.\+hpp}}\item 
+/run/media/a-\/koike/ボリューム/\+DATA/pinns/module/nsga2\+\_\+optimizer/src/\mbox{\hyperlink{nsga2__optimizer_8cpp}{nsga2\+\_\+optimizer.\+cpp}}\end{DoxyCompactItemize}

@@ -1,346 +1,315 @@
-# GQE-GPT-QPINN: Generative Quantum Eigensolver with GPT for Quantum Physics-Informed Neural Networks
+# Quantum Physics-Informed Neural Networks (QPINNs) for 3D Heat Equation
+
+A comprehensive benchmark implementation of Quantum Physics-Informed Neural Networks (QPINNs) for solving the 3D heat conduction equation forward problem, featuring state-of-the-art quantum circuit generation using GQE-GPT integration, multi-objective optimization, and comparison with enhanced classical PINNs.
 
 ## Overview
 
-This repository implements a novel approach to solving the 3D heat equation using both classical Physics-Informed Neural Networks (PINNs) and Quantum Physics-Informed Neural Networks (QPINNs) enhanced with Generative Quantum Eigensolver (GQE) and GPT-based circuit generation. The quantum implementation features innovative optimization strategies including Real-Coded Genetic Algorithm (RCGA), NSGA-II multi-objective optimization, and unsupervised quantum energy estimation with comprehensive circuit visualization capabilities.
+This repository provides highly optimized implementations of both QPINNs and classical PINNs with cutting-edge techniques:
+
+### Quantum PINN Features:
+- **GQE-GPT Integration**: Generative Quantum Eigensolver enhanced with GPT-based circuit generation
+- **Multi-Objective Optimization**: NSGA-II algorithm with dynamic circuit updates
+- **Unsupervised Quantum Energy Estimation**: Novel approach for noise-aware energy estimation
+- **Hardware-Efficient Design**: Optimized for NISQ (Noisy Intermediate-Scale Quantum) devices
+- **Parallel Processing**: Efficient batch evaluation for large-scale problems
+
+### Classical PINN Features:
+- **Fourier Neural Operator (FNO) Integration**: 3D spectral convolution layers for enhanced expressivity
+- **Temporal Attention Mechanism**: Improved time dynamics modeling
+- **Multi-Scale Fourier Features**: Better temporal and spatial resolution
+- **Hard Boundary Constraints**: Smooth distance function enforcement
+- **Memory-Efficient FNO Mode**: Optimized for GPU memory constraints
 
 ## Key Features
 
-### 🧠 Classical PINN
-- Deep neural network implementation for solving 3D heat equation
-- Automatic differentiation for PDE residual computation
-- Boundary condition enforcement with improved accuracy
-- PyTorch-based implementation with GPU acceleration
+### 1. Advanced Quantum Circuit Generation
+- **GQE-GPT Generator**: Combines rule-based and GPT-based circuit generation
+- **Dynamic Circuit Updates**: Automatically adapts circuit architecture during optimization
+- **Multi-objective Bayesian Optimization**: Optimizes 9 circuit quality metrics simultaneously:
+  - Hardware Efficiency
+  - Noise Resilience
+  - Expressivity
+  - Error Mitigation Compatibility
+  - Trainability
+  - Entanglement Capability
+  - Circuit Depth Efficiency
+  - Parameter Efficiency
+  - Energy Estimation Quality
 
-### 🌌 GQE-GPT-QPINN (Quantum Implementation)
-- **GPT-based Quantum Circuit Generation**: Uses a transformer model to generate optimal quantum circuits
-- **Generative Quantum Eigensolver (GQE)**: Novel approach that optimizes circuit structure rather than just parameters
-- **Unsupervised Quantum Energy Estimation**: New feature for data-driven energy estimation without labeled data
-- **Hardware-aware optimization**: Designed for real quantum devices with enhanced noise resilience
-- **Parallel quantum device simulation**: Efficient batch processing across multiple quantum devices
-- **Circuit Novelty Tracking**: Promotes diversity in circuit generation
-- **Comprehensive Circuit Visualization**: Detailed quantum circuit diagrams and performance metrics
+### 2. Enhanced Classical PINN Architecture
+- **Fourier Neural Operator (FNO)**: 3D spectral convolution for capturing multi-scale features
+- **Temporal Attention**: Self-attention mechanism for temporal dynamics
+- **Multi-Scale Fourier Feature Mapping**: Separate coarse/fine spatial and slow/fast temporal features
+- **Hard Constraints**: Smooth boundary enforcement using tanh-based distance functions
+- **Memory-Efficient Implementation**: Chunked processing for large-scale problems
 
-### 🧬 Advanced Optimization Methods
-- **NSGA-II Multi-Objective Optimization**: Simultaneously optimizes multiple objectives (initial conditions, boundary conditions, data fitting, PDE residuals, peak values)
-- **Real-Coded Genetic Algorithm (RCGA)**: C++ implementation for high performance
-- **Latin Hypercube Sampling (LHS)**: Ensures well-distributed initial population
-- **REX Crossover**: Real-valued crossover operator with expansion factor
-- **JGG Selection**: Just Generation Gap selection strategy
-- **Zero-Noise Extrapolation**: Error mitigation technique for noisy quantum devices
+### 3. Multi-Objective Optimization
+Both QPINN and classical PINN use NSGA-II (Non-dominated Sorting Genetic Algorithm II) with:
+- **Multiple Objectives**:
+  - Classical PINN: Initial condition, Peak value, Boundary condition, PDE residual
+  - QPINN: Initial condition, Peak value, Boundary condition, PDE residual, Trace loss
+- **REX Crossover**: Real-coded crossover operator
+- **Dynamic Parameter Bounds**: Adaptive scaling based on network/circuit complexity
+- **Pareto Front Tracking**: Complete history of non-dominated solutions
 
-### 📊 Enhanced Visualization and Analysis
-- **Quantum Circuit Diagrams**: Visual representation of GQE-generated circuits
-- **Performance Metrics**: Radar charts for circuit characteristics
-- **Evolution Tracking**: RCGA and NSGA-II optimization progress visualization
-- **Pareto Front Visualization**: 3D and 2D views of multi-objective optimization results
-- **Novelty Evolution Plots**: Track circuit diversity over time
-- **Hypervolume Evolution**: Monitor multi-objective optimization quality
-- **Detailed Circuit Information**: JSON and text format circuit specifications
+### 4. Problem-Agnostic Design
+The implementation uses scientifically grounded, problem-agnostic transformations:
+- Trainable embedding functions for spatial and temporal features
+- Learnable measurement combination weights (QPINN)
+- Adaptive activation functions
+
+### 5. Noise Mitigation (QPINN)
+- Zero-noise extrapolation for error mitigation
+- Noise-aware circuit evaluation
+- Support for different noise models (light, realistic, heavy)
+
+## Algorithm Details
+
+### Classical PINN with FNO
+
+The enhanced PINN implementation combines several state-of-the-art techniques:
+
+1. **Fourier Neural Operator Layer**
+   ```
+   SpectralConv3d: Performs convolution in Fourier space
+   - Input → FFT → Multiply with learnable weights → IFFT → Output
+   - Captures global features efficiently
+   - Handles multiple frequency modes
+   ```
+
+2. **Temporal Attention Mechanism**
+   ```
+   Based on Vaswani et al. (2017) self-attention:
+   - Query, Key, Value projections from hidden states
+   - Scaled dot-product attention
+   - Residual connections
+   ```
+
+3. **Multi-Scale Feature Engineering**
+   - Spatial features: Coarse (σ=5.0) and Fine (σ=20.0) scales
+   - Temporal features: Slow (2π/T) and Fast (10π/T) frequencies
+   - Physics-aware features: Diffusion scale √(t/T + ε)
+
+4. **Hard Boundary Constraints**
+   ```
+   u(x,y,z,t) = D(x,y,z) × N(x,y,z,t)
+   where D is smooth distance function: ε·tanh(d_min/ε)
+   ```
+
+### Core Algorithm: GQE-QPINNs
+
+The implementation follows a hierarchical optimization approach:
+
+1. **Circuit Generation Phase**
+   - Initialize with KetGPT dataset or rule-based ansatz
+   - Use GPT model to generate circuit candidates
+   - Evaluate using multi-objective Bayesian optimization
+
+2. **Parameter Optimization Phase**
+   - NSGA-II optimization with objectives:
+     - Initial condition loss
+     - Peak value loss
+     - Boundary condition loss
+     - PDE residual loss
+     - Trace loss (quantum state normalization)
+
+3. **Dynamic Update Phase**
+   - Monitor performance improvement
+   - Trigger circuit architecture updates when improvement stagnates
+   - Use context-aware generation for new circuits
+
+### Mathematical Formulation
+
+The 3D heat equation being solved:
+```
+∂u/∂t = α∇²u
+```
+
+With:
+- Initial condition: Gaussian distribution centered at domain center
+- Boundary condition: u = 0 at all boundaries
+- Domain: [0,L]³ × [0,T]
+
+### NSGA-II Multi-Objective Optimization
+
+Both PINN and QPINN implementations use NSGA-II with:
+- **Population-based search**: Maintains diversity of solutions
+- **Non-dominated sorting**: Identifies Pareto-optimal solutions
+- **Crowding distance**: Preserves solution diversity
+- **REX crossover**: Effective for real-valued parameters
+- **Unified configuration**: Ensures fair comparison between methods
+
+## Key References
+
+### Classical PINN with FNO
+- Li et al. "Fourier Neural Operator for Parametric PDEs" (2023)
+- Wang et al. "When and why PINNs fail to train" (2022)
+- Krishnapriyan et al. "Characterizing possible failure modes in PINNs" (2021)
+- Vaswani et al. "Attention is All You Need" (2017)
+- Lu et al. "NSGA-PINN: A Multi-Objective Optimization Method for Physics-Informed Neural Network Training" (2023)
+- Ma et al. "A comprehensive survey on NSGA-II for multi-objective optimization and applications" (2023)
+
+### Quantum Physics-Informed Neural Networks
+- Trahan et al. "Quantum Physics-Informed Neural Networks" Entropy 26(8):649 (2024)
+- Panichi et al. "Quantum physics informed neural networks for multi-variable PDEs" arXiv:2503.12244 (2025)
+- "Trainable embedding quantum physics informed neural networks" Scientific Reports (2025)
+
+### Generative Quantum Eigensolver (GQE)
+- Nakaji et al. "The generative quantum eigensolver (GQE)" arXiv:2401.09253 (2024)
+- "Generative quantum combinatorial optimization by conditional-GQE" arXiv:2501.16986 (2025)
+- "QAOA-GPT: Efficient Generation of Adaptive and Regular QAOA Circuits" arXiv:2504.16350 (2025)
+
+### Quantum Circuit Learning
+- Mitarai et al. "Quantum circuit learning" Phys. Rev. A 98, 032309 (2018)
+- Abbas et al. "The power of quantum neural networks" Nat Comput Sci 1, 403-409 (2021)
+- Schuld et al. "Evaluating analytic gradients on quantum hardware" Phys. Rev. A 99, 032331 (2019)
+
+### Error Mitigation
+- Temme et al. "Error mitigation for short-depth quantum circuits" Phys. Rev. Lett. 119, 180509 (2017)
+- Endo et al. "Practical Quantum Error Mitigation for Near-Future Applications" Phys. Rev. X 11, 031057 (2021)
+- Li & Benjamin "Efficient Variational Quantum Simulator Incorporating Active Error Minimization" Phys. Rev. X 7, 021050 (2017)
+
+### Optimization and Trainability
+- McClean et al. "Barren plateaus in quantum neural network training landscapes" Nature Communications 9, 4812 (2018)
+- Cerezo et al. "Cost function dependent barren plateaus in shallow parametrized quantum circuits" Nature Communications 12, 1791 (2021)
+- Larocca et al. "Diagnosing Barren Plateaus with Tools from Quantum Optimal Control" Quantum 6, 824 (2022)
+
+### Hardware Efficiency
+- Kandala et al. "Hardware-efficient variational quantum eigensolver" Nature 549, 242-246 (2017)
+- "Trainability enhancement of parameterized quantum circuits" Phys. Rev. Applied 22, 054005 (2024)
+
+### Datasets
+- Apak et al. "KetGPT – Dataset Augmentation of Quantum Circuits using Transformers" arXiv:2402.13352 (2024)
+
+### Additional Resources
+- NVIDIA Technical Blog "Advancing Quantum Algorithm Design with GPTs" (2024)
+- "Guaranteed efficient energy estimation using ShadowGrouping" Nature Communications 15, 799 (2025)
+- Meyer et al. "Fisher Information in Noisy Intermediate-Scale Quantum Applications" Quantum 5, 539 (2021)
 
 ## Requirements
-- Python ≥ 3.12
-- C++17 compiler (GCC ≥ 10 / Clang ≥ 12 / MSVC ≥ 19.3)
-- CMake ≥ 3.25
-- CUDA ≥ 12.6 (If using GPU)
-- PyPI packages:
 
-```
-numpy>=2.2.6
-matplotlib>=3.10.3
-torch>=2.7.0
-pennylane>=0.41.1
-transformers>=4.52.0
-scipy>=1.15.0
-pybind11>=2.13.6
-setuptools>=80.7.0
-scikit-learn>=1.7.0  # For unsupervised learning features
-```
+- Python 3.8+
+- PennyLane 0.28+
+- PyTorch 2.0+
+- NumPy
+- SciPy
+- Matplotlib
+- Transformers (Hugging Face)
+- BoTorch (for Bayesian optimization)
+- Scikit-learn
+- NSGA2 optimizer (C++ extension)
 
 ## Installation
 
-### 1. Clone the repository
-```bash
-git clone https://github.com/thedaemon-wizard/pinn-qpinn.git
-cd pinn-qpinn
-```
-
-### 2. Install Python dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Build optimization modules
-```bash
-pip install -U . rcga_optimizer
-pip install -U . nsga2_optimizer  # For multi-objective optimization
-```
-
 ## Usage
 
-### Basic Usage
+### Basic Usage - Quantum PINN:
 ```python
-python pinns_d3.py
-```
-
-### Configuration Options
-
-The main script supports various configuration parameters:
-
-```python
-# Problem parameters
-alpha = 0.01  # Thermal diffusivity
-L = 1.0       # Cube side length
-T = 1.0       # Final time
-
-# Discretization parameters
-nx, ny, nz = 20, 20, 20  # Spatial divisions
-nt = 20                  # Time divisions
-
-# Training parameters
-pinn_epochs = 2000       # PINN epochs
-qnn_epochs = 2000        # QPINN epochs
-
-# Parallel processing parameters
-N_PARALLEL_DEVICES = min(4, cpu_count() // 2)
-USE_PARALLEL_TRAINING = True
-```
-
-### Running with Different Optimization Methods
-
-#### RCGA Optimization (Default for hardware mode)
-```python
-qsolver = GQEQuantumPINN(
+# Initialize QPINN
+qpinn = GQEQuantumPINN(
     n_qubits=6,
     backend='default.mixed',
-    shots=1000,
-    noise_model='realistic',
+    shots=None,  # Use statevector for simulation
+    noise_model=None,
     use_parallel=True,
-    use_gpt_circuit_generation=True,
-    use_rcga=True  # Enable RCGA optimization
+    use_gpt_circuit_generation=True
 )
+
+# Train with NSGA-II
+params, loss_history, training_time = qpinn.train_with_nsga2(n_samples=1500)
+
+# Evaluate model
+predictions = qpinn.evaluate()
 ```
 
-#### NSGA-II Multi-Objective Optimization
+### Basic Usage - Classical PINN with FNO:
 ```python
-# Train with NSGA-II if available
-if NSGA2_AVAILABLE:
-    circuit_params, loss_history, training_time = qsolver.train_with_nsga2(n_samples=1500)
-else:
-    circuit_params, loss_history, training_time = qsolver.train(n_samples=1500)
+# Initialize Enhanced PINN
+pinn = PINN(
+    layers=[5, 128, 256, 256, 128, 1],
+    use_hard_constraints=True,
+    boundary_epsilon=0.1,
+    fourier_features=True,
+    num_fourier_features=64,
+    use_fno=True,
+    fno_modes=(8, 8, 8),
+    use_temporal_attention=True,
+    fno_memory_efficient=True
+)
+
+# Train with NSGA-II
+state_dict, losses, training_time = pinn.train_with_nsga2(n_samples=10000)
+
+# Evaluate model
+predictions = evaluate_pinn_nsga2(pinn)
 ```
 
-### Accessing Enhanced Features
+## Configuration
 
-#### Circuit Visualization and Analysis
-```python
-# After training, visualize the quantum circuit
-circuit_image_path = qsolver.visualize_quantum_circuit('results/')
+Key parameters in the implementation:
+- `n_qubits`: Number of qubits (default: 6) [QPINN]
+- `layers`: Neural network architecture [PINN]
+- `use_fno`: Enable Fourier Neural Operator [PINN]
+- `use_temporal_attention`: Enable temporal attention mechanism [PINN]
+- `fno_memory_efficient`: Use memory-efficient FNO implementation [PINN]
+- `pinn_epochs`: PINN training epochs (for standard training)
+- `qnn_epochs`: QPINN training epochs (for standard training)
+- `N_PARALLEL_DEVICES`: Number of parallel devices
+- `alpha`: Thermal diffusivity
+- `L`: Cube side length
+- `T`: Final time
 
-# Save detailed circuit information
-json_path, summary_path = qsolver.save_circuit_information('results/')
+## Output
 
-# Visualize circuit performance metrics
-metrics_path = qsolver.visualize_circuit_metrics('results/')
+The code generates comprehensive results including:
 
-# Visualize GQE generation process
-report_path = qsolver.visualize_gqe_generation_process('results/')
+### For QPINN:
+- Quantum circuit diagrams
+- Circuit quality metrics
+- GQE optimization history
+- GPT generation statistics
+- Gate evolution heatmaps
+- Energy estimation analysis
 
-# Create GQE optimization animation
-qsolver.save_gqe_animation('results/')
-```
+### For Classical PINN:
+- Network architecture visualization
+- FNO feature analysis
+- Attention weight visualization
+- Multi-scale feature maps
 
-#### Novelty Analysis
-```python
-# Get novelty statistics
-novelty_stats = qsolver.gqe_generator.get_novelty_statistics()
-print(f"Mean novelty: {novelty_stats['mean_novelty']:.3f}")
-print(f"Recent trend: {novelty_stats['recent_trend']:.3f}")
+### For Both:
+- Optimization history plots
+- Pareto front visualizations
+- Performance metrics
+- Detailed reports in JSON/CSV/LaTeX formats
+- Comparative analysis between methods
 
-# Visualize novelty evolution
-qsolver.gqe_generator.visualize_novelty_evolution('results/')
-```
+## Performance Comparison
 
-## Implementation Details
-
-### Heat Equation
-The code solves the 3D heat equation:
-```
-∂u/∂t = α∇²u
-```
-with Dirichlet boundary conditions (u = 0 on all boundaries) and Gaussian initial condition. The boundary condition handling has been improved for better accuracy near domain edges.
-
-### GQE-GPT Architecture
-1. **GPT Model**: Generates quantum circuit sequences as tokens
-2. **Circuit Templates**: Hardware-efficient ansätze with noise resilience
-3. **Adaptive Optimization**: Switches between NSGA-II, RCGA, SPSA, and Adam based on hardware constraints
-4. **Circuit Evaluation**: Comprehensive metrics for noise resilience, hardware efficiency, and expressivity
-5. **Novelty Tracking**: Ensures diverse circuit exploration
-
-### Unsupervised Quantum Energy Estimation
-- **Quantum Feature Extraction**: Uses multiple measurement bases
-- **Zero-Noise Extrapolation**: Mitigates hardware noise effects
-- **Clustering-based Energy Estimation**: Groups similar quantum states
-- **Adaptive Learning**: Updates estimates based on measurement results
-
-### NSGA-II Implementation
-- **Objectives**: 5 simultaneous objectives (initial condition, peak value, boundary condition, data fitting, PDE residual)
-- **Population Size**: 100 individuals (configurable)
-- **REX Crossover**: ξ = 1.2 (expansion factor)
-- **Crowding Distance**: Equidistant selection for diversity
-- **Batch Evaluation**: Parallel evaluation support
-
-### RCGA Implementation
-- **Population Size**: 50 individuals (configurable)
-- **REX Parameters**: ξ = 1.2 (expansion factor)
-- **JGG Parameters**: 3 parents, 10 offspring per generation
-- **Termination**: Maximum generations or convergence criteria
-- **Progress Reporting**: Detailed statistics every 50 generations
-
-### Noise Models
-Three noise levels supported:
-- **Light**: Minimal noise for near-term devices
-- **Realistic**: Typical NISQ device noise levels
-- **Heavy**: Stress testing with high noise
-
-## Results
-
-The implementation produces:
-- Comparative visualizations of PINN vs GQE-GPT-QPINN solutions
-- Multi-objective optimization results with Pareto fronts
-- Circuit novelty and diversity analysis
-- Error analysis over time with improved boundary handling
-- Training loss curves for multiple objectives
-- Performance benchmarks
-- Quantum circuit diagrams and specifications
-
-### Output Files (in results directory):
-
-#### Solution Comparison
-- `heat_equation_comparison_gqe_gpt.png`: Solution comparison
-- `heat_equation_profile_comparison_gqe_gpt.png`: 1D temperature profiles
-- `heat_equation_error_analysis_gqe_gpt.png`: Error metrics
-- `heat_equation_boundary_analysis_gqe_gpt.png`: Boundary condition analysis
-
-#### Quantum Circuit Information
-- `gqe_quantum_circuit.png`: Visual quantum circuit diagram
-- `gqe_circuit_text.txt`: PennyLane text representation
-- `gqe_circuit_info.json`: Detailed circuit specification in JSON
-- `gqe_circuit_summary.txt`: Human-readable circuit summary
-- `gqe_circuit_latex.tex`: LaTeX circuit description (for publications)
-- `gqe_circuit_metrics.png`: Circuit performance metrics visualization
-
-#### Optimization Results
-- `gqe_rcga_evolution.png`: RCGA optimization progress (if RCGA used)
-- `nsga2_optimization_results.json`: NSGA-II detailed results
-- `nsga2_pareto_fronts.csv`: Pareto front evolution data
-- `nsga2_pareto_front_3d.png`: 3D visualization of final Pareto front
-- `nsga2_objectives_evolution.png`: Evolution of all objectives
-- `nsga2_hypervolume_evolution.png`: Hypervolume metric evolution
-- `nsga2_diversity_evolution.png`: Population diversity metrics
-
-#### GPT and Novelty Analysis
-- `gpt_generation_history.json`: GPT model generation history
-- `novelty_evolution.png`: Circuit novelty score evolution
-- `gqe_gpt_statistics.png`: GPT generation statistics
-- `gqe_gate_evolution_heatmap.png`: Gate type evolution heatmap
-- `gqe_optimization_animation.gif`: Animated optimization process
-
-## Performance
-
-Typical performance characteristics:
-- **PINN**: ~100-200 seconds training time (benchmark using CUDA with NVIDIA RTX A2000 12GB), MSE ~1e-5
-- **GQE-GPT-QPINN with RCGA**: ~1-2 hours training time (with quantum simulation on i5-13600K 4core CPU)
-- **GQE-GPT-QPINN with NSGA-II**: ~2-3 hours for comprehensive multi-objective optimization
-- **RCGA Convergence**: 500 generations typical for good solutions
-- **NSGA-II Convergence**: 100-200 generations with stable Pareto front
-- **Circuit Generation**: GPT model generates circuits with 20-50 gates typically
-- **Novelty Score**: Maintains >0.3 average novelty throughout optimization
-
-## Advanced Features
-
-### Multi-Objective Trade-offs
-The NSGA-II implementation allows exploring trade-offs between:
-- Initial condition accuracy
-- Peak value preservation
-- Boundary condition satisfaction
-- Data fitting quality
-- PDE residual minimization
-
-### Error Mitigation
-- Zero-noise extrapolation for hardware noise mitigation
-- Richardson extrapolation with configurable noise scaling factors
-- Readout error correction
-- Dynamic decoupling compatibility
-
-### Circuit Diversity
-- Novelty scoring based on structural similarity
-- Diversity bonuses in fitness evaluation
-- Exploration rate adaptation
-- Elite preservation with mutation
+The implementation provides fair comparison between classical PINN and QPINN using:
+- Identical NSGA-II optimization framework
+- Unified progress intervals
+- Normalized objective functions
+- Comprehensive metrics:
+  - Mean Squared Error (MSE)
+  - Relative L2 error
+  - Boundary condition satisfaction
+  - Initial condition accuracy
+  - Conservation properties
+  - Computational efficiency
 
 ## Citation
 
-If you use this code in your research, please cite:
-
-```bibtex
-@article{nakaji2024gqe,
-  title={The generative quantum eigensolver (GQE) and its application for ground state search},
-  author={Nakaji, Kouhei and others},
-  journal={arXiv preprint arXiv:2401.09253},
-  year={2024}
-}
-
-@article{mitarai2018quantum,
-  title={Quantum circuit learning},
-  author={Mitarai, Kosuke and others},
-  journal={Physical Review A},
-  volume={98},
-  number={3},
-  pages={032309},
-  year={2018}
-}
-```
+If you use this code in your research, please cite the relevant papers listed in the references section.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This implementation is provided for research purposes. Please check individual paper licenses for specific algorithm implementations.
 
 ## Acknowledgments
 
-- Based on the GQE algorithm proposed by Nakaji et al.
-- Quantum circuit learning concepts from Mitarai et al.
-- GPT architecture inspired by nanoGPT implementation
-- NSGA-II implementation follows Deb et al.'s algorithm
-- Zero-noise extrapolation based on Li & Benjamin's work
-- Circuit visualization inspired by quantum circuit diagram standards
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request. Areas of particular interest:
-- Additional error mitigation techniques
-- Support for more quantum backends (IonQ, Rigetti, etc.)
-- Enhanced multi-objective optimization strategies
-- Improved unsupervised learning methods
-- Performance improvements for large-scale problems
-
-## Troubleshooting
-
-### Common Issues
-
-1. **RCGA/NSGA2 optimizer not available**: Ensure C++ compiler is properly installed and run the build commands again
-2. **Circuit visualization errors**: Check matplotlib and required fonts are installed
-3. **Memory issues with large circuits**: Reduce batch size or use sequential evaluation
-4. **Novelty tracking memory growth**: Limit history size in configuration
-5. **Multi-objective convergence issues**: Adjust population size or crowding distance type
-
-### Performance Tips
-
-1. **For hardware simulation**: Use `shots=1000` and `noise_model='realistic'`
-2. **For faster training**: Enable parallel processing with `use_parallel=True`
-3. **For better solutions**: Use NSGA-II for exploring trade-offs
-4. **For circuit diversity**: Monitor novelty scores and adjust exploration rate
-
-## Contact
-
-For questions or issues, please open an issue on GitHub or contact the maintainers.
+This implementation builds upon numerous research contributions in quantum machine learning, QPINNs, classical PINNs with advanced architectures, and multi-objective optimization. Special thanks to all researchers whose work is referenced in this implementation.

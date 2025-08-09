@@ -3,5 +3,7 @@ matplotlib==3.10.3
 torch==2.7.0
 pennylane==0.41.1
 transformers==4.52.4
-scipy==1.15.3
 pybind11==2.13.6
+scikit-learn==1.7.0
+gpytorch==1.14
+botorch==0.14

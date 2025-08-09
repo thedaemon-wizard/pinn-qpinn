@@ -1,0 +1,243 @@
+\hypertarget{python__bindings_8cpp}{}\doxysection{/run/media/a-\/koike/ボリューム/\+DATA/pinns/module/nsga2\+\_\+optimizer/src/python\+\_\+bindings.cpp File Reference}
+\label{python__bindings_8cpp}\index{/run/media/a-\/koike/ボリューム/DATA/pinns/module/nsga2\_optimizer/src/python\_bindings.cpp@{/run/media/a-\/koike/ボリューム/DATA/pinns/module/nsga2\_optimizer/src/python\_bindings.cpp}}
+{\ttfamily \#include $<$pybind11/pybind11.\+h$>$}\newline
+{\ttfamily \#include $<$pybind11/stl.\+h$>$}\newline
+{\ttfamily \#include $<$pybind11/functional.\+h$>$}\newline
+{\ttfamily \#include $<$pybind11/numpy.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}nsga2\+\_\+optimizer.\+hpp\char`\"{}}\newline
+Include dependency graph for python\+\_\+bindings.\+cpp\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{python__bindings_8cpp__incl}
+\end{center}
+\end{figure}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{python__bindings_8cpp_ad060d5bb65d036d5f5ac558c214f5d3d}{PYBIND11\+\_\+\+MODULE}} (nsga2\+\_\+optimizer, m)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{python__bindings_8cpp_ad060d5bb65d036d5f5ac558c214f5d3d}\label{python__bindings_8cpp_ad060d5bb65d036d5f5ac558c214f5d3d}} 
+\index{python\_bindings.cpp@{python\_bindings.cpp}!PYBIND11\_MODULE@{PYBIND11\_MODULE}}
+\index{PYBIND11\_MODULE@{PYBIND11\_MODULE}!python\_bindings.cpp@{python\_bindings.cpp}}
+\doxysubsubsection{\texorpdfstring{PYBIND11\_MODULE()}{PYBIND11\_MODULE()}}
+{\footnotesize\ttfamily PYBIND11\+\_\+\+MODULE (\begin{DoxyParamCaption}\item[{nsga2\+\_\+optimizer}]{,  }\item[{m}]{ }\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{python__bindings_8cpp_source_l00009}{9}} of file \mbox{\hyperlink{python__bindings_8cpp_source}{python\+\_\+bindings.\+cpp}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00009\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00010\ \ \ \ \ m.doc()\ =\ \textcolor{stringliteral}{"{}NSGA-\/II\ optimizer\ for\ multi-\/objective\ optimization\ with\ SOLID\ principles"{}};}
+\DoxyCodeLine{00011\ \ \ \ \ }
+\DoxyCodeLine{00012\ \ \ \ \ \textcolor{comment}{//\ Individual\ class\ binding}}
+\DoxyCodeLine{00013\ \ \ \ \ py::class\_<nsga2::Individual,\ std::shared\_ptr<nsga2::Individual>>(m,\ \textcolor{stringliteral}{"{}Individual"{}})}
+\DoxyCodeLine{00014\ \ \ \ \ \ \ \ \ .def(py::init<size\_t>())}
+\DoxyCodeLine{00015\ \ \ \ \ \ \ \ \ .def(py::init<\textcolor{keyword}{const}\ std::vector<double>\&>())}
+\DoxyCodeLine{00016\ \ \ \ \ \ \ \ \ .def\_readwrite(\textcolor{stringliteral}{"{}parameters"{}},\ \&\mbox{\hyperlink{classnsga2_1_1Individual_a895f4b83e89c061bf9b45921fd7c5a02}{nsga2::Individual::parameters}})}
+\DoxyCodeLine{00017\ \ \ \ \ \ \ \ \ .def\_readwrite(\textcolor{stringliteral}{"{}objectives"{}},\ \&\mbox{\hyperlink{classnsga2_1_1Individual_a833dd8ab67dbe3b5366a569d1c8e1686}{nsga2::Individual::objectives}})}
+\DoxyCodeLine{00018\ \ \ \ \ \ \ \ \ .def\_readwrite(\textcolor{stringliteral}{"{}rank"{}},\ \&\mbox{\hyperlink{classnsga2_1_1Individual_a513a879fef7dc5f7fe92d2e06d598793}{nsga2::Individual::rank}})}
+\DoxyCodeLine{00019\ \ \ \ \ \ \ \ \ .def\_readwrite(\textcolor{stringliteral}{"{}crowding\_distance"{}},\ \&\mbox{\hyperlink{classnsga2_1_1Individual_a5c9accb3f0c936654e5c51377847726e}{nsga2::Individual::crowding\_distance}})}
+\DoxyCodeLine{00020\ \ \ \ \ \ \ \ \ .def(\textcolor{stringliteral}{"{}dominates"{}},\ \&\mbox{\hyperlink{classnsga2_1_1Individual_ac1a07454279ad2a3f682e7bcce5ec563}{nsga2::Individual::dominates}})}
+\DoxyCodeLine{00021\ \ \ \ \ \ \ \ \ .def(\textcolor{stringliteral}{"{}reset"{}},\ \&\mbox{\hyperlink{classnsga2_1_1Individual_ae3aed14e78a78525b79feb5576b8233f}{nsga2::Individual::reset}});}
+\DoxyCodeLine{00022\ \ \ \ \ }
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{comment}{//\ Population\ class\ binding}}
+\DoxyCodeLine{00024\ \ \ \ \ py::class\_<nsga2::Population,\ std::shared\_ptr<nsga2::Population>>(m,\ \textcolor{stringliteral}{"{}Population"{}})}
+\DoxyCodeLine{00025\ \ \ \ \ \ \ \ \ .def(py::init<>())}
+\DoxyCodeLine{00026\ \ \ \ \ \ \ \ \ .def(py::init<size\_t,\ size\_t>())}
+\DoxyCodeLine{00027\ \ \ \ \ \ \ \ \ .def(\textcolor{stringliteral}{"{}add"{}},\ \&\mbox{\hyperlink{classnsga2_1_1Population_a1914d9a00083b8f12b8662aa936198bc}{nsga2::Population::add}})}
+\DoxyCodeLine{00028\ \ \ \ \ \ \ \ \ .def(\textcolor{stringliteral}{"{}clear"{}},\ \&\mbox{\hyperlink{classnsga2_1_1Population_abb6dba78ddf13b949ae891814bb915d1}{nsga2::Population::clear}})}
+\DoxyCodeLine{00029\ \ \ \ \ \ \ \ \ .def(\textcolor{stringliteral}{"{}size"{}},\ \&\mbox{\hyperlink{classnsga2_1_1Population_a872435fe0d8cdca441202595d77a2450}{nsga2::Population::size}})}
+\DoxyCodeLine{00030\ \ \ \ \ \ \ \ \ .def(\textcolor{stringliteral}{"{}\_\_len\_\_"{}},\ \&\mbox{\hyperlink{classnsga2_1_1Population_a872435fe0d8cdca441202595d77a2450}{nsga2::Population::size}})}
+\DoxyCodeLine{00031\ \ \ \ \ \ \ \ \ .def(\textcolor{stringliteral}{"{}\_\_getitem\_\_"{}},\ [](\textcolor{keyword}{const}\ \mbox{\hyperlink{classnsga2_1_1Population}{nsga2::Population}}\&\ pop,\ \textcolor{keywordtype}{size\_t}\ idx)\ \{}
+\DoxyCodeLine{00032\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (idx\ >=\ pop.\mbox{\hyperlink{classnsga2_1_1Population_a872435fe0d8cdca441202595d77a2450}{size}}())\ \{}
+\DoxyCodeLine{00033\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{throw}\ py::index\_error();}
+\DoxyCodeLine{00034\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ pop[idx];}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \ \ \})}
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \ \ .def(\textcolor{stringliteral}{"{}\_\_iter\_\_"{}},\ [](\textcolor{keyword}{const}\ \mbox{\hyperlink{classnsga2_1_1Population}{nsga2::Population}}\&\ pop)\ \{}
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ py::make\_iterator(pop.\mbox{\hyperlink{classnsga2_1_1Population_a6d361fdde43592b485cf09a54127b5d5}{begin}}(),\ pop.\mbox{\hyperlink{classnsga2_1_1Population_a0bded4969cf7a9e92316f5f12f811247}{end}}());}
+\DoxyCodeLine{00039\ \ \ \ \ \ \ \ \ \},\ py::keep\_alive<0,\ 1>());}
+\DoxyCodeLine{00040\ \ \ \ \ }
+\DoxyCodeLine{00041\ \ \ \ \ \textcolor{comment}{//\ Abstract\ crowding\ distance\ calculator\ interface}}
+\DoxyCodeLine{00042\ \ \ \ \ py::class\_<nsga2::ICrowdingDistanceCalculator,\ std::shared\_ptr<nsga2::ICrowdingDistanceCalculator>>(m,\ \textcolor{stringliteral}{"{}ICrowdingDistanceCalculator"{}})}
+\DoxyCodeLine{00043\ \ \ \ \ \ \ \ \ .def(\textcolor{stringliteral}{"{}calculate"{}},\ \&\mbox{\hyperlink{classnsga2_1_1ICrowdingDistanceCalculator_aba734883489f093ad8c8faadc21f7f43}{nsga2::ICrowdingDistanceCalculator::calculate}})}
+\DoxyCodeLine{00044\ \ \ \ \ \ \ \ \ .def(\textcolor{stringliteral}{"{}getName"{}},\ \&\mbox{\hyperlink{classnsga2_1_1ICrowdingDistanceCalculator_ad993f171ab4da9d503d98413afd50eef}{nsga2::ICrowdingDistanceCalculator::getName}});}
+\DoxyCodeLine{00045\ \ \ \ \ }
+\DoxyCodeLine{00046\ \ \ \ \ \textcolor{comment}{//\ Traditional\ crowding\ distance}}
+\DoxyCodeLine{00047\ \ \ \ \ py::class\_<\mbox{\hyperlink{classnsga2_1_1TraditionalCrowdingDistance}{nsga2::TraditionalCrowdingDistance}},\ \mbox{\hyperlink{classnsga2_1_1ICrowdingDistanceCalculator}{nsga2::ICrowdingDistanceCalculator}},\ }
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::shared\_ptr<nsga2::TraditionalCrowdingDistance>>(m,\ \textcolor{stringliteral}{"{}TraditionalCrowdingDistance"{}})}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \ \ .def(py::init<>());}
+\DoxyCodeLine{00050\ \ \ \ \ }
+\DoxyCodeLine{00051\ \ \ \ \ \textcolor{comment}{//\ Equidistant\ selection\ crowding\ distance}}
+\DoxyCodeLine{00052\ \ \ \ \ py::class\_<\mbox{\hyperlink{classnsga2_1_1EquidistantSelectionCrowdingDistance}{nsga2::EquidistantSelectionCrowdingDistance}},\ \mbox{\hyperlink{classnsga2_1_1ICrowdingDistanceCalculator}{nsga2::ICrowdingDistanceCalculator}},}
+\DoxyCodeLine{00053\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::shared\_ptr<nsga2::EquidistantSelectionCrowdingDistance>>(m,\ \textcolor{stringliteral}{"{}EquidistantSelectionCrowdingDistance"{}})}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ \ \ .def(py::init<size\_t>(),\ py::arg(\textcolor{stringliteral}{"{}selection\_size"{}})\ =\ 0)}
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \ \ .def(\textcolor{stringliteral}{"{}setSelectionSize"{}},\ \&\mbox{\hyperlink{classnsga2_1_1EquidistantSelectionCrowdingDistance_a2348394f9d2974b329f0545677b4949d}{nsga2::EquidistantSelectionCrowdingDistance::setSelectionSize}});}
+\DoxyCodeLine{00056\ \ \ \ \ }
+\DoxyCodeLine{00057\ \ \ \ \ \textcolor{comment}{//\ CrowdingDistanceFactory}}
+\DoxyCodeLine{00058\ \ \ \ \ py::class\_<nsga2::CrowdingDistanceFactory>(m,\ \textcolor{stringliteral}{"{}CrowdingDistanceFactory"{}})}
+\DoxyCodeLine{00059\ \ \ \ \ \ \ \ \ .def\_static(\textcolor{stringliteral}{"{}create"{}},\ \&\mbox{\hyperlink{classnsga2_1_1CrowdingDistanceFactory_aa1b849a32ee30761426a25647eb2aa7e}{nsga2::CrowdingDistanceFactory::create}},}
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ py::arg(\textcolor{stringliteral}{"{}type"{}}),\ py::arg(\textcolor{stringliteral}{"{}selection\_size"{}})\ =\ 0);}
+\DoxyCodeLine{00061\ \ \ \ \ }
+\DoxyCodeLine{00062\ \ \ \ \ \textcolor{comment}{//\ CrowdingDistanceFactory::Type\ enum}}
+\DoxyCodeLine{00063\ \ \ \ \ py::enum\_<nsga2::CrowdingDistanceFactory::Type>(m,\ \textcolor{stringliteral}{"{}CrowdingDistanceType"{}})}
+\DoxyCodeLine{00064\ \ \ \ \ \ \ \ \ .value(\textcolor{stringliteral}{"{}Traditional"{}},\ \mbox{\hyperlink{classnsga2_1_1CrowdingDistanceFactory_a1a8c49d9ce3527f077d077c5d8d4b316a1bfbcce75c3c9a52a464d4cb0984488a}{nsga2::CrowdingDistanceFactory::Type::Traditional}})}
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \ \ .value(\textcolor{stringliteral}{"{}EquidistantSelection"{}},\ \mbox{\hyperlink{classnsga2_1_1CrowdingDistanceFactory_a1a8c49d9ce3527f077d077c5d8d4b316a38d44c1d2ababdca31bd7811992dba2c}{nsga2::CrowdingDistanceFactory::Type::EquidistantSelection}});}
+\DoxyCodeLine{00066\ }
+\DoxyCodeLine{00067\ \ \ \ \ }
+\DoxyCodeLine{00068\ \ \ \ \ py::enum\_<nsga2::REXDistributionType>(m,\ \textcolor{stringliteral}{"{}REXDistributionType"{}})}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \ \ .value(\textcolor{stringliteral}{"{}VShaped"{}},\ \mbox{\hyperlink{namespacensga2_a594adef242e7d5748f5c9cf9d72be1d3a961a7a0a72c511fa51df0c345278c3b9}{nsga2::REXDistributionType::VShaped}})}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \ \ .value(\textcolor{stringliteral}{"{}Uniform"{}},\ \mbox{\hyperlink{namespacensga2_a594adef242e7d5748f5c9cf9d72be1d3af19516d11f2946f894070e92fcb56b6d}{nsga2::REXDistributionType::Uniform}})}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ .value(\textcolor{stringliteral}{"{}Normal"{}},\ \mbox{\hyperlink{namespacensga2_a594adef242e7d5748f5c9cf9d72be1d3a960b44c579bc2f6818d2daaf9e4c16f0}{nsga2::REXDistributionType::Normal}});}
+\DoxyCodeLine{00072\ }
+\DoxyCodeLine{00073\ \ \ \ \ py::class\_<nsga2::REXCrossover>(m,\ \textcolor{stringliteral}{"{}REXCrossover"{}})}
+\DoxyCodeLine{00074\ \ \ \ \ .def(py::init<unsigned\ int,\ nsga2::REXDistributionType>(),\ }
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ \ py::arg(\textcolor{stringliteral}{"{}seed"{}})\ =\ 42,}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \ \ \ py::arg(\textcolor{stringliteral}{"{}dist\_type"{}})\ =\ \mbox{\hyperlink{namespacensga2_a594adef242e7d5748f5c9cf9d72be1d3a961a7a0a72c511fa51df0c345278c3b9}{nsga2::REXDistributionType::VShaped}},}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}REX\ crossover\ with\ selectable\ distribution\ type\ (default:\ V-\/shaped)"{}})}
+\DoxyCodeLine{00078\ \ \ \ \ .def(\textcolor{stringliteral}{"{}crossover"{}},\ \&\mbox{\hyperlink{classnsga2_1_1REXCrossover_a2c2880e6883be65f0ae4164b441b088d}{nsga2::REXCrossover::crossover}});}
+\DoxyCodeLine{00079\ }
+\DoxyCodeLine{00080\ \ \ \ \ }
+\DoxyCodeLine{00081\ }
+\DoxyCodeLine{00082\ \ \ \ \ \textcolor{comment}{//\ NSGA2Config}}
+\DoxyCodeLine{00083\ \ \ \ \ py::class\_<nsga2::NSGA2Config>(m,\ \textcolor{stringliteral}{"{}NSGA2Config"{}})}
+\DoxyCodeLine{00084\ \ \ \ \ \ \ \ \ .def(py::init<>())}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ \ \ .def\_readwrite(\textcolor{stringliteral}{"{}population\_size"{}},\ \&\mbox{\hyperlink{structnsga2_1_1NSGA2Config_ae71a2f8e9d7ba5ee79a4212ab073203f}{nsga2::NSGA2Config::population\_size}})}
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \ \ .def\_readwrite(\textcolor{stringliteral}{"{}max\_generations"{}},\ \&\mbox{\hyperlink{structnsga2_1_1NSGA2Config_a88e311640cc9da72e8dae578b60bd76c}{nsga2::NSGA2Config::max\_generations}})}
+\DoxyCodeLine{00087\ \ \ \ \ \ \ \ \ .def\_readwrite(\textcolor{stringliteral}{"{}n\_objectives"{}},\ \&\mbox{\hyperlink{structnsga2_1_1NSGA2Config_a2ba9a29c19e53c18bb3c3d4339fde365}{nsga2::NSGA2Config::n\_objectives}})}
+\DoxyCodeLine{00088\ \ \ \ \ \ \ \ \ .def\_readwrite(\textcolor{stringliteral}{"{}lower\_bounds"{}},\ \&\mbox{\hyperlink{structnsga2_1_1NSGA2Config_a22f6c5167d3c46f6bf42e52625412441}{nsga2::NSGA2Config::lower\_bounds}})}
+\DoxyCodeLine{00089\ \ \ \ \ \ \ \ \ .def\_readwrite(\textcolor{stringliteral}{"{}upper\_bounds"{}},\ \&\mbox{\hyperlink{structnsga2_1_1NSGA2Config_a702acd772a7704550906edca52a6a4e6}{nsga2::NSGA2Config::upper\_bounds}})}
+\DoxyCodeLine{00090\ \ \ \ \ \ \ \ \ .def\_readwrite(\textcolor{stringliteral}{"{}dist\_type"{}},\ \&\mbox{\hyperlink{structnsga2_1_1NSGA2Config_ab75090aac7ea389b714d08637507cb84}{nsga2::NSGA2Config::dist\_type}})}
+\DoxyCodeLine{00091\ \ \ \ \ \ \ \ \ .def\_readwrite(\textcolor{stringliteral}{"{}n\_parents"{}},\ \&\mbox{\hyperlink{structnsga2_1_1NSGA2Config_ad9920bee36083733df22a0a9e12c1b04}{nsga2::NSGA2Config::n\_parents}})}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ \ \ .def\_readwrite(\textcolor{stringliteral}{"{}n\_children"{}},\ \&\mbox{\hyperlink{structnsga2_1_1NSGA2Config_ae339f11b953e92e48b0843aca58fa2db}{nsga2::NSGA2Config::n\_children}})}
+\DoxyCodeLine{00093\ \ \ \ \ \ \ \ \ .def\_readwrite(\textcolor{stringliteral}{"{}random\_seed"{}},\ \&\mbox{\hyperlink{structnsga2_1_1NSGA2Config_aabfad00518d7ad0d95c133823c6c6fcf}{nsga2::NSGA2Config::random\_seed}})}
+\DoxyCodeLine{00094\ \ \ \ \ \ \ \ \ .def\_readwrite(\textcolor{stringliteral}{"{}verbose"{}},\ \&\mbox{\hyperlink{structnsga2_1_1NSGA2Config_af0a7718158c5db4647b1b4b6a774c70f}{nsga2::NSGA2Config::verbose}})}
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \ \ .def\_readwrite(\textcolor{stringliteral}{"{}progress\_interval"{}},\ \&\mbox{\hyperlink{structnsga2_1_1NSGA2Config_aafc726fab602787a1a04f1ce83fafd0d}{nsga2::NSGA2Config::progress\_interval}})}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \ \ .def\_readwrite(\textcolor{stringliteral}{"{}crowding\_type"{}},\ \&\mbox{\hyperlink{structnsga2_1_1NSGA2Config_a4d4c95140c92dfc092b604f20e2dba4d}{nsga2::NSGA2Config::crowding\_type}});}
+\DoxyCodeLine{00097\ \ \ \ \ }
+\DoxyCodeLine{00098\ \ \ \ \ \textcolor{comment}{//\ NSGA2Optimizer}}
+\DoxyCodeLine{00099\ \ \ \ \ py::class\_<nsga2::NSGA2Optimizer>(m,\ \textcolor{stringliteral}{"{}NSGA2Optimizer"{}})}
+\DoxyCodeLine{00100\ \ \ \ \ \ \ \ \ .def(py::init<const\ nsga2::NSGA2Config\&>())}
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00102\ }
+\DoxyCodeLine{00103\ \ \ \ \ \ \ \ \ .def(\textcolor{stringliteral}{"{}adaptParameterSpace"{}},\ \&\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_afcf521d8c4989310961b0389deeeb1fa}{nsga2::NSGA2Optimizer::adaptParameterSpace}},}
+\DoxyCodeLine{00104\ \ \ \ \ \ \ \ \ \ \ \ \ \ py::arg(\textcolor{stringliteral}{"{}new\_n\_params"{}}),}
+\DoxyCodeLine{00105\ \ \ \ \ \ \ \ \ \ \ \ \ \ py::arg(\textcolor{stringliteral}{"{}new\_lower\_bounds"{}}),\ }
+\DoxyCodeLine{00106\ \ \ \ \ \ \ \ \ \ \ \ \ \ py::arg(\textcolor{stringliteral}{"{}new\_upper\_bounds"{}}),}
+\DoxyCodeLine{00107\ \ \ \ \ \ \ \ \ \ \ \ \ \ py::arg(\textcolor{stringliteral}{"{}parameter\_mapping"{}})\ =\ std::vector<std::pair<size\_t,\ size\_t>>\{\},}
+\DoxyCodeLine{00108\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}Adapt\ optimizer\ to\ new\ parameter\ space\ with\ population\ transformation"{}})}
+\DoxyCodeLine{00109\ }
+\DoxyCodeLine{00110\ \ \ \ \ \ \ \ \ .def(\textcolor{stringliteral}{"{}getParameterSpaceSize"{}},\ \&\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2ee35399daaee13d3991a35076cbbf52}{nsga2::NSGA2Optimizer::getParameterSpaceSize}},}
+\DoxyCodeLine{00111\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}Get\ current\ parameter\ space\ size"{}})}
+\DoxyCodeLine{00112\ }
+\DoxyCodeLine{00113\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Strategy\ setters}}
+\DoxyCodeLine{00114\ \ \ \ \ \ \ \ \ .def(\textcolor{stringliteral}{"{}setCrowdingDistanceCalculator"{}},\ }
+\DoxyCodeLine{00115\ \ \ \ \ \ \ \ \ \ \ \ \ \ py::overload\_cast<std::shared\_ptr<nsga2::ICrowdingDistanceCalculator>>(}
+\DoxyCodeLine{00116\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \&\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_aa4c4ff01ffd3f120011a0479a6ce4a36}{nsga2::NSGA2Optimizer::setCrowdingDistanceCalculator}}),}
+\DoxyCodeLine{00117\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}Set\ custom\ crowding\ distance\ calculator"{}})}
+\DoxyCodeLine{00118\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00119\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Main\ optimize\ method}}
+\DoxyCodeLine{00120\ \ \ \ \ \ \ \ \ .def(\textcolor{stringliteral}{"{}optimize"{}},\ [](\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer}{nsga2::NSGA2Optimizer}}\&\ self,}
+\DoxyCodeLine{00121\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::vector<nsga2::ObjectiveFunction>\&\ objectives,}
+\DoxyCodeLine{00122\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ py::object\ callback,}
+\DoxyCodeLine{00123\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ py::object\ batch\_evaluator)\ \{}
+\DoxyCodeLine{00124\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00125\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Wrap\ Python\ callback}}
+\DoxyCodeLine{00126\ \ \ \ \ \ \ \ \ \ \ \ \ std::function<void(\textcolor{keywordtype}{size\_t},\ \textcolor{keyword}{const}\ \mbox{\hyperlink{classnsga2_1_1Population}{nsga2::Population}}\&)>\ cpp\_callback\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00127\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00128\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!callback.is\_none())\ \{}
+\DoxyCodeLine{00129\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ cpp\_callback\ =\ [callback](\textcolor{keywordtype}{size\_t}\ generation,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{classnsga2_1_1Population}{nsga2::Population}}\&\ pop)\ \{}
+\DoxyCodeLine{00130\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ py::list\ pop\_list;}
+\DoxyCodeLine{00131\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ pop.\mbox{\hyperlink{classnsga2_1_1Population_a872435fe0d8cdca441202595d77a2450}{size}}();\ ++i)\ \{}
+\DoxyCodeLine{00132\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ py::dict\ ind\_dict;}
+\DoxyCodeLine{00133\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ind\_dict[\textcolor{stringliteral}{"{}parameters"{}}]\ =\ pop[i]-\/>parameters;}
+\DoxyCodeLine{00134\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ind\_dict[\textcolor{stringliteral}{"{}objectives"{}}]\ =\ pop[i]-\/>objectives;}
+\DoxyCodeLine{00135\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ind\_dict[\textcolor{stringliteral}{"{}rank"{}}]\ =\ pop[i]-\/>rank;}
+\DoxyCodeLine{00136\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ind\_dict[\textcolor{stringliteral}{"{}crowding\_distance"{}}]\ =\ pop[i]-\/>crowding\_distance;}
+\DoxyCodeLine{00137\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ pop\_list.append(ind\_dict);}
+\DoxyCodeLine{00138\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00139\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00140\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ py::gil\_scoped\_acquire\ acquire;}
+\DoxyCodeLine{00141\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ callback(generation,\ pop\_list);}
+\DoxyCodeLine{00142\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \};}
+\DoxyCodeLine{00143\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00144\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00145\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Wrap\ batch\ evaluator}}
+\DoxyCodeLine{00146\ \ \ \ \ \ \ \ \ \ \ \ \ std::function<std::vector<std::vector<double>>(\textcolor{keyword}{const}\ std::vector<std::vector<double>>\&)>\ cpp\_batch\_evaluator\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00147\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00148\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!batch\_evaluator.is\_none())\ \{}
+\DoxyCodeLine{00149\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ cpp\_batch\_evaluator\ =\ [batch\_evaluator](\textcolor{keyword}{const}\ std::vector<std::vector<double>>\&\ params\_batch)\ \{}
+\DoxyCodeLine{00150\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ py::gil\_scoped\_acquire\ acquire;}
+\DoxyCodeLine{00151\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00152\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ py::list\ py\_params\_batch;}
+\DoxyCodeLine{00153\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ \textcolor{keyword}{auto}\&\ params\ :\ params\_batch)\ \{}
+\DoxyCodeLine{00154\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ py\_params\_batch.append(params);}
+\DoxyCodeLine{00155\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00156\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00157\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ py::object\ result\ =\ batch\_evaluator(py\_params\_batch);}
+\DoxyCodeLine{00158\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00159\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::vector<std::vector<double>>\ objectives\_batch;}
+\DoxyCodeLine{00160\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\ item\ :\ result)\ \{}
+\DoxyCodeLine{00161\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::vector<double>\ obj\_vec;}
+\DoxyCodeLine{00162\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\ obj\ :\ item)\ \{}
+\DoxyCodeLine{00163\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ obj\_vec.push\_back(obj.cast<\textcolor{keywordtype}{double}>());}
+\DoxyCodeLine{00164\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00165\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ objectives\_batch.push\_back(obj\_vec);}
+\DoxyCodeLine{00166\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00167\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00168\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ objectives\_batch;}
+\DoxyCodeLine{00169\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \};}
+\DoxyCodeLine{00170\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00171\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00172\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ self.\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a82c8c27ec35b7842d3efb71830b30ce2}{optimize}}(objectives,\ cpp\_callback,\ cpp\_batch\_evaluator);}
+\DoxyCodeLine{00173\ \ \ \ \ \ \ \ \ \},}
+\DoxyCodeLine{00174\ \ \ \ \ \ \ \ \ py::arg(\textcolor{stringliteral}{"{}objectives"{}}),}
+\DoxyCodeLine{00175\ \ \ \ \ \ \ \ \ py::arg(\textcolor{stringliteral}{"{}callback"{}})\ =\ py::none(),}
+\DoxyCodeLine{00176\ \ \ \ \ \ \ \ \ py::arg(\textcolor{stringliteral}{"{}batch\_evaluator"{}})\ =\ py::none(),}
+\DoxyCodeLine{00177\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}Run\ NSGA-\/II\ optimization\ with\ optional\ batch\ evaluation"{}})}
+\DoxyCodeLine{00178\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00179\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Pareto\ front\ getter}}
+\DoxyCodeLine{00180\ \ \ \ \ \ \ \ \ .def(\textcolor{stringliteral}{"{}get\_pareto\_front"{}},\ [](\textcolor{keyword}{const}\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer}{nsga2::NSGA2Optimizer}}\&\ self)\ \{}
+\DoxyCodeLine{00181\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ pareto\_front\ =\ self.\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_aa5dae2bf9c615ed3a027aba29188ef9c}{get\_pareto\_front}}();}
+\DoxyCodeLine{00182\ \ \ \ \ \ \ \ \ \ \ \ \ py::list\ result;}
+\DoxyCodeLine{00183\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ \textcolor{keyword}{auto}\&\ ind\ :\ pareto\_front)\ \{}
+\DoxyCodeLine{00184\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ py::dict\ ind\_dict;}
+\DoxyCodeLine{00185\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ind\_dict[\textcolor{stringliteral}{"{}parameters"{}}]\ =\ ind-\/>parameters;}
+\DoxyCodeLine{00186\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ind\_dict[\textcolor{stringliteral}{"{}objectives"{}}]\ =\ ind-\/>objectives;}
+\DoxyCodeLine{00187\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ind\_dict[\textcolor{stringliteral}{"{}rank"{}}]\ =\ ind-\/>rank;}
+\DoxyCodeLine{00188\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ind\_dict[\textcolor{stringliteral}{"{}crowding\_distance"{}}]\ =\ ind-\/>crowding\_distance;}
+\DoxyCodeLine{00189\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ result.append(ind\_dict);}
+\DoxyCodeLine{00190\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00191\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ result;}
+\DoxyCodeLine{00192\ \ \ \ \ \ \ \ \ \})}
+\DoxyCodeLine{00193\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00194\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ History\ accessors}}
+\DoxyCodeLine{00195\ \ \ \ \ \ \ \ \ .def(\textcolor{stringliteral}{"{}get\_fitness\_history"{}},\ \&\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_ae3e9a6a11233f01b8b68d686e5a05a7e}{nsga2::NSGA2Optimizer::get\_fitness\_history}})}
+\DoxyCodeLine{00196\ \ \ \ \ \ \ \ \ .def(\textcolor{stringliteral}{"{}get\_mean\_fitness\_history"{}},\ \&\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_ace0fdf4f83b532abd7795ced99b66b35}{nsga2::NSGA2Optimizer::get\_mean\_fitness\_history}})}
+\DoxyCodeLine{00197\ \ \ \ \ \ \ \ \ .def(\textcolor{stringliteral}{"{}get\_best\_fitness"{}},\ \&\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_acf030b373ad687cda76df51d71f564f7}{nsga2::NSGA2Optimizer::get\_best\_fitness}})}
+\DoxyCodeLine{00198\ \ \ \ \ \ \ \ \ .def(\textcolor{stringliteral}{"{}get\_current\_generation"{}},\ \&\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a814b822231505e5deb54eb64b1ba3897}{nsga2::NSGA2Optimizer::get\_current\_generation}});}
+\DoxyCodeLine{00199\ \ \ \ \ }
+\DoxyCodeLine{00200\ \ \ \ \ \textcolor{comment}{//\ Helper\ function\ to\ create\ equidistant\ selection\ crowding\ distance\ easily}}
+\DoxyCodeLine{00201\ \ \ \ \ m.def(\textcolor{stringliteral}{"{}create\_equidistant\_crowding"{}},\ }
+\DoxyCodeLine{00202\ \ \ \ \ \ \ \ \ \ \ [](\textcolor{keywordtype}{size\_t}\ selection\_size)\ \{}
+\DoxyCodeLine{00203\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ std::make\_shared<nsga2::EquidistantSelectionCrowdingDistance>(selection\_size);}
+\DoxyCodeLine{00204\ \ \ \ \ \ \ \ \ \ \ \},}
+\DoxyCodeLine{00205\ \ \ \ \ \ \ \ \ \ \ py::arg(\textcolor{stringliteral}{"{}selection\_size"{}})\ =\ 0,}
+\DoxyCodeLine{00206\ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}Create\ an\ equidistant\ selection\ crowding\ distance\ calculator"{}});}
+\DoxyCodeLine{00207\ \}}
+
+\end{DoxyCode}
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=550pt]{python__bindings_8cpp_ad060d5bb65d036d5f5ac558c214f5d3d_cgraph}
+\end{center}
+\end{figure}

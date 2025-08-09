@@ -1,0 +1,300 @@
+/* Custom CSS for QPINN-NSGA2 Documentation */
+
+/* Color scheme */
+:root {
+    --quantum-blue: #1e3a8a;
+    --quantum-purple: #6d28d9;
+    --classical-green: #059669;
+    --highlight-yellow: #fbbf24;
+    --code-bg: #f3f4f6;
+    --border-color: #e5e7eb;
+}
+
+/* Enhanced headers */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+}
+
+h1 {
+    color: var(--quantum-blue);
+    border-bottom: 3px solid var(--quantum-purple);
+    padding-bottom: 0.3em;
+}
+
+h2 {
+    color: var(--quantum-purple);
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0.2em;
+}
+
+h3 {
+    color: var(--classical-green);
+}
+
+/* Code blocks enhancement */
+div.highlight {
+    background-color: var(--code-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    margin: 1em 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+div.highlight pre {
+    margin: 0;
+    padding: 1em;
+    overflow-x: auto;
+}
+
+/* Inline code */
+code.literal {
+    background-color: var(--code-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.25rem;
+    padding: 0.1em 0.3em;
+    font-size: 0.9em;
+    color: var(--quantum-blue);
+}
+
+/* Math equations */
+div.math {
+    margin: 1.5em 0;
+    padding: 1em;
+    background-color: #fefce8;
+    border-left: 4px solid var(--highlight-yellow);
+    border-radius: 0.25rem;
+    overflow-x: auto;
+}
+
+/* Tables */
+table.docutils {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1em 0;
+}
+
+table.docutils th {
+    background-color: var(--quantum-blue);
+    color: white;
+    padding: 0.75em;
+    text-align: left;
+    font-weight: 600;
+}
+
+table.docutils td {
+    padding: 0.75em;
+    border-bottom: 1px solid var(--border-color);
+}
+
+table.docutils tr:hover {
+    background-color: #f9fafb;
+}
+
+/* Admonitions */
+.admonition {
+    margin: 1.5em 0;
+    padding: 1em;
+    border-radius: 0.5rem;
+    border-left: 4px solid;
+}
+
+.admonition.note {
+    background-color: #dbeafe;
+    border-left-color: #3b82f6;
+}
+
+.admonition.warning {
+    background-color: #fed7aa;
+    border-left-color: #f97316;
+}
+
+.admonition.tip {
+    background-color: #d1fae5;
+    border-left-color: #10b981;
+}
+
+.admonition.important {
+    background-color: #fce7f3;
+    border-left-color: #ec4899;
+}
+
+.admonition-title {
+    font-weight: 600;
+    margin-bottom: 0.5em;
+}
+
+/* Navigation enhancements */
+.wy-nav-side {
+    background-color: #1f2937;
+}
+
+.wy-menu-vertical a {
+    color: #e5e7eb;
+}
+
+.wy-menu-vertical a:hover {
+    background-color: #374151;
+    color: white;
+}
+
+.wy-menu-vertical a:active {
+    background-color: var(--quantum-blue);
+}
+
+/* Search box */
+.wy-side-nav-search {
+    background-color: var(--quantum-blue);
+}
+
+.wy-side-nav-search input[type=text] {
+    border-radius: 0.25rem;
+}
+
+/* API documentation */
+dl.class, dl.function, dl.method {
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    padding: 1em;
+    margin: 1em 0;
+    background-color: #fafafa;
+}
+
+dl.class dt, dl.function dt, dl.method dt {
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    color: var(--quantum-purple);
+}
+
+/* Parameter lists */
+.field-list {
+    margin: 1em 0;
+}
+
+.field-name {
+    font-weight: 600;
+    color: var(--classical-green);
+}
+
+/* Figures and images */
+img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    margin: 1em 0;
+}
+
+/* Quantum circuit diagrams */
+.quantum-circuit {
+    background-color: white;
+    padding: 1em;
+    border: 2px solid var(--quantum-purple);
+    border-radius: 0.5rem;
+    margin: 1em 0;
+}
+
+/* Performance comparison tables */
+.benchmark-table {
+    font-size: 0.9em;
+}
+
+.benchmark-table .best-result {
+    background-color: #d1fae5;
+    font-weight: 600;
+}
+
+/* Mobile responsiveness */
+@media screen and (max-width: 768px) {
+    div.math {
+        font-size: 0.9em;
+        padding: 0.5em;
+    }
+    
+    table.docutils {
+        font-size: 0.85em;
+    }
+    
+    .admonition {
+        padding: 0.75em;
+    }
+}
+
+/* Print styles */
+@media print {
+    .wy-nav-side,
+    .wy-nav-top,
+    .rst-versions {
+        display: none;
+    }
+    
+    .wy-nav-content-wrap {
+        margin-left: 0;
+    }
+    
+    h1, h2, h3 {
+        page-break-after: avoid;
+    }
+    
+    pre, blockquote {
+        page-break-inside: avoid;
+    }
+}
+
+/* Syntax highlighting adjustments */
+.highlight .k { color: var(--quantum-blue); font-weight: bold; }  /* Keywords */
+.highlight .n { color: #333; }  /* Names */
+.highlight .s { color: var(--classical-green); }  /* Strings */
+.highlight .c { color: #999; font-style: italic; }  /* Comments */
+.highlight .m { color: var(--quantum-purple); }  /* Numbers */
+
+/* Custom classes for PINN/QPINN comparison */
+.pinn-section {
+    border-left: 4px solid var(--classical-green);
+    padding-left: 1em;
+    margin: 1em 0;
+}
+
+.qpinn-section {
+    border-left: 4px solid var(--quantum-purple);
+    padding-left: 1em;
+    margin: 1em 0;
+}
+
+/* Loss function display */
+.loss-equation {
+    background-color: #f0f9ff;
+    padding: 1em;
+    border-radius: 0.5rem;
+    margin: 1em 0;
+    text-align: center;
+}
+
+/* Circuit metrics visualization */
+.circuit-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1em;
+    margin: 1em 0;
+}
+
+.metric-card {
+    background-color: white;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    padding: 1em;
+    text-align: center;
+}
+
+.metric-value {
+    font-size: 2em;
+    font-weight: 600;
+    color: var(--quantum-blue);
+}
+
+.metric-label {
+    font-size: 0.9em;
+    color: #6b7280;
+}
