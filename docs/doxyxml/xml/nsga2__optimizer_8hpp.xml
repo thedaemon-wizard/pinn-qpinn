@@ -103,6 +103,85 @@
     <innerclass refid="classnsga2_1_1TournamentSelection" prot="public">nsga2::TournamentSelection</innerclass>
     <innerclass refid="classnsga2_1_1NSGA2Optimizer" prot="public">nsga2::NSGA2Optimizer</innerclass>
     <innernamespace refid="namespacensga2">nsga2</innernamespace>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="namespacensga2_1a594adef242e7d5748f5c9cf9d72be1d3" prot="public" static="no" strong="yes">
+        <type></type>
+        <name>REXDistributionType</name>
+        <qualifiedname>nsga2::REXDistributionType</qualifiedname>
+        <enumvalue id="namespacensga2_1a594adef242e7d5748f5c9cf9d72be1d3a960b44c579bc2f6818d2daaf9e4c16f0" prot="public">
+          <name>Normal</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacensga2_1a594adef242e7d5748f5c9cf9d72be1d3af19516d11f2946f894070e92fcb56b6d" prot="public">
+          <name>Uniform</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacensga2_1a594adef242e7d5748f5c9cf9d72be1d3a961a7a0a72c511fa51df0c345278c3b9" prot="public">
+          <name>VShaped</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="133" column="1" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="133" bodyend="137"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="namespacensga2_1a9c76b7fc7926d54405b46a2cccf115f4" prot="public" static="no">
+        <type>std::function&lt; std::vector&lt; double &gt;(const std::vector&lt; double &gt; &amp;)&gt;</type>
+        <definition>using nsga2::ObjectiveFunction = typedef std::function&lt;std::vector&lt;double&gt;(const std::vector&lt;double&gt;&amp;)&gt;</definition>
+        <argsstring></argsstring>
+        <name>ObjectiveFunction</name>
+        <qualifiedname>nsga2::ObjectiveFunction</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="23" column="1" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="23" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="namespacensga2_1a9338ac68ee391d4b50ef5d878d0d89b3" prot="public" static="no">
+        <type>std::shared_ptr&lt; Individual &gt;</type>
+        <definition>using nsga2::IndividualPtr = typedef std::shared_ptr&lt;Individual&gt;</definition>
+        <argsstring></argsstring>
+        <name>IndividualPtr</name>
+        <qualifiedname>nsga2::IndividualPtr</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="24" column="1" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="24" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="namespacensga2_1a39290dffb3965bb004e87e5c07f637c1" prot="public" static="no">
+        <type>std::shared_ptr&lt; Population &gt;</type>
+        <definition>using nsga2::PopulationPtr = typedef std::shared_ptr&lt;Population&gt;</definition>
+        <argsstring></argsstring>
+        <name>PopulationPtr</name>
+        <qualifiedname>nsga2::PopulationPtr</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="25" column="1" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="25" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
     <briefdescription>
     </briefdescription>
     <detaileddescription>

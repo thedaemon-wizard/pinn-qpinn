@@ -8,8 +8,6 @@ Overview
 
 This project presents a comprehensive benchmark comparison between classical Physics-Informed Neural Networks (PINNs) and Quantum Physics-Informed Neural Networks (QPINNs) for solving the 3D heat conduction equation. The implementation represents the state-of-the-art in both classical and quantum approaches to solving partial differential equations (PDEs).
 
-.. image:: _image/QPINNs_Complete_Neural_Network_Architecture.png
-
 Key Innovations
 ---------------
 

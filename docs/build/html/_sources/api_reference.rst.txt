@@ -181,10 +181,6 @@ Crossover Operators
    :project: nsga2_optimizer
    :members:
 
-.. doxygenclass:: nsga2::PolynomialMutation
-   :project: nsga2_optimizer
-   :members:
-
 Utility Classes
 ~~~~~~~~~~~~~~~
 
@@ -192,7 +188,7 @@ Utility Classes
    :project: nsga2_optimizer
    :members:
 
-.. doxygenclass:: nsga2::CrowdingDistanceCalculator
+.. doxygenclass:: nsga2::ICrowdingDistanceCalculator
    :project: nsga2_optimizer
    :members:
 

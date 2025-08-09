@@ -803,173 +803,168 @@
 \DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00799}00799\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a454900d4a115d2fc7eb3666616f202e9}{mean\_fitness\_history\_}}.push\_back(std::numeric\_limits<double>::max());}
 \DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00800}00800\ \ \ \ \ \ \ \ \ \}}
 \DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00801}00801\ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00802}00802\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Skip\ evolution\ if\ this\ is\ the\ last\ generation}}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00803}00803\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (gen\ ==\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_a88e311640cc9da72e8dae578b60bd76c}{max\_generations}})\ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00804}00804\ \ \ \ \ \ \ \ \ \{}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00805}00805\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00806}00806\ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00807}00807\ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00808}00808\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Create\ offspring\ population}}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00809}00809\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1Population}{Population}}\ offspring\_pop;}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00810}00810\ \ \ \ \ \ \ \ \ std::vector<IndividualPtr>\ all\_children;}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00811}00811\ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00812}00812\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ IMPORTANT:\ Get\ current\ parameter\ size\ dynamically}}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00813}00813\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ current\_n\_params\ =\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_a22f6c5167d3c46f6bf42e52625412441}{lower\_bounds}}.size();}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00814}00814\ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00815}00815\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{while}\ (offspring\_pop.\mbox{\hyperlink{classnsga2_1_1Population_a872435fe0d8cdca441202595d77a2450}{size}}()\ <\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_ae71a2f8e9d7ba5ee79a4212ab073203f}{population\_size}})\ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00816}00816\ \ \ \ \ \ \ \ \ \{}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00817}00817\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Select\ parents}}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00818}00818\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ parents\ =\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_af4bb6929334fe2b7156621bdf7275083}{selection\_strategy\_}}-\/>select(*\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a72b029699c51eb70ee957ef651551252}{population\_}},\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_ad9920bee36083733df22a0a9e12c1b04}{n\_parents}},\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2b77ca7f5cca7444e27b900891483da9}{gen\_}});}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00819}00819\ \ \ \ \ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00820}00820\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Verify\ all\ parents\ have\ correct\ parameter\ size}}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00821}00821\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ parents\_valid\ =\ \textcolor{keyword}{true};}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00822}00822\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ \textcolor{keyword}{auto}\&\ parent\ :\ parents)\ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00823}00823\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00824}00824\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (parent-\/>parameters.size()\ !=\ current\_n\_params)\ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00825}00825\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00826}00826\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::cerr\ <<\ \textcolor{stringliteral}{"{}Warning:\ Parent\ has\ "{}}\ <<\ parent-\/>parameters.size()\ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00827}00827\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ \textcolor{stringliteral}{"{}\ parameters,\ expected\ "{}}\ <<\ current\_n\_params\ <<\ std::endl;}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00828}00828\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ parents\_valid\ =\ \textcolor{keyword}{false};}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00829}00829\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00830}00830\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00831}00831\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00832}00832\ \ \ \ \ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00833}00833\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!parents\_valid)\ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00834}00834\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00835}00835\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Skip\ this\ parent\ set\ and\ try\ again}}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00836}00836\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00837}00837\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00838}00838\ \ \ \ \ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00839}00839\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ REX\ crossover}}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00840}00840\ \ \ \ \ \ \ \ \ \ \ \ \ std::vector<IndividualPtr>\ children;}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00841}00841\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}\ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00842}00842\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00843}00843\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ children\ =\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a9a6f33fba4503647e5e289c83317a42c}{rex\_crossover\_}}-\/>crossover(parents,\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_ae339f11b953e92e48b0843aca58fa2db}{n\_children}});}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00844}00844\ \ \ \ \ \ \ \ \ \ \ \ \ \}\ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00845}00845\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{catch}\ (\textcolor{keyword}{const}\ std::exception\&\ e)\ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00846}00846\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00847}00847\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::cerr\ <<\ \textcolor{stringliteral}{"{}Crossover\ error:\ "{}}\ <<\ e.what()\ <<\ std::endl;}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00848}00848\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};\ \ \textcolor{comment}{//\ Try\ again\ with\ different\ parents}}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00849}00849\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00850}00850\ \ \ \ \ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00851}00851\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Apply\ bounds\ with\ current\ parameter\ size}}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00852}00852\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ child\ :\ children)\ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00853}00853\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00854}00854\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Ensure\ child\ has\ correct\ size}}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00855}00855\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (child-\/>parameters.size()\ !=\ current\_n\_params)\ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00856}00856\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00857}00857\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::cerr\ <<\ \textcolor{stringliteral}{"{}Warning:\ Child\ has\ "{}}\ <<\ child-\/>parameters.size()\ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00858}00858\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ \textcolor{stringliteral}{"{}\ parameters,\ resizing\ to\ "{}}\ <<\ current\_n\_params\ <<\ std::endl;}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00859}00859\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ child-\/>parameters.resize(current\_n\_params,\ 0.0);}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00860}00860\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00861}00861\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00862}00862\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Apply\ bounds}}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00863}00863\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ current\_n\_params;\ ++i)\ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00864}00864\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00865}00865\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ child-\/>parameters[i]\ =\ std::max(\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_a22f6c5167d3c46f6bf42e52625412441}{lower\_bounds}}[i],}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00866}00866\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::min(\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_a702acd772a7704550906edca52a6a4e6}{upper\_bounds}}[i],\ child-\/>parameters[i]));}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00867}00867\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00868}00868\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ all\_children.push\_back(child);}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00869}00869\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ offspring\_pop.\mbox{\hyperlink{classnsga2_1_1Population_a1914d9a00083b8f12b8662aa936198bc}{add}}(child);}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00870}00870\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00871}00871\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (offspring\_pop.\mbox{\hyperlink{classnsga2_1_1Population_a872435fe0d8cdca441202595d77a2450}{size}}()\ >=\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_ae71a2f8e9d7ba5ee79a4212ab073203f}{population\_size}})\ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00872}00872\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00873}00873\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00874}00874\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00875}00875\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00876}00876\ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00877}00877\ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00878}00878\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Evaluate\ offspring}}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00879}00879\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_aa52554e3824033897dba470b287d3445}{evaluate\_batch}}(all\_children,\ objectives,\ batch\_evaluator);}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00880}00880\ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00881}00881\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Combine\ parent\ and\ offspring\ populations}}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00882}00882\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1Population}{Population}}\ combined\_pop;}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00883}00883\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ ind\ :\ *\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a72b029699c51eb70ee957ef651551252}{population\_}})\ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00884}00884\ \ \ \ \ \ \ \ \ \{}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00885}00885\ \ \ \ \ \ \ \ \ \ \ \ \ combined\_pop.\mbox{\hyperlink{classnsga2_1_1Population_a1914d9a00083b8f12b8662aa936198bc}{add}}(ind);}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00886}00886\ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00887}00887\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ ind\ :\ offspring\_pop)}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00888}00888\ \ \ \ \ \ \ \ \ \{}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00889}00889\ \ \ \ \ \ \ \ \ \ \ \ \ combined\_pop.\mbox{\hyperlink{classnsga2_1_1Population_a1914d9a00083b8f12b8662aa936198bc}{add}}(ind);}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00890}00890\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00802}00802\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00803}00803\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Create\ offspring\ population}}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00804}00804\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1Population}{Population}}\ offspring\_pop;}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00805}00805\ \ \ \ \ \ \ \ \ std::vector<IndividualPtr>\ all\_children;}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00806}00806\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00807}00807\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ IMPORTANT:\ Get\ current\ parameter\ size\ dynamically}}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00808}00808\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ current\_n\_params\ =\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_a22f6c5167d3c46f6bf42e52625412441}{lower\_bounds}}.size();}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00809}00809\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00810}00810\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{while}\ (offspring\_pop.\mbox{\hyperlink{classnsga2_1_1Population_a872435fe0d8cdca441202595d77a2450}{size}}()\ <\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_ae71a2f8e9d7ba5ee79a4212ab073203f}{population\_size}})\ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00811}00811\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00812}00812\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Select\ parents}}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00813}00813\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ parents\ =\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_af4bb6929334fe2b7156621bdf7275083}{selection\_strategy\_}}-\/>select(*\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a72b029699c51eb70ee957ef651551252}{population\_}},\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_ad9920bee36083733df22a0a9e12c1b04}{n\_parents}},\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2b77ca7f5cca7444e27b900891483da9}{gen\_}});}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00814}00814\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00815}00815\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Verify\ all\ parents\ have\ correct\ parameter\ size}}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00816}00816\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ parents\_valid\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00817}00817\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ \textcolor{keyword}{auto}\&\ parent\ :\ parents)\ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00818}00818\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00819}00819\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (parent-\/>parameters.size()\ !=\ current\_n\_params)\ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00820}00820\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00821}00821\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::cerr\ <<\ \textcolor{stringliteral}{"{}Warning:\ Parent\ has\ "{}}\ <<\ parent-\/>parameters.size()\ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00822}00822\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ \textcolor{stringliteral}{"{}\ parameters,\ expected\ "{}}\ <<\ current\_n\_params\ <<\ std::endl;}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00823}00823\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ parents\_valid\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00824}00824\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00825}00825\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00826}00826\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00827}00827\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00828}00828\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!parents\_valid)\ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00829}00829\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00830}00830\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Skip\ this\ parent\ set\ and\ try\ again}}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00831}00831\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00832}00832\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00833}00833\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00834}00834\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ REX\ crossover}}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00835}00835\ \ \ \ \ \ \ \ \ \ \ \ \ std::vector<IndividualPtr>\ children;}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00836}00836\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}\ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00837}00837\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00838}00838\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ children\ =\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a9a6f33fba4503647e5e289c83317a42c}{rex\_crossover\_}}-\/>crossover(parents,\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_ae339f11b953e92e48b0843aca58fa2db}{n\_children}});}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00839}00839\ \ \ \ \ \ \ \ \ \ \ \ \ \}\ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00840}00840\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{catch}\ (\textcolor{keyword}{const}\ std::exception\&\ e)\ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00841}00841\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00842}00842\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::cerr\ <<\ \textcolor{stringliteral}{"{}Crossover\ error:\ "{}}\ <<\ e.what()\ <<\ std::endl;}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00843}00843\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};\ \ \textcolor{comment}{//\ Try\ again\ with\ different\ parents}}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00844}00844\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00845}00845\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00846}00846\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Apply\ bounds\ with\ current\ parameter\ size}}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00847}00847\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ child\ :\ children)\ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00848}00848\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00849}00849\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Ensure\ child\ has\ correct\ size}}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00850}00850\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (child-\/>parameters.size()\ !=\ current\_n\_params)\ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00851}00851\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00852}00852\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::cerr\ <<\ \textcolor{stringliteral}{"{}Warning:\ Child\ has\ "{}}\ <<\ child-\/>parameters.size()\ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00853}00853\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ \textcolor{stringliteral}{"{}\ parameters,\ resizing\ to\ "{}}\ <<\ current\_n\_params\ <<\ std::endl;}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00854}00854\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ child-\/>parameters.resize(current\_n\_params,\ 0.0);}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00855}00855\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00856}00856\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00857}00857\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Apply\ bounds}}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00858}00858\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ current\_n\_params;\ ++i)\ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00859}00859\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00860}00860\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ child-\/>parameters[i]\ =\ std::max(\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_a22f6c5167d3c46f6bf42e52625412441}{lower\_bounds}}[i],}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00861}00861\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::min(\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_a702acd772a7704550906edca52a6a4e6}{upper\_bounds}}[i],\ child-\/>parameters[i]));}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00862}00862\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00863}00863\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ all\_children.push\_back(child);}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00864}00864\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ offspring\_pop.\mbox{\hyperlink{classnsga2_1_1Population_a1914d9a00083b8f12b8662aa936198bc}{add}}(child);}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00865}00865\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00866}00866\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (offspring\_pop.\mbox{\hyperlink{classnsga2_1_1Population_a872435fe0d8cdca441202595d77a2450}{size}}()\ >=\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_ae71a2f8e9d7ba5ee79a4212ab073203f}{population\_size}})\ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00867}00867\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00868}00868\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00869}00869\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00870}00870\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00871}00871\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00872}00872\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00873}00873\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Evaluate\ offspring}}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00874}00874\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_aa52554e3824033897dba470b287d3445}{evaluate\_batch}}(all\_children,\ objectives,\ batch\_evaluator);}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00875}00875\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00876}00876\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Combine\ parent\ and\ offspring\ populations}}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00877}00877\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1Population}{Population}}\ combined\_pop;}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00878}00878\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ ind\ :\ *\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a72b029699c51eb70ee957ef651551252}{population\_}})\ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00879}00879\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00880}00880\ \ \ \ \ \ \ \ \ \ \ \ \ combined\_pop.\mbox{\hyperlink{classnsga2_1_1Population_a1914d9a00083b8f12b8662aa936198bc}{add}}(ind);}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00881}00881\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00882}00882\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ ind\ :\ offspring\_pop)}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00883}00883\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00884}00884\ \ \ \ \ \ \ \ \ \ \ \ \ combined\_pop.\mbox{\hyperlink{classnsga2_1_1Population_a1914d9a00083b8f12b8662aa936198bc}{add}}(ind);}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00885}00885\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00886}00886\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00887}00887\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Environmental\ selection}}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00888}00888\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1Population}{Population}}\ new\_population;}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00889}00889\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a6b12413cbfbfd22402abfc4eb7e0353c}{environmental\_selection}}(combined\_pop,\ new\_population);}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00890}00890\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a72b029699c51eb70ee957ef651551252}{population\_}}\ =\ std::make\_shared<Population>(std::move(new\_population));}
 \DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00891}00891\ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00892}00892\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Environmental\ selection}}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00893}00893\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1Population}{Population}}\ new\_population;}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00894}00894\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a6b12413cbfbfd22402abfc4eb7e0353c}{environmental\_selection}}(combined\_pop,\ new\_population);}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00895}00895\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a72b029699c51eb70ee957ef651551252}{population\_}}\ =\ std::make\_shared<Population>(std::move(new\_population));}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00896}00896\ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00897}00897\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Callback}}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00898}00898\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (callback)\ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00899}00899\ \ \ \ \ \ \ \ \ \{}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00900}00900\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Store\ current\ parameter\ size\ before\ callback}}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00901}00901\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ param\_size\_before\ =\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_a22f6c5167d3c46f6bf42e52625412441}{lower\_bounds}}.size();}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00902}00902\ \ \ \ \ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00903}00903\ \ \ \ \ \ \ \ \ \ \ \ \ callback(gen,\ *\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a72b029699c51eb70ee957ef651551252}{population\_}});}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00904}00904\ \ \ \ \ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00905}00905\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Check\ if\ parameter\ space\ was\ changed\ during\ callback}}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00906}00906\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ param\_size\_after\ =\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_a22f6c5167d3c46f6bf42e52625412441}{lower\_bounds}}.size();}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00907}00907\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (param\_size\_before\ !=\ param\_size\_after)\ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00908}00908\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00909}00909\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}Parameter\ space\ changed\ during\ callback:\ "{}}\ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00910}00910\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ param\_size\_before\ <<\ \textcolor{stringliteral}{"{}\ -\/>\ "{}}\ <<\ param\_size\_after\ <<\ std::endl;}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00911}00911\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00912}00912\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Verify\ population\ consistency}}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00913}00913\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ all\_consistent\ =\ \textcolor{keyword}{true};}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00914}00914\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a72b029699c51eb70ee957ef651551252}{population\_}}-\/>size();\ ++i)\ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00915}00915\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00916}00916\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ ((*\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a72b029699c51eb70ee957ef651551252}{population\_}})[i]-\/>parameters.size()\ !=\ param\_size\_after)\ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00917}00917\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00918}00918\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::cerr\ <<\ \textcolor{stringliteral}{"{}ERROR:\ Individual\ "{}}\ <<\ i\ <<\ \textcolor{stringliteral}{"{}\ has\ inconsistent\ size\ after\ callback"{}}\ <<\ std::endl;}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00919}00919\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ all\_consistent\ =\ \textcolor{keyword}{false};}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00920}00920\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00921}00921\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Clear\ objectives\ to\ force\ re-\/evaluation}}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00922}00922\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (*population\_)[i]-\/>objectives.clear();}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00923}00923\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (*population\_)[i]-\/>rank\ =\ 0;}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00924}00924\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (*population\_)[i]-\/>crowding\_distance\ =\ 0.0;}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00892}00892\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Callback}}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00893}00893\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (callback)\ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00894}00894\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00895}00895\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Store\ current\ parameter\ size\ before\ callback}}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00896}00896\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ param\_size\_before\ =\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_a22f6c5167d3c46f6bf42e52625412441}{lower\_bounds}}.size();}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00897}00897\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00898}00898\ \ \ \ \ \ \ \ \ \ \ \ \ callback(gen,\ *\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a72b029699c51eb70ee957ef651551252}{population\_}});}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00899}00899\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00900}00900\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Check\ if\ parameter\ space\ was\ changed\ during\ callback}}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00901}00901\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ param\_size\_after\ =\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_a22f6c5167d3c46f6bf42e52625412441}{lower\_bounds}}.size();}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00902}00902\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (param\_size\_before\ !=\ param\_size\_after)\ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00903}00903\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00904}00904\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}Parameter\ space\ changed\ during\ callback:\ "{}}\ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00905}00905\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ param\_size\_before\ <<\ \textcolor{stringliteral}{"{}\ -\/>\ "{}}\ <<\ param\_size\_after\ <<\ std::endl;}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00906}00906\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00907}00907\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Verify\ population\ consistency}}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00908}00908\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ all\_consistent\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00909}00909\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a72b029699c51eb70ee957ef651551252}{population\_}}-\/>size();\ ++i)\ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00910}00910\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00911}00911\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ ((*\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a72b029699c51eb70ee957ef651551252}{population\_}})[i]-\/>parameters.size()\ !=\ param\_size\_after)\ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00912}00912\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00913}00913\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::cerr\ <<\ \textcolor{stringliteral}{"{}ERROR:\ Individual\ "{}}\ <<\ i\ <<\ \textcolor{stringliteral}{"{}\ has\ inconsistent\ size\ after\ callback"{}}\ <<\ std::endl;}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00914}00914\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ all\_consistent\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00915}00915\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00916}00916\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Clear\ objectives\ to\ force\ re-\/evaluation}}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00917}00917\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (*population\_)[i]-\/>objectives.clear();}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00918}00918\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (*population\_)[i]-\/>rank\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00919}00919\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (*population\_)[i]-\/>crowding\_distance\ =\ 0.0;}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00920}00920\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00921}00921\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00922}00922\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!all\_consistent)\ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00923}00923\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00924}00924\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{throw}\ std::runtime\_error(\textcolor{stringliteral}{"{}Population\ inconsistency\ after\ parameter\ space\ change"{}});}
 \DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00925}00925\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
 \DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00926}00926\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00927}00927\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!all\_consistent)\ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00928}00928\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00929}00929\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{throw}\ std::runtime\_error(\textcolor{stringliteral}{"{}Population\ inconsistency\ after\ parameter\ space\ change"{}});}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00930}00930\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00931}00931\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00932}00932\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}Re-\/evaluating\ population\ with\ new\ parameter\ space"{}}\ <<\ std::endl;}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00933}00933\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::vector<IndividualPtr>\ individuals\_to\_evaluate;}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00934}00934\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ ind\ :\ *\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a72b029699c51eb70ee957ef651551252}{population\_}})\ \{}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00935}00935\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ individuals\_to\_evaluate.push\_back(ind);}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00936}00936\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00937}00937\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_aa52554e3824033897dba470b287d3445}{evaluate\_batch}}(individuals\_to\_evaluate,\ objectives,\ batch\_evaluator);}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00938}00938\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00939}00939\ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00940}00940\ \ \ \ \ \}}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00941}00941\ \ \ \ \ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00942}00942\ \ \ \ \ \textcolor{comment}{//\ Extract\ final\ Pareto\ front}}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00943}00943\ \ \ \ \ \textcolor{keyword}{auto}\ pareto\_front\ =\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_aa5dae2bf9c615ed3a027aba29188ef9c}{get\_pareto\_front}}();}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00944}00944\ \ \ \ \ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00945}00945\ \ \ \ \ std::vector<std::vector<double>>\ final\_params;}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00946}00946\ \ \ \ \ std::vector<std::vector<double>>\ final\_objectives;}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00947}00947\ \ \ \ \ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00948}00948\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ \textcolor{keyword}{auto}\&\ ind\ :\ pareto\_front)\ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00949}00949\ \ \ \ \ \{}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00950}00950\ \ \ \ \ \ \ \ \ final\_params.push\_back(ind-\/>parameters);}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00951}00951\ \ \ \ \ \ \ \ \ final\_objectives.push\_back(ind-\/>objectives);}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00952}00952\ \ \ \ \ \}}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00953}00953\ \ \ \ \ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00954}00954\ \ \ \ \ \textcolor{keywordflow}{return}\ \{final\_params,\ final\_objectives\};}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00955}00955\ \}}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00956}00956\ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00957}\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_aa5dae2bf9c615ed3a027aba29188ef9c}{00957}}\ std::vector<IndividualPtr>\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_aa5dae2bf9c615ed3a027aba29188ef9c}{NSGA2Optimizer::get\_pareto\_front}}()\textcolor{keyword}{\ const\ }\{}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00958}00958\ \ \ \ \ std::vector<IndividualPtr>\ pareto\_front;}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00959}00959\ \ \ \ \ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00960}00960\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ \textcolor{keyword}{auto}\&\ ind\ :\ *\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a72b029699c51eb70ee957ef651551252}{population\_}})\ \{}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00961}00961\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (ind-\/>rank\ ==\ 0)\ \{}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00962}00962\ \ \ \ \ \ \ \ \ \ \ \ \ pareto\_front.push\_back(ind);}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00963}00963\ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00964}00964\ \ \ \ \ \}}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00965}00965\ \ \ \ \ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00966}00966\ \ \ \ \ \textcolor{keywordflow}{return}\ pareto\_front;}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00967}00967\ \}}
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00968}00968\ }
-\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00969}00969\ \}\ \textcolor{comment}{//\ namespace\ nsga2}}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00927}00927\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}Re-\/evaluating\ population\ with\ new\ parameter\ space"{}}\ <<\ std::endl;}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00928}00928\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::vector<IndividualPtr>\ individuals\_to\_evaluate;}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00929}00929\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ ind\ :\ *\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a72b029699c51eb70ee957ef651551252}{population\_}})\ \{}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00930}00930\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ individuals\_to\_evaluate.push\_back(ind);}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00931}00931\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00932}00932\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_aa52554e3824033897dba470b287d3445}{evaluate\_batch}}(individuals\_to\_evaluate,\ objectives,\ batch\_evaluator);}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00933}00933\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00934}00934\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00935}00935\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00936}00936\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00937}00937\ \ \ \ \ \textcolor{comment}{//\ Extract\ final\ Pareto\ front}}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00938}00938\ \ \ \ \ \textcolor{keyword}{auto}\ pareto\_front\ =\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_aa5dae2bf9c615ed3a027aba29188ef9c}{get\_pareto\_front}}();}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00939}00939\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00940}00940\ \ \ \ \ std::vector<std::vector<double>>\ final\_params;}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00941}00941\ \ \ \ \ std::vector<std::vector<double>>\ final\_objectives;}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00942}00942\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00943}00943\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ \textcolor{keyword}{auto}\&\ ind\ :\ pareto\_front)\ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00944}00944\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00945}00945\ \ \ \ \ \ \ \ \ final\_params.push\_back(ind-\/>parameters);}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00946}00946\ \ \ \ \ \ \ \ \ final\_objectives.push\_back(ind-\/>objectives);}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00947}00947\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00948}00948\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00949}00949\ \ \ \ \ \textcolor{keywordflow}{return}\ \{final\_params,\ final\_objectives\};}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00950}00950\ \}}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00951}00951\ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00952}\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_aa5dae2bf9c615ed3a027aba29188ef9c}{00952}}\ std::vector<IndividualPtr>\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_aa5dae2bf9c615ed3a027aba29188ef9c}{NSGA2Optimizer::get\_pareto\_front}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00953}00953\ \ \ \ \ std::vector<IndividualPtr>\ pareto\_front;}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00954}00954\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00955}00955\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ \textcolor{keyword}{auto}\&\ ind\ :\ *\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a72b029699c51eb70ee957ef651551252}{population\_}})\ \{}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00956}00956\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (ind-\/>rank\ ==\ 0)\ \{}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00957}00957\ \ \ \ \ \ \ \ \ \ \ \ \ pareto\_front.push\_back(ind);}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00958}00958\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00959}00959\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00960}00960\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00961}00961\ \ \ \ \ \textcolor{keywordflow}{return}\ pareto\_front;}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00962}00962\ \}}
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00963}00963\ }
+\DoxyCodeLine{\Hypertarget{nsga2__optimizer_8cpp_source_l00964}00964\ \}\ \textcolor{comment}{//\ namespace\ nsga2}}
 
 \end{DoxyCode}

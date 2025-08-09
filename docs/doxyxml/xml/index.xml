@@ -134,6 +134,13 @@
   <compound refid="namespacestd" kind="namespace"><name>std</name>
   </compound>
   <compound refid="nsga2__optimizer_8hpp" kind="file"><name>nsga2_optimizer.hpp</name>
+    <member refid="namespacensga2_1a594adef242e7d5748f5c9cf9d72be1d3" kind="enum"><name>REXDistributionType</name></member>
+    <member refid="namespacensga2_1a594adef242e7d5748f5c9cf9d72be1d3a960b44c579bc2f6818d2daaf9e4c16f0" kind="enumvalue"><name>Normal</name></member>
+    <member refid="namespacensga2_1a594adef242e7d5748f5c9cf9d72be1d3af19516d11f2946f894070e92fcb56b6d" kind="enumvalue"><name>Uniform</name></member>
+    <member refid="namespacensga2_1a594adef242e7d5748f5c9cf9d72be1d3a961a7a0a72c511fa51df0c345278c3b9" kind="enumvalue"><name>VShaped</name></member>
+    <member refid="namespacensga2_1a9c76b7fc7926d54405b46a2cccf115f4" kind="typedef"><name>ObjectiveFunction</name></member>
+    <member refid="namespacensga2_1a9338ac68ee391d4b50ef5d878d0d89b3" kind="typedef"><name>IndividualPtr</name></member>
+    <member refid="namespacensga2_1a39290dffb3965bb004e87e5c07f637c1" kind="typedef"><name>PopulationPtr</name></member>
   </compound>
   <compound refid="nsga2__optimizer_8cpp" kind="file"><name>nsga2_optimizer.cpp</name>
   </compound>
