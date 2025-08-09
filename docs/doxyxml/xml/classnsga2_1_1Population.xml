@@ -1,0 +1,273 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.6" xml:lang="en-US">
+  <compounddef id="classnsga2_1_1Population" kind="class" language="C++" prot="public">
+    <compoundname>nsga2::Population</compoundname>
+    <includes refid="nsga2__optimizer_8hpp" local="no">nsga2_optimizer.hpp</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classnsga2_1_1Population_1a9a79edcd547367d6db22ca438265adf2" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; <ref refid="namespacensga2_1a9338ac68ee391d4b50ef5d878d0d89b3" kindref="member">IndividualPtr</ref> &gt;</type>
+        <definition>std::vector&lt;IndividualPtr&gt; nsga2::Population::individuals_</definition>
+        <argsstring></argsstring>
+        <name>individuals_</name>
+        <qualifiedname>nsga2::Population::individuals_</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="45" column="17" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="45" bodyend="-1"/>
+        <referencedby refid="classnsga2_1_1Population_1a1914d9a00083b8f12b8662aa936198bc" compoundref="nsga2__optimizer_8cpp" startline="50" endline="52">add</referencedby>
+        <referencedby refid="classnsga2_1_1Population_1a6d361fdde43592b485cf09a54127b5d5" compoundref="nsga2__optimizer_8cpp" startline="70" endline="72">begin</referencedby>
+        <referencedby refid="classnsga2_1_1Population_1abb6dba78ddf13b949ae891814bb915d1" compoundref="nsga2__optimizer_8cpp" startline="54" endline="56">clear</referencedby>
+        <referencedby refid="classnsga2_1_1Population_1a0bded4969cf7a9e92316f5f12f811247" compoundref="nsga2__optimizer_8cpp" startline="74" endline="76">end</referencedby>
+        <referencedby refid="classnsga2_1_1Population_1a851a1ce0e3251f42db49c2617f21e7be" compoundref="nsga2__optimizer_8cpp" startline="62" endline="64">operator[]</referencedby>
+        <referencedby refid="classnsga2_1_1Population_1a6173c7b6de878474f22a348f78340bf5" compoundref="nsga2__optimizer_8cpp" startline="43" endline="48">Population</referencedby>
+        <referencedby refid="classnsga2_1_1Population_1a872435fe0d8cdca441202595d77a2450" compoundref="nsga2__optimizer_8cpp" startline="58" endline="60">size</referencedby>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classnsga2_1_1Population_1a73392ab985baf1da6c37c41e911dd10e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>nsga2::Population::Population</definition>
+        <argsstring>()=default</argsstring>
+        <name>Population</name>
+        <qualifiedname>nsga2::Population::Population</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="48" column="5"/>
+      </memberdef>
+      <memberdef kind="function" id="classnsga2_1_1Population_1a6173c7b6de878474f22a348f78340bf5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>nsga2::Population::Population</definition>
+        <argsstring>(size_t size, size_t n_params)</argsstring>
+        <name>Population</name>
+        <qualifiedname>nsga2::Population::Population</qualifiedname>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>n_params</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="49" column="5" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/src/nsga2_optimizer.cpp" bodystart="43" bodyend="48"/>
+        <references refid="classnsga2_1_1Population_1a9a79edcd547367d6db22ca438265adf2" compoundref="nsga2__optimizer_8hpp" startline="45">individuals_</references>
+        <references refid="classnsga2_1_1Population_1a872435fe0d8cdca441202595d77a2450" compoundref="nsga2__optimizer_8cpp" startline="58" endline="60">size</references>
+      </memberdef>
+      <memberdef kind="function" id="classnsga2_1_1Population_1a1914d9a00083b8f12b8662aa936198bc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void nsga2::Population::add</definition>
+        <argsstring>(IndividualPtr ind)</argsstring>
+        <name>add</name>
+        <qualifiedname>nsga2::Population::add</qualifiedname>
+        <param>
+          <type><ref refid="namespacensga2_1a9338ac68ee391d4b50ef5d878d0d89b3" kindref="member">IndividualPtr</ref></type>
+          <declname>ind</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="51" column="10" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/src/nsga2_optimizer.cpp" bodystart="50" bodyend="52"/>
+        <references refid="classnsga2_1_1Population_1a9a79edcd547367d6db22ca438265adf2" compoundref="nsga2__optimizer_8hpp" startline="45">individuals_</references>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a6b12413cbfbfd22402abfc4eb7e0353c" compoundref="nsga2__optimizer_8cpp" startline="615" endline="644">nsga2::NSGA2Optimizer::environmental_selection</referencedby>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a82c8c27ec35b7842d3efb71830b30ce2" compoundref="nsga2__optimizer_8cpp" startline="703" endline="955">nsga2::NSGA2Optimizer::optimize</referencedby>
+        <referencedby refid="python__bindings_8cpp_1ad060d5bb65d036d5f5ac558c214f5d3d" compoundref="python__bindings_8cpp" startline="9" endline="207">PYBIND11_MODULE</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classnsga2_1_1Population_1abb6dba78ddf13b949ae891814bb915d1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void nsga2::Population::clear</definition>
+        <argsstring>()</argsstring>
+        <name>clear</name>
+        <qualifiedname>nsga2::Population::clear</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="52" column="10" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/src/nsga2_optimizer.cpp" bodystart="54" bodyend="56"/>
+        <references refid="classnsga2_1_1Population_1a9a79edcd547367d6db22ca438265adf2" compoundref="nsga2__optimizer_8hpp" startline="45">individuals_</references>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a6b12413cbfbfd22402abfc4eb7e0353c" compoundref="nsga2__optimizer_8cpp" startline="615" endline="644">nsga2::NSGA2Optimizer::environmental_selection</referencedby>
+        <referencedby refid="python__bindings_8cpp_1ad060d5bb65d036d5f5ac558c214f5d3d" compoundref="python__bindings_8cpp" startline="9" endline="207">PYBIND11_MODULE</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classnsga2_1_1Population_1a872435fe0d8cdca441202595d77a2450" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t nsga2::Population::size</definition>
+        <argsstring>() const</argsstring>
+        <name>size</name>
+        <qualifiedname>nsga2::Population::size</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="53" column="12" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/src/nsga2_optimizer.cpp" bodystart="58" bodyend="60"/>
+        <references refid="classnsga2_1_1Population_1a9a79edcd547367d6db22ca438265adf2" compoundref="nsga2__optimizer_8hpp" startline="45">individuals_</references>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a6b12413cbfbfd22402abfc4eb7e0353c" compoundref="nsga2__optimizer_8cpp" startline="615" endline="644">nsga2::NSGA2Optimizer::environmental_selection</referencedby>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a82c8c27ec35b7842d3efb71830b30ce2" compoundref="nsga2__optimizer_8cpp" startline="703" endline="955">nsga2::NSGA2Optimizer::optimize</referencedby>
+        <referencedby refid="classnsga2_1_1Population_1a6173c7b6de878474f22a348f78340bf5" compoundref="nsga2__optimizer_8cpp" startline="43" endline="48">Population</referencedby>
+        <referencedby refid="python__bindings_8cpp_1ad060d5bb65d036d5f5ac558c214f5d3d" compoundref="python__bindings_8cpp" startline="9" endline="207">PYBIND11_MODULE</referencedby>
+        <referencedby refid="classnsga2_1_1TournamentSelection_1aa96672dd08d890082d1ac556f87a6be1" compoundref="nsga2__optimizer_8cpp" startline="556" endline="578">nsga2::TournamentSelection::select</referencedby>
+        <referencedby refid="classnsga2_1_1FastNonDominatedSort_1a72b1d993268d6c41621258c3fe6fd8d9" compoundref="nsga2__optimizer_8cpp" startline="347" endline="417">nsga2::FastNonDominatedSort::sort</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classnsga2_1_1Population_1a851a1ce0e3251f42db49c2617f21e7be" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespacensga2_1a9338ac68ee391d4b50ef5d878d0d89b3" kindref="member">IndividualPtr</ref> &amp;</type>
+        <definition>IndividualPtr &amp; nsga2::Population::operator[]</definition>
+        <argsstring>(size_t idx)</argsstring>
+        <name>operator[]</name>
+        <qualifiedname>nsga2::Population::operator[]</qualifiedname>
+        <param>
+          <type>size_t</type>
+          <declname>idx</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="54" column="19" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/src/nsga2_optimizer.cpp" bodystart="62" bodyend="64"/>
+        <references refid="classnsga2_1_1Population_1a9a79edcd547367d6db22ca438265adf2" compoundref="nsga2__optimizer_8hpp" startline="45">individuals_</references>
+      </memberdef>
+      <memberdef kind="function" id="classnsga2_1_1Population_1a1c707ba4f588d738072fc6c47ccff166" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="namespacensga2_1a9338ac68ee391d4b50ef5d878d0d89b3" kindref="member">IndividualPtr</ref> &amp;</type>
+        <definition>const IndividualPtr &amp; nsga2::Population::operator[]</definition>
+        <argsstring>(size_t idx) const</argsstring>
+        <name>operator[]</name>
+        <qualifiedname>nsga2::Population::operator[]</qualifiedname>
+        <param>
+          <type>size_t</type>
+          <declname>idx</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="55" column="25" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/src/nsga2_optimizer.cpp" bodystart="66" bodyend="68"/>
+        <references refid="classnsga2_1_1Population_1a9a79edcd547367d6db22ca438265adf2" compoundref="nsga2__optimizer_8hpp" startline="45">individuals_</references>
+      </memberdef>
+      <memberdef kind="function" id="classnsga2_1_1Population_1a6d361fdde43592b485cf09a54127b5d5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::vector&lt; <ref refid="namespacensga2_1a9338ac68ee391d4b50ef5d878d0d89b3" kindref="member">IndividualPtr</ref> &gt;::iterator</type>
+        <definition>std::vector&lt; IndividualPtr &gt;::iterator nsga2::Population::begin</definition>
+        <argsstring>()</argsstring>
+        <name>begin</name>
+        <qualifiedname>nsga2::Population::begin</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="57" column="28" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/src/nsga2_optimizer.cpp" bodystart="70" bodyend="72"/>
+        <references refid="classnsga2_1_1Population_1a9a79edcd547367d6db22ca438265adf2" compoundref="nsga2__optimizer_8hpp" startline="45">individuals_</references>
+        <referencedby refid="python__bindings_8cpp_1ad060d5bb65d036d5f5ac558c214f5d3d" compoundref="python__bindings_8cpp" startline="9" endline="207">PYBIND11_MODULE</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classnsga2_1_1Population_1a0bded4969cf7a9e92316f5f12f811247" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::vector&lt; <ref refid="namespacensga2_1a9338ac68ee391d4b50ef5d878d0d89b3" kindref="member">IndividualPtr</ref> &gt;::iterator</type>
+        <definition>std::vector&lt; IndividualPtr &gt;::iterator nsga2::Population::end</definition>
+        <argsstring>()</argsstring>
+        <name>end</name>
+        <qualifiedname>nsga2::Population::end</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="58" column="28" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/src/nsga2_optimizer.cpp" bodystart="74" bodyend="76"/>
+        <references refid="classnsga2_1_1Population_1a9a79edcd547367d6db22ca438265adf2" compoundref="nsga2__optimizer_8hpp" startline="45">individuals_</references>
+        <referencedby refid="python__bindings_8cpp_1ad060d5bb65d036d5f5ac558c214f5d3d" compoundref="python__bindings_8cpp" startline="9" endline="207">PYBIND11_MODULE</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classnsga2_1_1Population_1aeeeaaa26eac8aa2ed53e0ed4bad42bfb" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>std::vector&lt; <ref refid="namespacensga2_1a9338ac68ee391d4b50ef5d878d0d89b3" kindref="member">IndividualPtr</ref> &gt;::const_iterator</type>
+        <definition>std::vector&lt; IndividualPtr &gt;::const_iterator nsga2::Population::begin</definition>
+        <argsstring>() const</argsstring>
+        <name>begin</name>
+        <qualifiedname>nsga2::Population::begin</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="59" column="34" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/src/nsga2_optimizer.cpp" bodystart="78" bodyend="80"/>
+        <references refid="classnsga2_1_1Population_1a9a79edcd547367d6db22ca438265adf2" compoundref="nsga2__optimizer_8hpp" startline="45">individuals_</references>
+      </memberdef>
+      <memberdef kind="function" id="classnsga2_1_1Population_1a33f4a710923492f625b1eec7988cd91e" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>std::vector&lt; <ref refid="namespacensga2_1a9338ac68ee391d4b50ef5d878d0d89b3" kindref="member">IndividualPtr</ref> &gt;::const_iterator</type>
+        <definition>std::vector&lt; IndividualPtr &gt;::const_iterator nsga2::Population::end</definition>
+        <argsstring>() const</argsstring>
+        <name>end</name>
+        <qualifiedname>nsga2::Population::end</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="60" column="34" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/src/nsga2_optimizer.cpp" bodystart="82" bodyend="84"/>
+        <references refid="classnsga2_1_1Population_1a9a79edcd547367d6db22ca438265adf2" compoundref="nsga2__optimizer_8hpp" startline="45">individuals_</references>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="4">
+        <label>T</label>
+      </node>
+      <node id="1">
+        <label>nsga2::Population</label>
+        <link refid="classnsga2_1_1Population"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>individuals_</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>std::shared_ptr&lt; T &gt;</label>
+        <childnode refid="4" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>std::vector&lt; IndividualPtr &gt;</label>
+        <childnode refid="3" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="43" column="1" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="43" bodyend="61"/>
+    <listofallmembers>
+      <member refid="classnsga2_1_1Population_1a1914d9a00083b8f12b8662aa936198bc" prot="public" virt="non-virtual"><scope>nsga2::Population</scope><name>add</name></member>
+      <member refid="classnsga2_1_1Population_1a6d361fdde43592b485cf09a54127b5d5" prot="public" virt="non-virtual"><scope>nsga2::Population</scope><name>begin</name></member>
+      <member refid="classnsga2_1_1Population_1aeeeaaa26eac8aa2ed53e0ed4bad42bfb" prot="public" virt="non-virtual"><scope>nsga2::Population</scope><name>begin</name></member>
+      <member refid="classnsga2_1_1Population_1abb6dba78ddf13b949ae891814bb915d1" prot="public" virt="non-virtual"><scope>nsga2::Population</scope><name>clear</name></member>
+      <member refid="classnsga2_1_1Population_1a0bded4969cf7a9e92316f5f12f811247" prot="public" virt="non-virtual"><scope>nsga2::Population</scope><name>end</name></member>
+      <member refid="classnsga2_1_1Population_1a33f4a710923492f625b1eec7988cd91e" prot="public" virt="non-virtual"><scope>nsga2::Population</scope><name>end</name></member>
+      <member refid="classnsga2_1_1Population_1a9a79edcd547367d6db22ca438265adf2" prot="private" virt="non-virtual"><scope>nsga2::Population</scope><name>individuals_</name></member>
+      <member refid="classnsga2_1_1Population_1a851a1ce0e3251f42db49c2617f21e7be" prot="public" virt="non-virtual"><scope>nsga2::Population</scope><name>operator[]</name></member>
+      <member refid="classnsga2_1_1Population_1a1c707ba4f588d738072fc6c47ccff166" prot="public" virt="non-virtual"><scope>nsga2::Population</scope><name>operator[]</name></member>
+      <member refid="classnsga2_1_1Population_1a73392ab985baf1da6c37c41e911dd10e" prot="public" virt="non-virtual"><scope>nsga2::Population</scope><name>Population</name></member>
+      <member refid="classnsga2_1_1Population_1a6173c7b6de878474f22a348f78340bf5" prot="public" virt="non-virtual"><scope>nsga2::Population</scope><name>Population</name></member>
+      <member refid="classnsga2_1_1Population_1a872435fe0d8cdca441202595d77a2450" prot="public" virt="non-virtual"><scope>nsga2::Population</scope><name>size</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,304 @@
+\hypertarget{classnsga2_1_1Population}{}\doxysection{nsga2\+::Population Class Reference}
+\label{classnsga2_1_1Population}\index{nsga2::Population@{nsga2::Population}}
+
+
+{\ttfamily \#include $<$nsga2\+\_\+optimizer.\+hpp$>$}
+
+
+
+Collaboration diagram for nsga2\+::Population\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=214pt]{classnsga2_1_1Population__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classnsga2_1_1Population_a73392ab985baf1da6c37c41e911dd10e}{Population}} ()=default
+\item 
+\mbox{\hyperlink{classnsga2_1_1Population_a6173c7b6de878474f22a348f78340bf5}{Population}} (size\+\_\+t \mbox{\hyperlink{classnsga2_1_1Population_a872435fe0d8cdca441202595d77a2450}{size}}, size\+\_\+t n\+\_\+params)
+\item 
+void \mbox{\hyperlink{classnsga2_1_1Population_a1914d9a00083b8f12b8662aa936198bc}{add}} (\mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{Individual\+Ptr}} ind)
+\item 
+void \mbox{\hyperlink{classnsga2_1_1Population_abb6dba78ddf13b949ae891814bb915d1}{clear}} ()
+\item 
+size\+\_\+t \mbox{\hyperlink{classnsga2_1_1Population_a872435fe0d8cdca441202595d77a2450}{size}} () const
+\item 
+\mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{Individual\+Ptr}} \& \mbox{\hyperlink{classnsga2_1_1Population_a851a1ce0e3251f42db49c2617f21e7be}{operator\mbox{[}$\,$\mbox{]}}} (size\+\_\+t idx)
+\item 
+const \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{Individual\+Ptr}} \& \mbox{\hyperlink{classnsga2_1_1Population_a1c707ba4f588d738072fc6c47ccff166}{operator\mbox{[}$\,$\mbox{]}}} (size\+\_\+t idx) const
+\item 
+std\+::vector$<$ \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{Individual\+Ptr}} $>$\+::iterator \mbox{\hyperlink{classnsga2_1_1Population_a6d361fdde43592b485cf09a54127b5d5}{begin}} ()
+\item 
+std\+::vector$<$ \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{Individual\+Ptr}} $>$\+::iterator \mbox{\hyperlink{classnsga2_1_1Population_a0bded4969cf7a9e92316f5f12f811247}{end}} ()
+\item 
+std\+::vector$<$ \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{Individual\+Ptr}} $>$\+::const\+\_\+iterator \mbox{\hyperlink{classnsga2_1_1Population_aeeeaaa26eac8aa2ed53e0ed4bad42bfb}{begin}} () const
+\item 
+std\+::vector$<$ \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{Individual\+Ptr}} $>$\+::const\+\_\+iterator \mbox{\hyperlink{classnsga2_1_1Population_a33f4a710923492f625b1eec7988cd91e}{end}} () const
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::vector$<$ \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{Individual\+Ptr}} $>$ \mbox{\hyperlink{classnsga2_1_1Population_a9a79edcd547367d6db22ca438265adf2}{individuals\+\_\+}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00043}{43}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classnsga2_1_1Population_a73392ab985baf1da6c37c41e911dd10e}\label{classnsga2_1_1Population_a73392ab985baf1da6c37c41e911dd10e}} 
+\index{nsga2::Population@{nsga2::Population}!Population@{Population}}
+\index{Population@{Population}!nsga2::Population@{nsga2::Population}}
+\doxysubsubsection{\texorpdfstring{Population()}{Population()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily nsga2\+::\+Population\+::\+Population (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [default]}}
+
+\mbox{\Hypertarget{classnsga2_1_1Population_a6173c7b6de878474f22a348f78340bf5}\label{classnsga2_1_1Population_a6173c7b6de878474f22a348f78340bf5}} 
+\index{nsga2::Population@{nsga2::Population}!Population@{Population}}
+\index{Population@{Population}!nsga2::Population@{nsga2::Population}}
+\doxysubsubsection{\texorpdfstring{Population()}{Population()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily nsga2\+::\+Population\+::\+Population (\begin{DoxyParamCaption}\item[{size\+\_\+t}]{size,  }\item[{size\+\_\+t}]{n\+\_\+params }\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00043}{43}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00043\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00044\ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1Population_a9a79edcd547367d6db22ca438265adf2}{individuals\_}}.reserve(\mbox{\hyperlink{classnsga2_1_1Population_a872435fe0d8cdca441202595d77a2450}{size}});}
+\DoxyCodeLine{00045\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classnsga2_1_1Population_a872435fe0d8cdca441202595d77a2450}{size}};\ ++i)\ \{}
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1Population_a9a79edcd547367d6db22ca438265adf2}{individuals\_}}.push\_back(std::make\_shared<Individual>(n\_params));}
+\DoxyCodeLine{00047\ \ \ \ \ \}}
+\DoxyCodeLine{00048\ \}}
+
+\end{DoxyCode}
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=335pt]{classnsga2_1_1Population_a6173c7b6de878474f22a348f78340bf5_cgraph}
+\end{center}
+\end{figure}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classnsga2_1_1Population_a1914d9a00083b8f12b8662aa936198bc}\label{classnsga2_1_1Population_a1914d9a00083b8f12b8662aa936198bc}} 
+\index{nsga2::Population@{nsga2::Population}!add@{add}}
+\index{add@{add}!nsga2::Population@{nsga2::Population}}
+\doxysubsubsection{\texorpdfstring{add()}{add()}}
+{\footnotesize\ttfamily void nsga2\+::\+Population\+::add (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{Individual\+Ptr}}}]{ind }\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00050}{50}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00050\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00051\ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1Population_a9a79edcd547367d6db22ca438265adf2}{individuals\_}}.push\_back(ind);}
+\DoxyCodeLine{00052\ \}}
+
+\end{DoxyCode}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classnsga2_1_1Population_a1914d9a00083b8f12b8662aa936198bc_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{classnsga2_1_1Population_a6d361fdde43592b485cf09a54127b5d5}\label{classnsga2_1_1Population_a6d361fdde43592b485cf09a54127b5d5}} 
+\index{nsga2::Population@{nsga2::Population}!begin@{begin}}
+\index{begin@{begin}!nsga2::Population@{nsga2::Population}}
+\doxysubsubsection{\texorpdfstring{begin()}{begin()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily std\+::vector$<$ \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{Individual\+Ptr}} $>$\+::iterator nsga2\+::\+Population\+::begin (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00070}{70}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00071\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classnsga2_1_1Population_a9a79edcd547367d6db22ca438265adf2}{individuals\_}}.begin();}
+\DoxyCodeLine{00072\ \}}
+
+\end{DoxyCode}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=330pt]{classnsga2_1_1Population_a6d361fdde43592b485cf09a54127b5d5_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{classnsga2_1_1Population_aeeeaaa26eac8aa2ed53e0ed4bad42bfb}\label{classnsga2_1_1Population_aeeeaaa26eac8aa2ed53e0ed4bad42bfb}} 
+\index{nsga2::Population@{nsga2::Population}!begin@{begin}}
+\index{begin@{begin}!nsga2::Population@{nsga2::Population}}
+\doxysubsubsection{\texorpdfstring{begin()}{begin()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily std\+::vector$<$ \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{Individual\+Ptr}} $>$\+::const\+\_\+iterator nsga2\+::\+Population\+::begin (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00078}{78}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00079\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classnsga2_1_1Population_a9a79edcd547367d6db22ca438265adf2}{individuals\_}}.begin();}
+\DoxyCodeLine{00080\ \}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classnsga2_1_1Population_abb6dba78ddf13b949ae891814bb915d1}\label{classnsga2_1_1Population_abb6dba78ddf13b949ae891814bb915d1}} 
+\index{nsga2::Population@{nsga2::Population}!clear@{clear}}
+\index{clear@{clear}!nsga2::Population@{nsga2::Population}}
+\doxysubsubsection{\texorpdfstring{clear()}{clear()}}
+{\footnotesize\ttfamily void nsga2\+::\+Population\+::clear (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00054}{54}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00055\ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1Population_a9a79edcd547367d6db22ca438265adf2}{individuals\_}}.clear();}
+\DoxyCodeLine{00056\ \}}
+
+\end{DoxyCode}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classnsga2_1_1Population_abb6dba78ddf13b949ae891814bb915d1_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{classnsga2_1_1Population_a0bded4969cf7a9e92316f5f12f811247}\label{classnsga2_1_1Population_a0bded4969cf7a9e92316f5f12f811247}} 
+\index{nsga2::Population@{nsga2::Population}!end@{end}}
+\index{end@{end}!nsga2::Population@{nsga2::Population}}
+\doxysubsubsection{\texorpdfstring{end()}{end()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily std\+::vector$<$ \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{Individual\+Ptr}} $>$\+::iterator nsga2\+::\+Population\+::end (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00074}{74}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00075\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classnsga2_1_1Population_a9a79edcd547367d6db22ca438265adf2}{individuals\_}}.end();}
+\DoxyCodeLine{00076\ \}}
+
+\end{DoxyCode}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=345pt]{classnsga2_1_1Population_a0bded4969cf7a9e92316f5f12f811247_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{classnsga2_1_1Population_a33f4a710923492f625b1eec7988cd91e}\label{classnsga2_1_1Population_a33f4a710923492f625b1eec7988cd91e}} 
+\index{nsga2::Population@{nsga2::Population}!end@{end}}
+\index{end@{end}!nsga2::Population@{nsga2::Population}}
+\doxysubsubsection{\texorpdfstring{end()}{end()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily std\+::vector$<$ \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{Individual\+Ptr}} $>$\+::const\+\_\+iterator nsga2\+::\+Population\+::end (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00082}{82}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00082\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00083\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classnsga2_1_1Population_a9a79edcd547367d6db22ca438265adf2}{individuals\_}}.end();}
+\DoxyCodeLine{00084\ \}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classnsga2_1_1Population_a851a1ce0e3251f42db49c2617f21e7be}\label{classnsga2_1_1Population_a851a1ce0e3251f42db49c2617f21e7be}} 
+\index{nsga2::Population@{nsga2::Population}!operator\mbox{[}\mbox{]}@{operator[]}}
+\index{operator\mbox{[}\mbox{]}@{operator[]}!nsga2::Population@{nsga2::Population}}
+\doxysubsubsection{\texorpdfstring{operator[]()}{operator[]()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{Individual\+Ptr}} \& nsga2\+::\+Population\+::operator\mbox{[}$\,$\mbox{]} (\begin{DoxyParamCaption}\item[{size\+\_\+t}]{idx }\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00062}{62}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00063\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classnsga2_1_1Population_a9a79edcd547367d6db22ca438265adf2}{individuals\_}}[idx];}
+\DoxyCodeLine{00064\ \}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classnsga2_1_1Population_a1c707ba4f588d738072fc6c47ccff166}\label{classnsga2_1_1Population_a1c707ba4f588d738072fc6c47ccff166}} 
+\index{nsga2::Population@{nsga2::Population}!operator\mbox{[}\mbox{]}@{operator[]}}
+\index{operator\mbox{[}\mbox{]}@{operator[]}!nsga2::Population@{nsga2::Population}}
+\doxysubsubsection{\texorpdfstring{operator[]()}{operator[]()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily const \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{Individual\+Ptr}} \& nsga2\+::\+Population\+::operator\mbox{[}$\,$\mbox{]} (\begin{DoxyParamCaption}\item[{size\+\_\+t}]{idx }\end{DoxyParamCaption}) const}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00066}{66}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00066\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00067\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classnsga2_1_1Population_a9a79edcd547367d6db22ca438265adf2}{individuals\_}}[idx];}
+\DoxyCodeLine{00068\ \}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classnsga2_1_1Population_a872435fe0d8cdca441202595d77a2450}\label{classnsga2_1_1Population_a872435fe0d8cdca441202595d77a2450}} 
+\index{nsga2::Population@{nsga2::Population}!size@{size}}
+\index{size@{size}!nsga2::Population@{nsga2::Population}}
+\doxysubsubsection{\texorpdfstring{size()}{size()}}
+{\footnotesize\ttfamily size\+\_\+t nsga2\+::\+Population\+::size (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00058}{58}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00059\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classnsga2_1_1Population_a9a79edcd547367d6db22ca438265adf2}{individuals\_}}.size();}
+\DoxyCodeLine{00060\ \}}
+
+\end{DoxyCode}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classnsga2_1_1Population_a872435fe0d8cdca441202595d77a2450_icgraph}
+\end{center}
+\end{figure}
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classnsga2_1_1Population_a9a79edcd547367d6db22ca438265adf2}\label{classnsga2_1_1Population_a9a79edcd547367d6db22ca438265adf2}} 
+\index{nsga2::Population@{nsga2::Population}!individuals\_@{individuals\_}}
+\index{individuals\_@{individuals\_}!nsga2::Population@{nsga2::Population}}
+\doxysubsubsection{\texorpdfstring{individuals\_}{individuals\_}}
+{\footnotesize\ttfamily std\+::vector$<$\mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{Individual\+Ptr}}$>$ nsga2\+::\+Population\+::individuals\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00045}{45}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/run/media/a-\/koike/ボリューム/\+DATA/pinns/module/nsga2\+\_\+optimizer/include/\mbox{\hyperlink{nsga2__optimizer_8hpp}{nsga2\+\_\+optimizer.\+hpp}}\item 
+/run/media/a-\/koike/ボリューム/\+DATA/pinns/module/nsga2\+\_\+optimizer/src/\mbox{\hyperlink{nsga2__optimizer_8cpp}{nsga2\+\_\+optimizer.\+cpp}}\end{DoxyCompactItemize}

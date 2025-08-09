@@ -1,33 +1,40 @@
 {
   "metadata": {
-    "timestamp": "2025-06-20 13:52:38",
+    "timestamp": "2025-08-09 23:18:14",
     "n_qubits": 6,
     "backend": "default.mixed",
     "shots": 1000,
     "noise_model": "realistic",
-    "use_gpt": true,
-    "use_rcga": true
+    "use_gpt": true
   },
   "circuit_template": {
     "n_layers": 1,
-    "n_gates": 7,
-    "n_parameters": 5,
-    "entangling_pattern": "gpt_generated",
+    "n_gates": 11,
+    "n_parameters": 2,
+    "entangling_pattern": "efficient_initial",
     "noise_resilience_score": 0.8,
     "hardware_efficiency": 0.85,
     "expressivity_score": 0.8
   },
   "gate_sequence": [
     {
-      "gate": "RX",
+      "gate": "RY",
       "qubits": [
-        3
+        0
       ],
       "trainable": true,
       "param_idx": 0
     },
     {
-      "gate": "CNOT",
+      "gate": "RY",
+      "qubits": [
+        2
+      ],
+      "trainable": true,
+      "param_idx": 1
+    },
+    {
+      "gate": "CZ",
       "qubits": [
         0,
         1
@@ -36,20 +43,12 @@
       "param_idx": null
     },
     {
-      "gate": "RY",
+      "gate": "H",
       "qubits": [
-        5
+        2
       ],
-      "trainable": true,
-      "param_idx": 2
-    },
-    {
-      "gate": "RZ",
-      "qubits": [
-        4
-      ],
-      "trainable": true,
-      "param_idx": 3
+      "trainable": false,
+      "param_idx": null
     },
     {
       "gate": "H",
@@ -62,50 +61,105 @@
     {
       "gate": "CZ",
       "qubits": [
-        1,
+        2,
+        3
+      ],
+      "trainable": false,
+      "param_idx": null
+    },
+    {
+      "gate": "H",
+      "qubits": [
+        4
+      ],
+      "trainable": false,
+      "param_idx": null
+    },
+    {
+      "gate": "CZ",
+      "qubits": [
+        3,
+        4
+      ],
+      "trainable": false,
+      "param_idx": null
+    },
+    {
+      "gate": "H",
+      "qubits": [
+        5
+      ],
+      "trainable": false,
+      "param_idx": null
+    },
+    {
+      "gate": "H",
+      "qubits": [
         2
       ],
       "trainable": false,
       "param_idx": null
     },
     {
-      "gate": "RZ",
+      "gate": "H",
       "qubits": [
-        0
+        3
       ],
-      "trainable": true,
-      "param_idx": 4
+      "trainable": false,
+      "param_idx": null
     }
   ],
   "parameter_map": {
-    "RX_gate_0": 0,
-    "RY_gate_1": 1,
-    "RY_gate_3": 2,
-    "RZ_gate_4": 3,
-    "RZ_gate_7": 4
+    "RY_gate_0": 0,
+    "RY_gate_1": 1
   },
   "optimized_parameters": {
     "circuit_params": [
-      0.22051645945342707,
-      -0.9563074581461808,
-      1.156780712690435,
-      0.10376067984410345,
-      -1.8432230790101969
+      0.27930945276686275,
+      -0.36309240607294857
     ],
-    "output_scale": 5.8607574162711265,
-    "output_bias": -0.49575692946099137,
-    "time_decay": 1.8138962723788314,
-    "spatial_decay": 1.2992971617353468,
-    "amplitude": 0.8139105607538396,
-    "x_weight": 0.08606992208440356,
-    "correlation_weight": -0.14558728628120615
+    "output_param_dict": {
+      "output_scale": 1.7922482263080324,
+      "output_bias": 0.12605783868843573,
+      "time_decay": 0.0,
+      "spatial_decay": 1.0600224869706423,
+      "amplitude": 0.2047476816578051,
+      "x_weight": -0.12341970272551997,
+      "correlation_weight": -0.32930727663336806,
+      "boundary_epsilon": 0.19599059289072818
+    },
+    "spatial_feature_weights": [
+      0.4632650709196195,
+      0.8689573759285166,
+      0.5810454389324845,
+      0.0031437298739149175,
+      0.29410335928101755,
+      -0.042205018080626655,
+      -0.3157314976407216,
+      0.8977778423495892
+    ],
+    "temporal_frequencies": [
+      5.068645845331163,
+      5.114246660361171,
+      5.157598354529931
+    ],
+    "temporal_feature_weights": [
+      -1.0,
+      0.5010193774069998,
+      0.701309195728017,
+      -0.3155712139628202,
+      0.9153892959941203,
+      -0.5150022767646072,
+      0.05820015268278465,
+      0.08709501441411031,
+      -0.5079928435958674,
+      -0.40720000713739746,
+      0.3716542446899221
+    ]
   },
   "gate_statistics": {
-    "RX": 1,
-    "CNOT": 1,
-    "RY": 1,
-    "RZ": 2,
-    "H": 1,
-    "CZ": 1
+    "RY": 2,
+    "CZ": 3,
+    "H": 6
   }
 }

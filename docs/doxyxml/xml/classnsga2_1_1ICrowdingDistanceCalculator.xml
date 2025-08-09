@@ -1,0 +1,91 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.6" xml:lang="en-US">
+  <compounddef id="classnsga2_1_1ICrowdingDistanceCalculator" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>nsga2::ICrowdingDistanceCalculator</compoundname>
+    <derivedcompoundref refid="classnsga2_1_1EquidistantSelectionCrowdingDistance" prot="public" virt="non-virtual">nsga2::EquidistantSelectionCrowdingDistance</derivedcompoundref>
+    <derivedcompoundref refid="classnsga2_1_1TraditionalCrowdingDistance" prot="public" virt="non-virtual">nsga2::TraditionalCrowdingDistance</derivedcompoundref>
+    <includes refid="nsga2__optimizer_8hpp" local="no">nsga2_optimizer.hpp</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classnsga2_1_1ICrowdingDistanceCalculator_1afd68247f9ab22aa406c5b9321ae2cb99" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>virtual nsga2::ICrowdingDistanceCalculator::~ICrowdingDistanceCalculator</definition>
+        <argsstring>()=default</argsstring>
+        <name>~ICrowdingDistanceCalculator</name>
+        <qualifiedname>nsga2::ICrowdingDistanceCalculator::~ICrowdingDistanceCalculator</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="66" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="classnsga2_1_1ICrowdingDistanceCalculator_1aba734883489f093ad8c8faadc21f7f43" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>void</type>
+        <definition>virtual void nsga2::ICrowdingDistanceCalculator::calculate</definition>
+        <argsstring>(std::vector&lt; IndividualPtr &gt; &amp;front)=0</argsstring>
+        <name>calculate</name>
+        <qualifiedname>nsga2::ICrowdingDistanceCalculator::calculate</qualifiedname>
+        <reimplementedby refid="classnsga2_1_1TraditionalCrowdingDistance_1ae044ace8cebf183bb78b6921b120feac">calculate</reimplementedby>
+        <reimplementedby refid="classnsga2_1_1EquidistantSelectionCrowdingDistance_1a5ea3936b121d121e66efa9c1fc0add02">calculate</reimplementedby>
+        <param>
+          <type>std::vector&lt; <ref refid="namespacensga2_1a9338ac68ee391d4b50ef5d878d0d89b3" kindref="member">IndividualPtr</ref> &gt; &amp;</type>
+          <declname>front</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="67" column="18"/>
+        <referencedby refid="python__bindings_8cpp_1ad060d5bb65d036d5f5ac558c214f5d3d" compoundref="python__bindings_8cpp" startline="9" endline="207">PYBIND11_MODULE</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classnsga2_1_1ICrowdingDistanceCalculator_1ad993f171ab4da9d503d98413afd50eef" prot="public" static="no" const="yes" explicit="no" inline="no" virt="pure-virtual">
+        <type>std::string</type>
+        <definition>virtual std::string nsga2::ICrowdingDistanceCalculator::getName</definition>
+        <argsstring>() const =0</argsstring>
+        <name>getName</name>
+        <qualifiedname>nsga2::ICrowdingDistanceCalculator::getName</qualifiedname>
+        <reimplementedby refid="classnsga2_1_1TraditionalCrowdingDistance_1a6d462f8394f09a7624f79569f36f7828">getName</reimplementedby>
+        <reimplementedby refid="classnsga2_1_1EquidistantSelectionCrowdingDistance_1a74ddc9bd2a728231d5f885291f0c1802">getName</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="68" column="25"/>
+        <referencedby refid="python__bindings_8cpp_1ad060d5bb65d036d5f5ac558c214f5d3d" compoundref="python__bindings_8cpp" startline="9" endline="207">PYBIND11_MODULE</referencedby>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>nsga2::EquidistantSelectionCrowdingDistance</label>
+        <link refid="classnsga2_1_1EquidistantSelectionCrowdingDistance"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>nsga2::ICrowdingDistanceCalculator</label>
+        <link refid="classnsga2_1_1ICrowdingDistanceCalculator"/>
+      </node>
+      <node id="3">
+        <label>nsga2::TraditionalCrowdingDistance</label>
+        <link refid="classnsga2_1_1TraditionalCrowdingDistance"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="64" column="1" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="64" bodyend="69"/>
+    <listofallmembers>
+      <member refid="classnsga2_1_1ICrowdingDistanceCalculator_1aba734883489f093ad8c8faadc21f7f43" prot="public" virt="pure-virtual"><scope>nsga2::ICrowdingDistanceCalculator</scope><name>calculate</name></member>
+      <member refid="classnsga2_1_1ICrowdingDistanceCalculator_1ad993f171ab4da9d503d98413afd50eef" prot="public" virt="pure-virtual"><scope>nsga2::ICrowdingDistanceCalculator</scope><name>getName</name></member>
+      <member refid="classnsga2_1_1ICrowdingDistanceCalculator_1afd68247f9ab22aa406c5b9321ae2cb99" prot="public" virt="virtual"><scope>nsga2::ICrowdingDistanceCalculator</scope><name>~ICrowdingDistanceCalculator</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

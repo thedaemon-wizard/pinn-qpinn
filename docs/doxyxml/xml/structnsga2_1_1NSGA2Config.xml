@@ -1,0 +1,252 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.6" xml:lang="en-US">
+  <compounddef id="structnsga2_1_1NSGA2Config" kind="struct" language="C++" prot="public">
+    <compoundname>nsga2::NSGA2Config</compoundname>
+    <includes refid="nsga2__optimizer_8hpp" local="no">nsga2_optimizer.hpp</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structnsga2_1_1NSGA2Config_1ae71a2f8e9d7ba5ee79a4212ab073203f" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t nsga2::NSGA2Config::population_size</definition>
+        <argsstring></argsstring>
+        <name>population_size</name>
+        <qualifiedname>nsga2::NSGA2Config::population_size</qualifiedname>
+        <initializer>= 100</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="157" column="12" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="157" bodyend="-1"/>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a6b12413cbfbfd22402abfc4eb7e0353c" compoundref="nsga2__optimizer_8cpp" startline="615" endline="644">nsga2::NSGA2Optimizer::environmental_selection</referencedby>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a374b974fc2bf1e1a7eb73b5c26ffbaa5" compoundref="nsga2__optimizer_8cpp" startline="581" endline="590">nsga2::NSGA2Optimizer::NSGA2Optimizer</referencedby>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a82c8c27ec35b7842d3efb71830b30ce2" compoundref="nsga2__optimizer_8cpp" startline="703" endline="955">nsga2::NSGA2Optimizer::optimize</referencedby>
+        <referencedby refid="python__bindings_8cpp_1ad060d5bb65d036d5f5ac558c214f5d3d" compoundref="python__bindings_8cpp" startline="9" endline="207">PYBIND11_MODULE</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structnsga2_1_1NSGA2Config_1a88e311640cc9da72e8dae578b60bd76c" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t nsga2::NSGA2Config::max_generations</definition>
+        <argsstring></argsstring>
+        <name>max_generations</name>
+        <qualifiedname>nsga2::NSGA2Config::max_generations</qualifiedname>
+        <initializer>= 1000</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="158" column="12" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="158" bodyend="-1"/>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a82c8c27ec35b7842d3efb71830b30ce2" compoundref="nsga2__optimizer_8cpp" startline="703" endline="955">nsga2::NSGA2Optimizer::optimize</referencedby>
+        <referencedby refid="python__bindings_8cpp_1ad060d5bb65d036d5f5ac558c214f5d3d" compoundref="python__bindings_8cpp" startline="9" endline="207">PYBIND11_MODULE</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structnsga2_1_1NSGA2Config_1a2ba9a29c19e53c18bb3c3d4339fde365" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t nsga2::NSGA2Config::n_objectives</definition>
+        <argsstring></argsstring>
+        <name>n_objectives</name>
+        <qualifiedname>nsga2::NSGA2Config::n_objectives</qualifiedname>
+        <initializer>= 2</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="159" column="12" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="159" bodyend="-1"/>
+        <referencedby refid="python__bindings_8cpp_1ad060d5bb65d036d5f5ac558c214f5d3d" compoundref="python__bindings_8cpp" startline="9" endline="207">PYBIND11_MODULE</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structnsga2_1_1NSGA2Config_1a22f6c5167d3c46f6bf42e52625412441" prot="public" static="no" mutable="no">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt;double&gt; nsga2::NSGA2Config::lower_bounds</definition>
+        <argsstring></argsstring>
+        <name>lower_bounds</name>
+        <qualifiedname>nsga2::NSGA2Config::lower_bounds</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="160" column="17" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="160" bodyend="-1"/>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1afcf521d8c4989310961b0389deeeb1fa" compoundref="nsga2__optimizer_8cpp" startline="87" endline="124">nsga2::NSGA2Optimizer::adaptParameterSpace</referencedby>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1aa52554e3824033897dba470b287d3445" compoundref="nsga2__optimizer_8cpp" startline="646" endline="700">nsga2::NSGA2Optimizer::evaluate_batch</referencedby>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a2ee35399daaee13d3991a35076cbbf52" compoundref="nsga2__optimizer_8hpp" startline="259" endline="259">nsga2::NSGA2Optimizer::getParameterSpaceSize</referencedby>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a82c8c27ec35b7842d3efb71830b30ce2" compoundref="nsga2__optimizer_8cpp" startline="703" endline="955">nsga2::NSGA2Optimizer::optimize</referencedby>
+        <referencedby refid="python__bindings_8cpp_1ad060d5bb65d036d5f5ac558c214f5d3d" compoundref="python__bindings_8cpp" startline="9" endline="207">PYBIND11_MODULE</referencedby>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a3b9ce3ae189b2d686c875860f2b1a408" compoundref="nsga2__optimizer_8cpp" startline="126" endline="205">nsga2::NSGA2Optimizer::transformPopulation</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structnsga2_1_1NSGA2Config_1a702acd772a7704550906edca52a6a4e6" prot="public" static="no" mutable="no">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt;double&gt; nsga2::NSGA2Config::upper_bounds</definition>
+        <argsstring></argsstring>
+        <name>upper_bounds</name>
+        <qualifiedname>nsga2::NSGA2Config::upper_bounds</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="161" column="17" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="161" bodyend="-1"/>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1afcf521d8c4989310961b0389deeeb1fa" compoundref="nsga2__optimizer_8cpp" startline="87" endline="124">nsga2::NSGA2Optimizer::adaptParameterSpace</referencedby>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a82c8c27ec35b7842d3efb71830b30ce2" compoundref="nsga2__optimizer_8cpp" startline="703" endline="955">nsga2::NSGA2Optimizer::optimize</referencedby>
+        <referencedby refid="python__bindings_8cpp_1ad060d5bb65d036d5f5ac558c214f5d3d" compoundref="python__bindings_8cpp" startline="9" endline="207">PYBIND11_MODULE</referencedby>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a3b9ce3ae189b2d686c875860f2b1a408" compoundref="nsga2__optimizer_8cpp" startline="126" endline="205">nsga2::NSGA2Optimizer::transformPopulation</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structnsga2_1_1NSGA2Config_1ab75090aac7ea389b714d08637507cb84" prot="public" static="no" mutable="no">
+        <type><ref refid="namespacensga2_1a594adef242e7d5748f5c9cf9d72be1d3" kindref="member">REXDistributionType</ref></type>
+        <definition>REXDistributionType nsga2::NSGA2Config::dist_type</definition>
+        <argsstring></argsstring>
+        <name>dist_type</name>
+        <qualifiedname>nsga2::NSGA2Config::dist_type</qualifiedname>
+        <initializer>= <ref refid="namespacensga2_1a594adef242e7d5748f5c9cf9d72be1d3a961a7a0a72c511fa51df0c345278c3b9" kindref="member">REXDistributionType::VShaped</ref></initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="162" column="25" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="162" bodyend="-1"/>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a374b974fc2bf1e1a7eb73b5c26ffbaa5" compoundref="nsga2__optimizer_8cpp" startline="581" endline="590">nsga2::NSGA2Optimizer::NSGA2Optimizer</referencedby>
+        <referencedby refid="python__bindings_8cpp_1ad060d5bb65d036d5f5ac558c214f5d3d" compoundref="python__bindings_8cpp" startline="9" endline="207">PYBIND11_MODULE</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structnsga2_1_1NSGA2Config_1ad9920bee36083733df22a0a9e12c1b04" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t nsga2::NSGA2Config::n_parents</definition>
+        <argsstring></argsstring>
+        <name>n_parents</name>
+        <qualifiedname>nsga2::NSGA2Config::n_parents</qualifiedname>
+        <initializer>= 3</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="163" column="12" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="163" bodyend="-1"/>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a82c8c27ec35b7842d3efb71830b30ce2" compoundref="nsga2__optimizer_8cpp" startline="703" endline="955">nsga2::NSGA2Optimizer::optimize</referencedby>
+        <referencedby refid="python__bindings_8cpp_1ad060d5bb65d036d5f5ac558c214f5d3d" compoundref="python__bindings_8cpp" startline="9" endline="207">PYBIND11_MODULE</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structnsga2_1_1NSGA2Config_1ae339f11b953e92e48b0843aca58fa2db" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t nsga2::NSGA2Config::n_children</definition>
+        <argsstring></argsstring>
+        <name>n_children</name>
+        <qualifiedname>nsga2::NSGA2Config::n_children</qualifiedname>
+        <initializer>= 10</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="164" column="12" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="164" bodyend="-1"/>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a82c8c27ec35b7842d3efb71830b30ce2" compoundref="nsga2__optimizer_8cpp" startline="703" endline="955">nsga2::NSGA2Optimizer::optimize</referencedby>
+        <referencedby refid="python__bindings_8cpp_1ad060d5bb65d036d5f5ac558c214f5d3d" compoundref="python__bindings_8cpp" startline="9" endline="207">PYBIND11_MODULE</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structnsga2_1_1NSGA2Config_1aabfad00518d7ad0d95c133823c6c6fcf" prot="public" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int nsga2::NSGA2Config::random_seed</definition>
+        <argsstring></argsstring>
+        <name>random_seed</name>
+        <qualifiedname>nsga2::NSGA2Config::random_seed</qualifiedname>
+        <initializer>= 42</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="165" column="18" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="165" bodyend="-1"/>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a374b974fc2bf1e1a7eb73b5c26ffbaa5" compoundref="nsga2__optimizer_8cpp" startline="581" endline="590">nsga2::NSGA2Optimizer::NSGA2Optimizer</referencedby>
+        <referencedby refid="python__bindings_8cpp_1ad060d5bb65d036d5f5ac558c214f5d3d" compoundref="python__bindings_8cpp" startline="9" endline="207">PYBIND11_MODULE</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structnsga2_1_1NSGA2Config_1af0a7718158c5db4647b1b4b6a774c70f" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool nsga2::NSGA2Config::verbose</definition>
+        <argsstring></argsstring>
+        <name>verbose</name>
+        <qualifiedname>nsga2::NSGA2Config::verbose</qualifiedname>
+        <initializer>= false</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="166" column="10" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="166" bodyend="-1"/>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1afcf521d8c4989310961b0389deeeb1fa" compoundref="nsga2__optimizer_8cpp" startline="87" endline="124">nsga2::NSGA2Optimizer::adaptParameterSpace</referencedby>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a82c8c27ec35b7842d3efb71830b30ce2" compoundref="nsga2__optimizer_8cpp" startline="703" endline="955">nsga2::NSGA2Optimizer::optimize</referencedby>
+        <referencedby refid="python__bindings_8cpp_1ad060d5bb65d036d5f5ac558c214f5d3d" compoundref="python__bindings_8cpp" startline="9" endline="207">PYBIND11_MODULE</referencedby>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a3b9ce3ae189b2d686c875860f2b1a408" compoundref="nsga2__optimizer_8cpp" startline="126" endline="205">nsga2::NSGA2Optimizer::transformPopulation</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structnsga2_1_1NSGA2Config_1aafc726fab602787a1a04f1ce83fafd0d" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t nsga2::NSGA2Config::progress_interval</definition>
+        <argsstring></argsstring>
+        <name>progress_interval</name>
+        <qualifiedname>nsga2::NSGA2Config::progress_interval</qualifiedname>
+        <initializer>= 50</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="167" column="12" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="167" bodyend="-1"/>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a82c8c27ec35b7842d3efb71830b30ce2" compoundref="nsga2__optimizer_8cpp" startline="703" endline="955">nsga2::NSGA2Optimizer::optimize</referencedby>
+        <referencedby refid="python__bindings_8cpp_1ad060d5bb65d036d5f5ac558c214f5d3d" compoundref="python__bindings_8cpp" startline="9" endline="207">PYBIND11_MODULE</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structnsga2_1_1NSGA2Config_1a4d4c95140c92dfc092b604f20e2dba4d" prot="public" static="no" mutable="no">
+        <type><ref refid="classnsga2_1_1CrowdingDistanceFactory_1a1a8c49d9ce3527f077d077c5d8d4b316" kindref="member">CrowdingDistanceFactory::Type</ref></type>
+        <definition>CrowdingDistanceFactory::Type nsga2::NSGA2Config::crowding_type</definition>
+        <argsstring></argsstring>
+        <name>crowding_type</name>
+        <qualifiedname>nsga2::NSGA2Config::crowding_type</qualifiedname>
+        <initializer>= <ref refid="classnsga2_1_1CrowdingDistanceFactory_1a1a8c49d9ce3527f077d077c5d8d4b316a1bfbcce75c3c9a52a464d4cb0984488a" kindref="member">CrowdingDistanceFactory::Type::Traditional</ref></initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="168" column="35" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="168" bodyend="-1"/>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a374b974fc2bf1e1a7eb73b5c26ffbaa5" compoundref="nsga2__optimizer_8cpp" startline="581" endline="590">nsga2::NSGA2Optimizer::NSGA2Optimizer</referencedby>
+        <referencedby refid="python__bindings_8cpp_1ad060d5bb65d036d5f5ac558c214f5d3d" compoundref="python__bindings_8cpp" startline="9" endline="207">PYBIND11_MODULE</referencedby>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>nsga2::NSGA2Config</label>
+        <link refid="structnsga2_1_1NSGA2Config"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>lower_bounds</edgelabel>
+          <edgelabel>upper_bounds</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>std::vector&lt; double &gt;</label>
+      </node>
+    </collaborationgraph>
+    <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="156" column="1" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="156" bodyend="169"/>
+    <listofallmembers>
+      <member refid="structnsga2_1_1NSGA2Config_1a4d4c95140c92dfc092b604f20e2dba4d" prot="public" virt="non-virtual"><scope>nsga2::NSGA2Config</scope><name>crowding_type</name></member>
+      <member refid="structnsga2_1_1NSGA2Config_1ab75090aac7ea389b714d08637507cb84" prot="public" virt="non-virtual"><scope>nsga2::NSGA2Config</scope><name>dist_type</name></member>
+      <member refid="structnsga2_1_1NSGA2Config_1a22f6c5167d3c46f6bf42e52625412441" prot="public" virt="non-virtual"><scope>nsga2::NSGA2Config</scope><name>lower_bounds</name></member>
+      <member refid="structnsga2_1_1NSGA2Config_1a88e311640cc9da72e8dae578b60bd76c" prot="public" virt="non-virtual"><scope>nsga2::NSGA2Config</scope><name>max_generations</name></member>
+      <member refid="structnsga2_1_1NSGA2Config_1ae339f11b953e92e48b0843aca58fa2db" prot="public" virt="non-virtual"><scope>nsga2::NSGA2Config</scope><name>n_children</name></member>
+      <member refid="structnsga2_1_1NSGA2Config_1a2ba9a29c19e53c18bb3c3d4339fde365" prot="public" virt="non-virtual"><scope>nsga2::NSGA2Config</scope><name>n_objectives</name></member>
+      <member refid="structnsga2_1_1NSGA2Config_1ad9920bee36083733df22a0a9e12c1b04" prot="public" virt="non-virtual"><scope>nsga2::NSGA2Config</scope><name>n_parents</name></member>
+      <member refid="structnsga2_1_1NSGA2Config_1ae71a2f8e9d7ba5ee79a4212ab073203f" prot="public" virt="non-virtual"><scope>nsga2::NSGA2Config</scope><name>population_size</name></member>
+      <member refid="structnsga2_1_1NSGA2Config_1aafc726fab602787a1a04f1ce83fafd0d" prot="public" virt="non-virtual"><scope>nsga2::NSGA2Config</scope><name>progress_interval</name></member>
+      <member refid="structnsga2_1_1NSGA2Config_1aabfad00518d7ad0d95c133823c6c6fcf" prot="public" virt="non-virtual"><scope>nsga2::NSGA2Config</scope><name>random_seed</name></member>
+      <member refid="structnsga2_1_1NSGA2Config_1a702acd772a7704550906edca52a6a4e6" prot="public" virt="non-virtual"><scope>nsga2::NSGA2Config</scope><name>upper_bounds</name></member>
+      <member refid="structnsga2_1_1NSGA2Config_1af0a7718158c5db4647b1b4b6a774c70f" prot="public" virt="non-virtual"><scope>nsga2::NSGA2Config</scope><name>verbose</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

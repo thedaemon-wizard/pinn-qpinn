@@ -1,0 +1,79 @@
+\hypertarget{nsga2__optimizer_8hpp}{}\doxysection{/run/media/a-\/koike/ボリューム/\+DATA/pinns/module/nsga2\+\_\+optimizer/include/nsga2\+\_\+optimizer.hpp File Reference}
+\label{nsga2__optimizer_8hpp}\index{/run/media/a-\/koike/ボリューム/DATA/pinns/module/nsga2\_optimizer/include/nsga2\_optimizer.hpp@{/run/media/a-\/koike/ボリューム/DATA/pinns/module/nsga2\_optimizer/include/nsga2\_optimizer.hpp}}
+{\ttfamily \#include $<$vector$>$}\newline
+{\ttfamily \#include $<$memory$>$}\newline
+{\ttfamily \#include $<$functional$>$}\newline
+{\ttfamily \#include $<$random$>$}\newline
+{\ttfamily \#include $<$algorithm$>$}\newline
+{\ttfamily \#include $<$limits$>$}\newline
+{\ttfamily \#include $<$cmath$>$}\newline
+{\ttfamily \#include $<$chrono$>$}\newline
+{\ttfamily \#include $<$string$>$}\newline
+{\ttfamily \#include $<$stdexcept$>$}\newline
+Include dependency graph for nsga2\+\_\+optimizer.\+hpp\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{nsga2__optimizer_8hpp__incl}
+\end{center}
+\end{figure}
+This graph shows which files directly or indirectly include this file\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{nsga2__optimizer_8hpp__dep__incl}
+\end{center}
+\end{figure}
+\doxysubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{classnsga2_1_1Individual}{nsga2\+::\+Individual}}
+\item 
+class \mbox{\hyperlink{classnsga2_1_1Population}{nsga2\+::\+Population}}
+\item 
+class \mbox{\hyperlink{classnsga2_1_1ICrowdingDistanceCalculator}{nsga2\+::\+ICrowding\+Distance\+Calculator}}
+\item 
+class \mbox{\hyperlink{classnsga2_1_1TraditionalCrowdingDistance}{nsga2\+::\+Traditional\+Crowding\+Distance}}
+\item 
+class \mbox{\hyperlink{classnsga2_1_1EquidistantSelectionCrowdingDistance}{nsga2\+::\+Equidistant\+Selection\+Crowding\+Distance}}
+\item 
+class \mbox{\hyperlink{classnsga2_1_1CrowdingDistanceFactory}{nsga2\+::\+Crowding\+Distance\+Factory}}
+\item 
+class \mbox{\hyperlink{classnsga2_1_1ISortingAlgorithm}{nsga2\+::\+ISorting\+Algorithm}}
+\item 
+class \mbox{\hyperlink{classnsga2_1_1FastNonDominatedSort}{nsga2\+::\+Fast\+Non\+Dominated\+Sort}}
+\item 
+class \mbox{\hyperlink{classnsga2_1_1LatinHypercubeSampler}{nsga2\+::\+Latin\+Hypercube\+Sampler}}
+\item 
+class \mbox{\hyperlink{classnsga2_1_1REXCrossover}{nsga2\+::\+REXCrossover}}
+\item 
+struct \mbox{\hyperlink{structnsga2_1_1NSGA2Config}{nsga2\+::\+NSGA2\+Config}}
+\item 
+class \mbox{\hyperlink{classnsga2_1_1ISelectionStrategy}{nsga2\+::\+ISelection\+Strategy}}
+\item 
+class \mbox{\hyperlink{classnsga2_1_1TournamentSelection}{nsga2\+::\+Tournament\+Selection}}
+\item 
+class \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer}{nsga2\+::\+NSGA2\+Optimizer}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+namespace \mbox{\hyperlink{namespacensga2}{nsga2}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+using \mbox{\hyperlink{namespacensga2_a9c76b7fc7926d54405b46a2cccf115f4}{nsga2\+::\+Objective\+Function}} = std\+::function$<$ std\+::vector$<$ double $>$(const std\+::vector$<$ double $>$ \&)$>$
+\item 
+using \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{nsga2\+::\+Individual\+Ptr}} = std\+::shared\+\_\+ptr$<$ Individual $>$
+\item 
+using \mbox{\hyperlink{namespacensga2_a39290dffb3965bb004e87e5c07f637c1}{nsga2\+::\+Population\+Ptr}} = std\+::shared\+\_\+ptr$<$ Population $>$
+\end{DoxyCompactItemize}
+\doxysubsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum class \mbox{\hyperlink{namespacensga2_a594adef242e7d5748f5c9cf9d72be1d3}{nsga2\+::\+REXDistribution\+Type}} \{ \mbox{\hyperlink{namespacensga2_a594adef242e7d5748f5c9cf9d72be1d3a960b44c579bc2f6818d2daaf9e4c16f0}{nsga2\+::\+Normal}}
+, \mbox{\hyperlink{namespacensga2_a594adef242e7d5748f5c9cf9d72be1d3af19516d11f2946f894070e92fcb56b6d}{nsga2\+::\+Uniform}}
+, \mbox{\hyperlink{namespacensga2_a594adef242e7d5748f5c9cf9d72be1d3a961a7a0a72c511fa51df0c345278c3b9}{nsga2\+::\+VShaped}}
+ \}
+\end{DoxyCompactItemize}

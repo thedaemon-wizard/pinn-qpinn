@@ -1,0 +1,72 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.6" xml:lang="en-US">
+  <compounddef id="classnsga2_1_1ISelectionStrategy" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>nsga2::ISelectionStrategy</compoundname>
+    <derivedcompoundref refid="classnsga2_1_1TournamentSelection" prot="public" virt="non-virtual">nsga2::TournamentSelection</derivedcompoundref>
+    <includes refid="nsga2__optimizer_8hpp" local="no">nsga2_optimizer.hpp</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classnsga2_1_1ISelectionStrategy_1affef79b97446640a8776a5ed88f68c17" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>virtual nsga2::ISelectionStrategy::~ISelectionStrategy</definition>
+        <argsstring>()=default</argsstring>
+        <name>~ISelectionStrategy</name>
+        <qualifiedname>nsga2::ISelectionStrategy::~ISelectionStrategy</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="174" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="classnsga2_1_1ISelectionStrategy_1a278f8ce70ef2ab3483adcd2e16ca8508" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>std::vector&lt; <ref refid="namespacensga2_1a9338ac68ee391d4b50ef5d878d0d89b3" kindref="member">IndividualPtr</ref> &gt;</type>
+        <definition>virtual std::vector&lt; IndividualPtr &gt; nsga2::ISelectionStrategy::select</definition>
+        <argsstring>(const Population &amp;population, size_t n_select, std::mt19937 &amp;gen)=0</argsstring>
+        <name>select</name>
+        <qualifiedname>nsga2::ISelectionStrategy::select</qualifiedname>
+        <reimplementedby refid="classnsga2_1_1TournamentSelection_1aa96672dd08d890082d1ac556f87a6be1">select</reimplementedby>
+        <param>
+          <type>const <ref refid="classnsga2_1_1Population" kindref="compound">Population</ref> &amp;</type>
+          <declname>population</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>n_select</declname>
+        </param>
+        <param>
+          <type>std::mt19937 &amp;</type>
+          <declname>gen</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="175" column="25"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>nsga2::ISelectionStrategy</label>
+        <link refid="classnsga2_1_1ISelectionStrategy"/>
+      </node>
+      <node id="2">
+        <label>nsga2::TournamentSelection</label>
+        <link refid="classnsga2_1_1TournamentSelection"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="172" column="1" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="172" bodyend="178"/>
+    <listofallmembers>
+      <member refid="classnsga2_1_1ISelectionStrategy_1a278f8ce70ef2ab3483adcd2e16ca8508" prot="public" virt="pure-virtual"><scope>nsga2::ISelectionStrategy</scope><name>select</name></member>
+      <member refid="classnsga2_1_1ISelectionStrategy_1affef79b97446640a8776a5ed88f68c17" prot="public" virt="virtual"><scope>nsga2::ISelectionStrategy</scope><name>~ISelectionStrategy</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>
