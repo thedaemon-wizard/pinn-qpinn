@@ -280,7 +280,7 @@
   <option  id='GENERATE_XML' default='no' type='bool'><value>YES</value></option>
   <option  id='XML_OUTPUT' default='yes' type='string'><value><![CDATA[xml]]></value></option>
   <option  id='XML_PROGRAMLISTING' default='yes' type='bool'><value>YES</value></option>
-  <option  id='XML_NS_MEMB_FILE_SCOPE' default='yes' type='bool'><value>NO</value></option>
+  <option  id='XML_NS_MEMB_FILE_SCOPE' default='no' type='bool'><value>YES</value></option>
   <option  id='GENERATE_DOCBOOK' default='yes' type='bool'><value>NO</value></option>
   <option  id='DOCBOOK_OUTPUT' default='yes' type='string'><value><![CDATA[docbook]]></value></option>
   <option  id='GENERATE_AUTOGEN_DEF' default='yes' type='bool'><value>NO</value></option>

@@ -125,7 +125,7 @@
         <references refid="classnsga2_1_1NSGA2Optimizer_1a814b822231505e5deb54eb64b1ba3897" compoundref="nsga2__optimizer_8hpp" startline="241" endline="241">nsga2::NSGA2Optimizer::get_current_generation</references>
         <references refid="classnsga2_1_1NSGA2Optimizer_1ae3e9a6a11233f01b8b68d686e5a05a7e" compoundref="nsga2__optimizer_8hpp" startline="238" endline="238">nsga2::NSGA2Optimizer::get_fitness_history</references>
         <references refid="classnsga2_1_1NSGA2Optimizer_1ace0fdf4f83b532abd7795ced99b66b35" compoundref="nsga2__optimizer_8hpp" startline="239" endline="239">nsga2::NSGA2Optimizer::get_mean_fitness_history</references>
-        <references refid="classnsga2_1_1NSGA2Optimizer_1aa5dae2bf9c615ed3a027aba29188ef9c" compoundref="nsga2__optimizer_8cpp" startline="957" endline="967">nsga2::NSGA2Optimizer::get_pareto_front</references>
+        <references refid="classnsga2_1_1NSGA2Optimizer_1aa5dae2bf9c615ed3a027aba29188ef9c" compoundref="nsga2__optimizer_8cpp" startline="952" endline="962">nsga2::NSGA2Optimizer::get_pareto_front</references>
         <references refid="classnsga2_1_1ICrowdingDistanceCalculator_1ad993f171ab4da9d503d98413afd50eef">nsga2::ICrowdingDistanceCalculator::getName</references>
         <references refid="classnsga2_1_1NSGA2Optimizer_1a2ee35399daaee13d3991a35076cbbf52" compoundref="nsga2__optimizer_8hpp" startline="259" endline="259">nsga2::NSGA2Optimizer::getParameterSpaceSize</references>
         <references refid="structnsga2_1_1NSGA2Config_1a22f6c5167d3c46f6bf42e52625412441" compoundref="nsga2__optimizer_8hpp" startline="160">nsga2::NSGA2Config::lower_bounds</references>
@@ -135,7 +135,7 @@
         <references refid="structnsga2_1_1NSGA2Config_1ad9920bee36083733df22a0a9e12c1b04" compoundref="nsga2__optimizer_8hpp" startline="163">nsga2::NSGA2Config::n_parents</references>
         <references refid="namespacensga2_1a594adef242e7d5748f5c9cf9d72be1d3a960b44c579bc2f6818d2daaf9e4c16f0">nsga2::Normal</references>
         <references refid="classnsga2_1_1Individual_1a833dd8ab67dbe3b5366a569d1c8e1686" compoundref="nsga2__optimizer_8hpp" startline="31">nsga2::Individual::objectives</references>
-        <references refid="classnsga2_1_1NSGA2Optimizer_1a82c8c27ec35b7842d3efb71830b30ce2" compoundref="nsga2__optimizer_8cpp" startline="703" endline="955">nsga2::NSGA2Optimizer::optimize</references>
+        <references refid="classnsga2_1_1NSGA2Optimizer_1a82c8c27ec35b7842d3efb71830b30ce2" compoundref="nsga2__optimizer_8cpp" startline="703" endline="950">nsga2::NSGA2Optimizer::optimize</references>
         <references refid="classnsga2_1_1Individual_1a895f4b83e89c061bf9b45921fd7c5a02" compoundref="nsga2__optimizer_8hpp" startline="30">nsga2::Individual::parameters</references>
         <references refid="structnsga2_1_1NSGA2Config_1ae71a2f8e9d7ba5ee79a4212ab073203f" compoundref="nsga2__optimizer_8hpp" startline="157">nsga2::NSGA2Config::population_size</references>
         <references refid="structnsga2_1_1NSGA2Config_1aafc726fab602787a1a04f1ce83fafd0d" compoundref="nsga2__optimizer_8hpp" startline="167">nsga2::NSGA2Config::progress_interval</references>

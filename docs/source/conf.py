@@ -96,7 +96,7 @@ napoleon_use_rtype = True
 
 # Breathe configuration for Doxygen
 breathe_projects = {
-    "nsga2_optimizer": "../doxyxml",
+    "nsga2_optimizer": "../doxyxml/xml",
 }
 breathe_default_project = "nsga2_optimizer"
 
