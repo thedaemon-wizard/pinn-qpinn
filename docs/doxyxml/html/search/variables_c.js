@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['upper_5fbounds_0',['upper_bounds',['../structnsga2_1_1NSGA2Config.html#a702acd772a7704550906edca52a6a4e6',1,'nsga2::NSGA2Config']]]
+  ['verbose_0',['verbose',['../structnsga2_1_1NSGA2Config.html#af0a7718158c5db4647b1b4b6a774c70f',1,'nsga2::NSGA2Config']]]
 ];
