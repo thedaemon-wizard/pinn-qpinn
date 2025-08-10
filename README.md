@@ -4,9 +4,9 @@ A comprehensive benchmark implementation of Quantum Physics-Informed Neural Netw
 
 
 ## Documentation
-Project Documentation: [HTML Pages](/docs/build/html/index.html)
+Project Documentation: [HTML Pages](https://thedaemon-wizard.github.io/pinn-qpinn/build/html)
 
-NSGA2 Code Documents: [Doxygen Page](/docs/doxyxml/html/index.html)
+NSGA2 Code Documents: [Doxygen Page](https://thedaemon-wizard.github.io/pinn-qpinn/doxyxml/html)
 
 ## Overview
 
