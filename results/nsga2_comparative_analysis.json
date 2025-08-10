@@ -1,0 +1,62 @@
+{
+  "metadata": {
+    "timestamp": "2025-08-09 23:18:14",
+    "comparison_type": "NSGA-II Multi-Objective Optimization",
+    "scientific_basis": [
+      "Lu et al. (2023) - NSGA-PINN methodology",
+      "Ma et al. (2023) - NSGA-II comprehensive survey"
+    ]
+  },
+  "pinn_nsga2_results": {
+    "method": "NSGA-II Multi-Objective PINN",
+    "training_time": 17762.22834253311,
+    "objectives": [
+      "Initial Condition",
+      "Boundary Condition",
+      "PDE Residual"
+    ],
+    "final_loss": 27.775036022067074,
+    "pareto_front_size": 19,
+    "progress_interval": 20
+  },
+  "qpinn_nsga2_results": {
+    "method": "NSGA-II GQE-GPT-QPINN",
+    "training_time": 9011.761340856552,
+    "objectives": [
+      "Initial Condition",
+      "Peak Value",
+      "Boundary Condition",
+      "PDE Residual",
+      "Trace"
+    ],
+    "final_loss": 0.056041302978327684,
+    "circuit_parameters": 2,
+    "circuit_gates": 11,
+    "circuit_depth": 5,
+    "noise_resilience": 0.8,
+    "hardware_efficiency": 0.85,
+    "expressivity": 0.8,
+    "pareto_front_size": 100,
+    "gpt_enabled": true,
+    "parallel_enabled": true,
+    "energy_measurements": 1000,
+    "progress_interval": 20
+  },
+  "comparative_analysis": {
+    "optimization_method": "Both use NSGA-II multi-objective optimization",
+    "pinn_objectives": [
+      "Initial Condition",
+      "Boundary Condition",
+      "PDE Residual"
+    ],
+    "qpinn_objectives": [
+      "Initial Condition",
+      "Peak Value",
+      "Boundary Condition",
+      "PDE Residual",
+      "Trace"
+    ],
+    "normalization": "Both use objective functions",
+    "fairness": "Identical optimization framework for fair comparison"
+  }
+}

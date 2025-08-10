@@ -5,8 +5,8 @@ GQE-GPT Quantum Circuit Summary
 1. Circuit Configuration
 ----------------------------------------
   - Qubits: 6
-  - Total Gates: 9
-  - Trainable Parameters: 5
+  - Total Gates: 11
+  - Trainable Parameters: 2
   - Circuit Depth: 5
   - Generation Method: GPT
   - Optimization: NSGA2
@@ -19,12 +19,9 @@ GQE-GPT Quantum Circuit Summary
 
 3. Gate Statistics
 ----------------------------------------
-  - CNOT: 2
-  - CZ: 2
-  - H: 1
-  - RX: 1
+  - CZ: 3
+  - H: 6
   - RY: 2
-  - RZ: 1
 
 4. Hardware Constraints
 ----------------------------------------
@@ -35,7 +32,7 @@ GQE-GPT Quantum Circuit Summary
 
 5. Training Statistics
 ----------------------------------------
-  - Initial Loss: 0.127971
-  - Final Loss: 0.063518
-  - Improvement: 50.37%
-  - Total Epochs: 100
+  - Initial Loss: 0.073142
+  - Final Loss: 0.056041
+  - Improvement: 23.38%
+  - Total Epochs: 101

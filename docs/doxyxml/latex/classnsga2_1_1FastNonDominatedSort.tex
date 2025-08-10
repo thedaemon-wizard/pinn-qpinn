@@ -1,0 +1,148 @@
+\hypertarget{classnsga2_1_1FastNonDominatedSort}{}\doxysection{nsga2\+::Fast\+Non\+Dominated\+Sort Class Reference}
+\label{classnsga2_1_1FastNonDominatedSort}\index{nsga2::FastNonDominatedSort@{nsga2::FastNonDominatedSort}}
+
+
+{\ttfamily \#include $<$nsga2\+\_\+optimizer.\+hpp$>$}
+
+
+
+Inheritance diagram for nsga2\+::Fast\+Non\+Dominated\+Sort\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=232pt]{classnsga2_1_1FastNonDominatedSort__inherit__graph}
+\end{center}
+\end{figure}
+
+
+Collaboration diagram for nsga2\+::Fast\+Non\+Dominated\+Sort\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=232pt]{classnsga2_1_1FastNonDominatedSort__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+std\+::vector$<$ std\+::vector$<$ \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{Individual\+Ptr}} $>$ $>$ \mbox{\hyperlink{classnsga2_1_1FastNonDominatedSort_a72b1d993268d6c41621258c3fe6fd8d9}{sort}} (\mbox{\hyperlink{classnsga2_1_1Population}{Population}} \&population) override
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Member Functions inherited from \mbox{\hyperlink{classnsga2_1_1ISortingAlgorithm}{nsga2\+::\+ISorting\+Algorithm}}}
+\begin{DoxyCompactItemize}
+\item 
+virtual \mbox{\hyperlink{classnsga2_1_1ISortingAlgorithm_ad13d4b3b7ac10342811fe9d931ffcbe6}{$\sim$\+ISorting\+Algorithm}} ()=default
+\item 
+virtual std\+::vector$<$ std\+::vector$<$ \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{Individual\+Ptr}} $>$ $>$ \mbox{\hyperlink{classnsga2_1_1ISortingAlgorithm_a0b42bcc6bba2e8ea8beabf65eaca5be0}{sort}} (\mbox{\hyperlink{classnsga2_1_1Population}{Population}} \&population)=0
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00115}{115}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
+
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classnsga2_1_1FastNonDominatedSort_a72b1d993268d6c41621258c3fe6fd8d9}\label{classnsga2_1_1FastNonDominatedSort_a72b1d993268d6c41621258c3fe6fd8d9}} 
+\index{nsga2::FastNonDominatedSort@{nsga2::FastNonDominatedSort}!sort@{sort}}
+\index{sort@{sort}!nsga2::FastNonDominatedSort@{nsga2::FastNonDominatedSort}}
+\doxysubsubsection{\texorpdfstring{sort()}{sort()}}
+{\footnotesize\ttfamily std\+::vector$<$ std\+::vector$<$ \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{Individual\+Ptr}} $>$ $>$ nsga2\+::\+Fast\+Non\+Dominated\+Sort\+::sort (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classnsga2_1_1Population}{Population}} \&}]{population }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Implements \mbox{\hyperlink{classnsga2_1_1ISortingAlgorithm_a0b42bcc6bba2e8ea8beabf65eaca5be0}{nsga2\+::\+ISorting\+Algorithm}}.
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00347}{347}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00347\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00348\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ n\ =\ population.size();}
+\DoxyCodeLine{00349\ \ \ \ \ std::vector<std::set<size\_t>>\ S(n);}
+\DoxyCodeLine{00350\ \ \ \ \ std::vector<int>\ n\_dominated(n,\ 0);}
+\DoxyCodeLine{00351\ \ \ \ \ std::vector<std::vector<size\_t>>\ front\_indices;}
+\DoxyCodeLine{00352\ \ \ \ \ std::vector<std::vector<IndividualPtr>>\ sorted\_fronts;}
+\DoxyCodeLine{00353\ \ \ \ \ }
+\DoxyCodeLine{00354\ \ \ \ \ \textcolor{comment}{//\ Reset\ all\ individuals}}
+\DoxyCodeLine{00355\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ ind\ :\ population)\ \{}
+\DoxyCodeLine{00356\ \ \ \ \ \ \ \ \ ind-\/>reset();}
+\DoxyCodeLine{00357\ \ \ \ \ \}}
+\DoxyCodeLine{00358\ \ \ \ \ }
+\DoxyCodeLine{00359\ \ \ \ \ \textcolor{comment}{//\ Calculate\ domination\ relationships}}
+\DoxyCodeLine{00360\ \textcolor{preprocessor}{\ \ \ \ \#pragma\ omp\ parallel\ for\ if(n\ >\ 100)}}
+\DoxyCodeLine{00361\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ n;\ ++i)\ \{}
+\DoxyCodeLine{00362\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ j\ =\ 0;\ j\ <\ n;\ ++j)\ \{}
+\DoxyCodeLine{00363\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (i\ ==\ j)\ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{00364\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00365\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (population[i]-\/>dominates(*population[j]))\ \{}
+\DoxyCodeLine{00366\ \textcolor{preprocessor}{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#pragma\ omp\ critical}}
+\DoxyCodeLine{00367\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ S[i].insert(j);}
+\DoxyCodeLine{00368\ \ \ \ \ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (population[j]-\/>dominates(*population[i]))\ \{}
+\DoxyCodeLine{00369\ \textcolor{preprocessor}{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#pragma\ omp\ atomic}}
+\DoxyCodeLine{00370\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ n\_dominated[i]++;}
+\DoxyCodeLine{00371\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00372\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00373\ \ \ \ \ \}}
+\DoxyCodeLine{00374\ \ \ \ \ }
+\DoxyCodeLine{00375\ \ \ \ \ \textcolor{comment}{//\ Find\ first\ front}}
+\DoxyCodeLine{00376\ \ \ \ \ std::vector<size\_t>\ current\_front;}
+\DoxyCodeLine{00377\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ n;\ ++i)\ \{}
+\DoxyCodeLine{00378\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (n\_dominated[i]\ ==\ 0)\ \{}
+\DoxyCodeLine{00379\ \ \ \ \ \ \ \ \ \ \ \ \ population[i]-\/>rank\ =\ 0;}
+\DoxyCodeLine{00380\ \ \ \ \ \ \ \ \ \ \ \ \ current\_front.push\_back(i);}
+\DoxyCodeLine{00381\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00382\ \ \ \ \ \}}
+\DoxyCodeLine{00383\ \ \ \ \ }
+\DoxyCodeLine{00384\ \ \ \ \ front\_indices.push\_back(current\_front);}
+\DoxyCodeLine{00385\ \ \ \ \ }
+\DoxyCodeLine{00386\ \ \ \ \ \textcolor{comment}{//\ Find\ remaining\ fronts}}
+\DoxyCodeLine{00387\ \ \ \ \ \textcolor{keywordtype}{int}\ rank\ =\ 0;}
+\DoxyCodeLine{00388\ \ \ \ \ \textcolor{keywordflow}{while}\ (!current\_front.empty())\ \{}
+\DoxyCodeLine{00389\ \ \ \ \ \ \ \ \ std::vector<size\_t>\ next\_front;}
+\DoxyCodeLine{00390\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00391\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ :\ current\_front)\ \{}
+\DoxyCodeLine{00392\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ j\ :\ S[i])\ \{}
+\DoxyCodeLine{00393\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ n\_dominated[j]-\/-\/;}
+\DoxyCodeLine{00394\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (n\_dominated[j]\ ==\ 0)\ \{}
+\DoxyCodeLine{00395\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ population[j]-\/>rank\ =\ rank\ +\ 1;}
+\DoxyCodeLine{00396\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ next\_front.push\_back(j);}
+\DoxyCodeLine{00397\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00398\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00399\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00400\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00401\ \ \ \ \ \ \ \ \ rank++;}
+\DoxyCodeLine{00402\ \ \ \ \ \ \ \ \ current\_front\ =\ next\_front;}
+\DoxyCodeLine{00403\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!current\_front.empty())\ \{}
+\DoxyCodeLine{00404\ \ \ \ \ \ \ \ \ \ \ \ \ front\_indices.push\_back(current\_front);}
+\DoxyCodeLine{00405\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00406\ \ \ \ \ \}}
+\DoxyCodeLine{00407\ \ \ \ \ }
+\DoxyCodeLine{00408\ \ \ \ \ \textcolor{comment}{//\ Convert\ indices\ to\ individual\ pointers}}
+\DoxyCodeLine{00409\ \ \ \ \ sorted\_fronts.resize(front\_indices.size());}
+\DoxyCodeLine{00410\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ front\_indices.size();\ ++i)\ \{}
+\DoxyCodeLine{00411\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ idx\ :\ front\_indices[i])\ \{}
+\DoxyCodeLine{00412\ \ \ \ \ \ \ \ \ \ \ \ \ sorted\_fronts[i].push\_back(population[idx]);}
+\DoxyCodeLine{00413\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00414\ \ \ \ \ \}}
+\DoxyCodeLine{00415\ \ \ \ \ }
+\DoxyCodeLine{00416\ \ \ \ \ \textcolor{keywordflow}{return}\ sorted\_fronts;}
+\DoxyCodeLine{00417\ \}}
+
+\end{DoxyCode}
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classnsga2_1_1FastNonDominatedSort_a72b1d993268d6c41621258c3fe6fd8d9_cgraph}
+\end{center}
+\end{figure}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/run/media/a-\/koike/ボリューム/\+DATA/pinns/module/nsga2\+\_\+optimizer/include/\mbox{\hyperlink{nsga2__optimizer_8hpp}{nsga2\+\_\+optimizer.\+hpp}}\item 
+/run/media/a-\/koike/ボリューム/\+DATA/pinns/module/nsga2\+\_\+optimizer/src/\mbox{\hyperlink{nsga2__optimizer_8cpp}{nsga2\+\_\+optimizer.\+cpp}}\end{DoxyCompactItemize}
