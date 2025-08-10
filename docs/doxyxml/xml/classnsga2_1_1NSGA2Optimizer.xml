@@ -16,13 +16,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="194" column="17" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="194" bodyend="-1"/>
-        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1afcf521d8c4989310961b0389deeeb1fa" compoundref="nsga2__optimizer_8cpp" startline="87" endline="124">adaptParameterSpace</referencedby>
-        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a6b12413cbfbfd22402abfc4eb7e0353c" compoundref="nsga2__optimizer_8cpp" startline="615" endline="644">environmental_selection</referencedby>
-        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1aa52554e3824033897dba470b287d3445" compoundref="nsga2__optimizer_8cpp" startline="646" endline="700">evaluate_batch</referencedby>
-        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a2ee35399daaee13d3991a35076cbbf52" compoundref="nsga2__optimizer_8hpp" startline="259" endline="259">getParameterSpaceSize</referencedby>
-        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a82c8c27ec35b7842d3efb71830b30ce2" compoundref="nsga2__optimizer_8cpp" startline="703" endline="950">optimize</referencedby>
-        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a3b9ce3ae189b2d686c875860f2b1a408" compoundref="nsga2__optimizer_8cpp" startline="126" endline="205">transformPopulation</referencedby>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="183" column="17" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="183" bodyend="-1"/>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a6b12413cbfbfd22402abfc4eb7e0353c" compoundref="nsga2__optimizer_8cpp" startline="455" endline="484">environmental_selection</referencedby>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a82c8c27ec35b7842d3efb71830b30ce2" compoundref="nsga2__optimizer_8cpp" startline="521" endline="657">optimize</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classnsga2_1_1NSGA2Optimizer_1a72b029699c51eb70ee957ef651551252" prot="private" static="no" mutable="no">
         <type><ref refid="namespacensga2_1a39290dffb3965bb004e87e5c07f637c1" kindref="member">PopulationPtr</ref></type>
@@ -36,11 +32,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="195" column="19" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="195" bodyend="-1"/>
-        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1afcf521d8c4989310961b0389deeeb1fa" compoundref="nsga2__optimizer_8cpp" startline="87" endline="124">adaptParameterSpace</referencedby>
-        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1aa5dae2bf9c615ed3a027aba29188ef9c" compoundref="nsga2__optimizer_8cpp" startline="952" endline="962">get_pareto_front</referencedby>
-        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a82c8c27ec35b7842d3efb71830b30ce2" compoundref="nsga2__optimizer_8cpp" startline="703" endline="950">optimize</referencedby>
-        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a3b9ce3ae189b2d686c875860f2b1a408" compoundref="nsga2__optimizer_8cpp" startline="126" endline="205">transformPopulation</referencedby>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="184" column="19" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="184" bodyend="-1"/>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1aa5dae2bf9c615ed3a027aba29188ef9c" compoundref="nsga2__optimizer_8cpp" startline="659" endline="669">get_pareto_front</referencedby>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a82c8c27ec35b7842d3efb71830b30ce2" compoundref="nsga2__optimizer_8cpp" startline="521" endline="657">optimize</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classnsga2_1_1NSGA2Optimizer_1a2b77ca7f5cca7444e27b900891483da9" prot="private" static="no" mutable="no">
         <type>std::mt19937</type>
@@ -54,9 +48,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="196" column="18" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="196" bodyend="-1"/>
-        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a82c8c27ec35b7842d3efb71830b30ce2" compoundref="nsga2__optimizer_8cpp" startline="703" endline="950">optimize</referencedby>
-        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a3b9ce3ae189b2d686c875860f2b1a408" compoundref="nsga2__optimizer_8cpp" startline="126" endline="205">transformPopulation</referencedby>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="185" column="18" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="185" bodyend="-1"/>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a82c8c27ec35b7842d3efb71830b30ce2" compoundref="nsga2__optimizer_8cpp" startline="521" endline="657">optimize</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classnsga2_1_1NSGA2Optimizer_1ad16674085aa9bc187ef412c73bb4638d" prot="private" static="no" mutable="no">
         <type>std::unique_ptr&lt; <ref refid="classnsga2_1_1LatinHypercubeSampler" kindref="compound">LatinHypercubeSampler</ref> &gt;</type>
@@ -70,9 +63,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="199" column="21" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="199" bodyend="-1"/>
-        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a374b974fc2bf1e1a7eb73b5c26ffbaa5" compoundref="nsga2__optimizer_8cpp" startline="581" endline="590">NSGA2Optimizer</referencedby>
-        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a82c8c27ec35b7842d3efb71830b30ce2" compoundref="nsga2__optimizer_8cpp" startline="703" endline="950">optimize</referencedby>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="188" column="21" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="188" bodyend="-1"/>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a374b974fc2bf1e1a7eb73b5c26ffbaa5" compoundref="nsga2__optimizer_8cpp" startline="421" endline="430">NSGA2Optimizer</referencedby>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a82c8c27ec35b7842d3efb71830b30ce2" compoundref="nsga2__optimizer_8cpp" startline="521" endline="657">optimize</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classnsga2_1_1NSGA2Optimizer_1a9a6f33fba4503647e5e289c83317a42c" prot="private" static="no" mutable="no">
         <type>std::unique_ptr&lt; <ref refid="classnsga2_1_1REXCrossover" kindref="compound">REXCrossover</ref> &gt;</type>
@@ -86,9 +79,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="200" column="21" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="200" bodyend="-1"/>
-        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a374b974fc2bf1e1a7eb73b5c26ffbaa5" compoundref="nsga2__optimizer_8cpp" startline="581" endline="590">NSGA2Optimizer</referencedby>
-        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a82c8c27ec35b7842d3efb71830b30ce2" compoundref="nsga2__optimizer_8cpp" startline="703" endline="950">optimize</referencedby>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="189" column="21" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="189" bodyend="-1"/>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a374b974fc2bf1e1a7eb73b5c26ffbaa5" compoundref="nsga2__optimizer_8cpp" startline="421" endline="430">NSGA2Optimizer</referencedby>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a82c8c27ec35b7842d3efb71830b30ce2" compoundref="nsga2__optimizer_8cpp" startline="521" endline="657">optimize</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classnsga2_1_1NSGA2Optimizer_1af17bd4901cfb116b86ba04a80e24a1df" prot="private" static="no" mutable="no">
         <type>std::unique_ptr&lt; <ref refid="classnsga2_1_1ICrowdingDistanceCalculator" kindref="compound">ICrowdingDistanceCalculator</ref> &gt;</type>
@@ -102,11 +95,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="201" column="21" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="201" bodyend="-1"/>
-        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a6b12413cbfbfd22402abfc4eb7e0353c" compoundref="nsga2__optimizer_8cpp" startline="615" endline="644">environmental_selection</referencedby>
-        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a374b974fc2bf1e1a7eb73b5c26ffbaa5" compoundref="nsga2__optimizer_8cpp" startline="581" endline="590">NSGA2Optimizer</referencedby>
-        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a82c8c27ec35b7842d3efb71830b30ce2" compoundref="nsga2__optimizer_8cpp" startline="703" endline="950">optimize</referencedby>
-        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1aa4c4ff01ffd3f120011a0479a6ce4a36" compoundref="nsga2__optimizer_8cpp" startline="592" endline="594">setCrowdingDistanceCalculator</referencedby>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="190" column="21" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="190" bodyend="-1"/>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a6b12413cbfbfd22402abfc4eb7e0353c" compoundref="nsga2__optimizer_8cpp" startline="455" endline="484">environmental_selection</referencedby>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a374b974fc2bf1e1a7eb73b5c26ffbaa5" compoundref="nsga2__optimizer_8cpp" startline="421" endline="430">NSGA2Optimizer</referencedby>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a82c8c27ec35b7842d3efb71830b30ce2" compoundref="nsga2__optimizer_8cpp" startline="521" endline="657">optimize</referencedby>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1aa4c4ff01ffd3f120011a0479a6ce4a36" compoundref="nsga2__optimizer_8cpp" startline="432" endline="434">setCrowdingDistanceCalculator</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classnsga2_1_1NSGA2Optimizer_1aa57edeb2e76c1c2f918a85033b038808" prot="private" static="no" mutable="no">
         <type>std::unique_ptr&lt; <ref refid="classnsga2_1_1ISortingAlgorithm" kindref="compound">ISortingAlgorithm</ref> &gt;</type>
@@ -120,10 +113,10 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="202" column="21" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="202" bodyend="-1"/>
-        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a6b12413cbfbfd22402abfc4eb7e0353c" compoundref="nsga2__optimizer_8cpp" startline="615" endline="644">environmental_selection</referencedby>
-        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a374b974fc2bf1e1a7eb73b5c26ffbaa5" compoundref="nsga2__optimizer_8cpp" startline="581" endline="590">NSGA2Optimizer</referencedby>
-        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a8ce58ce64ad90f71feb374bae2daf243" compoundref="nsga2__optimizer_8cpp" startline="607" endline="609">setSortingAlgorithm</referencedby>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="191" column="21" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="191" bodyend="-1"/>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a6b12413cbfbfd22402abfc4eb7e0353c" compoundref="nsga2__optimizer_8cpp" startline="455" endline="484">environmental_selection</referencedby>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a374b974fc2bf1e1a7eb73b5c26ffbaa5" compoundref="nsga2__optimizer_8cpp" startline="421" endline="430">NSGA2Optimizer</referencedby>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a8ce58ce64ad90f71feb374bae2daf243" compoundref="nsga2__optimizer_8cpp" startline="447" endline="449">setSortingAlgorithm</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classnsga2_1_1NSGA2Optimizer_1af4bb6929334fe2b7156621bdf7275083" prot="private" static="no" mutable="no">
         <type>std::unique_ptr&lt; <ref refid="classnsga2_1_1ISelectionStrategy" kindref="compound">ISelectionStrategy</ref> &gt;</type>
@@ -137,10 +130,10 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="203" column="21" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="203" bodyend="-1"/>
-        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a374b974fc2bf1e1a7eb73b5c26ffbaa5" compoundref="nsga2__optimizer_8cpp" startline="581" endline="590">NSGA2Optimizer</referencedby>
-        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a82c8c27ec35b7842d3efb71830b30ce2" compoundref="nsga2__optimizer_8cpp" startline="703" endline="950">optimize</referencedby>
-        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a75dd42644278c5c7048a17898c6e3b7f" compoundref="nsga2__optimizer_8cpp" startline="611" endline="613">setSelectionStrategy</referencedby>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="192" column="21" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="192" bodyend="-1"/>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a374b974fc2bf1e1a7eb73b5c26ffbaa5" compoundref="nsga2__optimizer_8cpp" startline="421" endline="430">NSGA2Optimizer</referencedby>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a82c8c27ec35b7842d3efb71830b30ce2" compoundref="nsga2__optimizer_8cpp" startline="521" endline="657">optimize</referencedby>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a75dd42644278c5c7048a17898c6e3b7f" compoundref="nsga2__optimizer_8cpp" startline="451" endline="453">setSelectionStrategy</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classnsga2_1_1NSGA2Optimizer_1aeee0b01f755a7d65a671f588c535fa6b" prot="private" static="no" mutable="no">
         <type>std::chrono::steady_clock::time_point</type>
@@ -154,8 +147,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="213" column="43" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="213" bodyend="-1"/>
-        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a82c8c27ec35b7842d3efb71830b30ce2" compoundref="nsga2__optimizer_8cpp" startline="703" endline="950">optimize</referencedby>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="198" column="43" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="198" bodyend="-1"/>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a82c8c27ec35b7842d3efb71830b30ce2" compoundref="nsga2__optimizer_8cpp" startline="521" endline="657">optimize</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classnsga2_1_1NSGA2Optimizer_1aa5090738f22caa95035b5e365956c4c4" prot="private" static="no" mutable="no">
         <type>std::vector&lt; double &gt;</type>
@@ -169,9 +162,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="214" column="17" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="214" bodyend="-1"/>
-        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1ae3e9a6a11233f01b8b68d686e5a05a7e" compoundref="nsga2__optimizer_8hpp" startline="238" endline="238">get_fitness_history</referencedby>
-        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a82c8c27ec35b7842d3efb71830b30ce2" compoundref="nsga2__optimizer_8cpp" startline="703" endline="950">optimize</referencedby>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="199" column="17" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="199" bodyend="-1"/>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1ae3e9a6a11233f01b8b68d686e5a05a7e" compoundref="nsga2__optimizer_8hpp" startline="223" endline="223">get_fitness_history</referencedby>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a82c8c27ec35b7842d3efb71830b30ce2" compoundref="nsga2__optimizer_8cpp" startline="521" endline="657">optimize</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classnsga2_1_1NSGA2Optimizer_1a454900d4a115d2fc7eb3666616f202e9" prot="private" static="no" mutable="no">
         <type>std::vector&lt; double &gt;</type>
@@ -185,9 +178,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="215" column="17" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="215" bodyend="-1"/>
-        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1ace0fdf4f83b532abd7795ced99b66b35" compoundref="nsga2__optimizer_8hpp" startline="239" endline="239">get_mean_fitness_history</referencedby>
-        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a82c8c27ec35b7842d3efb71830b30ce2" compoundref="nsga2__optimizer_8cpp" startline="703" endline="950">optimize</referencedby>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="200" column="17" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="200" bodyend="-1"/>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1ace0fdf4f83b532abd7795ced99b66b35" compoundref="nsga2__optimizer_8hpp" startline="224" endline="224">get_mean_fitness_history</referencedby>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a82c8c27ec35b7842d3efb71830b30ce2" compoundref="nsga2__optimizer_8cpp" startline="521" endline="657">optimize</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classnsga2_1_1NSGA2Optimizer_1a9695c0bebccb5c6fad4e169d6c00daa4" prot="private" static="no" mutable="no">
         <type>double</type>
@@ -201,9 +194,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="216" column="12" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="216" bodyend="-1"/>
-        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1acf030b373ad687cda76df51d71f564f7" compoundref="nsga2__optimizer_8hpp" startline="240" endline="240">get_best_fitness</referencedby>
-        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a82c8c27ec35b7842d3efb71830b30ce2" compoundref="nsga2__optimizer_8cpp" startline="703" endline="950">optimize</referencedby>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="201" column="12" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="201" bodyend="-1"/>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1acf030b373ad687cda76df51d71f564f7" compoundref="nsga2__optimizer_8hpp" startline="225" endline="225">get_best_fitness</referencedby>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a82c8c27ec35b7842d3efb71830b30ce2" compoundref="nsga2__optimizer_8cpp" startline="521" endline="657">optimize</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classnsga2_1_1NSGA2Optimizer_1ac95541d3820975e96991bec47f42a8ec" prot="private" static="no" mutable="no">
         <type>size_t</type>
@@ -217,9 +210,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="217" column="12" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="217" bodyend="-1"/>
-        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a814b822231505e5deb54eb64b1ba3897" compoundref="nsga2__optimizer_8hpp" startline="241" endline="241">get_current_generation</referencedby>
-        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a82c8c27ec35b7842d3efb71830b30ce2" compoundref="nsga2__optimizer_8cpp" startline="703" endline="950">optimize</referencedby>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="202" column="12" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="202" bodyend="-1"/>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a814b822231505e5deb54eb64b1ba3897" compoundref="nsga2__optimizer_8hpp" startline="226" endline="226">get_current_generation</referencedby>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a82c8c27ec35b7842d3efb71830b30ce2" compoundref="nsga2__optimizer_8cpp" startline="521" endline="657">optimize</referencedby>
       </memberdef>
       </sectiondef>
       <sectiondef kind="private-func">
@@ -243,48 +236,15 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="206" column="10" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/src/nsga2_optimizer.cpp" bodystart="615" bodyend="644"/>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="195" column="10" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/src/nsga2_optimizer.cpp" bodystart="455" bodyend="484"/>
         <references refid="classnsga2_1_1Population_1a1914d9a00083b8f12b8662aa936198bc" compoundref="nsga2__optimizer_8cpp" startline="50" endline="52">nsga2::Population::add</references>
         <references refid="classnsga2_1_1Population_1abb6dba78ddf13b949ae891814bb915d1" compoundref="nsga2__optimizer_8cpp" startline="54" endline="56">nsga2::Population::clear</references>
-        <references refid="classnsga2_1_1NSGA2Optimizer_1a2c3071fb33a7188a146b6922c79ae238" compoundref="nsga2__optimizer_8hpp" startline="194">config_</references>
-        <references refid="classnsga2_1_1NSGA2Optimizer_1af17bd4901cfb116b86ba04a80e24a1df" compoundref="nsga2__optimizer_8hpp" startline="201">crowding_calculator_</references>
-        <references refid="structnsga2_1_1NSGA2Config_1ae71a2f8e9d7ba5ee79a4212ab073203f" compoundref="nsga2__optimizer_8hpp" startline="157">nsga2::NSGA2Config::population_size</references>
+        <references refid="classnsga2_1_1NSGA2Optimizer_1a2c3071fb33a7188a146b6922c79ae238" compoundref="nsga2__optimizer_8hpp" startline="183">config_</references>
+        <references refid="classnsga2_1_1NSGA2Optimizer_1af17bd4901cfb116b86ba04a80e24a1df" compoundref="nsga2__optimizer_8hpp" startline="190">crowding_calculator_</references>
+        <references refid="structnsga2_1_1NSGA2Config_1ae71a2f8e9d7ba5ee79a4212ab073203f" compoundref="nsga2__optimizer_8hpp" startline="146">nsga2::NSGA2Config::population_size</references>
         <references refid="classnsga2_1_1Population_1a872435fe0d8cdca441202595d77a2450" compoundref="nsga2__optimizer_8cpp" startline="58" endline="60">nsga2::Population::size</references>
-        <references refid="classnsga2_1_1NSGA2Optimizer_1aa57edeb2e76c1c2f918a85033b038808" compoundref="nsga2__optimizer_8hpp" startline="202">sorting_algorithm_</references>
-        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a82c8c27ec35b7842d3efb71830b30ce2" compoundref="nsga2__optimizer_8cpp" startline="703" endline="950">optimize</referencedby>
-      </memberdef>
-      <memberdef kind="function" id="classnsga2_1_1NSGA2Optimizer_1a3b9ce3ae189b2d686c875860f2b1a408" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type>void</type>
-        <definition>void nsga2::NSGA2Optimizer::transformPopulation</definition>
-        <argsstring>(size_t old_n_params, size_t new_n_params, const std::vector&lt; std::pair&lt; size_t, size_t &gt; &gt; &amp;parameter_mapping)</argsstring>
-        <name>transformPopulation</name>
-        <qualifiedname>nsga2::NSGA2Optimizer::transformPopulation</qualifiedname>
-        <param>
-          <type>size_t</type>
-          <declname>old_n_params</declname>
-        </param>
-        <param>
-          <type>size_t</type>
-          <declname>new_n_params</declname>
-        </param>
-        <param>
-          <type>const std::vector&lt; std::pair&lt; size_t, size_t &gt; &gt; &amp;</type>
-          <declname>parameter_mapping</declname>
-        </param>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="209" column="10" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/src/nsga2_optimizer.cpp" bodystart="126" bodyend="205"/>
-        <references refid="classnsga2_1_1NSGA2Optimizer_1a2c3071fb33a7188a146b6922c79ae238" compoundref="nsga2__optimizer_8hpp" startline="194">config_</references>
-        <references refid="classnsga2_1_1NSGA2Optimizer_1a2b77ca7f5cca7444e27b900891483da9" compoundref="nsga2__optimizer_8hpp" startline="196">gen_</references>
-        <references refid="structnsga2_1_1NSGA2Config_1a22f6c5167d3c46f6bf42e52625412441" compoundref="nsga2__optimizer_8hpp" startline="160">nsga2::NSGA2Config::lower_bounds</references>
-        <references refid="classnsga2_1_1NSGA2Optimizer_1a72b029699c51eb70ee957ef651551252" compoundref="nsga2__optimizer_8hpp" startline="195">population_</references>
-        <references refid="structnsga2_1_1NSGA2Config_1a702acd772a7704550906edca52a6a4e6" compoundref="nsga2__optimizer_8hpp" startline="161">nsga2::NSGA2Config::upper_bounds</references>
-        <references refid="structnsga2_1_1NSGA2Config_1af0a7718158c5db4647b1b4b6a774c70f" compoundref="nsga2__optimizer_8hpp" startline="166">nsga2::NSGA2Config::verbose</references>
-        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1afcf521d8c4989310961b0389deeeb1fa" compoundref="nsga2__optimizer_8cpp" startline="87" endline="124">adaptParameterSpace</referencedby>
+        <references refid="classnsga2_1_1NSGA2Optimizer_1aa57edeb2e76c1c2f918a85033b038808" compoundref="nsga2__optimizer_8hpp" startline="191">sorting_algorithm_</references>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a82c8c27ec35b7842d3efb71830b30ce2" compoundref="nsga2__optimizer_8cpp" startline="521" endline="657">optimize</referencedby>
       </memberdef>
       </sectiondef>
       <sectiondef kind="public-func">
@@ -304,17 +264,17 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="220" column="5" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/src/nsga2_optimizer.cpp" bodystart="581" bodyend="590"/>
-        <references refid="classnsga2_1_1CrowdingDistanceFactory_1aa1b849a32ee30761426a25647eb2aa7e" compoundref="nsga2__optimizer_8cpp" startline="335" endline="344">nsga2::CrowdingDistanceFactory::create</references>
-        <references refid="classnsga2_1_1NSGA2Optimizer_1af17bd4901cfb116b86ba04a80e24a1df" compoundref="nsga2__optimizer_8hpp" startline="201">crowding_calculator_</references>
-        <references refid="structnsga2_1_1NSGA2Config_1a4d4c95140c92dfc092b604f20e2dba4d" compoundref="nsga2__optimizer_8hpp" startline="168">nsga2::NSGA2Config::crowding_type</references>
-        <references refid="structnsga2_1_1NSGA2Config_1ab75090aac7ea389b714d08637507cb84" compoundref="nsga2__optimizer_8hpp" startline="162">nsga2::NSGA2Config::dist_type</references>
-        <references refid="classnsga2_1_1NSGA2Optimizer_1ad16674085aa9bc187ef412c73bb4638d" compoundref="nsga2__optimizer_8hpp" startline="199">lhs_sampler_</references>
-        <references refid="structnsga2_1_1NSGA2Config_1ae71a2f8e9d7ba5ee79a4212ab073203f" compoundref="nsga2__optimizer_8hpp" startline="157">nsga2::NSGA2Config::population_size</references>
-        <references refid="structnsga2_1_1NSGA2Config_1aabfad00518d7ad0d95c133823c6c6fcf" compoundref="nsga2__optimizer_8hpp" startline="165">nsga2::NSGA2Config::random_seed</references>
-        <references refid="classnsga2_1_1NSGA2Optimizer_1a9a6f33fba4503647e5e289c83317a42c" compoundref="nsga2__optimizer_8hpp" startline="200">rex_crossover_</references>
-        <references refid="classnsga2_1_1NSGA2Optimizer_1af4bb6929334fe2b7156621bdf7275083" compoundref="nsga2__optimizer_8hpp" startline="203">selection_strategy_</references>
-        <references refid="classnsga2_1_1NSGA2Optimizer_1aa57edeb2e76c1c2f918a85033b038808" compoundref="nsga2__optimizer_8hpp" startline="202">sorting_algorithm_</references>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="205" column="5" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/src/nsga2_optimizer.cpp" bodystart="421" bodyend="430"/>
+        <references refid="classnsga2_1_1CrowdingDistanceFactory_1aa1b849a32ee30761426a25647eb2aa7e" compoundref="nsga2__optimizer_8cpp" startline="214" endline="223">nsga2::CrowdingDistanceFactory::create</references>
+        <references refid="classnsga2_1_1NSGA2Optimizer_1af17bd4901cfb116b86ba04a80e24a1df" compoundref="nsga2__optimizer_8hpp" startline="190">crowding_calculator_</references>
+        <references refid="structnsga2_1_1NSGA2Config_1a4d4c95140c92dfc092b604f20e2dba4d" compoundref="nsga2__optimizer_8hpp" startline="157">nsga2::NSGA2Config::crowding_type</references>
+        <references refid="classnsga2_1_1NSGA2Optimizer_1ad16674085aa9bc187ef412c73bb4638d" compoundref="nsga2__optimizer_8hpp" startline="188">lhs_sampler_</references>
+        <references refid="structnsga2_1_1NSGA2Config_1ae71a2f8e9d7ba5ee79a4212ab073203f" compoundref="nsga2__optimizer_8hpp" startline="146">nsga2::NSGA2Config::population_size</references>
+        <references refid="structnsga2_1_1NSGA2Config_1aabfad00518d7ad0d95c133823c6c6fcf" compoundref="nsga2__optimizer_8hpp" startline="154">nsga2::NSGA2Config::random_seed</references>
+        <references refid="classnsga2_1_1NSGA2Optimizer_1a9a6f33fba4503647e5e289c83317a42c" compoundref="nsga2__optimizer_8hpp" startline="189">rex_crossover_</references>
+        <references refid="structnsga2_1_1NSGA2Config_1a2fdcbd9f594df812b6b7d793322e2cae" compoundref="nsga2__optimizer_8hpp" startline="151">nsga2::NSGA2Config::rex_xi</references>
+        <references refid="classnsga2_1_1NSGA2Optimizer_1af4bb6929334fe2b7156621bdf7275083" compoundref="nsga2__optimizer_8hpp" startline="192">selection_strategy_</references>
+        <references refid="classnsga2_1_1NSGA2Optimizer_1aa57edeb2e76c1c2f918a85033b038808" compoundref="nsga2__optimizer_8hpp" startline="191">sorting_algorithm_</references>
       </memberdef>
       <memberdef kind="function" id="classnsga2_1_1NSGA2Optimizer_1aa4c4ff01ffd3f120011a0479a6ce4a36" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -332,9 +292,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="223" column="10" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/src/nsga2_optimizer.cpp" bodystart="592" bodyend="594"/>
-        <references refid="classnsga2_1_1NSGA2Optimizer_1af17bd4901cfb116b86ba04a80e24a1df" compoundref="nsga2__optimizer_8hpp" startline="201">crowding_calculator_</references>
-        <referencedby refid="python__bindings_8cpp_1ad060d5bb65d036d5f5ac558c214f5d3d" compoundref="python__bindings_8cpp" startline="9" endline="207">PYBIND11_MODULE</referencedby>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="208" column="10" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/src/nsga2_optimizer.cpp" bodystart="432" bodyend="434"/>
+        <references refid="classnsga2_1_1NSGA2Optimizer_1af17bd4901cfb116b86ba04a80e24a1df" compoundref="nsga2__optimizer_8hpp" startline="190">crowding_calculator_</references>
+        <referencedby refid="python__bindings_8cpp_1ad060d5bb65d036d5f5ac558c214f5d3d" compoundref="python__bindings_8cpp" startline="9" endline="181">PYBIND11_MODULE</referencedby>
       </memberdef>
       <memberdef kind="function" id="classnsga2_1_1NSGA2Optimizer_1ad74d71eecedb159ec9e323f35337c09d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -352,8 +312,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="224" column="10" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/src/nsga2_optimizer.cpp" bodystart="596" bodyend="605"/>
-        <references refid="classnsga2_1_1NSGA2Optimizer_1af17bd4901cfb116b86ba04a80e24a1df" compoundref="nsga2__optimizer_8hpp" startline="201">crowding_calculator_</references>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="209" column="10" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/src/nsga2_optimizer.cpp" bodystart="436" bodyend="445"/>
+        <references refid="classnsga2_1_1NSGA2Optimizer_1af17bd4901cfb116b86ba04a80e24a1df" compoundref="nsga2__optimizer_8hpp" startline="190">crowding_calculator_</references>
       </memberdef>
       <memberdef kind="function" id="classnsga2_1_1NSGA2Optimizer_1a8ce58ce64ad90f71feb374bae2daf243" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -371,8 +331,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="225" column="10" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/src/nsga2_optimizer.cpp" bodystart="607" bodyend="609"/>
-        <references refid="classnsga2_1_1NSGA2Optimizer_1aa57edeb2e76c1c2f918a85033b038808" compoundref="nsga2__optimizer_8hpp" startline="202">sorting_algorithm_</references>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="210" column="10" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/src/nsga2_optimizer.cpp" bodystart="447" bodyend="449"/>
+        <references refid="classnsga2_1_1NSGA2Optimizer_1aa57edeb2e76c1c2f918a85033b038808" compoundref="nsga2__optimizer_8hpp" startline="191">sorting_algorithm_</references>
       </memberdef>
       <memberdef kind="function" id="classnsga2_1_1NSGA2Optimizer_1a75dd42644278c5c7048a17898c6e3b7f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -390,8 +350,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="226" column="10" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/src/nsga2_optimizer.cpp" bodystart="611" bodyend="613"/>
-        <references refid="classnsga2_1_1NSGA2Optimizer_1af4bb6929334fe2b7156621bdf7275083" compoundref="nsga2__optimizer_8hpp" startline="203">selection_strategy_</references>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="211" column="10" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/src/nsga2_optimizer.cpp" bodystart="451" bodyend="453"/>
+        <references refid="classnsga2_1_1NSGA2Optimizer_1af4bb6929334fe2b7156621bdf7275083" compoundref="nsga2__optimizer_8hpp" startline="192">selection_strategy_</references>
       </memberdef>
       <memberdef kind="function" id="classnsga2_1_1NSGA2Optimizer_1a82c8c27ec35b7842d3efb71830b30ce2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>std::pair&lt; std::vector&lt; std::vector&lt; double &gt; &gt;, std::vector&lt; std::vector&lt; double &gt; &gt; &gt;</type>
@@ -419,33 +379,33 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="230" column="5" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/src/nsga2_optimizer.cpp" bodystart="703" bodyend="950"/>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="215" column="5" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/src/nsga2_optimizer.cpp" bodystart="521" bodyend="657"/>
         <references refid="classnsga2_1_1Population_1a1914d9a00083b8f12b8662aa936198bc" compoundref="nsga2__optimizer_8cpp" startline="50" endline="52">nsga2::Population::add</references>
-        <references refid="classnsga2_1_1NSGA2Optimizer_1a9695c0bebccb5c6fad4e169d6c00daa4" compoundref="nsga2__optimizer_8hpp" startline="216">best_fitness_</references>
-        <references refid="classnsga2_1_1NSGA2Optimizer_1aa5090738f22caa95035b5e365956c4c4" compoundref="nsga2__optimizer_8hpp" startline="214">best_fitness_history_</references>
-        <references refid="classnsga2_1_1NSGA2Optimizer_1a2c3071fb33a7188a146b6922c79ae238" compoundref="nsga2__optimizer_8hpp" startline="194">config_</references>
-        <references refid="classnsga2_1_1NSGA2Optimizer_1af17bd4901cfb116b86ba04a80e24a1df" compoundref="nsga2__optimizer_8hpp" startline="201">crowding_calculator_</references>
-        <references refid="classnsga2_1_1NSGA2Optimizer_1ac95541d3820975e96991bec47f42a8ec" compoundref="nsga2__optimizer_8hpp" startline="217">current_generation_</references>
-        <references refid="classnsga2_1_1NSGA2Optimizer_1a6b12413cbfbfd22402abfc4eb7e0353c" compoundref="nsga2__optimizer_8cpp" startline="615" endline="644">environmental_selection</references>
-        <references refid="classnsga2_1_1NSGA2Optimizer_1aa52554e3824033897dba470b287d3445" compoundref="nsga2__optimizer_8cpp" startline="646" endline="700">evaluate_batch</references>
-        <references refid="classnsga2_1_1NSGA2Optimizer_1a2b77ca7f5cca7444e27b900891483da9" compoundref="nsga2__optimizer_8hpp" startline="196">gen_</references>
-        <references refid="classnsga2_1_1NSGA2Optimizer_1aa5dae2bf9c615ed3a027aba29188ef9c" compoundref="nsga2__optimizer_8cpp" startline="952" endline="962">get_pareto_front</references>
-        <references refid="classnsga2_1_1NSGA2Optimizer_1ad16674085aa9bc187ef412c73bb4638d" compoundref="nsga2__optimizer_8hpp" startline="199">lhs_sampler_</references>
-        <references refid="structnsga2_1_1NSGA2Config_1a22f6c5167d3c46f6bf42e52625412441" compoundref="nsga2__optimizer_8hpp" startline="160">nsga2::NSGA2Config::lower_bounds</references>
-        <references refid="structnsga2_1_1NSGA2Config_1a88e311640cc9da72e8dae578b60bd76c" compoundref="nsga2__optimizer_8hpp" startline="158">nsga2::NSGA2Config::max_generations</references>
-        <references refid="classnsga2_1_1NSGA2Optimizer_1a454900d4a115d2fc7eb3666616f202e9" compoundref="nsga2__optimizer_8hpp" startline="215">mean_fitness_history_</references>
-        <references refid="structnsga2_1_1NSGA2Config_1ae339f11b953e92e48b0843aca58fa2db" compoundref="nsga2__optimizer_8hpp" startline="164">nsga2::NSGA2Config::n_children</references>
-        <references refid="structnsga2_1_1NSGA2Config_1ad9920bee36083733df22a0a9e12c1b04" compoundref="nsga2__optimizer_8hpp" startline="163">nsga2::NSGA2Config::n_parents</references>
-        <references refid="classnsga2_1_1NSGA2Optimizer_1a72b029699c51eb70ee957ef651551252" compoundref="nsga2__optimizer_8hpp" startline="195">population_</references>
-        <references refid="structnsga2_1_1NSGA2Config_1ae71a2f8e9d7ba5ee79a4212ab073203f" compoundref="nsga2__optimizer_8hpp" startline="157">nsga2::NSGA2Config::population_size</references>
-        <references refid="structnsga2_1_1NSGA2Config_1aafc726fab602787a1a04f1ce83fafd0d" compoundref="nsga2__optimizer_8hpp" startline="167">nsga2::NSGA2Config::progress_interval</references>
-        <references refid="classnsga2_1_1NSGA2Optimizer_1a9a6f33fba4503647e5e289c83317a42c" compoundref="nsga2__optimizer_8hpp" startline="200">rex_crossover_</references>
-        <references refid="classnsga2_1_1NSGA2Optimizer_1af4bb6929334fe2b7156621bdf7275083" compoundref="nsga2__optimizer_8hpp" startline="203">selection_strategy_</references>
+        <references refid="classnsga2_1_1NSGA2Optimizer_1a9695c0bebccb5c6fad4e169d6c00daa4" compoundref="nsga2__optimizer_8hpp" startline="201">best_fitness_</references>
+        <references refid="classnsga2_1_1NSGA2Optimizer_1aa5090738f22caa95035b5e365956c4c4" compoundref="nsga2__optimizer_8hpp" startline="199">best_fitness_history_</references>
+        <references refid="classnsga2_1_1NSGA2Optimizer_1a2c3071fb33a7188a146b6922c79ae238" compoundref="nsga2__optimizer_8hpp" startline="183">config_</references>
+        <references refid="classnsga2_1_1NSGA2Optimizer_1af17bd4901cfb116b86ba04a80e24a1df" compoundref="nsga2__optimizer_8hpp" startline="190">crowding_calculator_</references>
+        <references refid="classnsga2_1_1NSGA2Optimizer_1ac95541d3820975e96991bec47f42a8ec" compoundref="nsga2__optimizer_8hpp" startline="202">current_generation_</references>
+        <references refid="classnsga2_1_1NSGA2Optimizer_1a6b12413cbfbfd22402abfc4eb7e0353c" compoundref="nsga2__optimizer_8cpp" startline="455" endline="484">environmental_selection</references>
+        <references refid="classnsga2_1_1NSGA2Optimizer_1aa52554e3824033897dba470b287d3445" compoundref="nsga2__optimizer_8cpp" startline="486" endline="518">evaluate_batch</references>
+        <references refid="classnsga2_1_1NSGA2Optimizer_1a2b77ca7f5cca7444e27b900891483da9" compoundref="nsga2__optimizer_8hpp" startline="185">gen_</references>
+        <references refid="classnsga2_1_1NSGA2Optimizer_1aa5dae2bf9c615ed3a027aba29188ef9c" compoundref="nsga2__optimizer_8cpp" startline="659" endline="669">get_pareto_front</references>
+        <references refid="classnsga2_1_1NSGA2Optimizer_1ad16674085aa9bc187ef412c73bb4638d" compoundref="nsga2__optimizer_8hpp" startline="188">lhs_sampler_</references>
+        <references refid="structnsga2_1_1NSGA2Config_1a22f6c5167d3c46f6bf42e52625412441" compoundref="nsga2__optimizer_8hpp" startline="149">nsga2::NSGA2Config::lower_bounds</references>
+        <references refid="structnsga2_1_1NSGA2Config_1a88e311640cc9da72e8dae578b60bd76c" compoundref="nsga2__optimizer_8hpp" startline="147">nsga2::NSGA2Config::max_generations</references>
+        <references refid="classnsga2_1_1NSGA2Optimizer_1a454900d4a115d2fc7eb3666616f202e9" compoundref="nsga2__optimizer_8hpp" startline="200">mean_fitness_history_</references>
+        <references refid="structnsga2_1_1NSGA2Config_1ae339f11b953e92e48b0843aca58fa2db" compoundref="nsga2__optimizer_8hpp" startline="153">nsga2::NSGA2Config::n_children</references>
+        <references refid="structnsga2_1_1NSGA2Config_1ad9920bee36083733df22a0a9e12c1b04" compoundref="nsga2__optimizer_8hpp" startline="152">nsga2::NSGA2Config::n_parents</references>
+        <references refid="classnsga2_1_1NSGA2Optimizer_1a72b029699c51eb70ee957ef651551252" compoundref="nsga2__optimizer_8hpp" startline="184">population_</references>
+        <references refid="structnsga2_1_1NSGA2Config_1ae71a2f8e9d7ba5ee79a4212ab073203f" compoundref="nsga2__optimizer_8hpp" startline="146">nsga2::NSGA2Config::population_size</references>
+        <references refid="structnsga2_1_1NSGA2Config_1aafc726fab602787a1a04f1ce83fafd0d" compoundref="nsga2__optimizer_8hpp" startline="156">nsga2::NSGA2Config::progress_interval</references>
+        <references refid="classnsga2_1_1NSGA2Optimizer_1a9a6f33fba4503647e5e289c83317a42c" compoundref="nsga2__optimizer_8hpp" startline="189">rex_crossover_</references>
+        <references refid="classnsga2_1_1NSGA2Optimizer_1af4bb6929334fe2b7156621bdf7275083" compoundref="nsga2__optimizer_8hpp" startline="192">selection_strategy_</references>
         <references refid="classnsga2_1_1Population_1a872435fe0d8cdca441202595d77a2450" compoundref="nsga2__optimizer_8cpp" startline="58" endline="60">nsga2::Population::size</references>
-        <references refid="classnsga2_1_1NSGA2Optimizer_1aeee0b01f755a7d65a671f588c535fa6b" compoundref="nsga2__optimizer_8hpp" startline="213">start_time_</references>
-        <references refid="structnsga2_1_1NSGA2Config_1a702acd772a7704550906edca52a6a4e6" compoundref="nsga2__optimizer_8hpp" startline="161">nsga2::NSGA2Config::upper_bounds</references>
-        <references refid="structnsga2_1_1NSGA2Config_1af0a7718158c5db4647b1b4b6a774c70f" compoundref="nsga2__optimizer_8hpp" startline="166">nsga2::NSGA2Config::verbose</references>
-        <referencedby refid="python__bindings_8cpp_1ad060d5bb65d036d5f5ac558c214f5d3d" compoundref="python__bindings_8cpp" startline="9" endline="207">PYBIND11_MODULE</referencedby>
+        <references refid="classnsga2_1_1NSGA2Optimizer_1aeee0b01f755a7d65a671f588c535fa6b" compoundref="nsga2__optimizer_8hpp" startline="198">start_time_</references>
+        <references refid="structnsga2_1_1NSGA2Config_1a702acd772a7704550906edca52a6a4e6" compoundref="nsga2__optimizer_8hpp" startline="150">nsga2::NSGA2Config::upper_bounds</references>
+        <references refid="structnsga2_1_1NSGA2Config_1af0a7718158c5db4647b1b4b6a774c70f" compoundref="nsga2__optimizer_8hpp" startline="155">nsga2::NSGA2Config::verbose</references>
+        <referencedby refid="python__bindings_8cpp_1ad060d5bb65d036d5f5ac558c214f5d3d" compoundref="python__bindings_8cpp" startline="9" endline="181">PYBIND11_MODULE</referencedby>
       </memberdef>
       <memberdef kind="function" id="classnsga2_1_1NSGA2Optimizer_1aa5dae2bf9c615ed3a027aba29188ef9c" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
         <type>std::vector&lt; <ref refid="namespacensga2_1a9338ac68ee391d4b50ef5d878d0d89b3" kindref="member">IndividualPtr</ref> &gt;</type>
@@ -459,10 +419,10 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="235" column="17" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/src/nsga2_optimizer.cpp" bodystart="952" bodyend="962"/>
-        <references refid="classnsga2_1_1NSGA2Optimizer_1a72b029699c51eb70ee957ef651551252" compoundref="nsga2__optimizer_8hpp" startline="195">population_</references>
-        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a82c8c27ec35b7842d3efb71830b30ce2" compoundref="nsga2__optimizer_8cpp" startline="703" endline="950">optimize</referencedby>
-        <referencedby refid="python__bindings_8cpp_1ad060d5bb65d036d5f5ac558c214f5d3d" compoundref="python__bindings_8cpp" startline="9" endline="207">PYBIND11_MODULE</referencedby>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="220" column="17" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/src/nsga2_optimizer.cpp" bodystart="659" bodyend="669"/>
+        <references refid="classnsga2_1_1NSGA2Optimizer_1a72b029699c51eb70ee957ef651551252" compoundref="nsga2__optimizer_8hpp" startline="184">population_</references>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a82c8c27ec35b7842d3efb71830b30ce2" compoundref="nsga2__optimizer_8cpp" startline="521" endline="657">optimize</referencedby>
+        <referencedby refid="python__bindings_8cpp_1ad060d5bb65d036d5f5ac558c214f5d3d" compoundref="python__bindings_8cpp" startline="9" endline="181">PYBIND11_MODULE</referencedby>
       </memberdef>
       <memberdef kind="function" id="classnsga2_1_1NSGA2Optimizer_1ae3e9a6a11233f01b8b68d686e5a05a7e" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
         <type>const std::vector&lt; double &gt; &amp;</type>
@@ -476,9 +436,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="238" column="23" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="238" bodyend="238"/>
-        <references refid="classnsga2_1_1NSGA2Optimizer_1aa5090738f22caa95035b5e365956c4c4" compoundref="nsga2__optimizer_8hpp" startline="214">best_fitness_history_</references>
-        <referencedby refid="python__bindings_8cpp_1ad060d5bb65d036d5f5ac558c214f5d3d" compoundref="python__bindings_8cpp" startline="9" endline="207">PYBIND11_MODULE</referencedby>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="223" column="23" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="223" bodyend="223"/>
+        <references refid="classnsga2_1_1NSGA2Optimizer_1aa5090738f22caa95035b5e365956c4c4" compoundref="nsga2__optimizer_8hpp" startline="199">best_fitness_history_</references>
+        <referencedby refid="python__bindings_8cpp_1ad060d5bb65d036d5f5ac558c214f5d3d" compoundref="python__bindings_8cpp" startline="9" endline="181">PYBIND11_MODULE</referencedby>
       </memberdef>
       <memberdef kind="function" id="classnsga2_1_1NSGA2Optimizer_1ace0fdf4f83b532abd7795ced99b66b35" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
         <type>const std::vector&lt; double &gt; &amp;</type>
@@ -492,9 +452,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="239" column="23" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="239" bodyend="239"/>
-        <references refid="classnsga2_1_1NSGA2Optimizer_1a454900d4a115d2fc7eb3666616f202e9" compoundref="nsga2__optimizer_8hpp" startline="215">mean_fitness_history_</references>
-        <referencedby refid="python__bindings_8cpp_1ad060d5bb65d036d5f5ac558c214f5d3d" compoundref="python__bindings_8cpp" startline="9" endline="207">PYBIND11_MODULE</referencedby>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="224" column="23" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="224" bodyend="224"/>
+        <references refid="classnsga2_1_1NSGA2Optimizer_1a454900d4a115d2fc7eb3666616f202e9" compoundref="nsga2__optimizer_8hpp" startline="200">mean_fitness_history_</references>
+        <referencedby refid="python__bindings_8cpp_1ad060d5bb65d036d5f5ac558c214f5d3d" compoundref="python__bindings_8cpp" startline="9" endline="181">PYBIND11_MODULE</referencedby>
       </memberdef>
       <memberdef kind="function" id="classnsga2_1_1NSGA2Optimizer_1acf030b373ad687cda76df51d71f564f7" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
         <type>double</type>
@@ -508,9 +468,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="240" column="12" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="240" bodyend="240"/>
-        <references refid="classnsga2_1_1NSGA2Optimizer_1a9695c0bebccb5c6fad4e169d6c00daa4" compoundref="nsga2__optimizer_8hpp" startline="216">best_fitness_</references>
-        <referencedby refid="python__bindings_8cpp_1ad060d5bb65d036d5f5ac558c214f5d3d" compoundref="python__bindings_8cpp" startline="9" endline="207">PYBIND11_MODULE</referencedby>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="225" column="12" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="225" bodyend="225"/>
+        <references refid="classnsga2_1_1NSGA2Optimizer_1a9695c0bebccb5c6fad4e169d6c00daa4" compoundref="nsga2__optimizer_8hpp" startline="201">best_fitness_</references>
+        <referencedby refid="python__bindings_8cpp_1ad060d5bb65d036d5f5ac558c214f5d3d" compoundref="python__bindings_8cpp" startline="9" endline="181">PYBIND11_MODULE</referencedby>
       </memberdef>
       <memberdef kind="function" id="classnsga2_1_1NSGA2Optimizer_1a814b822231505e5deb54eb64b1ba3897" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
         <type>size_t</type>
@@ -524,9 +484,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="241" column="12" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="241" bodyend="241"/>
-        <references refid="classnsga2_1_1NSGA2Optimizer_1ac95541d3820975e96991bec47f42a8ec" compoundref="nsga2__optimizer_8hpp" startline="217">current_generation_</references>
-        <referencedby refid="python__bindings_8cpp_1ad060d5bb65d036d5f5ac558c214f5d3d" compoundref="python__bindings_8cpp" startline="9" endline="207">PYBIND11_MODULE</referencedby>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="226" column="12" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="226" bodyend="226"/>
+        <references refid="classnsga2_1_1NSGA2Optimizer_1ac95541d3820975e96991bec47f42a8ec" compoundref="nsga2__optimizer_8hpp" startline="202">current_generation_</references>
+        <referencedby refid="python__bindings_8cpp_1ad060d5bb65d036d5f5ac558c214f5d3d" compoundref="python__bindings_8cpp" startline="9" endline="181">PYBIND11_MODULE</referencedby>
       </memberdef>
       <memberdef kind="function" id="classnsga2_1_1NSGA2Optimizer_1aa52554e3824033897dba470b287d3445" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -552,65 +512,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="244" column="10" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/src/nsga2_optimizer.cpp" bodystart="646" bodyend="700"/>
-        <references refid="classnsga2_1_1NSGA2Optimizer_1a2c3071fb33a7188a146b6922c79ae238" compoundref="nsga2__optimizer_8hpp" startline="194">config_</references>
-        <references refid="structnsga2_1_1NSGA2Config_1a22f6c5167d3c46f6bf42e52625412441" compoundref="nsga2__optimizer_8hpp" startline="160">nsga2::NSGA2Config::lower_bounds</references>
-        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a82c8c27ec35b7842d3efb71830b30ce2" compoundref="nsga2__optimizer_8cpp" startline="703" endline="950">optimize</referencedby>
-      </memberdef>
-      <memberdef kind="function" id="classnsga2_1_1NSGA2Optimizer_1afcf521d8c4989310961b0389deeeb1fa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type>void</type>
-        <definition>void nsga2::NSGA2Optimizer::adaptParameterSpace</definition>
-        <argsstring>(size_t new_n_params, const std::vector&lt; double &gt; &amp;new_lower_bounds, const std::vector&lt; double &gt; &amp;new_upper_bounds, const std::vector&lt; std::pair&lt; size_t, size_t &gt; &gt; &amp;parameter_mapping={})</argsstring>
-        <name>adaptParameterSpace</name>
-        <qualifiedname>nsga2::NSGA2Optimizer::adaptParameterSpace</qualifiedname>
-        <param>
-          <type>size_t</type>
-          <declname>new_n_params</declname>
-        </param>
-        <param>
-          <type>const std::vector&lt; double &gt; &amp;</type>
-          <declname>new_lower_bounds</declname>
-        </param>
-        <param>
-          <type>const std::vector&lt; double &gt; &amp;</type>
-          <declname>new_upper_bounds</declname>
-        </param>
-        <param>
-          <type>const std::vector&lt; std::pair&lt; size_t, size_t &gt; &gt; &amp;</type>
-          <declname>parameter_mapping</declname>
-          <defval>{}</defval>
-        </param>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="252" column="10" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/src/nsga2_optimizer.cpp" bodystart="87" bodyend="124"/>
-        <references refid="classnsga2_1_1NSGA2Optimizer_1a2c3071fb33a7188a146b6922c79ae238" compoundref="nsga2__optimizer_8hpp" startline="194">config_</references>
-        <references refid="structnsga2_1_1NSGA2Config_1a22f6c5167d3c46f6bf42e52625412441" compoundref="nsga2__optimizer_8hpp" startline="160">nsga2::NSGA2Config::lower_bounds</references>
-        <references refid="classnsga2_1_1NSGA2Optimizer_1a72b029699c51eb70ee957ef651551252" compoundref="nsga2__optimizer_8hpp" startline="195">population_</references>
-        <references refid="classnsga2_1_1NSGA2Optimizer_1a3b9ce3ae189b2d686c875860f2b1a408" compoundref="nsga2__optimizer_8cpp" startline="126" endline="205">transformPopulation</references>
-        <references refid="structnsga2_1_1NSGA2Config_1a702acd772a7704550906edca52a6a4e6" compoundref="nsga2__optimizer_8hpp" startline="161">nsga2::NSGA2Config::upper_bounds</references>
-        <references refid="structnsga2_1_1NSGA2Config_1af0a7718158c5db4647b1b4b6a774c70f" compoundref="nsga2__optimizer_8hpp" startline="166">nsga2::NSGA2Config::verbose</references>
-        <referencedby refid="python__bindings_8cpp_1ad060d5bb65d036d5f5ac558c214f5d3d" compoundref="python__bindings_8cpp" startline="9" endline="207">PYBIND11_MODULE</referencedby>
-      </memberdef>
-      <memberdef kind="function" id="classnsga2_1_1NSGA2Optimizer_1a2ee35399daaee13d3991a35076cbbf52" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
-        <type>size_t</type>
-        <definition>size_t nsga2::NSGA2Optimizer::getParameterSpaceSize</definition>
-        <argsstring>() const</argsstring>
-        <name>getParameterSpaceSize</name>
-        <qualifiedname>nsga2::NSGA2Optimizer::getParameterSpaceSize</qualifiedname>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="259" column="12" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="259" bodyend="259"/>
-        <references refid="classnsga2_1_1NSGA2Optimizer_1a2c3071fb33a7188a146b6922c79ae238" compoundref="nsga2__optimizer_8hpp" startline="194">config_</references>
-        <references refid="structnsga2_1_1NSGA2Config_1a22f6c5167d3c46f6bf42e52625412441" compoundref="nsga2__optimizer_8hpp" startline="160">nsga2::NSGA2Config::lower_bounds</references>
-        <referencedby refid="python__bindings_8cpp_1ad060d5bb65d036d5f5ac558c214f5d3d" compoundref="python__bindings_8cpp" startline="9" endline="207">PYBIND11_MODULE</referencedby>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="229" column="10" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/src/nsga2_optimizer.cpp" bodystart="486" bodyend="518"/>
+        <referencedby refid="classnsga2_1_1NSGA2Optimizer_1a82c8c27ec35b7842d3efb71830b30ce2" compoundref="nsga2__optimizer_8cpp" startline="521" endline="657">optimize</referencedby>
       </memberdef>
       </sectiondef>
     <briefdescription>
@@ -737,9 +640,8 @@
         <label>std::vector&lt; double &gt;</label>
       </node>
     </collaborationgraph>
-    <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="192" column="1" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="192" bodyend="260"/>
+    <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="181" column="1" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="181" bodyend="234"/>
     <listofallmembers>
-      <member refid="classnsga2_1_1NSGA2Optimizer_1afcf521d8c4989310961b0389deeeb1fa" prot="public" virt="non-virtual"><scope>nsga2::NSGA2Optimizer</scope><name>adaptParameterSpace</name></member>
       <member refid="classnsga2_1_1NSGA2Optimizer_1a9695c0bebccb5c6fad4e169d6c00daa4" prot="private" virt="non-virtual"><scope>nsga2::NSGA2Optimizer</scope><name>best_fitness_</name></member>
       <member refid="classnsga2_1_1NSGA2Optimizer_1aa5090738f22caa95035b5e365956c4c4" prot="private" virt="non-virtual"><scope>nsga2::NSGA2Optimizer</scope><name>best_fitness_history_</name></member>
       <member refid="classnsga2_1_1NSGA2Optimizer_1a2c3071fb33a7188a146b6922c79ae238" prot="private" virt="non-virtual"><scope>nsga2::NSGA2Optimizer</scope><name>config_</name></member>
@@ -753,7 +655,6 @@
       <member refid="classnsga2_1_1NSGA2Optimizer_1ae3e9a6a11233f01b8b68d686e5a05a7e" prot="public" virt="non-virtual"><scope>nsga2::NSGA2Optimizer</scope><name>get_fitness_history</name></member>
       <member refid="classnsga2_1_1NSGA2Optimizer_1ace0fdf4f83b532abd7795ced99b66b35" prot="public" virt="non-virtual"><scope>nsga2::NSGA2Optimizer</scope><name>get_mean_fitness_history</name></member>
       <member refid="classnsga2_1_1NSGA2Optimizer_1aa5dae2bf9c615ed3a027aba29188ef9c" prot="public" virt="non-virtual"><scope>nsga2::NSGA2Optimizer</scope><name>get_pareto_front</name></member>
-      <member refid="classnsga2_1_1NSGA2Optimizer_1a2ee35399daaee13d3991a35076cbbf52" prot="public" virt="non-virtual"><scope>nsga2::NSGA2Optimizer</scope><name>getParameterSpaceSize</name></member>
       <member refid="classnsga2_1_1NSGA2Optimizer_1ad16674085aa9bc187ef412c73bb4638d" prot="private" virt="non-virtual"><scope>nsga2::NSGA2Optimizer</scope><name>lhs_sampler_</name></member>
       <member refid="classnsga2_1_1NSGA2Optimizer_1a454900d4a115d2fc7eb3666616f202e9" prot="private" virt="non-virtual"><scope>nsga2::NSGA2Optimizer</scope><name>mean_fitness_history_</name></member>
       <member refid="classnsga2_1_1NSGA2Optimizer_1a374b974fc2bf1e1a7eb73b5c26ffbaa5" prot="public" virt="non-virtual"><scope>nsga2::NSGA2Optimizer</scope><name>NSGA2Optimizer</name></member>
@@ -767,7 +668,6 @@
       <member refid="classnsga2_1_1NSGA2Optimizer_1a8ce58ce64ad90f71feb374bae2daf243" prot="public" virt="non-virtual"><scope>nsga2::NSGA2Optimizer</scope><name>setSortingAlgorithm</name></member>
       <member refid="classnsga2_1_1NSGA2Optimizer_1aa57edeb2e76c1c2f918a85033b038808" prot="private" virt="non-virtual"><scope>nsga2::NSGA2Optimizer</scope><name>sorting_algorithm_</name></member>
       <member refid="classnsga2_1_1NSGA2Optimizer_1aeee0b01f755a7d65a671f588c535fa6b" prot="private" virt="non-virtual"><scope>nsga2::NSGA2Optimizer</scope><name>start_time_</name></member>
-      <member refid="classnsga2_1_1NSGA2Optimizer_1a3b9ce3ae189b2d686c875860f2b1a408" prot="private" virt="non-virtual"><scope>nsga2::NSGA2Optimizer</scope><name>transformPopulation</name></member>
     </listofallmembers>
   </compounddef>
 </doxygen>

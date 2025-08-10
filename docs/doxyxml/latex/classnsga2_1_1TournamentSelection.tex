@@ -44,7 +44,7 @@ bool \mbox{\hyperlink{classnsga2_1_1TournamentSelection_a68e37a8b15de35977d465fb
 \doxysubsection{Detailed Description}
 
 
-Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00181}{181}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00170}{170}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
 
 
 
@@ -57,15 +57,15 @@ Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00181}{181}} o
 
 
 
-Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00550}{550}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00390}{390}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
 
 
 \begin{DoxyCode}{0}
-\DoxyCodeLine{00550\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
-\DoxyCodeLine{00551\ \ \ \ \ \textcolor{keywordflow}{if}\ (a-\/>rank\ <\ b-\/>rank)\ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
-\DoxyCodeLine{00552\ \ \ \ \ \textcolor{keywordflow}{if}\ (a-\/>rank\ >\ b-\/>rank)\ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
-\DoxyCodeLine{00553\ \ \ \ \ \textcolor{keywordflow}{return}\ a-\/>crowding\_distance\ >\ b-\/>crowding\_distance;}
-\DoxyCodeLine{00554\ \}}
+\DoxyCodeLine{00390\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00391\ \ \ \ \ \textcolor{keywordflow}{if}\ (a-\/>rank\ <\ b-\/>rank)\ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00392\ \ \ \ \ \textcolor{keywordflow}{if}\ (a-\/>rank\ >\ b-\/>rank)\ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00393\ \ \ \ \ \textcolor{keywordflow}{return}\ a-\/>crowding\_distance\ >\ b-\/>crowding\_distance;}
+\DoxyCodeLine{00394\ \}}
 
 \end{DoxyCode}
 Here is the caller graph for this function\+:\nopagebreak
@@ -87,31 +87,31 @@ Implements \mbox{\hyperlink{classnsga2_1_1ISelectionStrategy_a278f8ce70ef2ab3483
 
 
 
-Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00556}{556}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00396}{396}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
 
 
 \begin{DoxyCode}{0}
-\DoxyCodeLine{00558\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
-\DoxyCodeLine{00559\ \ \ \ \ std::vector<IndividualPtr>\ selected;}
-\DoxyCodeLine{00560\ \ \ \ \ std::uniform\_int\_distribution<>\ dist(0,\ population.size()\ -\/\ 1);}
-\DoxyCodeLine{00561\ \ \ \ \ }
-\DoxyCodeLine{00562\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ n\_select;\ ++i)\ \{}
-\DoxyCodeLine{00563\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ idx1\ =\ dist(gen);}
-\DoxyCodeLine{00564\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ idx2\ =\ dist(gen);}
-\DoxyCodeLine{00565\ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{00566\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{while}\ (idx1\ ==\ idx2)\ \{}
-\DoxyCodeLine{00567\ \ \ \ \ \ \ \ \ \ \ \ \ idx2\ =\ dist(gen);}
-\DoxyCodeLine{00568\ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{00569\ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{00570\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classnsga2_1_1TournamentSelection_a68e37a8b15de35977d465fb20b12c3eb}{crowding\_operator}}(population[idx1],\ population[idx2]))\ \{}
-\DoxyCodeLine{00571\ \ \ \ \ \ \ \ \ \ \ \ \ selected.push\_back(population[idx1]);}
-\DoxyCodeLine{00572\ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
-\DoxyCodeLine{00573\ \ \ \ \ \ \ \ \ \ \ \ \ selected.push\_back(population[idx2]);}
-\DoxyCodeLine{00574\ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{00575\ \ \ \ \ \}}
-\DoxyCodeLine{00576\ \ \ \ \ }
-\DoxyCodeLine{00577\ \ \ \ \ \textcolor{keywordflow}{return}\ selected;}
-\DoxyCodeLine{00578\ \}}
+\DoxyCodeLine{00398\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00399\ \ \ \ \ std::vector<IndividualPtr>\ selected;}
+\DoxyCodeLine{00400\ \ \ \ \ std::uniform\_int\_distribution<>\ dist(0,\ population.size()\ -\/\ 1);}
+\DoxyCodeLine{00401\ \ \ \ \ }
+\DoxyCodeLine{00402\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ n\_select;\ ++i)\ \{}
+\DoxyCodeLine{00403\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ idx1\ =\ dist(gen);}
+\DoxyCodeLine{00404\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ idx2\ =\ dist(gen);}
+\DoxyCodeLine{00405\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00406\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{while}\ (idx1\ ==\ idx2)\ \{}
+\DoxyCodeLine{00407\ \ \ \ \ \ \ \ \ \ \ \ \ idx2\ =\ dist(gen);}
+\DoxyCodeLine{00408\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00409\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00410\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classnsga2_1_1TournamentSelection_a68e37a8b15de35977d465fb20b12c3eb}{crowding\_operator}}(population[idx1],\ population[idx2]))\ \{}
+\DoxyCodeLine{00411\ \ \ \ \ \ \ \ \ \ \ \ \ selected.push\_back(population[idx1]);}
+\DoxyCodeLine{00412\ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00413\ \ \ \ \ \ \ \ \ \ \ \ \ selected.push\_back(population[idx2]);}
+\DoxyCodeLine{00414\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00415\ \ \ \ \ \}}
+\DoxyCodeLine{00416\ \ \ \ \ }
+\DoxyCodeLine{00417\ \ \ \ \ \textcolor{keywordflow}{return}\ selected;}
+\DoxyCodeLine{00418\ \}}
 
 \end{DoxyCode}
 Here is the call graph for this function\+:\nopagebreak

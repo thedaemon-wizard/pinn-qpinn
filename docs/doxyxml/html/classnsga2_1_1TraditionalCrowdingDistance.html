@@ -217,55 +217,55 @@ Public Member Functions</h2></td></tr>
 
 <p>Implements <a class="el" href="classnsga2_1_1ICrowdingDistanceCalculator.html#aba734883489f093ad8c8faadc21f7f43">nsga2::ICrowdingDistanceCalculator</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="nsga2__optimizer_8cpp_source.html#l00208">208</a> of file <a class="el" href="nsga2__optimizer_8cpp_source.html">nsga2_optimizer.cpp</a>.</p>
-<div class="fragment"><div class="line"><span class="lineno">  208</span>                                                                           {</div>
-<div class="line"><span class="lineno">  209</span>    <span class="keywordtype">size_t</span> n = front.size();</div>
-<div class="line"><span class="lineno">  210</span>    <span class="keywordflow">if</span> (n &lt;= 2) {</div>
-<div class="line"><span class="lineno">  211</span>        <span class="keywordflow">for</span> (<span class="keyword">auto</span>&amp; ind : front) {</div>
-<div class="line"><span class="lineno">  212</span>            ind-&gt;crowding_distance = std::numeric_limits&lt;double&gt;::infinity();</div>
-<div class="line"><span class="lineno">  213</span>        }</div>
-<div class="line"><span class="lineno">  214</span>        <span class="keywordflow">return</span>;</div>
-<div class="line"><span class="lineno">  215</span>    }</div>
-<div class="line"><span class="lineno">  216</span>    </div>
-<div class="line"><span class="lineno">  217</span>    <span class="comment">// Initialize distances</span></div>
-<div class="line"><span class="lineno">  218</span>    <span class="keywordflow">for</span> (<span class="keyword">auto</span>&amp; ind : front) {</div>
-<div class="line"><span class="lineno">  219</span>        ind-&gt;crowding_distance = 0.0;</div>
-<div class="line"><span class="lineno">  220</span>    }</div>
-<div class="line"><span class="lineno">  221</span>    </div>
-<div class="line"><span class="lineno">  222</span>    <span class="keywordtype">size_t</span> n_objectives = front[0]-&gt;objectives.size();</div>
-<div class="line"><span class="lineno">  223</span>    </div>
-<div class="line"><span class="lineno">  224</span>    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> obj = 0; obj &lt; n_objectives; ++obj) {</div>
-<div class="line"><span class="lineno">  225</span>        <span class="comment">// Sort by objective</span></div>
-<div class="line"><span class="lineno">  226</span><span class="preprocessor">        #ifdef __cpp_lib_parallel_algorithm</span></div>
-<div class="line"><span class="lineno">  227</span>        std::sort(std::execution::par_unseq, front.begin(), front.end(),</div>
-<div class="line"><span class="lineno">  228</span>            [obj](<span class="keyword">const</span> <a class="code hl_typedef" href="namespacensga2.html#a9338ac68ee391d4b50ef5d878d0d89b3">IndividualPtr</a>&amp; a, <span class="keyword">const</span> <a class="code hl_typedef" href="namespacensga2.html#a9338ac68ee391d4b50ef5d878d0d89b3">IndividualPtr</a>&amp; b) {</div>
-<div class="line"><span class="lineno">  229</span>                return a-&gt;objectives[obj] &lt; b-&gt;objectives[obj];</div>
-<div class="line"><span class="lineno">  230</span>            });</div>
-<div class="line"><span class="lineno">  231</span><span class="preprocessor">        #else</span></div>
-<div class="line"><span class="lineno">  232</span>        std::sort(front.begin(), front.end(),</div>
-<div class="line"><span class="lineno">  233</span>            [obj](<span class="keyword">const</span> <a class="code hl_typedef" href="namespacensga2.html#a9338ac68ee391d4b50ef5d878d0d89b3">IndividualPtr</a>&amp; a, <span class="keyword">const</span> <a class="code hl_typedef" href="namespacensga2.html#a9338ac68ee391d4b50ef5d878d0d89b3">IndividualPtr</a>&amp; b) {</div>
-<div class="line"><span class="lineno">  234</span>                return a-&gt;objectives[obj] &lt; b-&gt;objectives[obj];</div>
-<div class="line"><span class="lineno">  235</span>            });</div>
-<div class="line"><span class="lineno">  236</span><span class="preprocessor">        #endif</span></div>
-<div class="line"><span class="lineno">  237</span>        </div>
-<div class="line"><span class="lineno">  238</span>        <span class="comment">// Boundary points</span></div>
-<div class="line"><span class="lineno">  239</span>        front[0]-&gt;crowding_distance = std::numeric_limits&lt;double&gt;::infinity();</div>
-<div class="line"><span class="lineno">  240</span>        front[n-1]-&gt;crowding_distance = std::numeric_limits&lt;double&gt;::infinity();</div>
-<div class="line"><span class="lineno">  241</span>        </div>
-<div class="line"><span class="lineno">  242</span>        <span class="keywordtype">double</span> min_obj = front[0]-&gt;objectives[obj];</div>
-<div class="line"><span class="lineno">  243</span>        <span class="keywordtype">double</span> max_obj = front[n-1]-&gt;objectives[obj];</div>
-<div class="line"><span class="lineno">  244</span>        <span class="keywordtype">double</span> range = max_obj - min_obj;</div>
-<div class="line"><span class="lineno">  245</span>        </div>
-<div class="line"><span class="lineno">  246</span>        <span class="keywordflow">if</span> (range == 0.0) <span class="keywordflow">continue</span>;</div>
-<div class="line"><span class="lineno">  247</span>        </div>
-<div class="line"><span class="lineno">  248</span>        <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 1; i &lt; n - 1; ++i) {</div>
-<div class="line"><span class="lineno">  249</span>            <span class="keywordflow">if</span> (front[i]-&gt;crowding_distance != std::numeric_limits&lt;double&gt;::infinity()) {</div>
-<div class="line"><span class="lineno">  250</span>                <span class="keywordtype">double</span> distance = (front[i+1]-&gt;objectives[obj] - front[i-1]-&gt;objectives[obj]) / range;</div>
-<div class="line"><span class="lineno">  251</span>                front[i]-&gt;crowding_distance += distance;</div>
-<div class="line"><span class="lineno">  252</span>            }</div>
-<div class="line"><span class="lineno">  253</span>        }</div>
-<div class="line"><span class="lineno">  254</span>    }</div>
-<div class="line"><span class="lineno">  255</span>}</div>
+<p class="definition">Definition at line <a class="el" href="nsga2__optimizer_8cpp_source.html#l00087">87</a> of file <a class="el" href="nsga2__optimizer_8cpp_source.html">nsga2_optimizer.cpp</a>.</p>
+<div class="fragment"><div class="line"><span class="lineno">   87</span>                                                                           {</div>
+<div class="line"><span class="lineno">   88</span>    <span class="keywordtype">size_t</span> n = front.size();</div>
+<div class="line"><span class="lineno">   89</span>    <span class="keywordflow">if</span> (n &lt;= 2) {</div>
+<div class="line"><span class="lineno">   90</span>        <span class="keywordflow">for</span> (<span class="keyword">auto</span>&amp; ind : front) {</div>
+<div class="line"><span class="lineno">   91</span>            ind-&gt;crowding_distance = std::numeric_limits&lt;double&gt;::infinity();</div>
+<div class="line"><span class="lineno">   92</span>        }</div>
+<div class="line"><span class="lineno">   93</span>        <span class="keywordflow">return</span>;</div>
+<div class="line"><span class="lineno">   94</span>    }</div>
+<div class="line"><span class="lineno">   95</span>    </div>
+<div class="line"><span class="lineno">   96</span>    <span class="comment">// Initialize distances</span></div>
+<div class="line"><span class="lineno">   97</span>    <span class="keywordflow">for</span> (<span class="keyword">auto</span>&amp; ind : front) {</div>
+<div class="line"><span class="lineno">   98</span>        ind-&gt;crowding_distance = 0.0;</div>
+<div class="line"><span class="lineno">   99</span>    }</div>
+<div class="line"><span class="lineno">  100</span>    </div>
+<div class="line"><span class="lineno">  101</span>    <span class="keywordtype">size_t</span> n_objectives = front[0]-&gt;objectives.size();</div>
+<div class="line"><span class="lineno">  102</span>    </div>
+<div class="line"><span class="lineno">  103</span>    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> obj = 0; obj &lt; n_objectives; ++obj) {</div>
+<div class="line"><span class="lineno">  104</span>        <span class="comment">// Sort by objective</span></div>
+<div class="line"><span class="lineno">  105</span><span class="preprocessor">        #ifdef __cpp_lib_parallel_algorithm</span></div>
+<div class="line"><span class="lineno">  106</span>        std::sort(std::execution::par_unseq, front.begin(), front.end(),</div>
+<div class="line"><span class="lineno">  107</span>            [obj](<span class="keyword">const</span> <a class="code hl_typedef" href="namespacensga2.html#a9338ac68ee391d4b50ef5d878d0d89b3">IndividualPtr</a>&amp; a, <span class="keyword">const</span> <a class="code hl_typedef" href="namespacensga2.html#a9338ac68ee391d4b50ef5d878d0d89b3">IndividualPtr</a>&amp; b) {</div>
+<div class="line"><span class="lineno">  108</span>                return a-&gt;objectives[obj] &lt; b-&gt;objectives[obj];</div>
+<div class="line"><span class="lineno">  109</span>            });</div>
+<div class="line"><span class="lineno">  110</span><span class="preprocessor">        #else</span></div>
+<div class="line"><span class="lineno">  111</span>        std::sort(front.begin(), front.end(),</div>
+<div class="line"><span class="lineno">  112</span>            [obj](<span class="keyword">const</span> <a class="code hl_typedef" href="namespacensga2.html#a9338ac68ee391d4b50ef5d878d0d89b3">IndividualPtr</a>&amp; a, <span class="keyword">const</span> <a class="code hl_typedef" href="namespacensga2.html#a9338ac68ee391d4b50ef5d878d0d89b3">IndividualPtr</a>&amp; b) {</div>
+<div class="line"><span class="lineno">  113</span>                return a-&gt;objectives[obj] &lt; b-&gt;objectives[obj];</div>
+<div class="line"><span class="lineno">  114</span>            });</div>
+<div class="line"><span class="lineno">  115</span><span class="preprocessor">        #endif</span></div>
+<div class="line"><span class="lineno">  116</span>        </div>
+<div class="line"><span class="lineno">  117</span>        <span class="comment">// Boundary points</span></div>
+<div class="line"><span class="lineno">  118</span>        front[0]-&gt;crowding_distance = std::numeric_limits&lt;double&gt;::infinity();</div>
+<div class="line"><span class="lineno">  119</span>        front[n-1]-&gt;crowding_distance = std::numeric_limits&lt;double&gt;::infinity();</div>
+<div class="line"><span class="lineno">  120</span>        </div>
+<div class="line"><span class="lineno">  121</span>        <span class="keywordtype">double</span> min_obj = front[0]-&gt;objectives[obj];</div>
+<div class="line"><span class="lineno">  122</span>        <span class="keywordtype">double</span> max_obj = front[n-1]-&gt;objectives[obj];</div>
+<div class="line"><span class="lineno">  123</span>        <span class="keywordtype">double</span> range = max_obj - min_obj;</div>
+<div class="line"><span class="lineno">  124</span>        </div>
+<div class="line"><span class="lineno">  125</span>        <span class="keywordflow">if</span> (range == 0.0) <span class="keywordflow">continue</span>;</div>
+<div class="line"><span class="lineno">  126</span>        </div>
+<div class="line"><span class="lineno">  127</span>        <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 1; i &lt; n - 1; ++i) {</div>
+<div class="line"><span class="lineno">  128</span>            <span class="keywordflow">if</span> (front[i]-&gt;crowding_distance != std::numeric_limits&lt;double&gt;::infinity()) {</div>
+<div class="line"><span class="lineno">  129</span>                <span class="keywordtype">double</span> distance = (front[i+1]-&gt;objectives[obj] - front[i-1]-&gt;objectives[obj]) / range;</div>
+<div class="line"><span class="lineno">  130</span>                front[i]-&gt;crowding_distance += distance;</div>
+<div class="line"><span class="lineno">  131</span>            }</div>
+<div class="line"><span class="lineno">  132</span>        }</div>
+<div class="line"><span class="lineno">  133</span>    }</div>
+<div class="line"><span class="lineno">  134</span>}</div>
 <div class="ttc" id="anamespacensga2_html_a9338ac68ee391d4b50ef5d878d0d89b3"><div class="ttname"><a href="namespacensga2.html#a9338ac68ee391d4b50ef5d878d0d89b3">nsga2::IndividualPtr</a></div><div class="ttdeci">std::shared_ptr&lt; Individual &gt; IndividualPtr</div><div class="ttdef"><b>Definition:</b> <a href="nsga2__optimizer_8hpp_source.html#l00024">nsga2_optimizer.hpp:24</a></div></div>
 </div><!-- fragment -->
 </div>
@@ -310,7 +310,7 @@ Public Member Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="namespacensga2.html">nsga2</a></li><li class="navelem"><a class="el" href="classnsga2_1_1TraditionalCrowdingDistance.html">TraditionalCrowdingDistance</a></li>
-    <li class="footer">Generated on Sun Aug 10 2025 01:06:18 for NSGA-II Optimizer by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.6 </li>
+    <li class="footer">Generated on Sun Aug 10 2025 12:37:35 for NSGA-II Optimizer by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.6 </li>
   </ul>
 </div>
 </body>

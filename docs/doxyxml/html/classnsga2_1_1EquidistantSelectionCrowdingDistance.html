@@ -177,8 +177,8 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nsga2__optimizer_8cpp_source.html#l00258">258</a> of file <a class="el" href="nsga2__optimizer_8cpp_source.html">nsga2_optimizer.cpp</a>.</p>
-<div class="fragment"><div class="line"><span class="lineno">  259</span>    : <a class="code hl_variable" href="classnsga2_1_1EquidistantSelectionCrowdingDistance.html#a33513398babc27b164699837c94bb98e">selection_size_</a>(selection_size) {}</div>
+<p class="definition">Definition at line <a class="el" href="nsga2__optimizer_8cpp_source.html#l00137">137</a> of file <a class="el" href="nsga2__optimizer_8cpp_source.html">nsga2_optimizer.cpp</a>.</p>
+<div class="fragment"><div class="line"><span class="lineno">  138</span>    : <a class="code hl_variable" href="classnsga2_1_1EquidistantSelectionCrowdingDistance.html#a33513398babc27b164699837c94bb98e">selection_size_</a>(selection_size) {}</div>
 <div class="ttc" id="aclassnsga2_1_1EquidistantSelectionCrowdingDistance_html_a33513398babc27b164699837c94bb98e"><div class="ttname"><a href="classnsga2_1_1EquidistantSelectionCrowdingDistance.html#a33513398babc27b164699837c94bb98e">nsga2::EquidistantSelectionCrowdingDistance::selection_size_</a></div><div class="ttdeci">size_t selection_size_</div><div class="ttdef"><b>Definition:</b> <a href="nsga2__optimizer_8hpp_source.html#l00083">nsga2_optimizer.hpp:83</a></div></div>
 </div><!-- fragment -->
 </div>
@@ -236,71 +236,71 @@ Private Attributes</h2></td></tr>
 
 <p>Implements <a class="el" href="classnsga2_1_1ICrowdingDistanceCalculator.html#aba734883489f093ad8c8faadc21f7f43">nsga2::ICrowdingDistanceCalculator</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="nsga2__optimizer_8cpp_source.html#l00270">270</a> of file <a class="el" href="nsga2__optimizer_8cpp_source.html">nsga2_optimizer.cpp</a>.</p>
-<div class="fragment"><div class="line"><span class="lineno">  270</span>                                                                                    {</div>
-<div class="line"><span class="lineno">  271</span>    <span class="keywordflow">if</span> (front.empty() || front.size() &lt; 2) <span class="keywordflow">return</span>;</div>
-<div class="line"><span class="lineno">  272</span>    </div>
-<div class="line"><span class="lineno">  273</span>    <span class="keywordtype">size_t</span> numSelect = (<a class="code hl_variable" href="classnsga2_1_1EquidistantSelectionCrowdingDistance.html#a33513398babc27b164699837c94bb98e">selection_size_</a> &gt; 0) ? <a class="code hl_variable" href="classnsga2_1_1EquidistantSelectionCrowdingDistance.html#a33513398babc27b164699837c94bb98e">selection_size_</a> : front.size();</div>
-<div class="line"><span class="lineno">  274</span>    </div>
-<div class="line"><span class="lineno">  275</span>    <span class="comment">// Sort by lexicographic order of objectives</span></div>
-<div class="line"><span class="lineno">  276</span>    std::sort(front.begin(), front.end(), [](<span class="keyword">const</span> <a class="code hl_typedef" href="namespacensga2.html#a9338ac68ee391d4b50ef5d878d0d89b3">IndividualPtr</a>&amp; a, <span class="keyword">const</span> <a class="code hl_typedef" href="namespacensga2.html#a9338ac68ee391d4b50ef5d878d0d89b3">IndividualPtr</a>&amp; b) {</div>
-<div class="line"><span class="lineno">  277</span>        for (size_t i = 0; i &lt; a-&gt;objectives.size(); ++i) {</div>
-<div class="line"><span class="lineno">  278</span>            if (std::abs(a-&gt;objectives[i] - b-&gt;objectives[i]) &gt; std::numeric_limits&lt;double&gt;::epsilon()) {</div>
-<div class="line"><span class="lineno">  279</span>                return a-&gt;objectives[i] &lt; b-&gt;objectives[i];</div>
-<div class="line"><span class="lineno">  280</span>            }</div>
-<div class="line"><span class="lineno">  281</span>        }</div>
-<div class="line"><span class="lineno">  282</span>        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
-<div class="line"><span class="lineno">  283</span>    });</div>
-<div class="line"><span class="lineno">  284</span>    </div>
-<div class="line"><span class="lineno">  285</span>    <span class="comment">// Calculate path lengths</span></div>
-<div class="line"><span class="lineno">  286</span>    std::vector&lt;double&gt; D(front.size(), 0.0);</div>
-<div class="line"><span class="lineno">  287</span>    </div>
-<div class="line"><span class="lineno">  288</span>    <span class="comment">// Initialize crowding distances</span></div>
-<div class="line"><span class="lineno">  289</span>    <span class="keywordflow">for</span> (<span class="keyword">auto</span>&amp; ind : front) {</div>
-<div class="line"><span class="lineno">  290</span>        ind-&gt;crowding_distance = 0.0;</div>
-<div class="line"><span class="lineno">  291</span>    }</div>
-<div class="line"><span class="lineno">  292</span>    </div>
-<div class="line"><span class="lineno">  293</span>    <span class="comment">// Calculate cumulative path length</span></div>
-<div class="line"><span class="lineno">  294</span>    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 1; i &lt; front.size(); ++i) {</div>
-<div class="line"><span class="lineno">  295</span>        D[i] = D[i - 1] + <a class="code hl_function" href="classnsga2_1_1EquidistantSelectionCrowdingDistance.html#af05d94dfcfdcb2ae823baca2069a10d9">calculateDistance</a>(*front[i - 1], *front[i]);</div>
-<div class="line"><span class="lineno">  296</span>    }</div>
-<div class="line"><span class="lineno">  297</span>    </div>
-<div class="line"><span class="lineno">  298</span>    <span class="keywordtype">double</span> Dmax = D.back();</div>
-<div class="line"><span class="lineno">  299</span>    <span class="keywordflow">if</span> (Dmax &lt; std::numeric_limits&lt;double&gt;::epsilon()) {</div>
-<div class="line"><span class="lineno">  300</span>        std::cerr &lt;&lt; <span class="stringliteral">&quot;Warning: Total path length is near zero!&quot;</span> &lt;&lt; std::endl;</div>
-<div class="line"><span class="lineno">  301</span>        <span class="keywordflow">return</span>;</div>
-<div class="line"><span class="lineno">  302</span>    }</div>
-<div class="line"><span class="lineno">  303</span>    </div>
-<div class="line"><span class="lineno">  304</span>    <span class="comment">// Set boundary points</span></div>
-<div class="line"><span class="lineno">  305</span>    front[0]-&gt;crowding_distance = std::numeric_limits&lt;double&gt;::infinity();</div>
-<div class="line"><span class="lineno">  306</span>    front.back()-&gt;crowding_distance = std::numeric_limits&lt;double&gt;::infinity();</div>
-<div class="line"><span class="lineno">  307</span>    </div>
-<div class="line"><span class="lineno">  308</span>    <span class="keywordflow">if</span> (numSelect &gt; 2) {</div>
-<div class="line"><span class="lineno">  309</span>        <span class="keywordtype">double</span> equidistantStep = Dmax / (numSelect - 1);</div>
-<div class="line"><span class="lineno">  310</span>        </div>
-<div class="line"><span class="lineno">  311</span>        <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 1; i &lt; numSelect - 1; ++i) {</div>
-<div class="line"><span class="lineno">  312</span>            <span class="keywordtype">double</span> targetDistance = equidistantStep * i;</div>
-<div class="line"><span class="lineno">  313</span>            </div>
-<div class="line"><span class="lineno">  314</span>            <span class="comment">// Find closest point to target distance</span></div>
-<div class="line"><span class="lineno">  315</span>            <span class="keywordtype">size_t</span> bestIdx = 1;</div>
-<div class="line"><span class="lineno">  316</span>            <span class="keywordtype">double</span> minDiff = std::abs(D[1] - targetDistance);</div>
-<div class="line"><span class="lineno">  317</span>            </div>
-<div class="line"><span class="lineno">  318</span>            <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> j = 2; j &lt; front.size() - 1; ++j) {</div>
-<div class="line"><span class="lineno">  319</span>                <span class="keywordtype">double</span> diff = std::abs(D[j] - targetDistance);</div>
-<div class="line"><span class="lineno">  320</span>                <span class="keywordflow">if</span> (diff &lt; minDiff) {</div>
-<div class="line"><span class="lineno">  321</span>                    minDiff = diff;</div>
-<div class="line"><span class="lineno">  322</span>                    bestIdx = j;</div>
-<div class="line"><span class="lineno">  323</span>                }</div>
-<div class="line"><span class="lineno">  324</span>            }</div>
-<div class="line"><span class="lineno">  325</span>            </div>
-<div class="line"><span class="lineno">  326</span>            <span class="comment">// Update crowding distance for selected point</span></div>
-<div class="line"><span class="lineno">  327</span>            <span class="keywordflow">if</span> (front[bestIdx]-&gt;crowding_distance == 0.0) {</div>
-<div class="line"><span class="lineno">  328</span>                front[bestIdx]-&gt;crowding_distance = Dmax / numSelect;</div>
-<div class="line"><span class="lineno">  329</span>            }</div>
-<div class="line"><span class="lineno">  330</span>        }</div>
-<div class="line"><span class="lineno">  331</span>    }</div>
-<div class="line"><span class="lineno">  332</span>}</div>
-<div class="ttc" id="aclassnsga2_1_1EquidistantSelectionCrowdingDistance_html_af05d94dfcfdcb2ae823baca2069a10d9"><div class="ttname"><a href="classnsga2_1_1EquidistantSelectionCrowdingDistance.html#af05d94dfcfdcb2ae823baca2069a10d9">nsga2::EquidistantSelectionCrowdingDistance::calculateDistance</a></div><div class="ttdeci">double calculateDistance(const Individual &amp;a, const Individual &amp;b) const</div><div class="ttdef"><b>Definition:</b> <a href="nsga2__optimizer_8cpp_source.html#l00261">nsga2_optimizer.cpp:261</a></div></div>
+<p class="definition">Definition at line <a class="el" href="nsga2__optimizer_8cpp_source.html#l00149">149</a> of file <a class="el" href="nsga2__optimizer_8cpp_source.html">nsga2_optimizer.cpp</a>.</p>
+<div class="fragment"><div class="line"><span class="lineno">  149</span>                                                                                    {</div>
+<div class="line"><span class="lineno">  150</span>    <span class="keywordflow">if</span> (front.empty() || front.size() &lt; 2) <span class="keywordflow">return</span>;</div>
+<div class="line"><span class="lineno">  151</span>    </div>
+<div class="line"><span class="lineno">  152</span>    <span class="keywordtype">size_t</span> numSelect = (<a class="code hl_variable" href="classnsga2_1_1EquidistantSelectionCrowdingDistance.html#a33513398babc27b164699837c94bb98e">selection_size_</a> &gt; 0) ? <a class="code hl_variable" href="classnsga2_1_1EquidistantSelectionCrowdingDistance.html#a33513398babc27b164699837c94bb98e">selection_size_</a> : front.size();</div>
+<div class="line"><span class="lineno">  153</span>    </div>
+<div class="line"><span class="lineno">  154</span>    <span class="comment">// Sort by lexicographic order of objectives</span></div>
+<div class="line"><span class="lineno">  155</span>    std::sort(front.begin(), front.end(), [](<span class="keyword">const</span> <a class="code hl_typedef" href="namespacensga2.html#a9338ac68ee391d4b50ef5d878d0d89b3">IndividualPtr</a>&amp; a, <span class="keyword">const</span> <a class="code hl_typedef" href="namespacensga2.html#a9338ac68ee391d4b50ef5d878d0d89b3">IndividualPtr</a>&amp; b) {</div>
+<div class="line"><span class="lineno">  156</span>        for (size_t i = 0; i &lt; a-&gt;objectives.size(); ++i) {</div>
+<div class="line"><span class="lineno">  157</span>            if (std::abs(a-&gt;objectives[i] - b-&gt;objectives[i]) &gt; std::numeric_limits&lt;double&gt;::epsilon()) {</div>
+<div class="line"><span class="lineno">  158</span>                return a-&gt;objectives[i] &lt; b-&gt;objectives[i];</div>
+<div class="line"><span class="lineno">  159</span>            }</div>
+<div class="line"><span class="lineno">  160</span>        }</div>
+<div class="line"><span class="lineno">  161</span>        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><span class="lineno">  162</span>    });</div>
+<div class="line"><span class="lineno">  163</span>    </div>
+<div class="line"><span class="lineno">  164</span>    <span class="comment">// Calculate path lengths</span></div>
+<div class="line"><span class="lineno">  165</span>    std::vector&lt;double&gt; D(front.size(), 0.0);</div>
+<div class="line"><span class="lineno">  166</span>    </div>
+<div class="line"><span class="lineno">  167</span>    <span class="comment">// Initialize crowding distances</span></div>
+<div class="line"><span class="lineno">  168</span>    <span class="keywordflow">for</span> (<span class="keyword">auto</span>&amp; ind : front) {</div>
+<div class="line"><span class="lineno">  169</span>        ind-&gt;crowding_distance = 0.0;</div>
+<div class="line"><span class="lineno">  170</span>    }</div>
+<div class="line"><span class="lineno">  171</span>    </div>
+<div class="line"><span class="lineno">  172</span>    <span class="comment">// Calculate cumulative path length</span></div>
+<div class="line"><span class="lineno">  173</span>    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 1; i &lt; front.size(); ++i) {</div>
+<div class="line"><span class="lineno">  174</span>        D[i] = D[i - 1] + <a class="code hl_function" href="classnsga2_1_1EquidistantSelectionCrowdingDistance.html#af05d94dfcfdcb2ae823baca2069a10d9">calculateDistance</a>(*front[i - 1], *front[i]);</div>
+<div class="line"><span class="lineno">  175</span>    }</div>
+<div class="line"><span class="lineno">  176</span>    </div>
+<div class="line"><span class="lineno">  177</span>    <span class="keywordtype">double</span> Dmax = D.back();</div>
+<div class="line"><span class="lineno">  178</span>    <span class="keywordflow">if</span> (Dmax &lt; std::numeric_limits&lt;double&gt;::epsilon()) {</div>
+<div class="line"><span class="lineno">  179</span>        std::cerr &lt;&lt; <span class="stringliteral">&quot;Warning: Total path length is near zero!&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><span class="lineno">  180</span>        <span class="keywordflow">return</span>;</div>
+<div class="line"><span class="lineno">  181</span>    }</div>
+<div class="line"><span class="lineno">  182</span>    </div>
+<div class="line"><span class="lineno">  183</span>    <span class="comment">// Set boundary points</span></div>
+<div class="line"><span class="lineno">  184</span>    front[0]-&gt;crowding_distance = std::numeric_limits&lt;double&gt;::infinity();</div>
+<div class="line"><span class="lineno">  185</span>    front.back()-&gt;crowding_distance = std::numeric_limits&lt;double&gt;::infinity();</div>
+<div class="line"><span class="lineno">  186</span>    </div>
+<div class="line"><span class="lineno">  187</span>    <span class="keywordflow">if</span> (numSelect &gt; 2) {</div>
+<div class="line"><span class="lineno">  188</span>        <span class="keywordtype">double</span> equidistantStep = Dmax / (numSelect - 1);</div>
+<div class="line"><span class="lineno">  189</span>        </div>
+<div class="line"><span class="lineno">  190</span>        <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 1; i &lt; numSelect - 1; ++i) {</div>
+<div class="line"><span class="lineno">  191</span>            <span class="keywordtype">double</span> targetDistance = equidistantStep * i;</div>
+<div class="line"><span class="lineno">  192</span>            </div>
+<div class="line"><span class="lineno">  193</span>            <span class="comment">// Find closest point to target distance</span></div>
+<div class="line"><span class="lineno">  194</span>            <span class="keywordtype">size_t</span> bestIdx = 1;</div>
+<div class="line"><span class="lineno">  195</span>            <span class="keywordtype">double</span> minDiff = std::abs(D[1] - targetDistance);</div>
+<div class="line"><span class="lineno">  196</span>            </div>
+<div class="line"><span class="lineno">  197</span>            <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> j = 2; j &lt; front.size() - 1; ++j) {</div>
+<div class="line"><span class="lineno">  198</span>                <span class="keywordtype">double</span> diff = std::abs(D[j] - targetDistance);</div>
+<div class="line"><span class="lineno">  199</span>                <span class="keywordflow">if</span> (diff &lt; minDiff) {</div>
+<div class="line"><span class="lineno">  200</span>                    minDiff = diff;</div>
+<div class="line"><span class="lineno">  201</span>                    bestIdx = j;</div>
+<div class="line"><span class="lineno">  202</span>                }</div>
+<div class="line"><span class="lineno">  203</span>            }</div>
+<div class="line"><span class="lineno">  204</span>            </div>
+<div class="line"><span class="lineno">  205</span>            <span class="comment">// Update crowding distance for selected point</span></div>
+<div class="line"><span class="lineno">  206</span>            <span class="keywordflow">if</span> (front[bestIdx]-&gt;crowding_distance == 0.0) {</div>
+<div class="line"><span class="lineno">  207</span>                front[bestIdx]-&gt;crowding_distance = Dmax / numSelect;</div>
+<div class="line"><span class="lineno">  208</span>            }</div>
+<div class="line"><span class="lineno">  209</span>        }</div>
+<div class="line"><span class="lineno">  210</span>    }</div>
+<div class="line"><span class="lineno">  211</span>}</div>
+<div class="ttc" id="aclassnsga2_1_1EquidistantSelectionCrowdingDistance_html_af05d94dfcfdcb2ae823baca2069a10d9"><div class="ttname"><a href="classnsga2_1_1EquidistantSelectionCrowdingDistance.html#af05d94dfcfdcb2ae823baca2069a10d9">nsga2::EquidistantSelectionCrowdingDistance::calculateDistance</a></div><div class="ttdeci">double calculateDistance(const Individual &amp;a, const Individual &amp;b) const</div><div class="ttdef"><b>Definition:</b> <a href="nsga2__optimizer_8cpp_source.html#l00140">nsga2_optimizer.cpp:140</a></div></div>
 <div class="ttc" id="anamespacensga2_html_a9338ac68ee391d4b50ef5d878d0d89b3"><div class="ttname"><a href="namespacensga2.html#a9338ac68ee391d4b50ef5d878d0d89b3">nsga2::IndividualPtr</a></div><div class="ttdeci">std::shared_ptr&lt; Individual &gt; IndividualPtr</div><div class="ttdef"><b>Definition:</b> <a href="nsga2__optimizer_8hpp_source.html#l00024">nsga2_optimizer.hpp:24</a></div></div>
 </div><!-- fragment -->
 </div>
@@ -339,15 +339,15 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nsga2__optimizer_8cpp_source.html#l00261">261</a> of file <a class="el" href="nsga2__optimizer_8cpp_source.html">nsga2_optimizer.cpp</a>.</p>
-<div class="fragment"><div class="line"><span class="lineno">  261</span>                                                                                                             {</div>
-<div class="line"><span class="lineno">  262</span>    <span class="keywordtype">double</span> distance = 0.0;</div>
-<div class="line"><span class="lineno">  263</span>    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; a.objectives.size(); ++i) {</div>
-<div class="line"><span class="lineno">  264</span>        <span class="keywordtype">double</span> diff = b.objectives[i] - a.objectives[i];</div>
-<div class="line"><span class="lineno">  265</span>        distance += diff * diff;</div>
-<div class="line"><span class="lineno">  266</span>    }</div>
-<div class="line"><span class="lineno">  267</span>    <span class="keywordflow">return</span> std::sqrt(distance);</div>
-<div class="line"><span class="lineno">  268</span>}</div>
+<p class="definition">Definition at line <a class="el" href="nsga2__optimizer_8cpp_source.html#l00140">140</a> of file <a class="el" href="nsga2__optimizer_8cpp_source.html">nsga2_optimizer.cpp</a>.</p>
+<div class="fragment"><div class="line"><span class="lineno">  140</span>                                                                                                             {</div>
+<div class="line"><span class="lineno">  141</span>    <span class="keywordtype">double</span> distance = 0.0;</div>
+<div class="line"><span class="lineno">  142</span>    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; a.objectives.size(); ++i) {</div>
+<div class="line"><span class="lineno">  143</span>        <span class="keywordtype">double</span> diff = b.objectives[i] - a.objectives[i];</div>
+<div class="line"><span class="lineno">  144</span>        distance += diff * diff;</div>
+<div class="line"><span class="lineno">  145</span>    }</div>
+<div class="line"><span class="lineno">  146</span>    <span class="keywordflow">return</span> std::sqrt(distance);</div>
+<div class="line"><span class="lineno">  147</span>}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -454,7 +454,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="namespacensga2.html">nsga2</a></li><li class="navelem"><a class="el" href="classnsga2_1_1EquidistantSelectionCrowdingDistance.html">EquidistantSelectionCrowdingDistance</a></li>
-    <li class="footer">Generated on Sun Aug 10 2025 01:06:18 for NSGA-II Optimizer by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.6 </li>
+    <li class="footer">Generated on Sun Aug 10 2025 12:37:35 for NSGA-II Optimizer by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.6 </li>
   </ul>
 </div>
 </body>

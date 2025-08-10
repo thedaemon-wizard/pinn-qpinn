@@ -92,7 +92,6 @@ $(document).ready(function(){initNavTree('classnsga2_1_1REXCrossover.html',''); 
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pri-methods">Private Member Functions</a> &#124;
 <a href="#pri-attribs">Private Attributes</a> &#124;
 <a href="classnsga2_1_1REXCrossover-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">nsga2::REXCrossover Class Reference</div></div>
@@ -103,29 +102,24 @@ $(document).ready(function(){initNavTree('classnsga2_1_1REXCrossover.html',''); 
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a5073ba8254511d301c7d7dae8afafd18"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnsga2_1_1REXCrossover.html#a5073ba8254511d301c7d7dae8afafd18">REXCrossover</a> (unsigned int seed=42, <a class="el" href="namespacensga2.html#a594adef242e7d5748f5c9cf9d72be1d3">REXDistributionType</a> dist_type=<a class="el" href="namespacensga2.html#a594adef242e7d5748f5c9cf9d72be1d3a961a7a0a72c511fa51df0c345278c3b9">REXDistributionType::VShaped</a>)</td></tr>
-<tr class="separator:a5073ba8254511d301c7d7dae8afafd18"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa4ade2278d0fefe9c72126bd7834421e"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnsga2_1_1REXCrossover.html#aa4ade2278d0fefe9c72126bd7834421e">REXCrossover</a> (double xi=1.2, unsigned int seed=42)</td></tr>
+<tr class="separator:aa4ade2278d0fefe9c72126bd7834421e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2c2880e6883be65f0ae4164b441b088d"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="namespacensga2.html#a9338ac68ee391d4b50ef5d878d0d89b3">IndividualPtr</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnsga2_1_1REXCrossover.html#a2c2880e6883be65f0ae4164b441b088d">crossover</a> (const std::vector&lt; <a class="el" href="namespacensga2.html#a9338ac68ee391d4b50ef5d878d0d89b3">IndividualPtr</a> &gt; &amp;parents, size_t n_children)</td></tr>
 <tr class="separator:a2c2880e6883be65f0ae4164b441b088d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-methods" name="pri-methods"></a>
-Private Member Functions</h2></td></tr>
-<tr class="memitem:af1afdac7ed45ba9fecf81139e02b99cb"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnsga2_1_1REXCrossover.html#af1afdac7ed45ba9fecf81139e02b99cb">generateVShapedRandom</a> (double a)</td></tr>
-<tr class="separator:af1afdac7ed45ba9fecf81139e02b99cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
+<tr class="memitem:a4fe8f67e276efbbd5306da6fa6932739"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnsga2_1_1REXCrossover.html#a4fe8f67e276efbbd5306da6fa6932739">xi_</a></td></tr>
+<tr class="separator:a4fe8f67e276efbbd5306da6fa6932739"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a17e6d01e3d9e018b7567e0d94ab21598"><td class="memItemLeft" align="right" valign="top">std::mt19937&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnsga2_1_1REXCrossover.html#a17e6d01e3d9e018b7567e0d94ab21598">gen_</a></td></tr>
 <tr class="separator:a17e6d01e3d9e018b7567e0d94ab21598"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a80c8af27765113e7e0628b14d28b136e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacensga2.html#a594adef242e7d5748f5c9cf9d72be1d3">REXDistributionType</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnsga2_1_1REXCrossover.html#a80c8af27765113e7e0628b14d28b136e">dist_type_</a></td></tr>
-<tr class="separator:a80c8af27765113e7e0628b14d28b136e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="nsga2__optimizer_8hpp_source.html#l00140">140</a> of file <a class="el" href="nsga2__optimizer_8hpp_source.html">nsga2_optimizer.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nsga2__optimizer_8hpp_source.html#l00133">133</a> of file <a class="el" href="nsga2__optimizer_8hpp_source.html">nsga2_optimizer.hpp</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="a5073ba8254511d301c7d7dae8afafd18" name="a5073ba8254511d301c7d7dae8afafd18"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5073ba8254511d301c7d7dae8afafd18">&#9670;&#160;</a></span>REXCrossover()</h2>
+<a id="aa4ade2278d0fefe9c72126bd7834421e" name="aa4ade2278d0fefe9c72126bd7834421e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa4ade2278d0fefe9c72126bd7834421e">&#9670;&#160;</a></span>REXCrossover()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -133,14 +127,14 @@ Private Attributes</h2></td></tr>
         <tr>
           <td class="memname">nsga2::REXCrossover::REXCrossover </td>
           <td>(</td>
-          <td class="paramtype">unsigned int&#160;</td>
-          <td class="paramname"><em>seed</em> = <code>42</code>, </td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>xi</em> = <code>1.2</code>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="namespacensga2.html#a594adef242e7d5748f5c9cf9d72be1d3">REXDistributionType</a>&#160;</td>
-          <td class="paramname"><em>dist_type</em> = <code><a class="el" href="namespacensga2.html#a594adef242e7d5748f5c9cf9d72be1d3a961a7a0a72c511fa51df0c345278c3b9">REXDistributionType::VShaped</a></code>&#160;</td>
+          <td class="paramtype">unsigned int&#160;</td>
+          <td class="paramname"><em>seed</em> = <code>42</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -150,10 +144,10 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nsga2__optimizer_8cpp_source.html#l00449">449</a> of file <a class="el" href="nsga2__optimizer_8cpp_source.html">nsga2_optimizer.cpp</a>.</p>
-<div class="fragment"><div class="line"><span class="lineno">  450</span>    : <a class="code hl_variable" href="classnsga2_1_1REXCrossover.html#a17e6d01e3d9e018b7567e0d94ab21598">gen_</a>(seed), <a class="code hl_variable" href="classnsga2_1_1REXCrossover.html#a80c8af27765113e7e0628b14d28b136e">dist_type_</a>(dist_type) {}</div>
-<div class="ttc" id="aclassnsga2_1_1REXCrossover_html_a17e6d01e3d9e018b7567e0d94ab21598"><div class="ttname"><a href="classnsga2_1_1REXCrossover.html#a17e6d01e3d9e018b7567e0d94ab21598">nsga2::REXCrossover::gen_</a></div><div class="ttdeci">std::mt19937 gen_</div><div class="ttdef"><b>Definition:</b> <a href="nsga2__optimizer_8hpp_source.html#l00142">nsga2_optimizer.hpp:142</a></div></div>
-<div class="ttc" id="aclassnsga2_1_1REXCrossover_html_a80c8af27765113e7e0628b14d28b136e"><div class="ttname"><a href="classnsga2_1_1REXCrossover.html#a80c8af27765113e7e0628b14d28b136e">nsga2::REXCrossover::dist_type_</a></div><div class="ttdeci">REXDistributionType dist_type_</div><div class="ttdef"><b>Definition:</b> <a href="nsga2__optimizer_8hpp_source.html#l00143">nsga2_optimizer.hpp:143</a></div></div>
+<p class="definition">Definition at line <a class="el" href="nsga2__optimizer_8cpp_source.html#l00328">328</a> of file <a class="el" href="nsga2__optimizer_8cpp_source.html">nsga2_optimizer.cpp</a>.</p>
+<div class="fragment"><div class="line"><span class="lineno">  329</span>    : <a class="code hl_variable" href="classnsga2_1_1REXCrossover.html#a4fe8f67e276efbbd5306da6fa6932739">xi_</a>(xi), <a class="code hl_variable" href="classnsga2_1_1REXCrossover.html#a17e6d01e3d9e018b7567e0d94ab21598">gen_</a>(seed) {}</div>
+<div class="ttc" id="aclassnsga2_1_1REXCrossover_html_a17e6d01e3d9e018b7567e0d94ab21598"><div class="ttname"><a href="classnsga2_1_1REXCrossover.html#a17e6d01e3d9e018b7567e0d94ab21598">nsga2::REXCrossover::gen_</a></div><div class="ttdeci">std::mt19937 gen_</div><div class="ttdef"><b>Definition:</b> <a href="nsga2__optimizer_8hpp_source.html#l00136">nsga2_optimizer.hpp:136</a></div></div>
+<div class="ttc" id="aclassnsga2_1_1REXCrossover_html_a4fe8f67e276efbbd5306da6fa6932739"><div class="ttname"><a href="classnsga2_1_1REXCrossover.html#a4fe8f67e276efbbd5306da6fa6932739">nsga2::REXCrossover::xi_</a></div><div class="ttdeci">double xi_</div><div class="ttdef"><b>Definition:</b> <a href="nsga2__optimizer_8hpp_source.html#l00135">nsga2_optimizer.hpp:135</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -184,185 +178,66 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nsga2__optimizer_8cpp_source.html#l00471">471</a> of file <a class="el" href="nsga2__optimizer_8cpp_source.html">nsga2_optimizer.cpp</a>.</p>
-<div class="fragment"><div class="line"><span class="lineno">  473</span>                       {</div>
-<div class="line"><span class="lineno">  474</span>    </div>
-<div class="line"><span class="lineno">  475</span>    <span class="keywordflow">if</span> (parents.size() &lt; 2) {</div>
-<div class="line"><span class="lineno">  476</span>        <span class="keywordflow">throw</span> std::invalid_argument(<span class="stringliteral">&quot;REX crossover requires at least 2 parents&quot;</span>);</div>
-<div class="line"><span class="lineno">  477</span>    }</div>
-<div class="line"><span class="lineno">  478</span>    </div>
-<div class="line"><span class="lineno">  479</span>    <span class="comment">// Validate all parents have same parameter size</span></div>
-<div class="line"><span class="lineno">  480</span>    <span class="keywordtype">size_t</span> n_dims = parents[0]-&gt;parameters.size();</div>
-<div class="line"><span class="lineno">  481</span>    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 1; i &lt; parents.size(); ++i) {</div>
-<div class="line"><span class="lineno">  482</span>        <span class="keywordflow">if</span> (parents[i]-&gt;parameters.size() != n_dims) {</div>
-<div class="line"><span class="lineno">  483</span>            <span class="keywordflow">throw</span> std::invalid_argument(<span class="stringliteral">&quot;All parents must have the same number of parameters for REX crossover&quot;</span>);</div>
-<div class="line"><span class="lineno">  484</span>        }</div>
-<div class="line"><span class="lineno">  485</span>    }</div>
-<div class="line"><span class="lineno">  486</span>    <span class="keywordtype">size_t</span> n_parents = parents.size();</div>
-<div class="line"><span class="lineno">  487</span>    std::vector&lt;IndividualPtr&gt; children;</div>
-<div class="line"><span class="lineno">  488</span>    </div>
-<div class="line"><span class="lineno">  489</span>    <span class="comment">// Calculate center of mass (xg in the PDF)</span></div>
-<div class="line"><span class="lineno">  490</span>    std::vector&lt;double&gt; center(n_dims, 0.0);</div>
-<div class="line"><span class="lineno">  491</span>    <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span>&amp; parent : parents) {</div>
-<div class="line"><span class="lineno">  492</span>        <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; n_dims; ++i) {</div>
-<div class="line"><span class="lineno">  493</span>            center[i] += parent-&gt;parameters[i];</div>
-<div class="line"><span class="lineno">  494</span>        }</div>
-<div class="line"><span class="lineno">  495</span>    }</div>
-<div class="line"><span class="lineno">  496</span>    <span class="keywordflow">for</span> (<span class="keywordtype">double</span>&amp; c : center) {</div>
-<div class="line"><span class="lineno">  497</span>        c /= n_parents;</div>
-<div class="line"><span class="lineno">  498</span>    }</div>
-<div class="line"><span class="lineno">  499</span>    </div>
-<div class="line"><span class="lineno">  500</span>    <span class="comment">// Generate children according to REX(φ,n+k) from the PDF</span></div>
-<div class="line"><span class="lineno">  501</span>    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> c = 0; c &lt; n_children; ++c) {</div>
-<div class="line"><span class="lineno">  502</span>        <span class="keyword">auto</span> child = std::make_shared&lt;Individual&gt;(n_dims);</div>
-<div class="line"><span class="lineno">  503</span>        </div>
-<div class="line"><span class="lineno">  504</span>        <span class="comment">// Initialize with center</span></div>
-<div class="line"><span class="lineno">  505</span>        <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> d = 0; d &lt; n_dims; ++d) {</div>
-<div class="line"><span class="lineno">  506</span>            child-&gt;parameters[d] = center[d];</div>
-<div class="line"><span class="lineno">  507</span>        }</div>
-<div class="line"><span class="lineno">  508</span>        </div>
-<div class="line"><span class="lineno">  509</span>        <span class="comment">// Add deviations using specified distribution</span></div>
-<div class="line"><span class="lineno">  510</span>        <span class="keywordflow">if</span> (<a class="code hl_variable" href="classnsga2_1_1REXCrossover.html#a80c8af27765113e7e0628b14d28b136e">dist_type_</a> == <a class="code hl_enumvalue" href="namespacensga2.html#a594adef242e7d5748f5c9cf9d72be1d3a961a7a0a72c511fa51df0c345278c3b9">REXDistributionType::VShaped</a>) {</div>
-<div class="line"><span class="lineno">  511</span>            <span class="comment">// V-shaped distribution: a = sqrt(2/(n+k)) as stated in PDF</span></div>
-<div class="line"><span class="lineno">  512</span>            <span class="keywordtype">double</span> a = std::sqrt(2.0 / n_parents);</div>
-<div class="line"><span class="lineno">  513</span>            </div>
-<div class="line"><span class="lineno">  514</span>            <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> p = 0; p &lt; n_parents; ++p) {</div>
-<div class="line"><span class="lineno">  515</span>                <span class="keywordtype">double</span> xi = <a class="code hl_function" href="classnsga2_1_1REXCrossover.html#af1afdac7ed45ba9fecf81139e02b99cb">generateVShapedRandom</a>(a);</div>
-<div class="line"><span class="lineno">  516</span>                <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> d = 0; d &lt; n_dims; ++d) {</div>
-<div class="line"><span class="lineno">  517</span>                    child-&gt;parameters[d] += xi * (parents[p]-&gt;parameters[d] - center[d]);</div>
-<div class="line"><span class="lineno">  518</span>                }</div>
-<div class="line"><span class="lineno">  519</span>            }</div>
-<div class="line"><span class="lineno">  520</span>        } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (<a class="code hl_variable" href="classnsga2_1_1REXCrossover.html#a80c8af27765113e7e0628b14d28b136e">dist_type_</a> == <a class="code hl_enumvalue" href="namespacensga2.html#a594adef242e7d5748f5c9cf9d72be1d3a960b44c579bc2f6818d2daaf9e4c16f0">REXDistributionType::Normal</a>) {</div>
-<div class="line"><span class="lineno">  521</span>            <span class="comment">// Normal distribution N(0, σ²) where σ² = 1/(n+k)</span></div>
-<div class="line"><span class="lineno">  522</span>            std::normal_distribution&lt;&gt; normal_dist(0.0, std::sqrt(1.0 / n_parents));</div>
-<div class="line"><span class="lineno">  523</span>            </div>
-<div class="line"><span class="lineno">  524</span>            <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> p = 0; p &lt; n_parents; ++p) {</div>
-<div class="line"><span class="lineno">  525</span>                <span class="keywordtype">double</span> xi = normal_dist(<a class="code hl_variable" href="classnsga2_1_1REXCrossover.html#a17e6d01e3d9e018b7567e0d94ab21598">gen_</a>);</div>
-<div class="line"><span class="lineno">  526</span>                <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> d = 0; d &lt; n_dims; ++d) {</div>
-<div class="line"><span class="lineno">  527</span>                    child-&gt;parameters[d] += xi * (parents[p]-&gt;parameters[d] - center[d]);</div>
-<div class="line"><span class="lineno">  528</span>                }</div>
-<div class="line"><span class="lineno">  529</span>            }</div>
-<div class="line"><span class="lineno">  530</span>        } <span class="keywordflow">else</span> {  <span class="comment">// Uniform distribution</span></div>
-<div class="line"><span class="lineno">  531</span>            <span class="comment">// Uniform distribution U(-a, a) where a = sqrt(3/(n+k)) for variance = 1/(n+k)</span></div>
-<div class="line"><span class="lineno">  532</span>            <span class="keywordtype">double</span> a = std::sqrt(3.0 / n_parents);</div>
-<div class="line"><span class="lineno">  533</span>            std::uniform_real_distribution&lt;&gt; uniform_dist(-a, a);</div>
-<div class="line"><span class="lineno">  534</span>            </div>
-<div class="line"><span class="lineno">  535</span>            <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> p = 0; p &lt; n_parents; ++p) {</div>
-<div class="line"><span class="lineno">  536</span>                <span class="keywordtype">double</span> xi = uniform_dist(<a class="code hl_variable" href="classnsga2_1_1REXCrossover.html#a17e6d01e3d9e018b7567e0d94ab21598">gen_</a>);</div>
-<div class="line"><span class="lineno">  537</span>                <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> d = 0; d &lt; n_dims; ++d) {</div>
-<div class="line"><span class="lineno">  538</span>                    child-&gt;parameters[d] += xi * (parents[p]-&gt;parameters[d] - center[d]);</div>
-<div class="line"><span class="lineno">  539</span>                }</div>
-<div class="line"><span class="lineno">  540</span>            }</div>
-<div class="line"><span class="lineno">  541</span>        }</div>
-<div class="line"><span class="lineno">  542</span>        </div>
-<div class="line"><span class="lineno">  543</span>        children.push_back(child);</div>
-<div class="line"><span class="lineno">  544</span>    }</div>
-<div class="line"><span class="lineno">  545</span>    </div>
-<div class="line"><span class="lineno">  546</span>    <span class="keywordflow">return</span> children;</div>
-<div class="line"><span class="lineno">  547</span>}</div>
-<div class="ttc" id="aclassnsga2_1_1REXCrossover_html_af1afdac7ed45ba9fecf81139e02b99cb"><div class="ttname"><a href="classnsga2_1_1REXCrossover.html#af1afdac7ed45ba9fecf81139e02b99cb">nsga2::REXCrossover::generateVShapedRandom</a></div><div class="ttdeci">double generateVShapedRandom(double a)</div><div class="ttdef"><b>Definition:</b> <a href="nsga2__optimizer_8cpp_source.html#l00454">nsga2_optimizer.cpp:454</a></div></div>
-<div class="ttc" id="anamespacensga2_html_a594adef242e7d5748f5c9cf9d72be1d3a960b44c579bc2f6818d2daaf9e4c16f0"><div class="ttname"><a href="namespacensga2.html#a594adef242e7d5748f5c9cf9d72be1d3a960b44c579bc2f6818d2daaf9e4c16f0">nsga2::REXDistributionType::Normal</a></div><div class="ttdeci">@ Normal</div></div>
-<div class="ttc" id="anamespacensga2_html_a594adef242e7d5748f5c9cf9d72be1d3a961a7a0a72c511fa51df0c345278c3b9"><div class="ttname"><a href="namespacensga2.html#a594adef242e7d5748f5c9cf9d72be1d3a961a7a0a72c511fa51df0c345278c3b9">nsga2::REXDistributionType::VShaped</a></div><div class="ttdeci">@ VShaped</div></div>
-</div><!-- fragment --><div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classnsga2_1_1REXCrossover_a2c2880e6883be65f0ae4164b441b088d_cgraph.png" border="0" usemap="#aclassnsga2_1_1REXCrossover_a2c2880e6883be65f0ae4164b441b088d_cgraph" alt=""/></div>
-<map name="aclassnsga2_1_1REXCrossover_a2c2880e6883be65f0ae4164b441b088d_cgraph" id="aclassnsga2_1_1REXCrossover_a2c2880e6883be65f0ae4164b441b088d_cgraph">
-<area shape="rect" title=" " alt="" coords="5,5,156,45"/>
-<area shape="rect" href="classnsga2_1_1REXCrossover.html#af1afdac7ed45ba9fecf81139e02b99cb" title=" " alt="" coords="204,5,384,45"/>
-</map>
-</div>
-<div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classnsga2_1_1REXCrossover_a2c2880e6883be65f0ae4164b441b088d_icgraph.png" border="0" usemap="#aclassnsga2_1_1REXCrossover_a2c2880e6883be65f0ae4164b441b088d_icgraph" alt=""/></div>
-<map name="aclassnsga2_1_1REXCrossover_a2c2880e6883be65f0ae4164b441b088d_icgraph" id="aclassnsga2_1_1REXCrossover_a2c2880e6883be65f0ae4164b441b088d_icgraph">
-<area shape="rect" title=" " alt="" coords="204,5,355,45"/>
-<area shape="rect" href="python__bindings_8cpp.html#ad060d5bb65d036d5f5ac558c214f5d3d" title=" " alt="" coords="5,13,156,38"/>
-</map>
-</div>
-
-</div>
-</div>
-<a id="af1afdac7ed45ba9fecf81139e02b99cb" name="af1afdac7ed45ba9fecf81139e02b99cb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af1afdac7ed45ba9fecf81139e02b99cb">&#9670;&#160;</a></span>generateVShapedRandom()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">double nsga2::REXCrossover::generateVShapedRandom </td>
-          <td>(</td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>a</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="nsga2__optimizer_8cpp_source.html#l00454">454</a> of file <a class="el" href="nsga2__optimizer_8cpp_source.html">nsga2_optimizer.cpp</a>.</p>
-<div class="fragment"><div class="line"><span class="lineno">  454</span>                                                   {</div>
-<div class="line"><span class="lineno">  455</span>    std::uniform_real_distribution&lt;&gt; dist(0.0, 1.0);</div>
-<div class="line"><span class="lineno">  456</span>    <span class="keywordtype">double</span> u = dist(<a class="code hl_variable" href="classnsga2_1_1REXCrossover.html#a17e6d01e3d9e018b7567e0d94ab21598">gen_</a>);</div>
-<div class="line"><span class="lineno">  457</span>    </div>
-<div class="line"><span class="lineno">  458</span>    <span class="comment">// V-shaped distribution: f(x) = |x|/a² for x in [-a, a]</span></div>
-<div class="line"><span class="lineno">  459</span>    <span class="comment">// CDF: F(x) = 1/2 - x²/(2a²) for x &lt; 0</span></div>
-<div class="line"><span class="lineno">  460</span>    <span class="comment">//      F(x) = 1/2 + x²/(2a²) for x ≥ 0</span></div>
-<div class="line"><span class="lineno">  461</span>    <span class="comment">// Inverse transform:</span></div>
-<div class="line"><span class="lineno">  462</span>    <span class="keywordflow">if</span> (u &lt; 0.5) {</div>
-<div class="line"><span class="lineno">  463</span>        <span class="comment">// Left side: x = -a*sqrt(1-2u)</span></div>
-<div class="line"><span class="lineno">  464</span>        <span class="keywordflow">return</span> -a * std::sqrt(1.0 - 2.0 * u);</div>
-<div class="line"><span class="lineno">  465</span>    } <span class="keywordflow">else</span> {</div>
-<div class="line"><span class="lineno">  466</span>        <span class="comment">// Right side: x = a*sqrt(2u-1)</span></div>
-<div class="line"><span class="lineno">  467</span>        <span class="keywordflow">return</span> a * std::sqrt(2.0 * u - 1.0);</div>
-<div class="line"><span class="lineno">  468</span>    }</div>
-<div class="line"><span class="lineno">  469</span>}</div>
-</div><!-- fragment --><div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classnsga2_1_1REXCrossover_af1afdac7ed45ba9fecf81139e02b99cb_icgraph.png" border="0" usemap="#aclassnsga2_1_1REXCrossover_af1afdac7ed45ba9fecf81139e02b99cb_icgraph" alt=""/></div>
-<map name="aclassnsga2_1_1REXCrossover_af1afdac7ed45ba9fecf81139e02b99cb_icgraph" id="aclassnsga2_1_1REXCrossover_af1afdac7ed45ba9fecf81139e02b99cb_icgraph">
-<area shape="rect" title=" " alt="" coords="403,5,583,45"/>
-<area shape="rect" href="classnsga2_1_1REXCrossover.html#a2c2880e6883be65f0ae4164b441b088d" title=" " alt="" coords="204,5,355,45"/>
-<area shape="rect" href="python__bindings_8cpp.html#ad060d5bb65d036d5f5ac558c214f5d3d" title=" " alt="" coords="5,13,156,38"/>
-</map>
-</div>
-
+<p class="definition">Definition at line <a class="el" href="nsga2__optimizer_8cpp_source.html#l00331">331</a> of file <a class="el" href="nsga2__optimizer_8cpp_source.html">nsga2_optimizer.cpp</a>.</p>
+<div class="fragment"><div class="line"><span class="lineno">  333</span>                       {</div>
+<div class="line"><span class="lineno">  334</span>    </div>
+<div class="line"><span class="lineno">  335</span>    <span class="keywordflow">if</span> (parents.size() &lt; 2) {</div>
+<div class="line"><span class="lineno">  336</span>        <span class="keywordflow">throw</span> std::invalid_argument(<span class="stringliteral">&quot;REX crossover requires at least 2 parents&quot;</span>);</div>
+<div class="line"><span class="lineno">  337</span>    }</div>
+<div class="line"><span class="lineno">  338</span>    </div>
+<div class="line"><span class="lineno">  339</span>    <span class="keywordtype">size_t</span> n_dims = parents[0]-&gt;parameters.size();</div>
+<div class="line"><span class="lineno">  340</span>    std::vector&lt;IndividualPtr&gt; children;</div>
+<div class="line"><span class="lineno">  341</span>    </div>
+<div class="line"><span class="lineno">  342</span>    <span class="comment">// Calculate center of mass</span></div>
+<div class="line"><span class="lineno">  343</span>    std::vector&lt;double&gt; center(n_dims, 0.0);</div>
+<div class="line"><span class="lineno">  344</span>    <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span>&amp; parent : parents) {</div>
+<div class="line"><span class="lineno">  345</span>        <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; n_dims; ++i) {</div>
+<div class="line"><span class="lineno">  346</span>            center[i] += parent-&gt;parameters[i];</div>
+<div class="line"><span class="lineno">  347</span>        }</div>
+<div class="line"><span class="lineno">  348</span>    }</div>
+<div class="line"><span class="lineno">  349</span>    <span class="keywordflow">for</span> (<span class="keywordtype">double</span>&amp; c : center) {</div>
+<div class="line"><span class="lineno">  350</span>        c /= parents.size();</div>
+<div class="line"><span class="lineno">  351</span>    }</div>
+<div class="line"><span class="lineno">  352</span>    </div>
+<div class="line"><span class="lineno">  353</span>    <span class="comment">// Generate children</span></div>
+<div class="line"><span class="lineno">  354</span>    std::uniform_real_distribution&lt;&gt; dist(0.0, 1.0);</div>
+<div class="line"><span class="lineno">  355</span>    </div>
+<div class="line"><span class="lineno">  356</span>    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> c = 0; c &lt; n_children; ++c) {</div>
+<div class="line"><span class="lineno">  357</span>        <span class="keyword">auto</span> child = std::make_shared&lt;Individual&gt;(n_dims);</div>
+<div class="line"><span class="lineno">  358</span>        </div>
+<div class="line"><span class="lineno">  359</span>        <span class="comment">// Generate weights</span></div>
+<div class="line"><span class="lineno">  360</span>        std::vector&lt;double&gt; weights(parents.size());</div>
+<div class="line"><span class="lineno">  361</span>        <span class="keywordtype">double</span> sum_weights = 0.0;</div>
+<div class="line"><span class="lineno">  362</span>        </div>
+<div class="line"><span class="lineno">  363</span>        <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; parents.size(); ++i) {</div>
+<div class="line"><span class="lineno">  364</span>            weights[i] = dist(<a class="code hl_variable" href="classnsga2_1_1REXCrossover.html#a17e6d01e3d9e018b7567e0d94ab21598">gen_</a>);</div>
+<div class="line"><span class="lineno">  365</span>            sum_weights += weights[i];</div>
+<div class="line"><span class="lineno">  366</span>        }</div>
+<div class="line"><span class="lineno">  367</span>        </div>
+<div class="line"><span class="lineno">  368</span>        <span class="comment">// Normalize weights</span></div>
+<div class="line"><span class="lineno">  369</span>        <span class="keywordflow">for</span> (<span class="keywordtype">double</span>&amp; w : weights) {</div>
+<div class="line"><span class="lineno">  370</span>            w /= sum_weights;</div>
+<div class="line"><span class="lineno">  371</span>        }</div>
+<div class="line"><span class="lineno">  372</span>        </div>
+<div class="line"><span class="lineno">  373</span>        <span class="comment">// Create child</span></div>
+<div class="line"><span class="lineno">  374</span>        <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> d = 0; d &lt; n_dims; ++d) {</div>
+<div class="line"><span class="lineno">  375</span>            child-&gt;parameters[d] = center[d];</div>
+<div class="line"><span class="lineno">  376</span>            </div>
+<div class="line"><span class="lineno">  377</span>            <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> p = 0; p &lt; parents.size(); ++p) {</div>
+<div class="line"><span class="lineno">  378</span>                child-&gt;parameters[d] += <a class="code hl_variable" href="classnsga2_1_1REXCrossover.html#a4fe8f67e276efbbd5306da6fa6932739">xi_</a> * weights[p] * </div>
+<div class="line"><span class="lineno">  379</span>                    (parents[p]-&gt;parameters[d] - center[d]);</div>
+<div class="line"><span class="lineno">  380</span>            }</div>
+<div class="line"><span class="lineno">  381</span>        }</div>
+<div class="line"><span class="lineno">  382</span>        </div>
+<div class="line"><span class="lineno">  383</span>        children.push_back(child);</div>
+<div class="line"><span class="lineno">  384</span>    }</div>
+<div class="line"><span class="lineno">  385</span>    </div>
+<div class="line"><span class="lineno">  386</span>    <span class="keywordflow">return</span> children;</div>
+<div class="line"><span class="lineno">  387</span>}</div>
+</div><!-- fragment -->
 </div>
 </div>
 <h2 class="groupheader">Member Data Documentation</h2>
-<a id="a80c8af27765113e7e0628b14d28b136e" name="a80c8af27765113e7e0628b14d28b136e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a80c8af27765113e7e0628b14d28b136e">&#9670;&#160;</a></span>dist_type_</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="namespacensga2.html#a594adef242e7d5748f5c9cf9d72be1d3">REXDistributionType</a> nsga2::REXCrossover::dist_type_</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="nsga2__optimizer_8hpp_source.html#l00143">143</a> of file <a class="el" href="nsga2__optimizer_8hpp_source.html">nsga2_optimizer.hpp</a>.</p>
-
-</div>
-</div>
 <a id="a17e6d01e3d9e018b7567e0d94ab21598" name="a17e6d01e3d9e018b7567e0d94ab21598"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a17e6d01e3d9e018b7567e0d94ab21598">&#9670;&#160;</a></span>gen_</h2>
 
@@ -383,7 +258,31 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nsga2__optimizer_8hpp_source.html#l00142">142</a> of file <a class="el" href="nsga2__optimizer_8hpp_source.html">nsga2_optimizer.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nsga2__optimizer_8hpp_source.html#l00136">136</a> of file <a class="el" href="nsga2__optimizer_8hpp_source.html">nsga2_optimizer.hpp</a>.</p>
+
+</div>
+</div>
+<a id="a4fe8f67e276efbbd5306da6fa6932739" name="a4fe8f67e276efbbd5306da6fa6932739"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4fe8f67e276efbbd5306da6fa6932739">&#9670;&#160;</a></span>xi_</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">double nsga2::REXCrossover::xi_</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="nsga2__optimizer_8hpp_source.html#l00135">135</a> of file <a class="el" href="nsga2__optimizer_8hpp_source.html">nsga2_optimizer.hpp</a>.</p>
 
 </div>
 </div>
@@ -397,7 +296,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="namespacensga2.html">nsga2</a></li><li class="navelem"><a class="el" href="classnsga2_1_1REXCrossover.html">REXCrossover</a></li>
-    <li class="footer">Generated on Sun Aug 10 2025 01:06:18 for NSGA-II Optimizer by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.6 </li>
+    <li class="footer">Generated on Sun Aug 10 2025 12:37:35 for NSGA-II Optimizer by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.6 </li>
   </ul>
 </div>
 </body>

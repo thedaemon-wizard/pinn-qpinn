@@ -34,11 +34,11 @@ Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00121}{121}} o
 
 
 
-Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00420}{420}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00299}{299}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
 
 
 \begin{DoxyCode}{0}
-\DoxyCodeLine{00420\ :\ \mbox{\hyperlink{classnsga2_1_1LatinHypercubeSampler_a8f7dee67d0614571efd83cb7af827c7c}{gen\_}}(seed)\ \{\}}
+\DoxyCodeLine{00299\ :\ \mbox{\hyperlink{classnsga2_1_1LatinHypercubeSampler_a8f7dee67d0614571efd83cb7af827c7c}{gen\_}}(seed)\ \{\}}
 
 \end{DoxyCode}
 
@@ -52,32 +52,32 @@ Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00420}{420}} o
 
 
 
-Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00422}{422}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00301}{301}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
 
 
 \begin{DoxyCode}{0}
-\DoxyCodeLine{00425\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
-\DoxyCodeLine{00426\ \ \ \ \ }
-\DoxyCodeLine{00427\ \ \ \ \ std::vector<std::vector<double>>\ samples(n\_samples,\ std::vector<double>(n\_dims));}
-\DoxyCodeLine{00428\ \ \ \ \ }
-\DoxyCodeLine{00429\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ dim\ =\ 0;\ dim\ <\ n\_dims;\ ++dim)\ \{}
-\DoxyCodeLine{00430\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Create\ intervals}}
-\DoxyCodeLine{00431\ \ \ \ \ \ \ \ \ std::vector<size\_t>\ intervals(n\_samples);}
-\DoxyCodeLine{00432\ \ \ \ \ \ \ \ \ std::iota(intervals.begin(),\ intervals.end(),\ 0);}
-\DoxyCodeLine{00433\ \ \ \ \ \ \ \ \ std::shuffle(intervals.begin(),\ intervals.end(),\ \mbox{\hyperlink{classnsga2_1_1LatinHypercubeSampler_a8f7dee67d0614571efd83cb7af827c7c}{gen\_}});}
-\DoxyCodeLine{00434\ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{00435\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Sample\ within\ intervals}}
-\DoxyCodeLine{00436\ \ \ \ \ \ \ \ \ std::uniform\_real\_distribution<>\ dist(0.0,\ 1.0);}
-\DoxyCodeLine{00437\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ range\ =\ upper\_bounds[dim]\ -\/\ lower\_bounds[dim];}
-\DoxyCodeLine{00438\ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{00439\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ n\_samples;\ ++i)\ \{}
-\DoxyCodeLine{00440\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ interval\_pos\ =\ (intervals[i]\ +\ dist(\mbox{\hyperlink{classnsga2_1_1LatinHypercubeSampler_a8f7dee67d0614571efd83cb7af827c7c}{gen\_}}))\ /\ n\_samples;}
-\DoxyCodeLine{00441\ \ \ \ \ \ \ \ \ \ \ \ \ samples[i][dim]\ =\ lower\_bounds[dim]\ +\ interval\_pos\ *\ range;}
-\DoxyCodeLine{00442\ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{00443\ \ \ \ \ \}}
-\DoxyCodeLine{00444\ \ \ \ \ }
-\DoxyCodeLine{00445\ \ \ \ \ \textcolor{keywordflow}{return}\ samples;}
-\DoxyCodeLine{00446\ \}}
+\DoxyCodeLine{00304\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00305\ \ \ \ \ }
+\DoxyCodeLine{00306\ \ \ \ \ std::vector<std::vector<double>>\ samples(n\_samples,\ std::vector<double>(n\_dims));}
+\DoxyCodeLine{00307\ \ \ \ \ }
+\DoxyCodeLine{00308\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ dim\ =\ 0;\ dim\ <\ n\_dims;\ ++dim)\ \{}
+\DoxyCodeLine{00309\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Create\ intervals}}
+\DoxyCodeLine{00310\ \ \ \ \ \ \ \ \ std::vector<size\_t>\ intervals(n\_samples);}
+\DoxyCodeLine{00311\ \ \ \ \ \ \ \ \ std::iota(intervals.begin(),\ intervals.end(),\ 0);}
+\DoxyCodeLine{00312\ \ \ \ \ \ \ \ \ std::shuffle(intervals.begin(),\ intervals.end(),\ \mbox{\hyperlink{classnsga2_1_1LatinHypercubeSampler_a8f7dee67d0614571efd83cb7af827c7c}{gen\_}});}
+\DoxyCodeLine{00313\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00314\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Sample\ within\ intervals}}
+\DoxyCodeLine{00315\ \ \ \ \ \ \ \ \ std::uniform\_real\_distribution<>\ dist(0.0,\ 1.0);}
+\DoxyCodeLine{00316\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ range\ =\ upper\_bounds[dim]\ -\/\ lower\_bounds[dim];}
+\DoxyCodeLine{00317\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00318\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ n\_samples;\ ++i)\ \{}
+\DoxyCodeLine{00319\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ interval\_pos\ =\ (intervals[i]\ +\ dist(\mbox{\hyperlink{classnsga2_1_1LatinHypercubeSampler_a8f7dee67d0614571efd83cb7af827c7c}{gen\_}}))\ /\ n\_samples;}
+\DoxyCodeLine{00320\ \ \ \ \ \ \ \ \ \ \ \ \ samples[i][dim]\ =\ lower\_bounds[dim]\ +\ interval\_pos\ *\ range;}
+\DoxyCodeLine{00321\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00322\ \ \ \ \ \}}
+\DoxyCodeLine{00323\ \ \ \ \ }
+\DoxyCodeLine{00324\ \ \ \ \ \textcolor{keywordflow}{return}\ samples;}
+\DoxyCodeLine{00325\ \}}
 
 \end{DoxyCode}
 

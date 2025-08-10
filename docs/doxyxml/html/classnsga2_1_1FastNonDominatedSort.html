@@ -157,78 +157,78 @@ Public Member Functions</h2></td></tr>
 
 <p>Implements <a class="el" href="classnsga2_1_1ISortingAlgorithm.html#a0b42bcc6bba2e8ea8beabf65eaca5be0">nsga2::ISortingAlgorithm</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="nsga2__optimizer_8cpp_source.html#l00347">347</a> of file <a class="el" href="nsga2__optimizer_8cpp_source.html">nsga2_optimizer.cpp</a>.</p>
-<div class="fragment"><div class="line"><span class="lineno">  347</span>                                                                                     {</div>
-<div class="line"><span class="lineno">  348</span>    <span class="keywordtype">size_t</span> n = population.size();</div>
-<div class="line"><span class="lineno">  349</span>    std::vector&lt;std::set&lt;size_t&gt;&gt; S(n);</div>
-<div class="line"><span class="lineno">  350</span>    std::vector&lt;int&gt; n_dominated(n, 0);</div>
-<div class="line"><span class="lineno">  351</span>    std::vector&lt;std::vector&lt;size_t&gt;&gt; front_indices;</div>
-<div class="line"><span class="lineno">  352</span>    std::vector&lt;std::vector&lt;IndividualPtr&gt;&gt; sorted_fronts;</div>
-<div class="line"><span class="lineno">  353</span>    </div>
-<div class="line"><span class="lineno">  354</span>    <span class="comment">// Reset all individuals</span></div>
-<div class="line"><span class="lineno">  355</span>    <span class="keywordflow">for</span> (<span class="keyword">auto</span>&amp; ind : population) {</div>
-<div class="line"><span class="lineno">  356</span>        ind-&gt;reset();</div>
-<div class="line"><span class="lineno">  357</span>    }</div>
-<div class="line"><span class="lineno">  358</span>    </div>
-<div class="line"><span class="lineno">  359</span>    <span class="comment">// Calculate domination relationships</span></div>
-<div class="line"><span class="lineno">  360</span><span class="preprocessor">    #pragma omp parallel for if(n &gt; 100)</span></div>
-<div class="line"><span class="lineno">  361</span>    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; n; ++i) {</div>
-<div class="line"><span class="lineno">  362</span>        <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> j = 0; j &lt; n; ++j) {</div>
-<div class="line"><span class="lineno">  363</span>            <span class="keywordflow">if</span> (i == j) <span class="keywordflow">continue</span>;</div>
-<div class="line"><span class="lineno">  364</span>            </div>
-<div class="line"><span class="lineno">  365</span>            <span class="keywordflow">if</span> (population[i]-&gt;dominates(*population[j])) {</div>
-<div class="line"><span class="lineno">  366</span><span class="preprocessor">                #pragma omp critical</span></div>
-<div class="line"><span class="lineno">  367</span>                S[i].insert(j);</div>
-<div class="line"><span class="lineno">  368</span>            } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (population[j]-&gt;dominates(*population[i])) {</div>
-<div class="line"><span class="lineno">  369</span><span class="preprocessor">                #pragma omp atomic</span></div>
-<div class="line"><span class="lineno">  370</span>                n_dominated[i]++;</div>
-<div class="line"><span class="lineno">  371</span>            }</div>
-<div class="line"><span class="lineno">  372</span>        }</div>
-<div class="line"><span class="lineno">  373</span>    }</div>
-<div class="line"><span class="lineno">  374</span>    </div>
-<div class="line"><span class="lineno">  375</span>    <span class="comment">// Find first front</span></div>
-<div class="line"><span class="lineno">  376</span>    std::vector&lt;size_t&gt; current_front;</div>
-<div class="line"><span class="lineno">  377</span>    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; n; ++i) {</div>
-<div class="line"><span class="lineno">  378</span>        <span class="keywordflow">if</span> (n_dominated[i] == 0) {</div>
-<div class="line"><span class="lineno">  379</span>            population[i]-&gt;rank = 0;</div>
-<div class="line"><span class="lineno">  380</span>            current_front.push_back(i);</div>
-<div class="line"><span class="lineno">  381</span>        }</div>
-<div class="line"><span class="lineno">  382</span>    }</div>
-<div class="line"><span class="lineno">  383</span>    </div>
-<div class="line"><span class="lineno">  384</span>    front_indices.push_back(current_front);</div>
-<div class="line"><span class="lineno">  385</span>    </div>
-<div class="line"><span class="lineno">  386</span>    <span class="comment">// Find remaining fronts</span></div>
-<div class="line"><span class="lineno">  387</span>    <span class="keywordtype">int</span> rank = 0;</div>
-<div class="line"><span class="lineno">  388</span>    <span class="keywordflow">while</span> (!current_front.empty()) {</div>
-<div class="line"><span class="lineno">  389</span>        std::vector&lt;size_t&gt; next_front;</div>
-<div class="line"><span class="lineno">  390</span>        </div>
-<div class="line"><span class="lineno">  391</span>        <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i : current_front) {</div>
-<div class="line"><span class="lineno">  392</span>            <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> j : S[i]) {</div>
-<div class="line"><span class="lineno">  393</span>                n_dominated[j]--;</div>
-<div class="line"><span class="lineno">  394</span>                <span class="keywordflow">if</span> (n_dominated[j] == 0) {</div>
-<div class="line"><span class="lineno">  395</span>                    population[j]-&gt;rank = rank + 1;</div>
-<div class="line"><span class="lineno">  396</span>                    next_front.push_back(j);</div>
-<div class="line"><span class="lineno">  397</span>                }</div>
-<div class="line"><span class="lineno">  398</span>            }</div>
-<div class="line"><span class="lineno">  399</span>        }</div>
-<div class="line"><span class="lineno">  400</span>        </div>
-<div class="line"><span class="lineno">  401</span>        rank++;</div>
-<div class="line"><span class="lineno">  402</span>        current_front = next_front;</div>
-<div class="line"><span class="lineno">  403</span>        <span class="keywordflow">if</span> (!current_front.empty()) {</div>
-<div class="line"><span class="lineno">  404</span>            front_indices.push_back(current_front);</div>
-<div class="line"><span class="lineno">  405</span>        }</div>
-<div class="line"><span class="lineno">  406</span>    }</div>
-<div class="line"><span class="lineno">  407</span>    </div>
-<div class="line"><span class="lineno">  408</span>    <span class="comment">// Convert indices to individual pointers</span></div>
-<div class="line"><span class="lineno">  409</span>    sorted_fronts.resize(front_indices.size());</div>
-<div class="line"><span class="lineno">  410</span>    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; front_indices.size(); ++i) {</div>
-<div class="line"><span class="lineno">  411</span>        <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> idx : front_indices[i]) {</div>
-<div class="line"><span class="lineno">  412</span>            sorted_fronts[i].push_back(population[idx]);</div>
-<div class="line"><span class="lineno">  413</span>        }</div>
-<div class="line"><span class="lineno">  414</span>    }</div>
-<div class="line"><span class="lineno">  415</span>    </div>
-<div class="line"><span class="lineno">  416</span>    <span class="keywordflow">return</span> sorted_fronts;</div>
-<div class="line"><span class="lineno">  417</span>}</div>
+<p class="definition">Definition at line <a class="el" href="nsga2__optimizer_8cpp_source.html#l00226">226</a> of file <a class="el" href="nsga2__optimizer_8cpp_source.html">nsga2_optimizer.cpp</a>.</p>
+<div class="fragment"><div class="line"><span class="lineno">  226</span>                                                                                     {</div>
+<div class="line"><span class="lineno">  227</span>    <span class="keywordtype">size_t</span> n = population.size();</div>
+<div class="line"><span class="lineno">  228</span>    std::vector&lt;std::set&lt;size_t&gt;&gt; S(n);</div>
+<div class="line"><span class="lineno">  229</span>    std::vector&lt;int&gt; n_dominated(n, 0);</div>
+<div class="line"><span class="lineno">  230</span>    std::vector&lt;std::vector&lt;size_t&gt;&gt; front_indices;</div>
+<div class="line"><span class="lineno">  231</span>    std::vector&lt;std::vector&lt;IndividualPtr&gt;&gt; sorted_fronts;</div>
+<div class="line"><span class="lineno">  232</span>    </div>
+<div class="line"><span class="lineno">  233</span>    <span class="comment">// Reset all individuals</span></div>
+<div class="line"><span class="lineno">  234</span>    <span class="keywordflow">for</span> (<span class="keyword">auto</span>&amp; ind : population) {</div>
+<div class="line"><span class="lineno">  235</span>        ind-&gt;reset();</div>
+<div class="line"><span class="lineno">  236</span>    }</div>
+<div class="line"><span class="lineno">  237</span>    </div>
+<div class="line"><span class="lineno">  238</span>    <span class="comment">// Calculate domination relationships</span></div>
+<div class="line"><span class="lineno">  239</span><span class="preprocessor">    #pragma omp parallel for if(n &gt; 100)</span></div>
+<div class="line"><span class="lineno">  240</span>    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; n; ++i) {</div>
+<div class="line"><span class="lineno">  241</span>        <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> j = 0; j &lt; n; ++j) {</div>
+<div class="line"><span class="lineno">  242</span>            <span class="keywordflow">if</span> (i == j) <span class="keywordflow">continue</span>;</div>
+<div class="line"><span class="lineno">  243</span>            </div>
+<div class="line"><span class="lineno">  244</span>            <span class="keywordflow">if</span> (population[i]-&gt;dominates(*population[j])) {</div>
+<div class="line"><span class="lineno">  245</span><span class="preprocessor">                #pragma omp critical</span></div>
+<div class="line"><span class="lineno">  246</span>                S[i].insert(j);</div>
+<div class="line"><span class="lineno">  247</span>            } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (population[j]-&gt;dominates(*population[i])) {</div>
+<div class="line"><span class="lineno">  248</span><span class="preprocessor">                #pragma omp atomic</span></div>
+<div class="line"><span class="lineno">  249</span>                n_dominated[i]++;</div>
+<div class="line"><span class="lineno">  250</span>            }</div>
+<div class="line"><span class="lineno">  251</span>        }</div>
+<div class="line"><span class="lineno">  252</span>    }</div>
+<div class="line"><span class="lineno">  253</span>    </div>
+<div class="line"><span class="lineno">  254</span>    <span class="comment">// Find first front</span></div>
+<div class="line"><span class="lineno">  255</span>    std::vector&lt;size_t&gt; current_front;</div>
+<div class="line"><span class="lineno">  256</span>    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; n; ++i) {</div>
+<div class="line"><span class="lineno">  257</span>        <span class="keywordflow">if</span> (n_dominated[i] == 0) {</div>
+<div class="line"><span class="lineno">  258</span>            population[i]-&gt;rank = 0;</div>
+<div class="line"><span class="lineno">  259</span>            current_front.push_back(i);</div>
+<div class="line"><span class="lineno">  260</span>        }</div>
+<div class="line"><span class="lineno">  261</span>    }</div>
+<div class="line"><span class="lineno">  262</span>    </div>
+<div class="line"><span class="lineno">  263</span>    front_indices.push_back(current_front);</div>
+<div class="line"><span class="lineno">  264</span>    </div>
+<div class="line"><span class="lineno">  265</span>    <span class="comment">// Find remaining fronts</span></div>
+<div class="line"><span class="lineno">  266</span>    <span class="keywordtype">int</span> rank = 0;</div>
+<div class="line"><span class="lineno">  267</span>    <span class="keywordflow">while</span> (!current_front.empty()) {</div>
+<div class="line"><span class="lineno">  268</span>        std::vector&lt;size_t&gt; next_front;</div>
+<div class="line"><span class="lineno">  269</span>        </div>
+<div class="line"><span class="lineno">  270</span>        <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i : current_front) {</div>
+<div class="line"><span class="lineno">  271</span>            <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> j : S[i]) {</div>
+<div class="line"><span class="lineno">  272</span>                n_dominated[j]--;</div>
+<div class="line"><span class="lineno">  273</span>                <span class="keywordflow">if</span> (n_dominated[j] == 0) {</div>
+<div class="line"><span class="lineno">  274</span>                    population[j]-&gt;rank = rank + 1;</div>
+<div class="line"><span class="lineno">  275</span>                    next_front.push_back(j);</div>
+<div class="line"><span class="lineno">  276</span>                }</div>
+<div class="line"><span class="lineno">  277</span>            }</div>
+<div class="line"><span class="lineno">  278</span>        }</div>
+<div class="line"><span class="lineno">  279</span>        </div>
+<div class="line"><span class="lineno">  280</span>        rank++;</div>
+<div class="line"><span class="lineno">  281</span>        current_front = next_front;</div>
+<div class="line"><span class="lineno">  282</span>        <span class="keywordflow">if</span> (!current_front.empty()) {</div>
+<div class="line"><span class="lineno">  283</span>            front_indices.push_back(current_front);</div>
+<div class="line"><span class="lineno">  284</span>        }</div>
+<div class="line"><span class="lineno">  285</span>    }</div>
+<div class="line"><span class="lineno">  286</span>    </div>
+<div class="line"><span class="lineno">  287</span>    <span class="comment">// Convert indices to individual pointers</span></div>
+<div class="line"><span class="lineno">  288</span>    sorted_fronts.resize(front_indices.size());</div>
+<div class="line"><span class="lineno">  289</span>    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; front_indices.size(); ++i) {</div>
+<div class="line"><span class="lineno">  290</span>        <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> idx : front_indices[i]) {</div>
+<div class="line"><span class="lineno">  291</span>            sorted_fronts[i].push_back(population[idx]);</div>
+<div class="line"><span class="lineno">  292</span>        }</div>
+<div class="line"><span class="lineno">  293</span>    }</div>
+<div class="line"><span class="lineno">  294</span>    </div>
+<div class="line"><span class="lineno">  295</span>    <span class="keywordflow">return</span> sorted_fronts;</div>
+<div class="line"><span class="lineno">  296</span>}</div>
 </div><!-- fragment --><div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -251,7 +251,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="namespacensga2.html">nsga2</a></li><li class="navelem"><a class="el" href="classnsga2_1_1FastNonDominatedSort.html">FastNonDominatedSort</a></li>
-    <li class="footer">Generated on Sun Aug 10 2025 01:06:18 for NSGA-II Optimizer by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.6 </li>
+    <li class="footer">Generated on Sun Aug 10 2025 12:37:35 for NSGA-II Optimizer by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.6 </li>
   </ul>
 </div>
 </body>

@@ -7,45 +7,40 @@
 \doxysubsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-\mbox{\hyperlink{classnsga2_1_1REXCrossover_a5073ba8254511d301c7d7dae8afafd18}{REXCrossover}} (unsigned int seed=42, \mbox{\hyperlink{namespacensga2_a594adef242e7d5748f5c9cf9d72be1d3}{REXDistribution\+Type}} dist\+\_\+type=\mbox{\hyperlink{namespacensga2_a594adef242e7d5748f5c9cf9d72be1d3a961a7a0a72c511fa51df0c345278c3b9}{REXDistribution\+Type\+::\+VShaped}})
+\mbox{\hyperlink{classnsga2_1_1REXCrossover_aa4ade2278d0fefe9c72126bd7834421e}{REXCrossover}} (double xi=1.\+2, unsigned int seed=42)
 \item 
 std\+::vector$<$ \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{Individual\+Ptr}} $>$ \mbox{\hyperlink{classnsga2_1_1REXCrossover_a2c2880e6883be65f0ae4164b441b088d}{crossover}} (const std\+::vector$<$ \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{Individual\+Ptr}} $>$ \&parents, size\+\_\+t n\+\_\+children)
-\end{DoxyCompactItemize}
-\doxysubsection*{Private Member Functions}
-\begin{DoxyCompactItemize}
-\item 
-double \mbox{\hyperlink{classnsga2_1_1REXCrossover_af1afdac7ed45ba9fecf81139e02b99cb}{generate\+VShaped\+Random}} (double a)
 \end{DoxyCompactItemize}
 \doxysubsection*{Private Attributes}
 \begin{DoxyCompactItemize}
 \item 
-std\+::mt19937 \mbox{\hyperlink{classnsga2_1_1REXCrossover_a17e6d01e3d9e018b7567e0d94ab21598}{gen\+\_\+}}
+double \mbox{\hyperlink{classnsga2_1_1REXCrossover_a4fe8f67e276efbbd5306da6fa6932739}{xi\+\_\+}}
 \item 
-\mbox{\hyperlink{namespacensga2_a594adef242e7d5748f5c9cf9d72be1d3}{REXDistribution\+Type}} \mbox{\hyperlink{classnsga2_1_1REXCrossover_a80c8af27765113e7e0628b14d28b136e}{dist\+\_\+type\+\_\+}}
+std\+::mt19937 \mbox{\hyperlink{classnsga2_1_1REXCrossover_a17e6d01e3d9e018b7567e0d94ab21598}{gen\+\_\+}}
 \end{DoxyCompactItemize}
 
 
 \doxysubsection{Detailed Description}
 
 
-Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00140}{140}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00133}{133}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
 
 
 
 \doxysubsection{Constructor \& Destructor Documentation}
-\mbox{\Hypertarget{classnsga2_1_1REXCrossover_a5073ba8254511d301c7d7dae8afafd18}\label{classnsga2_1_1REXCrossover_a5073ba8254511d301c7d7dae8afafd18}} 
+\mbox{\Hypertarget{classnsga2_1_1REXCrossover_aa4ade2278d0fefe9c72126bd7834421e}\label{classnsga2_1_1REXCrossover_aa4ade2278d0fefe9c72126bd7834421e}} 
 \index{nsga2::REXCrossover@{nsga2::REXCrossover}!REXCrossover@{REXCrossover}}
 \index{REXCrossover@{REXCrossover}!nsga2::REXCrossover@{nsga2::REXCrossover}}
 \doxysubsubsection{\texorpdfstring{REXCrossover()}{REXCrossover()}}
-{\footnotesize\ttfamily nsga2\+::\+REXCrossover\+::\+REXCrossover (\begin{DoxyParamCaption}\item[{unsigned int}]{seed = {\ttfamily 42},  }\item[{\mbox{\hyperlink{namespacensga2_a594adef242e7d5748f5c9cf9d72be1d3}{REXDistribution\+Type}}}]{dist\+\_\+type = {\ttfamily \mbox{\hyperlink{namespacensga2_a594adef242e7d5748f5c9cf9d72be1d3a961a7a0a72c511fa51df0c345278c3b9}{REXDistribution\+Type\+::\+VShaped}}} }\end{DoxyParamCaption})}
+{\footnotesize\ttfamily nsga2\+::\+REXCrossover\+::\+REXCrossover (\begin{DoxyParamCaption}\item[{double}]{xi = {\ttfamily 1.2},  }\item[{unsigned int}]{seed = {\ttfamily 42} }\end{DoxyParamCaption})}
 
 
 
-Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00449}{449}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00328}{328}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
 
 
 \begin{DoxyCode}{0}
-\DoxyCodeLine{00450\ \ \ \ \ :\ \mbox{\hyperlink{classnsga2_1_1REXCrossover_a17e6d01e3d9e018b7567e0d94ab21598}{gen\_}}(seed),\ \mbox{\hyperlink{classnsga2_1_1REXCrossover_a80c8af27765113e7e0628b14d28b136e}{dist\_type\_}}(dist\_type)\ \{\}}
+\DoxyCodeLine{00329\ \ \ \ \ :\ \mbox{\hyperlink{classnsga2_1_1REXCrossover_a4fe8f67e276efbbd5306da6fa6932739}{xi\_}}(xi),\ \mbox{\hyperlink{classnsga2_1_1REXCrossover_a17e6d01e3d9e018b7567e0d94ab21598}{gen\_}}(seed)\ \{\}}
 
 \end{DoxyCode}
 
@@ -59,151 +54,70 @@ Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00449}{449}} o
 
 
 
-Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00471}{471}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00331}{331}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
 
 
 \begin{DoxyCode}{0}
-\DoxyCodeLine{00473\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
-\DoxyCodeLine{00474\ \ \ \ \ }
-\DoxyCodeLine{00475\ \ \ \ \ \textcolor{keywordflow}{if}\ (parents.size()\ <\ 2)\ \{}
-\DoxyCodeLine{00476\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{throw}\ std::invalid\_argument(\textcolor{stringliteral}{"{}REX\ crossover\ requires\ at\ least\ 2\ parents"{}});}
-\DoxyCodeLine{00477\ \ \ \ \ \}}
-\DoxyCodeLine{00478\ \ \ \ \ }
-\DoxyCodeLine{00479\ \ \ \ \ \textcolor{comment}{//\ Validate\ all\ parents\ have\ same\ parameter\ size}}
-\DoxyCodeLine{00480\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ n\_dims\ =\ parents[0]-\/>parameters.size();}
-\DoxyCodeLine{00481\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 1;\ i\ <\ parents.size();\ ++i)\ \{}
-\DoxyCodeLine{00482\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (parents[i]-\/>parameters.size()\ !=\ n\_dims)\ \{}
-\DoxyCodeLine{00483\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{throw}\ std::invalid\_argument(\textcolor{stringliteral}{"{}All\ parents\ must\ have\ the\ same\ number\ of\ parameters\ for\ REX\ crossover"{}});}
-\DoxyCodeLine{00484\ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{00485\ \ \ \ \ \}}
-\DoxyCodeLine{00486\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ n\_parents\ =\ parents.size();}
-\DoxyCodeLine{00487\ \ \ \ \ std::vector<IndividualPtr>\ children;}
-\DoxyCodeLine{00488\ \ \ \ \ }
-\DoxyCodeLine{00489\ \ \ \ \ \textcolor{comment}{//\ Calculate\ center\ of\ mass\ (xg\ in\ the\ PDF)}}
-\DoxyCodeLine{00490\ \ \ \ \ std::vector<double>\ center(n\_dims,\ 0.0);}
-\DoxyCodeLine{00491\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ \textcolor{keyword}{auto}\&\ parent\ :\ parents)\ \{}
-\DoxyCodeLine{00492\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ n\_dims;\ ++i)\ \{}
-\DoxyCodeLine{00493\ \ \ \ \ \ \ \ \ \ \ \ \ center[i]\ +=\ parent-\/>parameters[i];}
-\DoxyCodeLine{00494\ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{00495\ \ \ \ \ \}}
-\DoxyCodeLine{00496\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{double}\&\ c\ :\ center)\ \{}
-\DoxyCodeLine{00497\ \ \ \ \ \ \ \ \ c\ /=\ n\_parents;}
-\DoxyCodeLine{00498\ \ \ \ \ \}}
-\DoxyCodeLine{00499\ \ \ \ \ }
-\DoxyCodeLine{00500\ \ \ \ \ \textcolor{comment}{//\ Generate\ children\ according\ to\ REX(φ,n+k)\ from\ the\ PDF}}
-\DoxyCodeLine{00501\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ c\ =\ 0;\ c\ <\ n\_children;\ ++c)\ \{}
-\DoxyCodeLine{00502\ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ child\ =\ std::make\_shared<Individual>(n\_dims);}
-\DoxyCodeLine{00503\ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{00504\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Initialize\ with\ center}}
-\DoxyCodeLine{00505\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ d\ =\ 0;\ d\ <\ n\_dims;\ ++d)\ \{}
-\DoxyCodeLine{00506\ \ \ \ \ \ \ \ \ \ \ \ \ child-\/>parameters[d]\ =\ center[d];}
-\DoxyCodeLine{00507\ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{00508\ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{00509\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Add\ deviations\ using\ specified\ distribution}}
-\DoxyCodeLine{00510\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classnsga2_1_1REXCrossover_a80c8af27765113e7e0628b14d28b136e}{dist\_type\_}}\ ==\ \mbox{\hyperlink{namespacensga2_a594adef242e7d5748f5c9cf9d72be1d3a961a7a0a72c511fa51df0c345278c3b9}{REXDistributionType::VShaped}})\ \{}
-\DoxyCodeLine{00511\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ V-\/shaped\ distribution:\ a\ =\ sqrt(2/(n+k))\ as\ stated\ in\ PDF}}
-\DoxyCodeLine{00512\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ a\ =\ std::sqrt(2.0\ /\ n\_parents);}
-\DoxyCodeLine{00513\ \ \ \ \ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{00514\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ p\ =\ 0;\ p\ <\ n\_parents;\ ++p)\ \{}
-\DoxyCodeLine{00515\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ xi\ =\ \mbox{\hyperlink{classnsga2_1_1REXCrossover_af1afdac7ed45ba9fecf81139e02b99cb}{generateVShapedRandom}}(a);}
-\DoxyCodeLine{00516\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ d\ =\ 0;\ d\ <\ n\_dims;\ ++d)\ \{}
-\DoxyCodeLine{00517\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ child-\/>parameters[d]\ +=\ xi\ *\ (parents[p]-\/>parameters[d]\ -\/\ center[d]);}
-\DoxyCodeLine{00518\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{00519\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{00520\ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classnsga2_1_1REXCrossover_a80c8af27765113e7e0628b14d28b136e}{dist\_type\_}}\ ==\ \mbox{\hyperlink{namespacensga2_a594adef242e7d5748f5c9cf9d72be1d3a960b44c579bc2f6818d2daaf9e4c16f0}{REXDistributionType::Normal}})\ \{}
-\DoxyCodeLine{00521\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Normal\ distribution\ N(0,\ σ²)\ where\ σ²\ =\ 1/(n+k)}}
-\DoxyCodeLine{00522\ \ \ \ \ \ \ \ \ \ \ \ \ std::normal\_distribution<>\ normal\_dist(0.0,\ std::sqrt(1.0\ /\ n\_parents));}
-\DoxyCodeLine{00523\ \ \ \ \ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{00524\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ p\ =\ 0;\ p\ <\ n\_parents;\ ++p)\ \{}
-\DoxyCodeLine{00525\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ xi\ =\ normal\_dist(\mbox{\hyperlink{classnsga2_1_1REXCrossover_a17e6d01e3d9e018b7567e0d94ab21598}{gen\_}});}
-\DoxyCodeLine{00526\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ d\ =\ 0;\ d\ <\ n\_dims;\ ++d)\ \{}
-\DoxyCodeLine{00527\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ child-\/>parameters[d]\ +=\ xi\ *\ (parents[p]-\/>parameters[d]\ -\/\ center[d]);}
-\DoxyCodeLine{00528\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{00529\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{00530\ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{\ \ \textcolor{comment}{//\ Uniform\ distribution}}
-\DoxyCodeLine{00531\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Uniform\ distribution\ U(-\/a,\ a)\ where\ a\ =\ sqrt(3/(n+k))\ for\ variance\ =\ 1/(n+k)}}
-\DoxyCodeLine{00532\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ a\ =\ std::sqrt(3.0\ /\ n\_parents);}
-\DoxyCodeLine{00533\ \ \ \ \ \ \ \ \ \ \ \ \ std::uniform\_real\_distribution<>\ uniform\_dist(-\/a,\ a);}
-\DoxyCodeLine{00534\ \ \ \ \ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{00535\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ p\ =\ 0;\ p\ <\ n\_parents;\ ++p)\ \{}
-\DoxyCodeLine{00536\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ xi\ =\ uniform\_dist(\mbox{\hyperlink{classnsga2_1_1REXCrossover_a17e6d01e3d9e018b7567e0d94ab21598}{gen\_}});}
-\DoxyCodeLine{00537\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ d\ =\ 0;\ d\ <\ n\_dims;\ ++d)\ \{}
-\DoxyCodeLine{00538\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ child-\/>parameters[d]\ +=\ xi\ *\ (parents[p]-\/>parameters[d]\ -\/\ center[d]);}
-\DoxyCodeLine{00539\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{00540\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{00541\ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{00542\ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{00543\ \ \ \ \ \ \ \ \ children.push\_back(child);}
-\DoxyCodeLine{00544\ \ \ \ \ \}}
-\DoxyCodeLine{00545\ \ \ \ \ }
-\DoxyCodeLine{00546\ \ \ \ \ \textcolor{keywordflow}{return}\ children;}
-\DoxyCodeLine{00547\ \}}
+\DoxyCodeLine{00333\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00334\ \ \ \ \ }
+\DoxyCodeLine{00335\ \ \ \ \ \textcolor{keywordflow}{if}\ (parents.size()\ <\ 2)\ \{}
+\DoxyCodeLine{00336\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{throw}\ std::invalid\_argument(\textcolor{stringliteral}{"{}REX\ crossover\ requires\ at\ least\ 2\ parents"{}});}
+\DoxyCodeLine{00337\ \ \ \ \ \}}
+\DoxyCodeLine{00338\ \ \ \ \ }
+\DoxyCodeLine{00339\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ n\_dims\ =\ parents[0]-\/>parameters.size();}
+\DoxyCodeLine{00340\ \ \ \ \ std::vector<IndividualPtr>\ children;}
+\DoxyCodeLine{00341\ \ \ \ \ }
+\DoxyCodeLine{00342\ \ \ \ \ \textcolor{comment}{//\ Calculate\ center\ of\ mass}}
+\DoxyCodeLine{00343\ \ \ \ \ std::vector<double>\ center(n\_dims,\ 0.0);}
+\DoxyCodeLine{00344\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ \textcolor{keyword}{auto}\&\ parent\ :\ parents)\ \{}
+\DoxyCodeLine{00345\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ n\_dims;\ ++i)\ \{}
+\DoxyCodeLine{00346\ \ \ \ \ \ \ \ \ \ \ \ \ center[i]\ +=\ parent-\/>parameters[i];}
+\DoxyCodeLine{00347\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00348\ \ \ \ \ \}}
+\DoxyCodeLine{00349\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{double}\&\ c\ :\ center)\ \{}
+\DoxyCodeLine{00350\ \ \ \ \ \ \ \ \ c\ /=\ parents.size();}
+\DoxyCodeLine{00351\ \ \ \ \ \}}
+\DoxyCodeLine{00352\ \ \ \ \ }
+\DoxyCodeLine{00353\ \ \ \ \ \textcolor{comment}{//\ Generate\ children}}
+\DoxyCodeLine{00354\ \ \ \ \ std::uniform\_real\_distribution<>\ dist(0.0,\ 1.0);}
+\DoxyCodeLine{00355\ \ \ \ \ }
+\DoxyCodeLine{00356\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ c\ =\ 0;\ c\ <\ n\_children;\ ++c)\ \{}
+\DoxyCodeLine{00357\ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ child\ =\ std::make\_shared<Individual>(n\_dims);}
+\DoxyCodeLine{00358\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00359\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Generate\ weights}}
+\DoxyCodeLine{00360\ \ \ \ \ \ \ \ \ std::vector<double>\ weights(parents.size());}
+\DoxyCodeLine{00361\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ sum\_weights\ =\ 0.0;}
+\DoxyCodeLine{00362\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00363\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ parents.size();\ ++i)\ \{}
+\DoxyCodeLine{00364\ \ \ \ \ \ \ \ \ \ \ \ \ weights[i]\ =\ dist(\mbox{\hyperlink{classnsga2_1_1REXCrossover_a17e6d01e3d9e018b7567e0d94ab21598}{gen\_}});}
+\DoxyCodeLine{00365\ \ \ \ \ \ \ \ \ \ \ \ \ sum\_weights\ +=\ weights[i];}
+\DoxyCodeLine{00366\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00367\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00368\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Normalize\ weights}}
+\DoxyCodeLine{00369\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{double}\&\ w\ :\ weights)\ \{}
+\DoxyCodeLine{00370\ \ \ \ \ \ \ \ \ \ \ \ \ w\ /=\ sum\_weights;}
+\DoxyCodeLine{00371\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00372\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00373\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Create\ child}}
+\DoxyCodeLine{00374\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ d\ =\ 0;\ d\ <\ n\_dims;\ ++d)\ \{}
+\DoxyCodeLine{00375\ \ \ \ \ \ \ \ \ \ \ \ \ child-\/>parameters[d]\ =\ center[d];}
+\DoxyCodeLine{00376\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00377\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ p\ =\ 0;\ p\ <\ parents.size();\ ++p)\ \{}
+\DoxyCodeLine{00378\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ child-\/>parameters[d]\ +=\ \mbox{\hyperlink{classnsga2_1_1REXCrossover_a4fe8f67e276efbbd5306da6fa6932739}{xi\_}}\ *\ weights[p]\ *\ }
+\DoxyCodeLine{00379\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (parents[p]-\/>parameters[d]\ -\/\ center[d]);}
+\DoxyCodeLine{00380\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00381\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00382\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00383\ \ \ \ \ \ \ \ \ children.push\_back(child);}
+\DoxyCodeLine{00384\ \ \ \ \ \}}
+\DoxyCodeLine{00385\ \ \ \ \ }
+\DoxyCodeLine{00386\ \ \ \ \ \textcolor{keywordflow}{return}\ children;}
+\DoxyCodeLine{00387\ \}}
 
 \end{DoxyCode}
-Here is the call graph for this function\+:\nopagebreak
-\begin{figure}[H]
-\begin{center}
-\leavevmode
-\includegraphics[width=350pt]{classnsga2_1_1REXCrossover_a2c2880e6883be65f0ae4164b441b088d_cgraph}
-\end{center}
-\end{figure}
-Here is the caller graph for this function\+:\nopagebreak
-\begin{figure}[H]
-\begin{center}
-\leavevmode
-\includegraphics[width=342pt]{classnsga2_1_1REXCrossover_a2c2880e6883be65f0ae4164b441b088d_icgraph}
-\end{center}
-\end{figure}
-\mbox{\Hypertarget{classnsga2_1_1REXCrossover_af1afdac7ed45ba9fecf81139e02b99cb}\label{classnsga2_1_1REXCrossover_af1afdac7ed45ba9fecf81139e02b99cb}} 
-\index{nsga2::REXCrossover@{nsga2::REXCrossover}!generateVShapedRandom@{generateVShapedRandom}}
-\index{generateVShapedRandom@{generateVShapedRandom}!nsga2::REXCrossover@{nsga2::REXCrossover}}
-\doxysubsubsection{\texorpdfstring{generateVShapedRandom()}{generateVShapedRandom()}}
-{\footnotesize\ttfamily double nsga2\+::\+REXCrossover\+::generate\+VShaped\+Random (\begin{DoxyParamCaption}\item[{double}]{a }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
-
-
-
-Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00454}{454}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
-
-
-\begin{DoxyCode}{0}
-\DoxyCodeLine{00454\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
-\DoxyCodeLine{00455\ \ \ \ \ std::uniform\_real\_distribution<>\ dist(0.0,\ 1.0);}
-\DoxyCodeLine{00456\ \ \ \ \ \textcolor{keywordtype}{double}\ u\ =\ dist(\mbox{\hyperlink{classnsga2_1_1REXCrossover_a17e6d01e3d9e018b7567e0d94ab21598}{gen\_}});}
-\DoxyCodeLine{00457\ \ \ \ \ }
-\DoxyCodeLine{00458\ \ \ \ \ \textcolor{comment}{//\ V-\/shaped\ distribution:\ f(x)\ =\ |x|/a²\ for\ x\ in\ [-\/a,\ a]}}
-\DoxyCodeLine{00459\ \ \ \ \ \textcolor{comment}{//\ CDF:\ F(x)\ =\ 1/2\ -\/\ x²/(2a²)\ for\ x\ <\ 0}}
-\DoxyCodeLine{00460\ \ \ \ \ \textcolor{comment}{//\ \ \ \ \ \ F(x)\ =\ 1/2\ +\ x²/(2a²)\ for\ x\ ≥\ 0}}
-\DoxyCodeLine{00461\ \ \ \ \ \textcolor{comment}{//\ Inverse\ transform:}}
-\DoxyCodeLine{00462\ \ \ \ \ \textcolor{keywordflow}{if}\ (u\ <\ 0.5)\ \{}
-\DoxyCodeLine{00463\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Left\ side:\ x\ =\ -\/a*sqrt(1-\/2u)}}
-\DoxyCodeLine{00464\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ -\/a\ *\ std::sqrt(1.0\ -\/\ 2.0\ *\ u);}
-\DoxyCodeLine{00465\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
-\DoxyCodeLine{00466\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Right\ side:\ x\ =\ a*sqrt(2u-\/1)}}
-\DoxyCodeLine{00467\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ a\ *\ std::sqrt(2.0\ *\ u\ -\/\ 1.0);}
-\DoxyCodeLine{00468\ \ \ \ \ \}}
-\DoxyCodeLine{00469\ \}}
-
-\end{DoxyCode}
-Here is the caller graph for this function\+:\nopagebreak
-\begin{figure}[H]
-\begin{center}
-\leavevmode
-\includegraphics[width=350pt]{classnsga2_1_1REXCrossover_af1afdac7ed45ba9fecf81139e02b99cb_icgraph}
-\end{center}
-\end{figure}
 
 
 \doxysubsection{Member Data Documentation}
-\mbox{\Hypertarget{classnsga2_1_1REXCrossover_a80c8af27765113e7e0628b14d28b136e}\label{classnsga2_1_1REXCrossover_a80c8af27765113e7e0628b14d28b136e}} 
-\index{nsga2::REXCrossover@{nsga2::REXCrossover}!dist\_type\_@{dist\_type\_}}
-\index{dist\_type\_@{dist\_type\_}!nsga2::REXCrossover@{nsga2::REXCrossover}}
-\doxysubsubsection{\texorpdfstring{dist\_type\_}{dist\_type\_}}
-{\footnotesize\ttfamily \mbox{\hyperlink{namespacensga2_a594adef242e7d5748f5c9cf9d72be1d3}{REXDistribution\+Type}} nsga2\+::\+REXCrossover\+::dist\+\_\+type\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
-
-
-
-Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00143}{143}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
-
 \mbox{\Hypertarget{classnsga2_1_1REXCrossover_a17e6d01e3d9e018b7567e0d94ab21598}\label{classnsga2_1_1REXCrossover_a17e6d01e3d9e018b7567e0d94ab21598}} 
 \index{nsga2::REXCrossover@{nsga2::REXCrossover}!gen\_@{gen\_}}
 \index{gen\_@{gen\_}!nsga2::REXCrossover@{nsga2::REXCrossover}}
@@ -212,7 +126,17 @@ Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00143}{143}} o
 
 
 
-Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00142}{142}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00136}{136}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
+
+\mbox{\Hypertarget{classnsga2_1_1REXCrossover_a4fe8f67e276efbbd5306da6fa6932739}\label{classnsga2_1_1REXCrossover_a4fe8f67e276efbbd5306da6fa6932739}} 
+\index{nsga2::REXCrossover@{nsga2::REXCrossover}!xi\_@{xi\_}}
+\index{xi\_@{xi\_}!nsga2::REXCrossover@{nsga2::REXCrossover}}
+\doxysubsubsection{\texorpdfstring{xi\_}{xi\_}}
+{\footnotesize\ttfamily double nsga2\+::\+REXCrossover\+::xi\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00135}{135}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
 
 
 

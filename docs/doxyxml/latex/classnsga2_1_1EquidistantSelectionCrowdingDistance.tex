@@ -72,11 +72,11 @@ Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00081}{81}} of
 
 
 
-Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00258}{258}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00137}{137}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
 
 
 \begin{DoxyCode}{0}
-\DoxyCodeLine{00259\ \ \ \ \ :\ \mbox{\hyperlink{classnsga2_1_1EquidistantSelectionCrowdingDistance_a33513398babc27b164699837c94bb98e}{selection\_size\_}}(selection\_size)\ \{\}}
+\DoxyCodeLine{00138\ \ \ \ \ :\ \mbox{\hyperlink{classnsga2_1_1EquidistantSelectionCrowdingDistance_a33513398babc27b164699837c94bb98e}{selection\_size\_}}(selection\_size)\ \{\}}
 
 \end{DoxyCode}
 \mbox{\Hypertarget{classnsga2_1_1EquidistantSelectionCrowdingDistance_a80e61641e3b0ac8445689093d3369c78}\label{classnsga2_1_1EquidistantSelectionCrowdingDistance_a80e61641e3b0ac8445689093d3369c78}} 
@@ -100,73 +100,73 @@ Implements \mbox{\hyperlink{classnsga2_1_1ICrowdingDistanceCalculator_aba7348834
 
 
 
-Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00270}{270}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00149}{149}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
 
 
 \begin{DoxyCode}{0}
-\DoxyCodeLine{00270\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
-\DoxyCodeLine{00271\ \ \ \ \ \textcolor{keywordflow}{if}\ (front.empty()\ ||\ front.size()\ <\ 2)\ \textcolor{keywordflow}{return};}
-\DoxyCodeLine{00272\ \ \ \ \ }
-\DoxyCodeLine{00273\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ numSelect\ =\ (\mbox{\hyperlink{classnsga2_1_1EquidistantSelectionCrowdingDistance_a33513398babc27b164699837c94bb98e}{selection\_size\_}}\ >\ 0)\ ?\ \mbox{\hyperlink{classnsga2_1_1EquidistantSelectionCrowdingDistance_a33513398babc27b164699837c94bb98e}{selection\_size\_}}\ :\ front.size();}
-\DoxyCodeLine{00274\ \ \ \ \ }
-\DoxyCodeLine{00275\ \ \ \ \ \textcolor{comment}{//\ Sort\ by\ lexicographic\ order\ of\ objectives}}
-\DoxyCodeLine{00276\ \ \ \ \ std::sort(front.begin(),\ front.end(),\ [](\textcolor{keyword}{const}\ \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{IndividualPtr}}\&\ a,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{IndividualPtr}}\&\ b)\ \{}
-\DoxyCodeLine{00277\ \ \ \ \ \ \ \ \ for\ (size\_t\ i\ =\ 0;\ i\ <\ a-\/>objectives.size();\ ++i)\ \{}
-\DoxyCodeLine{00278\ \ \ \ \ \ \ \ \ \ \ \ \ if\ (std::abs(a-\/>objectives[i]\ -\/\ b-\/>objectives[i])\ >\ std::numeric\_limits<double>::epsilon())\ \{}
-\DoxyCodeLine{00279\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ return\ a-\/>objectives[i]\ <\ b-\/>objectives[i];}
-\DoxyCodeLine{00280\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{00281\ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{00282\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
-\DoxyCodeLine{00283\ \ \ \ \ \});}
-\DoxyCodeLine{00284\ \ \ \ \ }
-\DoxyCodeLine{00285\ \ \ \ \ \textcolor{comment}{//\ Calculate\ path\ lengths}}
-\DoxyCodeLine{00286\ \ \ \ \ std::vector<double>\ D(front.size(),\ 0.0);}
-\DoxyCodeLine{00287\ \ \ \ \ }
-\DoxyCodeLine{00288\ \ \ \ \ \textcolor{comment}{//\ Initialize\ crowding\ distances}}
-\DoxyCodeLine{00289\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ ind\ :\ front)\ \{}
-\DoxyCodeLine{00290\ \ \ \ \ \ \ \ \ ind-\/>crowding\_distance\ =\ 0.0;}
-\DoxyCodeLine{00291\ \ \ \ \ \}}
-\DoxyCodeLine{00292\ \ \ \ \ }
-\DoxyCodeLine{00293\ \ \ \ \ \textcolor{comment}{//\ Calculate\ cumulative\ path\ length}}
-\DoxyCodeLine{00294\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 1;\ i\ <\ front.size();\ ++i)\ \{}
-\DoxyCodeLine{00295\ \ \ \ \ \ \ \ \ D[i]\ =\ D[i\ -\/\ 1]\ +\ \mbox{\hyperlink{classnsga2_1_1EquidistantSelectionCrowdingDistance_af05d94dfcfdcb2ae823baca2069a10d9}{calculateDistance}}(*front[i\ -\/\ 1],\ *front[i]);}
-\DoxyCodeLine{00296\ \ \ \ \ \}}
-\DoxyCodeLine{00297\ \ \ \ \ }
-\DoxyCodeLine{00298\ \ \ \ \ \textcolor{keywordtype}{double}\ Dmax\ =\ D.back();}
-\DoxyCodeLine{00299\ \ \ \ \ \textcolor{keywordflow}{if}\ (Dmax\ <\ std::numeric\_limits<double>::epsilon())\ \{}
-\DoxyCodeLine{00300\ \ \ \ \ \ \ \ \ std::cerr\ <<\ \textcolor{stringliteral}{"{}Warning:\ Total\ path\ length\ is\ near\ zero!"{}}\ <<\ std::endl;}
-\DoxyCodeLine{00301\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
-\DoxyCodeLine{00302\ \ \ \ \ \}}
-\DoxyCodeLine{00303\ \ \ \ \ }
-\DoxyCodeLine{00304\ \ \ \ \ \textcolor{comment}{//\ Set\ boundary\ points}}
-\DoxyCodeLine{00305\ \ \ \ \ front[0]-\/>crowding\_distance\ =\ std::numeric\_limits<double>::infinity();}
-\DoxyCodeLine{00306\ \ \ \ \ front.back()-\/>crowding\_distance\ =\ std::numeric\_limits<double>::infinity();}
-\DoxyCodeLine{00307\ \ \ \ \ }
-\DoxyCodeLine{00308\ \ \ \ \ \textcolor{keywordflow}{if}\ (numSelect\ >\ 2)\ \{}
-\DoxyCodeLine{00309\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ equidistantStep\ =\ Dmax\ /\ (numSelect\ -\/\ 1);}
-\DoxyCodeLine{00310\ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{00311\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 1;\ i\ <\ numSelect\ -\/\ 1;\ ++i)\ \{}
-\DoxyCodeLine{00312\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ targetDistance\ =\ equidistantStep\ *\ i;}
-\DoxyCodeLine{00313\ \ \ \ \ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{00314\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Find\ closest\ point\ to\ target\ distance}}
-\DoxyCodeLine{00315\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ bestIdx\ =\ 1;}
-\DoxyCodeLine{00316\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ minDiff\ =\ std::abs(D[1]\ -\/\ targetDistance);}
-\DoxyCodeLine{00317\ \ \ \ \ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{00318\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ j\ =\ 2;\ j\ <\ front.size()\ -\/\ 1;\ ++j)\ \{}
-\DoxyCodeLine{00319\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ diff\ =\ std::abs(D[j]\ -\/\ targetDistance);}
-\DoxyCodeLine{00320\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (diff\ <\ minDiff)\ \{}
-\DoxyCodeLine{00321\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ minDiff\ =\ diff;}
-\DoxyCodeLine{00322\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ bestIdx\ =\ j;}
-\DoxyCodeLine{00323\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{00324\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{00325\ \ \ \ \ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{00326\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Update\ crowding\ distance\ for\ selected\ point}}
-\DoxyCodeLine{00327\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (front[bestIdx]-\/>crowding\_distance\ ==\ 0.0)\ \{}
-\DoxyCodeLine{00328\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ front[bestIdx]-\/>crowding\_distance\ =\ Dmax\ /\ numSelect;}
-\DoxyCodeLine{00329\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{00330\ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{00331\ \ \ \ \ \}}
-\DoxyCodeLine{00332\ \}}
+\DoxyCodeLine{00149\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00150\ \ \ \ \ \textcolor{keywordflow}{if}\ (front.empty()\ ||\ front.size()\ <\ 2)\ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00151\ \ \ \ \ }
+\DoxyCodeLine{00152\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ numSelect\ =\ (\mbox{\hyperlink{classnsga2_1_1EquidistantSelectionCrowdingDistance_a33513398babc27b164699837c94bb98e}{selection\_size\_}}\ >\ 0)\ ?\ \mbox{\hyperlink{classnsga2_1_1EquidistantSelectionCrowdingDistance_a33513398babc27b164699837c94bb98e}{selection\_size\_}}\ :\ front.size();}
+\DoxyCodeLine{00153\ \ \ \ \ }
+\DoxyCodeLine{00154\ \ \ \ \ \textcolor{comment}{//\ Sort\ by\ lexicographic\ order\ of\ objectives}}
+\DoxyCodeLine{00155\ \ \ \ \ std::sort(front.begin(),\ front.end(),\ [](\textcolor{keyword}{const}\ \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{IndividualPtr}}\&\ a,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{IndividualPtr}}\&\ b)\ \{}
+\DoxyCodeLine{00156\ \ \ \ \ \ \ \ \ for\ (size\_t\ i\ =\ 0;\ i\ <\ a-\/>objectives.size();\ ++i)\ \{}
+\DoxyCodeLine{00157\ \ \ \ \ \ \ \ \ \ \ \ \ if\ (std::abs(a-\/>objectives[i]\ -\/\ b-\/>objectives[i])\ >\ std::numeric\_limits<double>::epsilon())\ \{}
+\DoxyCodeLine{00158\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ return\ a-\/>objectives[i]\ <\ b-\/>objectives[i];}
+\DoxyCodeLine{00159\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00160\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00161\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00162\ \ \ \ \ \});}
+\DoxyCodeLine{00163\ \ \ \ \ }
+\DoxyCodeLine{00164\ \ \ \ \ \textcolor{comment}{//\ Calculate\ path\ lengths}}
+\DoxyCodeLine{00165\ \ \ \ \ std::vector<double>\ D(front.size(),\ 0.0);}
+\DoxyCodeLine{00166\ \ \ \ \ }
+\DoxyCodeLine{00167\ \ \ \ \ \textcolor{comment}{//\ Initialize\ crowding\ distances}}
+\DoxyCodeLine{00168\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ ind\ :\ front)\ \{}
+\DoxyCodeLine{00169\ \ \ \ \ \ \ \ \ ind-\/>crowding\_distance\ =\ 0.0;}
+\DoxyCodeLine{00170\ \ \ \ \ \}}
+\DoxyCodeLine{00171\ \ \ \ \ }
+\DoxyCodeLine{00172\ \ \ \ \ \textcolor{comment}{//\ Calculate\ cumulative\ path\ length}}
+\DoxyCodeLine{00173\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 1;\ i\ <\ front.size();\ ++i)\ \{}
+\DoxyCodeLine{00174\ \ \ \ \ \ \ \ \ D[i]\ =\ D[i\ -\/\ 1]\ +\ \mbox{\hyperlink{classnsga2_1_1EquidistantSelectionCrowdingDistance_af05d94dfcfdcb2ae823baca2069a10d9}{calculateDistance}}(*front[i\ -\/\ 1],\ *front[i]);}
+\DoxyCodeLine{00175\ \ \ \ \ \}}
+\DoxyCodeLine{00176\ \ \ \ \ }
+\DoxyCodeLine{00177\ \ \ \ \ \textcolor{keywordtype}{double}\ Dmax\ =\ D.back();}
+\DoxyCodeLine{00178\ \ \ \ \ \textcolor{keywordflow}{if}\ (Dmax\ <\ std::numeric\_limits<double>::epsilon())\ \{}
+\DoxyCodeLine{00179\ \ \ \ \ \ \ \ \ std::cerr\ <<\ \textcolor{stringliteral}{"{}Warning:\ Total\ path\ length\ is\ near\ zero!"{}}\ <<\ std::endl;}
+\DoxyCodeLine{00180\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00181\ \ \ \ \ \}}
+\DoxyCodeLine{00182\ \ \ \ \ }
+\DoxyCodeLine{00183\ \ \ \ \ \textcolor{comment}{//\ Set\ boundary\ points}}
+\DoxyCodeLine{00184\ \ \ \ \ front[0]-\/>crowding\_distance\ =\ std::numeric\_limits<double>::infinity();}
+\DoxyCodeLine{00185\ \ \ \ \ front.back()-\/>crowding\_distance\ =\ std::numeric\_limits<double>::infinity();}
+\DoxyCodeLine{00186\ \ \ \ \ }
+\DoxyCodeLine{00187\ \ \ \ \ \textcolor{keywordflow}{if}\ (numSelect\ >\ 2)\ \{}
+\DoxyCodeLine{00188\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ equidistantStep\ =\ Dmax\ /\ (numSelect\ -\/\ 1);}
+\DoxyCodeLine{00189\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00190\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 1;\ i\ <\ numSelect\ -\/\ 1;\ ++i)\ \{}
+\DoxyCodeLine{00191\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ targetDistance\ =\ equidistantStep\ *\ i;}
+\DoxyCodeLine{00192\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00193\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Find\ closest\ point\ to\ target\ distance}}
+\DoxyCodeLine{00194\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ bestIdx\ =\ 1;}
+\DoxyCodeLine{00195\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ minDiff\ =\ std::abs(D[1]\ -\/\ targetDistance);}
+\DoxyCodeLine{00196\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00197\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ j\ =\ 2;\ j\ <\ front.size()\ -\/\ 1;\ ++j)\ \{}
+\DoxyCodeLine{00198\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ diff\ =\ std::abs(D[j]\ -\/\ targetDistance);}
+\DoxyCodeLine{00199\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (diff\ <\ minDiff)\ \{}
+\DoxyCodeLine{00200\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ minDiff\ =\ diff;}
+\DoxyCodeLine{00201\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ bestIdx\ =\ j;}
+\DoxyCodeLine{00202\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00203\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00204\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00205\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Update\ crowding\ distance\ for\ selected\ point}}
+\DoxyCodeLine{00206\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (front[bestIdx]-\/>crowding\_distance\ ==\ 0.0)\ \{}
+\DoxyCodeLine{00207\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ front[bestIdx]-\/>crowding\_distance\ =\ Dmax\ /\ numSelect;}
+\DoxyCodeLine{00208\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00209\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00210\ \ \ \ \ \}}
+\DoxyCodeLine{00211\ \}}
 
 \end{DoxyCode}
 \mbox{\Hypertarget{classnsga2_1_1EquidistantSelectionCrowdingDistance_af05d94dfcfdcb2ae823baca2069a10d9}\label{classnsga2_1_1EquidistantSelectionCrowdingDistance_af05d94dfcfdcb2ae823baca2069a10d9}} 
@@ -177,18 +177,18 @@ Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00270}{270}} o
 
 
 
-Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00261}{261}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00140}{140}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
 
 
 \begin{DoxyCode}{0}
-\DoxyCodeLine{00261\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
-\DoxyCodeLine{00262\ \ \ \ \ \textcolor{keywordtype}{double}\ distance\ =\ 0.0;}
-\DoxyCodeLine{00263\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ a.objectives.size();\ ++i)\ \{}
-\DoxyCodeLine{00264\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ diff\ =\ b.objectives[i]\ -\/\ a.objectives[i];}
-\DoxyCodeLine{00265\ \ \ \ \ \ \ \ \ distance\ +=\ diff\ *\ diff;}
-\DoxyCodeLine{00266\ \ \ \ \ \}}
-\DoxyCodeLine{00267\ \ \ \ \ \textcolor{keywordflow}{return}\ std::sqrt(distance);}
-\DoxyCodeLine{00268\ \}}
+\DoxyCodeLine{00140\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00141\ \ \ \ \ \textcolor{keywordtype}{double}\ distance\ =\ 0.0;}
+\DoxyCodeLine{00142\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ a.objectives.size();\ ++i)\ \{}
+\DoxyCodeLine{00143\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ diff\ =\ b.objectives[i]\ -\/\ a.objectives[i];}
+\DoxyCodeLine{00144\ \ \ \ \ \ \ \ \ distance\ +=\ diff\ *\ diff;}
+\DoxyCodeLine{00145\ \ \ \ \ \}}
+\DoxyCodeLine{00146\ \ \ \ \ \textcolor{keywordflow}{return}\ std::sqrt(distance);}
+\DoxyCodeLine{00147\ \}}
 
 \end{DoxyCode}
 \mbox{\Hypertarget{classnsga2_1_1EquidistantSelectionCrowdingDistance_a74ddc9bd2a728231d5f885291f0c1802}\label{classnsga2_1_1EquidistantSelectionCrowdingDistance_a74ddc9bd2a728231d5f885291f0c1802}} 
