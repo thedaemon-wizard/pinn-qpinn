@@ -16,10 +16,5 @@ var namespacensga2 =
     [ "TraditionalCrowdingDistance", "classnsga2_1_1TraditionalCrowdingDistance.html", "classnsga2_1_1TraditionalCrowdingDistance" ],
     [ "IndividualPtr", "namespacensga2.html#a9338ac68ee391d4b50ef5d878d0d89b3", null ],
     [ "ObjectiveFunction", "namespacensga2.html#a9c76b7fc7926d54405b46a2cccf115f4", null ],
-    [ "PopulationPtr", "namespacensga2.html#a39290dffb3965bb004e87e5c07f637c1", null ],
-    [ "REXDistributionType", "namespacensga2.html#a594adef242e7d5748f5c9cf9d72be1d3", [
-      [ "Normal", "namespacensga2.html#a594adef242e7d5748f5c9cf9d72be1d3a960b44c579bc2f6818d2daaf9e4c16f0", null ],
-      [ "Uniform", "namespacensga2.html#a594adef242e7d5748f5c9cf9d72be1d3af19516d11f2946f894070e92fcb56b6d", null ],
-      [ "VShaped", "namespacensga2.html#a594adef242e7d5748f5c9cf9d72be1d3a961a7a0a72c511fa51df0c345278c3b9", null ]
-    ] ]
+    [ "PopulationPtr", "namespacensga2.html#a39290dffb3965bb004e87e5c07f637c1", null ]
 ];

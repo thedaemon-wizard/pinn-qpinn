@@ -4,6 +4,21 @@
     <compoundname>nsga2::REXCrossover</compoundname>
     <includes refid="nsga2__optimizer_8hpp" local="no">nsga2_optimizer.hpp</includes>
       <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classnsga2_1_1REXCrossover_1a4fe8f67e276efbbd5306da6fa6932739" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double nsga2::REXCrossover::xi_</definition>
+        <argsstring></argsstring>
+        <name>xi_</name>
+        <qualifiedname>nsga2::REXCrossover::xi_</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="135" column="12" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="135" bodyend="-1"/>
+        <referencedby refid="classnsga2_1_1REXCrossover_1a2c2880e6883be65f0ae4164b441b088d" compoundref="nsga2__optimizer_8cpp" startline="331" endline="387">crossover</referencedby>
+      </memberdef>
       <memberdef kind="variable" id="classnsga2_1_1REXCrossover_1a17e6d01e3d9e018b7567e0d94ab21598" prot="private" static="no" mutable="no">
         <type>std::mt19937</type>
         <definition>std::mt19937 nsga2::REXCrossover::gen_</definition>
@@ -16,72 +31,34 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="142" column="18" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="142" bodyend="-1"/>
-        <referencedby refid="classnsga2_1_1REXCrossover_1a2c2880e6883be65f0ae4164b441b088d" compoundref="nsga2__optimizer_8cpp" startline="471" endline="547">crossover</referencedby>
-        <referencedby refid="classnsga2_1_1REXCrossover_1af1afdac7ed45ba9fecf81139e02b99cb" compoundref="nsga2__optimizer_8cpp" startline="454" endline="469">generateVShapedRandom</referencedby>
-      </memberdef>
-      <memberdef kind="variable" id="classnsga2_1_1REXCrossover_1a80c8af27765113e7e0628b14d28b136e" prot="private" static="no" mutable="no">
-        <type><ref refid="namespacensga2_1a594adef242e7d5748f5c9cf9d72be1d3" kindref="member">REXDistributionType</ref></type>
-        <definition>REXDistributionType nsga2::REXCrossover::dist_type_</definition>
-        <argsstring></argsstring>
-        <name>dist_type_</name>
-        <qualifiedname>nsga2::REXCrossover::dist_type_</qualifiedname>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="143" column="25" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="143" bodyend="-1"/>
-        <referencedby refid="classnsga2_1_1REXCrossover_1a2c2880e6883be65f0ae4164b441b088d" compoundref="nsga2__optimizer_8cpp" startline="471" endline="547">crossover</referencedby>
-      </memberdef>
-      </sectiondef>
-      <sectiondef kind="private-func">
-      <memberdef kind="function" id="classnsga2_1_1REXCrossover_1af1afdac7ed45ba9fecf81139e02b99cb" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type>double</type>
-        <definition>double nsga2::REXCrossover::generateVShapedRandom</definition>
-        <argsstring>(double a)</argsstring>
-        <name>generateVShapedRandom</name>
-        <qualifiedname>nsga2::REXCrossover::generateVShapedRandom</qualifiedname>
-        <param>
-          <type>double</type>
-          <declname>a</declname>
-        </param>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="146" column="12" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/src/nsga2_optimizer.cpp" bodystart="454" bodyend="469"/>
-        <references refid="classnsga2_1_1REXCrossover_1a17e6d01e3d9e018b7567e0d94ab21598" compoundref="nsga2__optimizer_8hpp" startline="142">gen_</references>
-        <referencedby refid="classnsga2_1_1REXCrossover_1a2c2880e6883be65f0ae4164b441b088d" compoundref="nsga2__optimizer_8cpp" startline="471" endline="547">crossover</referencedby>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="136" column="18" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="136" bodyend="-1"/>
+        <referencedby refid="classnsga2_1_1REXCrossover_1a2c2880e6883be65f0ae4164b441b088d" compoundref="nsga2__optimizer_8cpp" startline="331" endline="387">crossover</referencedby>
       </memberdef>
       </sectiondef>
       <sectiondef kind="public-func">
-      <memberdef kind="function" id="classnsga2_1_1REXCrossover_1a5073ba8254511d301c7d7dae8afafd18" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+      <memberdef kind="function" id="classnsga2_1_1REXCrossover_1aa4ade2278d0fefe9c72126bd7834421e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type></type>
         <definition>nsga2::REXCrossover::REXCrossover</definition>
-        <argsstring>(unsigned int seed=42, REXDistributionType dist_type=REXDistributionType::VShaped)</argsstring>
+        <argsstring>(double xi=1.2, unsigned int seed=42)</argsstring>
         <name>REXCrossover</name>
         <qualifiedname>nsga2::REXCrossover::REXCrossover</qualifiedname>
+        <param>
+          <type>double</type>
+          <declname>xi</declname>
+          <defval>1.2</defval>
+        </param>
         <param>
           <type>unsigned int</type>
           <declname>seed</declname>
           <defval>42</defval>
         </param>
-        <param>
-          <type><ref refid="namespacensga2_1a594adef242e7d5748f5c9cf9d72be1d3" kindref="member">REXDistributionType</ref></type>
-          <declname>dist_type</declname>
-          <defval><ref refid="namespacensga2_1a594adef242e7d5748f5c9cf9d72be1d3a961a7a0a72c511fa51df0c345278c3b9" kindref="member">REXDistributionType::VShaped</ref></defval>
-        </param>
         <briefdescription>
         </briefdescription>
         <detaileddescription>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="149" column="5" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/src/nsga2_optimizer.cpp" bodystart="449" bodyend="450"/>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="139" column="5" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/src/nsga2_optimizer.cpp" bodystart="328" bodyend="329"/>
       </memberdef>
       <memberdef kind="function" id="classnsga2_1_1REXCrossover_1a2c2880e6883be65f0ae4164b441b088d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>std::vector&lt; <ref refid="namespacensga2_1a9338ac68ee391d4b50ef5d878d0d89b3" kindref="member">IndividualPtr</ref> &gt;</type>
@@ -103,26 +80,21 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="151" column="17" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/src/nsga2_optimizer.cpp" bodystart="471" bodyend="547"/>
-        <references refid="classnsga2_1_1REXCrossover_1a80c8af27765113e7e0628b14d28b136e" compoundref="nsga2__optimizer_8hpp" startline="143">dist_type_</references>
-        <references refid="classnsga2_1_1REXCrossover_1a17e6d01e3d9e018b7567e0d94ab21598" compoundref="nsga2__optimizer_8hpp" startline="142">gen_</references>
-        <references refid="classnsga2_1_1REXCrossover_1af1afdac7ed45ba9fecf81139e02b99cb" compoundref="nsga2__optimizer_8cpp" startline="454" endline="469">generateVShapedRandom</references>
-        <references refid="namespacensga2_1a594adef242e7d5748f5c9cf9d72be1d3a960b44c579bc2f6818d2daaf9e4c16f0">nsga2::Normal</references>
-        <references refid="namespacensga2_1a594adef242e7d5748f5c9cf9d72be1d3a961a7a0a72c511fa51df0c345278c3b9">nsga2::VShaped</references>
-        <referencedby refid="python__bindings_8cpp_1ad060d5bb65d036d5f5ac558c214f5d3d" compoundref="python__bindings_8cpp" startline="9" endline="207">PYBIND11_MODULE</referencedby>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="140" column="17" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/src/nsga2_optimizer.cpp" bodystart="331" bodyend="387"/>
+        <references refid="classnsga2_1_1REXCrossover_1a17e6d01e3d9e018b7567e0d94ab21598" compoundref="nsga2__optimizer_8hpp" startline="136">gen_</references>
+        <references refid="classnsga2_1_1REXCrossover_1a4fe8f67e276efbbd5306da6fa6932739" compoundref="nsga2__optimizer_8hpp" startline="135">xi_</references>
       </memberdef>
       </sectiondef>
     <briefdescription>
     </briefdescription>
     <detaileddescription>
     </detaileddescription>
-    <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="140" column="1" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="140" bodyend="153"/>
+    <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="133" column="1" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="133" bodyend="142"/>
     <listofallmembers>
       <member refid="classnsga2_1_1REXCrossover_1a2c2880e6883be65f0ae4164b441b088d" prot="public" virt="non-virtual"><scope>nsga2::REXCrossover</scope><name>crossover</name></member>
-      <member refid="classnsga2_1_1REXCrossover_1a80c8af27765113e7e0628b14d28b136e" prot="private" virt="non-virtual"><scope>nsga2::REXCrossover</scope><name>dist_type_</name></member>
       <member refid="classnsga2_1_1REXCrossover_1a17e6d01e3d9e018b7567e0d94ab21598" prot="private" virt="non-virtual"><scope>nsga2::REXCrossover</scope><name>gen_</name></member>
-      <member refid="classnsga2_1_1REXCrossover_1af1afdac7ed45ba9fecf81139e02b99cb" prot="private" virt="non-virtual"><scope>nsga2::REXCrossover</scope><name>generateVShapedRandom</name></member>
-      <member refid="classnsga2_1_1REXCrossover_1a5073ba8254511d301c7d7dae8afafd18" prot="public" virt="non-virtual"><scope>nsga2::REXCrossover</scope><name>REXCrossover</name></member>
+      <member refid="classnsga2_1_1REXCrossover_1aa4ade2278d0fefe9c72126bd7834421e" prot="public" virt="non-virtual"><scope>nsga2::REXCrossover</scope><name>REXCrossover</name></member>
+      <member refid="classnsga2_1_1REXCrossover_1a4fe8f67e276efbbd5306da6fa6932739" prot="private" virt="non-virtual"><scope>nsga2::REXCrossover</scope><name>xi_</name></member>
     </listofallmembers>
   </compounddef>
 </doxygen>

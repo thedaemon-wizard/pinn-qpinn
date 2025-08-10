@@ -1,7 +1,6 @@
 var classnsga2_1_1NSGA2Optimizer =
 [
     [ "NSGA2Optimizer", "classnsga2_1_1NSGA2Optimizer.html#a374b974fc2bf1e1a7eb73b5c26ffbaa5", null ],
-    [ "adaptParameterSpace", "classnsga2_1_1NSGA2Optimizer.html#afcf521d8c4989310961b0389deeeb1fa", null ],
     [ "environmental_selection", "classnsga2_1_1NSGA2Optimizer.html#a6b12413cbfbfd22402abfc4eb7e0353c", null ],
     [ "evaluate_batch", "classnsga2_1_1NSGA2Optimizer.html#aa52554e3824033897dba470b287d3445", null ],
     [ "get_best_fitness", "classnsga2_1_1NSGA2Optimizer.html#acf030b373ad687cda76df51d71f564f7", null ],
@@ -9,13 +8,11 @@ var classnsga2_1_1NSGA2Optimizer =
     [ "get_fitness_history", "classnsga2_1_1NSGA2Optimizer.html#ae3e9a6a11233f01b8b68d686e5a05a7e", null ],
     [ "get_mean_fitness_history", "classnsga2_1_1NSGA2Optimizer.html#ace0fdf4f83b532abd7795ced99b66b35", null ],
     [ "get_pareto_front", "classnsga2_1_1NSGA2Optimizer.html#aa5dae2bf9c615ed3a027aba29188ef9c", null ],
-    [ "getParameterSpaceSize", "classnsga2_1_1NSGA2Optimizer.html#a2ee35399daaee13d3991a35076cbbf52", null ],
     [ "optimize", "classnsga2_1_1NSGA2Optimizer.html#a82c8c27ec35b7842d3efb71830b30ce2", null ],
     [ "setCrowdingDistanceCalculator", "classnsga2_1_1NSGA2Optimizer.html#ad74d71eecedb159ec9e323f35337c09d", null ],
     [ "setCrowdingDistanceCalculator", "classnsga2_1_1NSGA2Optimizer.html#aa4c4ff01ffd3f120011a0479a6ce4a36", null ],
     [ "setSelectionStrategy", "classnsga2_1_1NSGA2Optimizer.html#a75dd42644278c5c7048a17898c6e3b7f", null ],
     [ "setSortingAlgorithm", "classnsga2_1_1NSGA2Optimizer.html#a8ce58ce64ad90f71feb374bae2daf243", null ],
-    [ "transformPopulation", "classnsga2_1_1NSGA2Optimizer.html#a3b9ce3ae189b2d686c875860f2b1a408", null ],
     [ "best_fitness_", "classnsga2_1_1NSGA2Optimizer.html#a9695c0bebccb5c6fad4e169d6c00daa4", null ],
     [ "best_fitness_history_", "classnsga2_1_1NSGA2Optimizer.html#aa5090738f22caa95035b5e365956c4c4", null ],
     [ "config_", "classnsga2_1_1NSGA2Optimizer.html#a2c3071fb33a7188a146b6922c79ae238", null ],

@@ -132,8 +132,8 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nsga2__optimizer_8cpp_source.html#l00420">420</a> of file <a class="el" href="nsga2__optimizer_8cpp_source.html">nsga2_optimizer.cpp</a>.</p>
-<div class="fragment"><div class="line"><span class="lineno">  420</span>: <a class="code hl_variable" href="classnsga2_1_1LatinHypercubeSampler.html#a8f7dee67d0614571efd83cb7af827c7c">gen_</a>(seed) {}</div>
+<p class="definition">Definition at line <a class="el" href="nsga2__optimizer_8cpp_source.html#l00299">299</a> of file <a class="el" href="nsga2__optimizer_8cpp_source.html">nsga2_optimizer.cpp</a>.</p>
+<div class="fragment"><div class="line"><span class="lineno">  299</span>: <a class="code hl_variable" href="classnsga2_1_1LatinHypercubeSampler.html#a8f7dee67d0614571efd83cb7af827c7c">gen_</a>(seed) {}</div>
 <div class="ttc" id="aclassnsga2_1_1LatinHypercubeSampler_html_a8f7dee67d0614571efd83cb7af827c7c"><div class="ttname"><a href="classnsga2_1_1LatinHypercubeSampler.html#a8f7dee67d0614571efd83cb7af827c7c">nsga2::LatinHypercubeSampler::gen_</a></div><div class="ttdeci">std::mt19937 gen_</div><div class="ttdef"><b>Definition:</b> <a href="nsga2__optimizer_8hpp_source.html#l00123">nsga2_optimizer.hpp:123</a></div></div>
 </div><!-- fragment -->
 </div>
@@ -177,29 +177,29 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nsga2__optimizer_8cpp_source.html#l00422">422</a> of file <a class="el" href="nsga2__optimizer_8cpp_source.html">nsga2_optimizer.cpp</a>.</p>
-<div class="fragment"><div class="line"><span class="lineno">  425</span>                                           {</div>
-<div class="line"><span class="lineno">  426</span>    </div>
-<div class="line"><span class="lineno">  427</span>    std::vector&lt;std::vector&lt;double&gt;&gt; samples(n_samples, std::vector&lt;double&gt;(n_dims));</div>
-<div class="line"><span class="lineno">  428</span>    </div>
-<div class="line"><span class="lineno">  429</span>    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> dim = 0; dim &lt; n_dims; ++dim) {</div>
-<div class="line"><span class="lineno">  430</span>        <span class="comment">// Create intervals</span></div>
-<div class="line"><span class="lineno">  431</span>        std::vector&lt;size_t&gt; intervals(n_samples);</div>
-<div class="line"><span class="lineno">  432</span>        std::iota(intervals.begin(), intervals.end(), 0);</div>
-<div class="line"><span class="lineno">  433</span>        std::shuffle(intervals.begin(), intervals.end(), <a class="code hl_variable" href="classnsga2_1_1LatinHypercubeSampler.html#a8f7dee67d0614571efd83cb7af827c7c">gen_</a>);</div>
-<div class="line"><span class="lineno">  434</span>        </div>
-<div class="line"><span class="lineno">  435</span>        <span class="comment">// Sample within intervals</span></div>
-<div class="line"><span class="lineno">  436</span>        std::uniform_real_distribution&lt;&gt; dist(0.0, 1.0);</div>
-<div class="line"><span class="lineno">  437</span>        <span class="keywordtype">double</span> range = upper_bounds[dim] - lower_bounds[dim];</div>
-<div class="line"><span class="lineno">  438</span>        </div>
-<div class="line"><span class="lineno">  439</span>        <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; n_samples; ++i) {</div>
-<div class="line"><span class="lineno">  440</span>            <span class="keywordtype">double</span> interval_pos = (intervals[i] + dist(<a class="code hl_variable" href="classnsga2_1_1LatinHypercubeSampler.html#a8f7dee67d0614571efd83cb7af827c7c">gen_</a>)) / n_samples;</div>
-<div class="line"><span class="lineno">  441</span>            samples[i][dim] = lower_bounds[dim] + interval_pos * range;</div>
-<div class="line"><span class="lineno">  442</span>        }</div>
-<div class="line"><span class="lineno">  443</span>    }</div>
-<div class="line"><span class="lineno">  444</span>    </div>
-<div class="line"><span class="lineno">  445</span>    <span class="keywordflow">return</span> samples;</div>
-<div class="line"><span class="lineno">  446</span>}</div>
+<p class="definition">Definition at line <a class="el" href="nsga2__optimizer_8cpp_source.html#l00301">301</a> of file <a class="el" href="nsga2__optimizer_8cpp_source.html">nsga2_optimizer.cpp</a>.</p>
+<div class="fragment"><div class="line"><span class="lineno">  304</span>                                           {</div>
+<div class="line"><span class="lineno">  305</span>    </div>
+<div class="line"><span class="lineno">  306</span>    std::vector&lt;std::vector&lt;double&gt;&gt; samples(n_samples, std::vector&lt;double&gt;(n_dims));</div>
+<div class="line"><span class="lineno">  307</span>    </div>
+<div class="line"><span class="lineno">  308</span>    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> dim = 0; dim &lt; n_dims; ++dim) {</div>
+<div class="line"><span class="lineno">  309</span>        <span class="comment">// Create intervals</span></div>
+<div class="line"><span class="lineno">  310</span>        std::vector&lt;size_t&gt; intervals(n_samples);</div>
+<div class="line"><span class="lineno">  311</span>        std::iota(intervals.begin(), intervals.end(), 0);</div>
+<div class="line"><span class="lineno">  312</span>        std::shuffle(intervals.begin(), intervals.end(), <a class="code hl_variable" href="classnsga2_1_1LatinHypercubeSampler.html#a8f7dee67d0614571efd83cb7af827c7c">gen_</a>);</div>
+<div class="line"><span class="lineno">  313</span>        </div>
+<div class="line"><span class="lineno">  314</span>        <span class="comment">// Sample within intervals</span></div>
+<div class="line"><span class="lineno">  315</span>        std::uniform_real_distribution&lt;&gt; dist(0.0, 1.0);</div>
+<div class="line"><span class="lineno">  316</span>        <span class="keywordtype">double</span> range = upper_bounds[dim] - lower_bounds[dim];</div>
+<div class="line"><span class="lineno">  317</span>        </div>
+<div class="line"><span class="lineno">  318</span>        <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; n_samples; ++i) {</div>
+<div class="line"><span class="lineno">  319</span>            <span class="keywordtype">double</span> interval_pos = (intervals[i] + dist(<a class="code hl_variable" href="classnsga2_1_1LatinHypercubeSampler.html#a8f7dee67d0614571efd83cb7af827c7c">gen_</a>)) / n_samples;</div>
+<div class="line"><span class="lineno">  320</span>            samples[i][dim] = lower_bounds[dim] + interval_pos * range;</div>
+<div class="line"><span class="lineno">  321</span>        }</div>
+<div class="line"><span class="lineno">  322</span>    }</div>
+<div class="line"><span class="lineno">  323</span>    </div>
+<div class="line"><span class="lineno">  324</span>    <span class="keywordflow">return</span> samples;</div>
+<div class="line"><span class="lineno">  325</span>}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -238,7 +238,7 @@ Private Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="namespacensga2.html">nsga2</a></li><li class="navelem"><a class="el" href="classnsga2_1_1LatinHypercubeSampler.html">LatinHypercubeSampler</a></li>
-    <li class="footer">Generated on Sun Aug 10 2025 01:06:18 for NSGA-II Optimizer by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.6 </li>
+    <li class="footer">Generated on Sun Aug 10 2025 12:37:35 for NSGA-II Optimizer by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.6 </li>
   </ul>
 </div>
 </body>

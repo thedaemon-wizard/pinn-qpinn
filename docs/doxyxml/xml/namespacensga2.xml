@@ -16,41 +16,6 @@
     <innerclass refid="classnsga2_1_1REXCrossover" prot="public">nsga2::REXCrossover</innerclass>
     <innerclass refid="classnsga2_1_1TournamentSelection" prot="public">nsga2::TournamentSelection</innerclass>
     <innerclass refid="classnsga2_1_1TraditionalCrowdingDistance" prot="public">nsga2::TraditionalCrowdingDistance</innerclass>
-      <sectiondef kind="enum">
-      <memberdef kind="enum" id="namespacensga2_1a594adef242e7d5748f5c9cf9d72be1d3" prot="public" static="no" strong="yes">
-        <type></type>
-        <name>REXDistributionType</name>
-        <qualifiedname>nsga2::REXDistributionType</qualifiedname>
-        <enumvalue id="namespacensga2_1a594adef242e7d5748f5c9cf9d72be1d3a960b44c579bc2f6818d2daaf9e4c16f0" prot="public">
-          <name>Normal</name>
-          <briefdescription>
-          </briefdescription>
-          <detaileddescription>
-          </detaileddescription>
-        </enumvalue>
-        <enumvalue id="namespacensga2_1a594adef242e7d5748f5c9cf9d72be1d3af19516d11f2946f894070e92fcb56b6d" prot="public">
-          <name>Uniform</name>
-          <briefdescription>
-          </briefdescription>
-          <detaileddescription>
-          </detaileddescription>
-        </enumvalue>
-        <enumvalue id="namespacensga2_1a594adef242e7d5748f5c9cf9d72be1d3a961a7a0a72c511fa51df0c345278c3b9" prot="public">
-          <name>VShaped</name>
-          <briefdescription>
-          </briefdescription>
-          <detaileddescription>
-          </detaileddescription>
-        </enumvalue>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="133" column="1" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="133" bodyend="137"/>
-      </memberdef>
-      </sectiondef>
       <sectiondef kind="typedef">
       <memberdef kind="typedef" id="namespacensga2_1a9c76b7fc7926d54405b46a2cccf115f4" prot="public" static="no">
         <type>std::function&lt; std::vector&lt; double &gt;(const std::vector&lt; double &gt; &amp;)&gt;</type>
