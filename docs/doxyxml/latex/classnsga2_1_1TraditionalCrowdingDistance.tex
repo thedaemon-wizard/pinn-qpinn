@@ -79,58 +79,58 @@ Implements \mbox{\hyperlink{classnsga2_1_1ICrowdingDistanceCalculator_aba7348834
 
 
 
-Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00208}{208}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00087}{87}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
 
 
 \begin{DoxyCode}{0}
-\DoxyCodeLine{00208\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
-\DoxyCodeLine{00209\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ n\ =\ front.size();}
-\DoxyCodeLine{00210\ \ \ \ \ \textcolor{keywordflow}{if}\ (n\ <=\ 2)\ \{}
-\DoxyCodeLine{00211\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ ind\ :\ front)\ \{}
-\DoxyCodeLine{00212\ \ \ \ \ \ \ \ \ \ \ \ \ ind-\/>crowding\_distance\ =\ std::numeric\_limits<double>::infinity();}
-\DoxyCodeLine{00213\ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{00214\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
-\DoxyCodeLine{00215\ \ \ \ \ \}}
-\DoxyCodeLine{00216\ \ \ \ \ }
-\DoxyCodeLine{00217\ \ \ \ \ \textcolor{comment}{//\ Initialize\ distances}}
-\DoxyCodeLine{00218\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ ind\ :\ front)\ \{}
-\DoxyCodeLine{00219\ \ \ \ \ \ \ \ \ ind-\/>crowding\_distance\ =\ 0.0;}
-\DoxyCodeLine{00220\ \ \ \ \ \}}
-\DoxyCodeLine{00221\ \ \ \ \ }
-\DoxyCodeLine{00222\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ n\_objectives\ =\ front[0]-\/>objectives.size();}
-\DoxyCodeLine{00223\ \ \ \ \ }
-\DoxyCodeLine{00224\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ obj\ =\ 0;\ obj\ <\ n\_objectives;\ ++obj)\ \{}
-\DoxyCodeLine{00225\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Sort\ by\ objective}}
-\DoxyCodeLine{00226\ \textcolor{preprocessor}{\ \ \ \ \ \ \ \ \#ifdef\ \_\_cpp\_lib\_parallel\_algorithm}}
-\DoxyCodeLine{00227\ \ \ \ \ \ \ \ \ std::sort(std::execution::par\_unseq,\ front.begin(),\ front.end(),}
-\DoxyCodeLine{00228\ \ \ \ \ \ \ \ \ \ \ \ \ [obj](\textcolor{keyword}{const}\ \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{IndividualPtr}}\&\ a,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{IndividualPtr}}\&\ b)\ \{}
-\DoxyCodeLine{00229\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ return\ a-\/>objectives[obj]\ <\ b-\/>objectives[obj];}
-\DoxyCodeLine{00230\ \ \ \ \ \ \ \ \ \ \ \ \ \});}
-\DoxyCodeLine{00231\ \textcolor{preprocessor}{\ \ \ \ \ \ \ \ \#else}}
-\DoxyCodeLine{00232\ \ \ \ \ \ \ \ \ std::sort(front.begin(),\ front.end(),}
-\DoxyCodeLine{00233\ \ \ \ \ \ \ \ \ \ \ \ \ [obj](\textcolor{keyword}{const}\ \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{IndividualPtr}}\&\ a,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{IndividualPtr}}\&\ b)\ \{}
-\DoxyCodeLine{00234\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ return\ a-\/>objectives[obj]\ <\ b-\/>objectives[obj];}
-\DoxyCodeLine{00235\ \ \ \ \ \ \ \ \ \ \ \ \ \});}
-\DoxyCodeLine{00236\ \textcolor{preprocessor}{\ \ \ \ \ \ \ \ \#endif}}
-\DoxyCodeLine{00237\ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{00238\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Boundary\ points}}
-\DoxyCodeLine{00239\ \ \ \ \ \ \ \ \ front[0]-\/>crowding\_distance\ =\ std::numeric\_limits<double>::infinity();}
-\DoxyCodeLine{00240\ \ \ \ \ \ \ \ \ front[n-\/1]-\/>crowding\_distance\ =\ std::numeric\_limits<double>::infinity();}
-\DoxyCodeLine{00241\ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{00242\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ min\_obj\ =\ front[0]-\/>objectives[obj];}
-\DoxyCodeLine{00243\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ max\_obj\ =\ front[n-\/1]-\/>objectives[obj];}
-\DoxyCodeLine{00244\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ range\ =\ max\_obj\ -\/\ min\_obj;}
-\DoxyCodeLine{00245\ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{00246\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (range\ ==\ 0.0)\ \textcolor{keywordflow}{continue};}
-\DoxyCodeLine{00247\ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{00248\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 1;\ i\ <\ n\ -\/\ 1;\ ++i)\ \{}
-\DoxyCodeLine{00249\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (front[i]-\/>crowding\_distance\ !=\ std::numeric\_limits<double>::infinity())\ \{}
-\DoxyCodeLine{00250\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ distance\ =\ (front[i+1]-\/>objectives[obj]\ -\/\ front[i-\/1]-\/>objectives[obj])\ /\ range;}
-\DoxyCodeLine{00251\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ front[i]-\/>crowding\_distance\ +=\ distance;}
-\DoxyCodeLine{00252\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{00253\ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{00254\ \ \ \ \ \}}
-\DoxyCodeLine{00255\ \}}
+\DoxyCodeLine{00087\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00088\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ n\ =\ front.size();}
+\DoxyCodeLine{00089\ \ \ \ \ \textcolor{keywordflow}{if}\ (n\ <=\ 2)\ \{}
+\DoxyCodeLine{00090\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ ind\ :\ front)\ \{}
+\DoxyCodeLine{00091\ \ \ \ \ \ \ \ \ \ \ \ \ ind-\/>crowding\_distance\ =\ std::numeric\_limits<double>::infinity();}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00093\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00094\ \ \ \ \ \}}
+\DoxyCodeLine{00095\ \ \ \ \ }
+\DoxyCodeLine{00096\ \ \ \ \ \textcolor{comment}{//\ Initialize\ distances}}
+\DoxyCodeLine{00097\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ ind\ :\ front)\ \{}
+\DoxyCodeLine{00098\ \ \ \ \ \ \ \ \ ind-\/>crowding\_distance\ =\ 0.0;}
+\DoxyCodeLine{00099\ \ \ \ \ \}}
+\DoxyCodeLine{00100\ \ \ \ \ }
+\DoxyCodeLine{00101\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ n\_objectives\ =\ front[0]-\/>objectives.size();}
+\DoxyCodeLine{00102\ \ \ \ \ }
+\DoxyCodeLine{00103\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ obj\ =\ 0;\ obj\ <\ n\_objectives;\ ++obj)\ \{}
+\DoxyCodeLine{00104\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Sort\ by\ objective}}
+\DoxyCodeLine{00105\ \textcolor{preprocessor}{\ \ \ \ \ \ \ \ \#ifdef\ \_\_cpp\_lib\_parallel\_algorithm}}
+\DoxyCodeLine{00106\ \ \ \ \ \ \ \ \ std::sort(std::execution::par\_unseq,\ front.begin(),\ front.end(),}
+\DoxyCodeLine{00107\ \ \ \ \ \ \ \ \ \ \ \ \ [obj](\textcolor{keyword}{const}\ \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{IndividualPtr}}\&\ a,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{IndividualPtr}}\&\ b)\ \{}
+\DoxyCodeLine{00108\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ return\ a-\/>objectives[obj]\ <\ b-\/>objectives[obj];}
+\DoxyCodeLine{00109\ \ \ \ \ \ \ \ \ \ \ \ \ \});}
+\DoxyCodeLine{00110\ \textcolor{preprocessor}{\ \ \ \ \ \ \ \ \#else}}
+\DoxyCodeLine{00111\ \ \ \ \ \ \ \ \ std::sort(front.begin(),\ front.end(),}
+\DoxyCodeLine{00112\ \ \ \ \ \ \ \ \ \ \ \ \ [obj](\textcolor{keyword}{const}\ \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{IndividualPtr}}\&\ a,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{IndividualPtr}}\&\ b)\ \{}
+\DoxyCodeLine{00113\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ return\ a-\/>objectives[obj]\ <\ b-\/>objectives[obj];}
+\DoxyCodeLine{00114\ \ \ \ \ \ \ \ \ \ \ \ \ \});}
+\DoxyCodeLine{00115\ \textcolor{preprocessor}{\ \ \ \ \ \ \ \ \#endif}}
+\DoxyCodeLine{00116\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00117\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Boundary\ points}}
+\DoxyCodeLine{00118\ \ \ \ \ \ \ \ \ front[0]-\/>crowding\_distance\ =\ std::numeric\_limits<double>::infinity();}
+\DoxyCodeLine{00119\ \ \ \ \ \ \ \ \ front[n-\/1]-\/>crowding\_distance\ =\ std::numeric\_limits<double>::infinity();}
+\DoxyCodeLine{00120\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00121\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ min\_obj\ =\ front[0]-\/>objectives[obj];}
+\DoxyCodeLine{00122\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ max\_obj\ =\ front[n-\/1]-\/>objectives[obj];}
+\DoxyCodeLine{00123\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ range\ =\ max\_obj\ -\/\ min\_obj;}
+\DoxyCodeLine{00124\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00125\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (range\ ==\ 0.0)\ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{00126\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00127\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 1;\ i\ <\ n\ -\/\ 1;\ ++i)\ \{}
+\DoxyCodeLine{00128\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (front[i]-\/>crowding\_distance\ !=\ std::numeric\_limits<double>::infinity())\ \{}
+\DoxyCodeLine{00129\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ distance\ =\ (front[i+1]-\/>objectives[obj]\ -\/\ front[i-\/1]-\/>objectives[obj])\ /\ range;}
+\DoxyCodeLine{00130\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ front[i]-\/>crowding\_distance\ +=\ distance;}
+\DoxyCodeLine{00131\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00132\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00133\ \ \ \ \ \}}
+\DoxyCodeLine{00134\ \}}
 
 \end{DoxyCode}
 \mbox{\Hypertarget{classnsga2_1_1TraditionalCrowdingDistance_a6d462f8394f09a7624f79569f36f7828}\label{classnsga2_1_1TraditionalCrowdingDistance_a6d462f8394f09a7624f79569f36f7828}} 

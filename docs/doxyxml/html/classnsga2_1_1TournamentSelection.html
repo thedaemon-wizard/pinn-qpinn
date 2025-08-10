@@ -135,7 +135,7 @@ Private Member Functions</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="nsga2__optimizer_8hpp_source.html#l00181">181</a> of file <a class="el" href="nsga2__optimizer_8hpp_source.html">nsga2_optimizer.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nsga2__optimizer_8hpp_source.html#l00170">170</a> of file <a class="el" href="nsga2__optimizer_8hpp_source.html">nsga2_optimizer.hpp</a>.</p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="a68e37a8b15de35977d465fb20b12c3eb" name="a68e37a8b15de35977d465fb20b12c3eb"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a68e37a8b15de35977d465fb20b12c3eb">&#9670;&#160;</a></span>crowding_operator()</h2>
@@ -171,12 +171,12 @@ Private Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nsga2__optimizer_8cpp_source.html#l00550">550</a> of file <a class="el" href="nsga2__optimizer_8cpp_source.html">nsga2_optimizer.cpp</a>.</p>
-<div class="fragment"><div class="line"><span class="lineno">  550</span>                                                                                                {</div>
-<div class="line"><span class="lineno">  551</span>    <span class="keywordflow">if</span> (a-&gt;rank &lt; b-&gt;rank) <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
-<div class="line"><span class="lineno">  552</span>    <span class="keywordflow">if</span> (a-&gt;rank &gt; b-&gt;rank) <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
-<div class="line"><span class="lineno">  553</span>    <span class="keywordflow">return</span> a-&gt;crowding_distance &gt; b-&gt;crowding_distance;</div>
-<div class="line"><span class="lineno">  554</span>}</div>
+<p class="definition">Definition at line <a class="el" href="nsga2__optimizer_8cpp_source.html#l00390">390</a> of file <a class="el" href="nsga2__optimizer_8cpp_source.html">nsga2_optimizer.cpp</a>.</p>
+<div class="fragment"><div class="line"><span class="lineno">  390</span>                                                                                                {</div>
+<div class="line"><span class="lineno">  391</span>    <span class="keywordflow">if</span> (a-&gt;rank &lt; b-&gt;rank) <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><span class="lineno">  392</span>    <span class="keywordflow">if</span> (a-&gt;rank &gt; b-&gt;rank) <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><span class="lineno">  393</span>    <span class="keywordflow">return</span> a-&gt;crowding_distance &gt; b-&gt;crowding_distance;</div>
+<div class="line"><span class="lineno">  394</span>}</div>
 </div><!-- fragment --><div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -231,29 +231,29 @@ Here is the caller graph for this function:</div>
 
 <p>Implements <a class="el" href="classnsga2_1_1ISelectionStrategy.html#a278f8ce70ef2ab3483adcd2e16ca8508">nsga2::ISelectionStrategy</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="nsga2__optimizer_8cpp_source.html#l00556">556</a> of file <a class="el" href="nsga2__optimizer_8cpp_source.html">nsga2_optimizer.cpp</a>.</p>
-<div class="fragment"><div class="line"><span class="lineno">  558</span>                                                                       {</div>
-<div class="line"><span class="lineno">  559</span>    std::vector&lt;IndividualPtr&gt; selected;</div>
-<div class="line"><span class="lineno">  560</span>    std::uniform_int_distribution&lt;&gt; dist(0, population.size() - 1);</div>
-<div class="line"><span class="lineno">  561</span>    </div>
-<div class="line"><span class="lineno">  562</span>    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; n_select; ++i) {</div>
-<div class="line"><span class="lineno">  563</span>        <span class="keywordtype">size_t</span> idx1 = dist(gen);</div>
-<div class="line"><span class="lineno">  564</span>        <span class="keywordtype">size_t</span> idx2 = dist(gen);</div>
-<div class="line"><span class="lineno">  565</span>        </div>
-<div class="line"><span class="lineno">  566</span>        <span class="keywordflow">while</span> (idx1 == idx2) {</div>
-<div class="line"><span class="lineno">  567</span>            idx2 = dist(gen);</div>
-<div class="line"><span class="lineno">  568</span>        }</div>
-<div class="line"><span class="lineno">  569</span>        </div>
-<div class="line"><span class="lineno">  570</span>        <span class="keywordflow">if</span> (<a class="code hl_function" href="classnsga2_1_1TournamentSelection.html#a68e37a8b15de35977d465fb20b12c3eb">crowding_operator</a>(population[idx1], population[idx2])) {</div>
-<div class="line"><span class="lineno">  571</span>            selected.push_back(population[idx1]);</div>
-<div class="line"><span class="lineno">  572</span>        } <span class="keywordflow">else</span> {</div>
-<div class="line"><span class="lineno">  573</span>            selected.push_back(population[idx2]);</div>
-<div class="line"><span class="lineno">  574</span>        }</div>
-<div class="line"><span class="lineno">  575</span>    }</div>
-<div class="line"><span class="lineno">  576</span>    </div>
-<div class="line"><span class="lineno">  577</span>    <span class="keywordflow">return</span> selected;</div>
-<div class="line"><span class="lineno">  578</span>}</div>
-<div class="ttc" id="aclassnsga2_1_1TournamentSelection_html_a68e37a8b15de35977d465fb20b12c3eb"><div class="ttname"><a href="classnsga2_1_1TournamentSelection.html#a68e37a8b15de35977d465fb20b12c3eb">nsga2::TournamentSelection::crowding_operator</a></div><div class="ttdeci">bool crowding_operator(const IndividualPtr &amp;a, const IndividualPtr &amp;b) const</div><div class="ttdef"><b>Definition:</b> <a href="nsga2__optimizer_8cpp_source.html#l00550">nsga2_optimizer.cpp:550</a></div></div>
+<p class="definition">Definition at line <a class="el" href="nsga2__optimizer_8cpp_source.html#l00396">396</a> of file <a class="el" href="nsga2__optimizer_8cpp_source.html">nsga2_optimizer.cpp</a>.</p>
+<div class="fragment"><div class="line"><span class="lineno">  398</span>                                                                       {</div>
+<div class="line"><span class="lineno">  399</span>    std::vector&lt;IndividualPtr&gt; selected;</div>
+<div class="line"><span class="lineno">  400</span>    std::uniform_int_distribution&lt;&gt; dist(0, population.size() - 1);</div>
+<div class="line"><span class="lineno">  401</span>    </div>
+<div class="line"><span class="lineno">  402</span>    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; n_select; ++i) {</div>
+<div class="line"><span class="lineno">  403</span>        <span class="keywordtype">size_t</span> idx1 = dist(gen);</div>
+<div class="line"><span class="lineno">  404</span>        <span class="keywordtype">size_t</span> idx2 = dist(gen);</div>
+<div class="line"><span class="lineno">  405</span>        </div>
+<div class="line"><span class="lineno">  406</span>        <span class="keywordflow">while</span> (idx1 == idx2) {</div>
+<div class="line"><span class="lineno">  407</span>            idx2 = dist(gen);</div>
+<div class="line"><span class="lineno">  408</span>        }</div>
+<div class="line"><span class="lineno">  409</span>        </div>
+<div class="line"><span class="lineno">  410</span>        <span class="keywordflow">if</span> (<a class="code hl_function" href="classnsga2_1_1TournamentSelection.html#a68e37a8b15de35977d465fb20b12c3eb">crowding_operator</a>(population[idx1], population[idx2])) {</div>
+<div class="line"><span class="lineno">  411</span>            selected.push_back(population[idx1]);</div>
+<div class="line"><span class="lineno">  412</span>        } <span class="keywordflow">else</span> {</div>
+<div class="line"><span class="lineno">  413</span>            selected.push_back(population[idx2]);</div>
+<div class="line"><span class="lineno">  414</span>        }</div>
+<div class="line"><span class="lineno">  415</span>    }</div>
+<div class="line"><span class="lineno">  416</span>    </div>
+<div class="line"><span class="lineno">  417</span>    <span class="keywordflow">return</span> selected;</div>
+<div class="line"><span class="lineno">  418</span>}</div>
+<div class="ttc" id="aclassnsga2_1_1TournamentSelection_html_a68e37a8b15de35977d465fb20b12c3eb"><div class="ttname"><a href="classnsga2_1_1TournamentSelection.html#a68e37a8b15de35977d465fb20b12c3eb">nsga2::TournamentSelection::crowding_operator</a></div><div class="ttdeci">bool crowding_operator(const IndividualPtr &amp;a, const IndividualPtr &amp;b) const</div><div class="ttdef"><b>Definition:</b> <a href="nsga2__optimizer_8cpp_source.html#l00390">nsga2_optimizer.cpp:390</a></div></div>
 </div><!-- fragment --><div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -277,7 +277,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="namespacensga2.html">nsga2</a></li><li class="navelem"><a class="el" href="classnsga2_1_1TournamentSelection.html">TournamentSelection</a></li>
-    <li class="footer">Generated on Sun Aug 10 2025 01:06:18 for NSGA-II Optimizer by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.6 </li>
+    <li class="footer">Generated on Sun Aug 10 2025 12:37:35 for NSGA-II Optimizer by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.6 </li>
   </ul>
 </div>
 </body>

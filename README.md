@@ -2,9 +2,16 @@
 
 A comprehensive benchmark implementation of Quantum Physics-Informed Neural Networks (QPINNs) for solving the 3D heat conduction equation forward problem, featuring state-of-the-art quantum circuit generation using GQE-GPT integration, multi-objective optimization, and comparison with enhanced classical PINNs.
 
+
+## Documentation(In progress)
+Project Documentation: [HTML Pages](https://thedaemon-wizard.github.io/pinn-qpinn/build/html)
+
+NSGA2 Code Documents: [Doxygen Page](https://thedaemon-wizard.github.io/pinn-qpinn/doxyxml/html)
+
 ## Overview
 
 This repository provides highly optimized implementations of both QPINNs and classical PINNs with cutting-edge techniques:
+
 
 ### Quantum PINN Features:
 - **GQE-GPT Integration**: Generative Quantum Eigensolver enhanced with GPT-based circuit generation

@@ -65,20 +65,20 @@ Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00099}{99}} of
 
 
 
-Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00335}{335}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00214}{214}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
 
 
 \begin{DoxyCode}{0}
-\DoxyCodeLine{00335\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
-\DoxyCodeLine{00336\ \ \ \ \ \textcolor{keywordflow}{switch}\ (type)\ \{}
-\DoxyCodeLine{00337\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{classnsga2_1_1CrowdingDistanceFactory_a1a8c49d9ce3527f077d077c5d8d4b316a1bfbcce75c3c9a52a464d4cb0984488a}{Type::Traditional}}:}
-\DoxyCodeLine{00338\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ std::make\_unique<TraditionalCrowdingDistance>();}
-\DoxyCodeLine{00339\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{classnsga2_1_1CrowdingDistanceFactory_a1a8c49d9ce3527f077d077c5d8d4b316a38d44c1d2ababdca31bd7811992dba2c}{Type::EquidistantSelection}}:}
-\DoxyCodeLine{00340\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ std::make\_unique<EquidistantSelectionCrowdingDistance>(selection\_size);}
-\DoxyCodeLine{00341\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{default}:}
-\DoxyCodeLine{00342\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{throw}\ std::invalid\_argument(\textcolor{stringliteral}{"{}Unknown\ crowding\ distance\ type"{}});}
-\DoxyCodeLine{00343\ \ \ \ \ \}}
-\DoxyCodeLine{00344\ \}}
+\DoxyCodeLine{00214\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00215\ \ \ \ \ \textcolor{keywordflow}{switch}\ (type)\ \{}
+\DoxyCodeLine{00216\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{classnsga2_1_1CrowdingDistanceFactory_a1a8c49d9ce3527f077d077c5d8d4b316a1bfbcce75c3c9a52a464d4cb0984488a}{Type::Traditional}}:}
+\DoxyCodeLine{00217\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ std::make\_unique<TraditionalCrowdingDistance>();}
+\DoxyCodeLine{00218\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{classnsga2_1_1CrowdingDistanceFactory_a1a8c49d9ce3527f077d077c5d8d4b316a38d44c1d2ababdca31bd7811992dba2c}{Type::EquidistantSelection}}:}
+\DoxyCodeLine{00219\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ std::make\_unique<EquidistantSelectionCrowdingDistance>(selection\_size);}
+\DoxyCodeLine{00220\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{default}:}
+\DoxyCodeLine{00221\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{throw}\ std::invalid\_argument(\textcolor{stringliteral}{"{}Unknown\ crowding\ distance\ type"{}});}
+\DoxyCodeLine{00222\ \ \ \ \ \}}
+\DoxyCodeLine{00223\ \}}
 
 \end{DoxyCode}
 Here is the caller graph for this function\+:\nopagebreak

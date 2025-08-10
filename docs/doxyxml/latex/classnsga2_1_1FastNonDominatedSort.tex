@@ -56,81 +56,81 @@ Implements \mbox{\hyperlink{classnsga2_1_1ISortingAlgorithm_a0b42bcc6bba2e8ea8be
 
 
 
-Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00347}{347}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00226}{226}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
 
 
 \begin{DoxyCode}{0}
-\DoxyCodeLine{00347\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
-\DoxyCodeLine{00348\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ n\ =\ population.size();}
-\DoxyCodeLine{00349\ \ \ \ \ std::vector<std::set<size\_t>>\ S(n);}
-\DoxyCodeLine{00350\ \ \ \ \ std::vector<int>\ n\_dominated(n,\ 0);}
-\DoxyCodeLine{00351\ \ \ \ \ std::vector<std::vector<size\_t>>\ front\_indices;}
-\DoxyCodeLine{00352\ \ \ \ \ std::vector<std::vector<IndividualPtr>>\ sorted\_fronts;}
-\DoxyCodeLine{00353\ \ \ \ \ }
-\DoxyCodeLine{00354\ \ \ \ \ \textcolor{comment}{//\ Reset\ all\ individuals}}
-\DoxyCodeLine{00355\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ ind\ :\ population)\ \{}
-\DoxyCodeLine{00356\ \ \ \ \ \ \ \ \ ind-\/>reset();}
-\DoxyCodeLine{00357\ \ \ \ \ \}}
-\DoxyCodeLine{00358\ \ \ \ \ }
-\DoxyCodeLine{00359\ \ \ \ \ \textcolor{comment}{//\ Calculate\ domination\ relationships}}
-\DoxyCodeLine{00360\ \textcolor{preprocessor}{\ \ \ \ \#pragma\ omp\ parallel\ for\ if(n\ >\ 100)}}
-\DoxyCodeLine{00361\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ n;\ ++i)\ \{}
-\DoxyCodeLine{00362\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ j\ =\ 0;\ j\ <\ n;\ ++j)\ \{}
-\DoxyCodeLine{00363\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (i\ ==\ j)\ \textcolor{keywordflow}{continue};}
-\DoxyCodeLine{00364\ \ \ \ \ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{00365\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (population[i]-\/>dominates(*population[j]))\ \{}
-\DoxyCodeLine{00366\ \textcolor{preprocessor}{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#pragma\ omp\ critical}}
-\DoxyCodeLine{00367\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ S[i].insert(j);}
-\DoxyCodeLine{00368\ \ \ \ \ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (population[j]-\/>dominates(*population[i]))\ \{}
-\DoxyCodeLine{00369\ \textcolor{preprocessor}{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#pragma\ omp\ atomic}}
-\DoxyCodeLine{00370\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ n\_dominated[i]++;}
-\DoxyCodeLine{00371\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{00372\ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{00373\ \ \ \ \ \}}
-\DoxyCodeLine{00374\ \ \ \ \ }
-\DoxyCodeLine{00375\ \ \ \ \ \textcolor{comment}{//\ Find\ first\ front}}
-\DoxyCodeLine{00376\ \ \ \ \ std::vector<size\_t>\ current\_front;}
-\DoxyCodeLine{00377\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ n;\ ++i)\ \{}
-\DoxyCodeLine{00378\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (n\_dominated[i]\ ==\ 0)\ \{}
-\DoxyCodeLine{00379\ \ \ \ \ \ \ \ \ \ \ \ \ population[i]-\/>rank\ =\ 0;}
-\DoxyCodeLine{00380\ \ \ \ \ \ \ \ \ \ \ \ \ current\_front.push\_back(i);}
-\DoxyCodeLine{00381\ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{00382\ \ \ \ \ \}}
-\DoxyCodeLine{00383\ \ \ \ \ }
-\DoxyCodeLine{00384\ \ \ \ \ front\_indices.push\_back(current\_front);}
-\DoxyCodeLine{00385\ \ \ \ \ }
-\DoxyCodeLine{00386\ \ \ \ \ \textcolor{comment}{//\ Find\ remaining\ fronts}}
-\DoxyCodeLine{00387\ \ \ \ \ \textcolor{keywordtype}{int}\ rank\ =\ 0;}
-\DoxyCodeLine{00388\ \ \ \ \ \textcolor{keywordflow}{while}\ (!current\_front.empty())\ \{}
-\DoxyCodeLine{00389\ \ \ \ \ \ \ \ \ std::vector<size\_t>\ next\_front;}
-\DoxyCodeLine{00390\ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{00391\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ :\ current\_front)\ \{}
-\DoxyCodeLine{00392\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ j\ :\ S[i])\ \{}
-\DoxyCodeLine{00393\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ n\_dominated[j]-\/-\/;}
-\DoxyCodeLine{00394\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (n\_dominated[j]\ ==\ 0)\ \{}
-\DoxyCodeLine{00395\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ population[j]-\/>rank\ =\ rank\ +\ 1;}
-\DoxyCodeLine{00396\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ next\_front.push\_back(j);}
-\DoxyCodeLine{00397\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{00398\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{00399\ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{00400\ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{00401\ \ \ \ \ \ \ \ \ rank++;}
-\DoxyCodeLine{00402\ \ \ \ \ \ \ \ \ current\_front\ =\ next\_front;}
-\DoxyCodeLine{00403\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!current\_front.empty())\ \{}
-\DoxyCodeLine{00404\ \ \ \ \ \ \ \ \ \ \ \ \ front\_indices.push\_back(current\_front);}
-\DoxyCodeLine{00405\ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{00406\ \ \ \ \ \}}
-\DoxyCodeLine{00407\ \ \ \ \ }
-\DoxyCodeLine{00408\ \ \ \ \ \textcolor{comment}{//\ Convert\ indices\ to\ individual\ pointers}}
-\DoxyCodeLine{00409\ \ \ \ \ sorted\_fronts.resize(front\_indices.size());}
-\DoxyCodeLine{00410\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ front\_indices.size();\ ++i)\ \{}
-\DoxyCodeLine{00411\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ idx\ :\ front\_indices[i])\ \{}
-\DoxyCodeLine{00412\ \ \ \ \ \ \ \ \ \ \ \ \ sorted\_fronts[i].push\_back(population[idx]);}
-\DoxyCodeLine{00413\ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{00414\ \ \ \ \ \}}
-\DoxyCodeLine{00415\ \ \ \ \ }
-\DoxyCodeLine{00416\ \ \ \ \ \textcolor{keywordflow}{return}\ sorted\_fronts;}
-\DoxyCodeLine{00417\ \}}
+\DoxyCodeLine{00226\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00227\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ n\ =\ population.size();}
+\DoxyCodeLine{00228\ \ \ \ \ std::vector<std::set<size\_t>>\ S(n);}
+\DoxyCodeLine{00229\ \ \ \ \ std::vector<int>\ n\_dominated(n,\ 0);}
+\DoxyCodeLine{00230\ \ \ \ \ std::vector<std::vector<size\_t>>\ front\_indices;}
+\DoxyCodeLine{00231\ \ \ \ \ std::vector<std::vector<IndividualPtr>>\ sorted\_fronts;}
+\DoxyCodeLine{00232\ \ \ \ \ }
+\DoxyCodeLine{00233\ \ \ \ \ \textcolor{comment}{//\ Reset\ all\ individuals}}
+\DoxyCodeLine{00234\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ ind\ :\ population)\ \{}
+\DoxyCodeLine{00235\ \ \ \ \ \ \ \ \ ind-\/>reset();}
+\DoxyCodeLine{00236\ \ \ \ \ \}}
+\DoxyCodeLine{00237\ \ \ \ \ }
+\DoxyCodeLine{00238\ \ \ \ \ \textcolor{comment}{//\ Calculate\ domination\ relationships}}
+\DoxyCodeLine{00239\ \textcolor{preprocessor}{\ \ \ \ \#pragma\ omp\ parallel\ for\ if(n\ >\ 100)}}
+\DoxyCodeLine{00240\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ n;\ ++i)\ \{}
+\DoxyCodeLine{00241\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ j\ =\ 0;\ j\ <\ n;\ ++j)\ \{}
+\DoxyCodeLine{00242\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (i\ ==\ j)\ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{00243\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00244\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (population[i]-\/>dominates(*population[j]))\ \{}
+\DoxyCodeLine{00245\ \textcolor{preprocessor}{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#pragma\ omp\ critical}}
+\DoxyCodeLine{00246\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ S[i].insert(j);}
+\DoxyCodeLine{00247\ \ \ \ \ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (population[j]-\/>dominates(*population[i]))\ \{}
+\DoxyCodeLine{00248\ \textcolor{preprocessor}{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#pragma\ omp\ atomic}}
+\DoxyCodeLine{00249\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ n\_dominated[i]++;}
+\DoxyCodeLine{00250\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00251\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00252\ \ \ \ \ \}}
+\DoxyCodeLine{00253\ \ \ \ \ }
+\DoxyCodeLine{00254\ \ \ \ \ \textcolor{comment}{//\ Find\ first\ front}}
+\DoxyCodeLine{00255\ \ \ \ \ std::vector<size\_t>\ current\_front;}
+\DoxyCodeLine{00256\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ n;\ ++i)\ \{}
+\DoxyCodeLine{00257\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (n\_dominated[i]\ ==\ 0)\ \{}
+\DoxyCodeLine{00258\ \ \ \ \ \ \ \ \ \ \ \ \ population[i]-\/>rank\ =\ 0;}
+\DoxyCodeLine{00259\ \ \ \ \ \ \ \ \ \ \ \ \ current\_front.push\_back(i);}
+\DoxyCodeLine{00260\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00261\ \ \ \ \ \}}
+\DoxyCodeLine{00262\ \ \ \ \ }
+\DoxyCodeLine{00263\ \ \ \ \ front\_indices.push\_back(current\_front);}
+\DoxyCodeLine{00264\ \ \ \ \ }
+\DoxyCodeLine{00265\ \ \ \ \ \textcolor{comment}{//\ Find\ remaining\ fronts}}
+\DoxyCodeLine{00266\ \ \ \ \ \textcolor{keywordtype}{int}\ rank\ =\ 0;}
+\DoxyCodeLine{00267\ \ \ \ \ \textcolor{keywordflow}{while}\ (!current\_front.empty())\ \{}
+\DoxyCodeLine{00268\ \ \ \ \ \ \ \ \ std::vector<size\_t>\ next\_front;}
+\DoxyCodeLine{00269\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00270\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ :\ current\_front)\ \{}
+\DoxyCodeLine{00271\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ j\ :\ S[i])\ \{}
+\DoxyCodeLine{00272\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ n\_dominated[j]-\/-\/;}
+\DoxyCodeLine{00273\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (n\_dominated[j]\ ==\ 0)\ \{}
+\DoxyCodeLine{00274\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ population[j]-\/>rank\ =\ rank\ +\ 1;}
+\DoxyCodeLine{00275\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ next\_front.push\_back(j);}
+\DoxyCodeLine{00276\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00277\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00278\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00279\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00280\ \ \ \ \ \ \ \ \ rank++;}
+\DoxyCodeLine{00281\ \ \ \ \ \ \ \ \ current\_front\ =\ next\_front;}
+\DoxyCodeLine{00282\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!current\_front.empty())\ \{}
+\DoxyCodeLine{00283\ \ \ \ \ \ \ \ \ \ \ \ \ front\_indices.push\_back(current\_front);}
+\DoxyCodeLine{00284\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00285\ \ \ \ \ \}}
+\DoxyCodeLine{00286\ \ \ \ \ }
+\DoxyCodeLine{00287\ \ \ \ \ \textcolor{comment}{//\ Convert\ indices\ to\ individual\ pointers}}
+\DoxyCodeLine{00288\ \ \ \ \ sorted\_fronts.resize(front\_indices.size());}
+\DoxyCodeLine{00289\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ front\_indices.size();\ ++i)\ \{}
+\DoxyCodeLine{00290\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ idx\ :\ front\_indices[i])\ \{}
+\DoxyCodeLine{00291\ \ \ \ \ \ \ \ \ \ \ \ \ sorted\_fronts[i].push\_back(population[idx]);}
+\DoxyCodeLine{00292\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00293\ \ \ \ \ \}}
+\DoxyCodeLine{00294\ \ \ \ \ }
+\DoxyCodeLine{00295\ \ \ \ \ \textcolor{keywordflow}{return}\ sorted\_fronts;}
+\DoxyCodeLine{00296\ \}}
 
 \end{DoxyCode}
 Here is the call graph for this function\+:\nopagebreak

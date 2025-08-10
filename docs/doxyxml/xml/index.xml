@@ -52,7 +52,7 @@
     <member refid="structnsga2_1_1NSGA2Config_1a2ba9a29c19e53c18bb3c3d4339fde365" kind="variable"><name>n_objectives</name></member>
     <member refid="structnsga2_1_1NSGA2Config_1a22f6c5167d3c46f6bf42e52625412441" kind="variable"><name>lower_bounds</name></member>
     <member refid="structnsga2_1_1NSGA2Config_1a702acd772a7704550906edca52a6a4e6" kind="variable"><name>upper_bounds</name></member>
-    <member refid="structnsga2_1_1NSGA2Config_1ab75090aac7ea389b714d08637507cb84" kind="variable"><name>dist_type</name></member>
+    <member refid="structnsga2_1_1NSGA2Config_1a2fdcbd9f594df812b6b7d793322e2cae" kind="variable"><name>rex_xi</name></member>
     <member refid="structnsga2_1_1NSGA2Config_1ad9920bee36083733df22a0a9e12c1b04" kind="variable"><name>n_parents</name></member>
     <member refid="structnsga2_1_1NSGA2Config_1ae339f11b953e92e48b0843aca58fa2db" kind="variable"><name>n_children</name></member>
     <member refid="structnsga2_1_1NSGA2Config_1aabfad00518d7ad0d95c133823c6c6fcf" kind="variable"><name>random_seed</name></member>
@@ -75,7 +75,6 @@
     <member refid="classnsga2_1_1NSGA2Optimizer_1a9695c0bebccb5c6fad4e169d6c00daa4" kind="variable"><name>best_fitness_</name></member>
     <member refid="classnsga2_1_1NSGA2Optimizer_1ac95541d3820975e96991bec47f42a8ec" kind="variable"><name>current_generation_</name></member>
     <member refid="classnsga2_1_1NSGA2Optimizer_1a6b12413cbfbfd22402abfc4eb7e0353c" kind="function"><name>environmental_selection</name></member>
-    <member refid="classnsga2_1_1NSGA2Optimizer_1a3b9ce3ae189b2d686c875860f2b1a408" kind="function"><name>transformPopulation</name></member>
     <member refid="classnsga2_1_1NSGA2Optimizer_1a374b974fc2bf1e1a7eb73b5c26ffbaa5" kind="function"><name>NSGA2Optimizer</name></member>
     <member refid="classnsga2_1_1NSGA2Optimizer_1aa4c4ff01ffd3f120011a0479a6ce4a36" kind="function"><name>setCrowdingDistanceCalculator</name></member>
     <member refid="classnsga2_1_1NSGA2Optimizer_1ad74d71eecedb159ec9e323f35337c09d" kind="function"><name>setCrowdingDistanceCalculator</name></member>
@@ -88,8 +87,6 @@
     <member refid="classnsga2_1_1NSGA2Optimizer_1acf030b373ad687cda76df51d71f564f7" kind="function"><name>get_best_fitness</name></member>
     <member refid="classnsga2_1_1NSGA2Optimizer_1a814b822231505e5deb54eb64b1ba3897" kind="function"><name>get_current_generation</name></member>
     <member refid="classnsga2_1_1NSGA2Optimizer_1aa52554e3824033897dba470b287d3445" kind="function"><name>evaluate_batch</name></member>
-    <member refid="classnsga2_1_1NSGA2Optimizer_1afcf521d8c4989310961b0389deeeb1fa" kind="function"><name>adaptParameterSpace</name></member>
-    <member refid="classnsga2_1_1NSGA2Optimizer_1a2ee35399daaee13d3991a35076cbbf52" kind="function"><name>getParameterSpaceSize</name></member>
   </compound>
   <compound refid="classnsga2_1_1Population" kind="class"><name>nsga2::Population</name>
     <member refid="classnsga2_1_1Population_1a9a79edcd547367d6db22ca438265adf2" kind="variable"><name>individuals_</name></member>
@@ -106,10 +103,9 @@
     <member refid="classnsga2_1_1Population_1a33f4a710923492f625b1eec7988cd91e" kind="function"><name>end</name></member>
   </compound>
   <compound refid="classnsga2_1_1REXCrossover" kind="class"><name>nsga2::REXCrossover</name>
+    <member refid="classnsga2_1_1REXCrossover_1a4fe8f67e276efbbd5306da6fa6932739" kind="variable"><name>xi_</name></member>
     <member refid="classnsga2_1_1REXCrossover_1a17e6d01e3d9e018b7567e0d94ab21598" kind="variable"><name>gen_</name></member>
-    <member refid="classnsga2_1_1REXCrossover_1a80c8af27765113e7e0628b14d28b136e" kind="variable"><name>dist_type_</name></member>
-    <member refid="classnsga2_1_1REXCrossover_1af1afdac7ed45ba9fecf81139e02b99cb" kind="function"><name>generateVShapedRandom</name></member>
-    <member refid="classnsga2_1_1REXCrossover_1a5073ba8254511d301c7d7dae8afafd18" kind="function"><name>REXCrossover</name></member>
+    <member refid="classnsga2_1_1REXCrossover_1aa4ade2278d0fefe9c72126bd7834421e" kind="function"><name>REXCrossover</name></member>
     <member refid="classnsga2_1_1REXCrossover_1a2c2880e6883be65f0ae4164b441b088d" kind="function"><name>crossover</name></member>
   </compound>
   <compound refid="classnsga2_1_1TournamentSelection" kind="class"><name>nsga2::TournamentSelection</name>
@@ -123,10 +119,6 @@
     <member refid="classnsga2_1_1TraditionalCrowdingDistance_1a6d462f8394f09a7624f79569f36f7828" kind="function"><name>getName</name></member>
   </compound>
   <compound refid="namespacensga2" kind="namespace"><name>nsga2</name>
-    <member refid="namespacensga2_1a594adef242e7d5748f5c9cf9d72be1d3" kind="enum"><name>REXDistributionType</name></member>
-    <member refid="namespacensga2_1a594adef242e7d5748f5c9cf9d72be1d3a960b44c579bc2f6818d2daaf9e4c16f0" kind="enumvalue"><name>Normal</name></member>
-    <member refid="namespacensga2_1a594adef242e7d5748f5c9cf9d72be1d3af19516d11f2946f894070e92fcb56b6d" kind="enumvalue"><name>Uniform</name></member>
-    <member refid="namespacensga2_1a594adef242e7d5748f5c9cf9d72be1d3a961a7a0a72c511fa51df0c345278c3b9" kind="enumvalue"><name>VShaped</name></member>
     <member refid="namespacensga2_1a9c76b7fc7926d54405b46a2cccf115f4" kind="typedef"><name>ObjectiveFunction</name></member>
     <member refid="namespacensga2_1a9338ac68ee391d4b50ef5d878d0d89b3" kind="typedef"><name>IndividualPtr</name></member>
     <member refid="namespacensga2_1a39290dffb3965bb004e87e5c07f637c1" kind="typedef"><name>PopulationPtr</name></member>
@@ -134,10 +126,6 @@
   <compound refid="namespacestd" kind="namespace"><name>std</name>
   </compound>
   <compound refid="nsga2__optimizer_8hpp" kind="file"><name>nsga2_optimizer.hpp</name>
-    <member refid="namespacensga2_1a594adef242e7d5748f5c9cf9d72be1d3" kind="enum"><name>REXDistributionType</name></member>
-    <member refid="namespacensga2_1a594adef242e7d5748f5c9cf9d72be1d3a960b44c579bc2f6818d2daaf9e4c16f0" kind="enumvalue"><name>Normal</name></member>
-    <member refid="namespacensga2_1a594adef242e7d5748f5c9cf9d72be1d3af19516d11f2946f894070e92fcb56b6d" kind="enumvalue"><name>Uniform</name></member>
-    <member refid="namespacensga2_1a594adef242e7d5748f5c9cf9d72be1d3a961a7a0a72c511fa51df0c345278c3b9" kind="enumvalue"><name>VShaped</name></member>
     <member refid="namespacensga2_1a9c76b7fc7926d54405b46a2cccf115f4" kind="typedef"><name>ObjectiveFunction</name></member>
     <member refid="namespacensga2_1a9338ac68ee391d4b50ef5d878d0d89b3" kind="typedef"><name>IndividualPtr</name></member>
     <member refid="namespacensga2_1a39290dffb3965bb004e87e5c07f637c1" kind="typedef"><name>PopulationPtr</name></member>
