@@ -1,0 +1,184 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.6" xml:lang="en-US">
+  <compounddef id="classnsga2_1_1EquidistantSelectionCrowdingDistance" kind="class" language="C++" prot="public">
+    <compoundname>nsga2::EquidistantSelectionCrowdingDistance</compoundname>
+    <basecompoundref refid="classnsga2_1_1ICrowdingDistanceCalculator" prot="public" virt="non-virtual">nsga2::ICrowdingDistanceCalculator</basecompoundref>
+    <includes refid="nsga2__optimizer_8hpp" local="no">nsga2_optimizer.hpp</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classnsga2_1_1EquidistantSelectionCrowdingDistance_1a33513398babc27b164699837c94bb98e" prot="private" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t nsga2::EquidistantSelectionCrowdingDistance::selection_size_</definition>
+        <argsstring></argsstring>
+        <name>selection_size_</name>
+        <qualifiedname>nsga2::EquidistantSelectionCrowdingDistance::selection_size_</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="83" column="12" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="83" bodyend="-1"/>
+        <referencedby refid="classnsga2_1_1EquidistantSelectionCrowdingDistance_1a5ea3936b121d121e66efa9c1fc0add02" compoundref="nsga2__optimizer_8cpp" startline="270" endline="332">calculate</referencedby>
+        <referencedby refid="classnsga2_1_1EquidistantSelectionCrowdingDistance_1a2348394f9d2974b329f0545677b4949d" compoundref="nsga2__optimizer_8hpp" startline="88" endline="88">setSelectionSize</referencedby>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classnsga2_1_1EquidistantSelectionCrowdingDistance_1a1f44c45dd208402f810e090ec6bf3441" prot="public" static="no" const="no" explicit="yes" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>nsga2::EquidistantSelectionCrowdingDistance::EquidistantSelectionCrowdingDistance</definition>
+        <argsstring>(size_t selection_size=0)</argsstring>
+        <name>EquidistantSelectionCrowdingDistance</name>
+        <qualifiedname>nsga2::EquidistantSelectionCrowdingDistance::EquidistantSelectionCrowdingDistance</qualifiedname>
+        <param>
+          <type>size_t</type>
+          <declname>selection_size</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="86" column="14" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/src/nsga2_optimizer.cpp" bodystart="258" bodyend="259"/>
+      </memberdef>
+      <memberdef kind="function" id="classnsga2_1_1EquidistantSelectionCrowdingDistance_1a80e61641e3b0ac8445689093d3369c78" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>nsga2::EquidistantSelectionCrowdingDistance::EquidistantSelectionCrowdingDistance</definition>
+        <argsstring>(const EquidistantSelectionCrowdingDistance &amp;other)=default</argsstring>
+        <name>EquidistantSelectionCrowdingDistance</name>
+        <qualifiedname>nsga2::EquidistantSelectionCrowdingDistance::EquidistantSelectionCrowdingDistance</qualifiedname>
+        <param>
+          <type>const <ref refid="classnsga2_1_1EquidistantSelectionCrowdingDistance" kindref="compound">EquidistantSelectionCrowdingDistance</ref> &amp;</type>
+          <declname>other</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="87" column="5"/>
+      </memberdef>
+      <memberdef kind="function" id="classnsga2_1_1EquidistantSelectionCrowdingDistance_1a2348394f9d2974b329f0545677b4949d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void nsga2::EquidistantSelectionCrowdingDistance::setSelectionSize</definition>
+        <argsstring>(size_t size)</argsstring>
+        <name>setSelectionSize</name>
+        <qualifiedname>nsga2::EquidistantSelectionCrowdingDistance::setSelectionSize</qualifiedname>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="88" column="10" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="88" bodyend="88"/>
+        <references refid="classnsga2_1_1EquidistantSelectionCrowdingDistance_1a33513398babc27b164699837c94bb98e" compoundref="nsga2__optimizer_8hpp" startline="83">selection_size_</references>
+        <referencedby refid="python__bindings_8cpp_1ad060d5bb65d036d5f5ac558c214f5d3d" compoundref="python__bindings_8cpp" startline="9" endline="207">PYBIND11_MODULE</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classnsga2_1_1EquidistantSelectionCrowdingDistance_1a5ea3936b121d121e66efa9c1fc0add02" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void nsga2::EquidistantSelectionCrowdingDistance::calculate</definition>
+        <argsstring>(std::vector&lt; IndividualPtr &gt; &amp;front) override</argsstring>
+        <name>calculate</name>
+        <qualifiedname>nsga2::EquidistantSelectionCrowdingDistance::calculate</qualifiedname>
+        <reimplements refid="classnsga2_1_1ICrowdingDistanceCalculator_1aba734883489f093ad8c8faadc21f7f43">calculate</reimplements>
+        <param>
+          <type>std::vector&lt; <ref refid="namespacensga2_1a9338ac68ee391d4b50ef5d878d0d89b3" kindref="member">IndividualPtr</ref> &gt; &amp;</type>
+          <declname>front</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="89" column="10" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/src/nsga2_optimizer.cpp" bodystart="270" bodyend="332"/>
+        <references refid="classnsga2_1_1EquidistantSelectionCrowdingDistance_1a33513398babc27b164699837c94bb98e" compoundref="nsga2__optimizer_8hpp" startline="83">selection_size_</references>
+      </memberdef>
+      <memberdef kind="function" id="classnsga2_1_1EquidistantSelectionCrowdingDistance_1a74ddc9bd2a728231d5f885291f0c1802" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="virtual">
+        <type>std::string</type>
+        <definition>std::string nsga2::EquidistantSelectionCrowdingDistance::getName</definition>
+        <argsstring>() const override</argsstring>
+        <name>getName</name>
+        <qualifiedname>nsga2::EquidistantSelectionCrowdingDistance::getName</qualifiedname>
+        <reimplements refid="classnsga2_1_1ICrowdingDistanceCalculator_1ad993f171ab4da9d503d98413afd50eef">getName</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="90" column="17" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="90" bodyend="90"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classnsga2_1_1EquidistantSelectionCrowdingDistance_1af05d94dfcfdcb2ae823baca2069a10d9" prot="private" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double nsga2::EquidistantSelectionCrowdingDistance::calculateDistance</definition>
+        <argsstring>(const Individual &amp;a, const Individual &amp;b) const</argsstring>
+        <name>calculateDistance</name>
+        <qualifiedname>nsga2::EquidistantSelectionCrowdingDistance::calculateDistance</qualifiedname>
+        <param>
+          <type>const <ref refid="classnsga2_1_1Individual" kindref="compound">Individual</ref> &amp;</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classnsga2_1_1Individual" kindref="compound">Individual</ref> &amp;</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="93" column="12" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/src/nsga2_optimizer.cpp" bodystart="261" bodyend="268"/>
+        <references refid="classnsga2_1_1Individual_1a833dd8ab67dbe3b5366a569d1c8e1686" compoundref="nsga2__optimizer_8hpp" startline="31">nsga2::Individual::objectives</references>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>nsga2::EquidistantSelectionCrowdingDistance</label>
+        <link refid="classnsga2_1_1EquidistantSelectionCrowdingDistance"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>nsga2::ICrowdingDistanceCalculator</label>
+        <link refid="classnsga2_1_1ICrowdingDistanceCalculator"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>nsga2::EquidistantSelectionCrowdingDistance</label>
+        <link refid="classnsga2_1_1EquidistantSelectionCrowdingDistance"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>nsga2::ICrowdingDistanceCalculator</label>
+        <link refid="classnsga2_1_1ICrowdingDistanceCalculator"/>
+      </node>
+    </collaborationgraph>
+    <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="81" column="1" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="81" bodyend="94"/>
+    <listofallmembers>
+      <member refid="classnsga2_1_1EquidistantSelectionCrowdingDistance_1a5ea3936b121d121e66efa9c1fc0add02" prot="public" virt="virtual"><scope>nsga2::EquidistantSelectionCrowdingDistance</scope><name>calculate</name></member>
+      <member refid="classnsga2_1_1EquidistantSelectionCrowdingDistance_1af05d94dfcfdcb2ae823baca2069a10d9" prot="private" virt="non-virtual"><scope>nsga2::EquidistantSelectionCrowdingDistance</scope><name>calculateDistance</name></member>
+      <member refid="classnsga2_1_1EquidistantSelectionCrowdingDistance_1a1f44c45dd208402f810e090ec6bf3441" prot="public" virt="non-virtual"><scope>nsga2::EquidistantSelectionCrowdingDistance</scope><name>EquidistantSelectionCrowdingDistance</name></member>
+      <member refid="classnsga2_1_1EquidistantSelectionCrowdingDistance_1a80e61641e3b0ac8445689093d3369c78" prot="public" virt="non-virtual"><scope>nsga2::EquidistantSelectionCrowdingDistance</scope><name>EquidistantSelectionCrowdingDistance</name></member>
+      <member refid="classnsga2_1_1EquidistantSelectionCrowdingDistance_1a74ddc9bd2a728231d5f885291f0c1802" prot="public" virt="virtual"><scope>nsga2::EquidistantSelectionCrowdingDistance</scope><name>getName</name></member>
+      <member refid="classnsga2_1_1EquidistantSelectionCrowdingDistance_1a33513398babc27b164699837c94bb98e" prot="private" virt="non-virtual"><scope>nsga2::EquidistantSelectionCrowdingDistance</scope><name>selection_size_</name></member>
+      <member refid="classnsga2_1_1EquidistantSelectionCrowdingDistance_1a2348394f9d2974b329f0545677b4949d" prot="public" virt="non-virtual"><scope>nsga2::EquidistantSelectionCrowdingDistance</scope><name>setSelectionSize</name></member>
+      <member refid="classnsga2_1_1ICrowdingDistanceCalculator_1afd68247f9ab22aa406c5b9321ae2cb99" prot="public" virt="virtual"><scope>nsga2::EquidistantSelectionCrowdingDistance</scope><name>~ICrowdingDistanceCalculator</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

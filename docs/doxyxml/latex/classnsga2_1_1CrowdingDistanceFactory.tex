@@ -1,0 +1,96 @@
+\hypertarget{classnsga2_1_1CrowdingDistanceFactory}{}\doxysection{nsga2\+::Crowding\+Distance\+Factory Class Reference}
+\label{classnsga2_1_1CrowdingDistanceFactory}\index{nsga2::CrowdingDistanceFactory@{nsga2::CrowdingDistanceFactory}}
+
+
+{\ttfamily \#include $<$nsga2\+\_\+optimizer.\+hpp$>$}
+
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum class \mbox{\hyperlink{classnsga2_1_1CrowdingDistanceFactory_a1a8c49d9ce3527f077d077c5d8d4b316}{Type}} \{ \mbox{\hyperlink{classnsga2_1_1CrowdingDistanceFactory_a1a8c49d9ce3527f077d077c5d8d4b316a1bfbcce75c3c9a52a464d4cb0984488a}{Traditional}}
+, \mbox{\hyperlink{classnsga2_1_1CrowdingDistanceFactory_a1a8c49d9ce3527f077d077c5d8d4b316a38d44c1d2ababdca31bd7811992dba2c}{Equidistant\+Selection}}
+ \}
+\end{DoxyCompactItemize}
+\doxysubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static std\+::unique\+\_\+ptr$<$ \mbox{\hyperlink{classnsga2_1_1ICrowdingDistanceCalculator}{ICrowding\+Distance\+Calculator}} $>$ \mbox{\hyperlink{classnsga2_1_1CrowdingDistanceFactory_aa1b849a32ee30761426a25647eb2aa7e}{create}} (\mbox{\hyperlink{classnsga2_1_1CrowdingDistanceFactory_a1a8c49d9ce3527f077d077c5d8d4b316}{Type}} type, size\+\_\+t selection\+\_\+size=0)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00097}{97}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
+
+
+
+\doxysubsection{Member Enumeration Documentation}
+\mbox{\Hypertarget{classnsga2_1_1CrowdingDistanceFactory_a1a8c49d9ce3527f077d077c5d8d4b316}\label{classnsga2_1_1CrowdingDistanceFactory_a1a8c49d9ce3527f077d077c5d8d4b316}} 
+\index{nsga2::CrowdingDistanceFactory@{nsga2::CrowdingDistanceFactory}!Type@{Type}}
+\index{Type@{Type}!nsga2::CrowdingDistanceFactory@{nsga2::CrowdingDistanceFactory}}
+\doxysubsubsection{\texorpdfstring{Type}{Type}}
+{\footnotesize\ttfamily enum class \mbox{\hyperlink{classnsga2_1_1CrowdingDistanceFactory_a1a8c49d9ce3527f077d077c5d8d4b316}{nsga2\+::\+Crowding\+Distance\+Factory\+::\+Type}}\hspace{0.3cm}{\ttfamily [strong]}}
+
+\begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{Traditional@{Traditional}!nsga2::CrowdingDistanceFactory@{nsga2::CrowdingDistanceFactory}}\index{nsga2::CrowdingDistanceFactory@{nsga2::CrowdingDistanceFactory}!Traditional@{Traditional}}}\mbox{\Hypertarget{classnsga2_1_1CrowdingDistanceFactory_a1a8c49d9ce3527f077d077c5d8d4b316a1bfbcce75c3c9a52a464d4cb0984488a}\label{classnsga2_1_1CrowdingDistanceFactory_a1a8c49d9ce3527f077d077c5d8d4b316a1bfbcce75c3c9a52a464d4cb0984488a}} 
+Traditional&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{EquidistantSelection@{EquidistantSelection}!nsga2::CrowdingDistanceFactory@{nsga2::CrowdingDistanceFactory}}\index{nsga2::CrowdingDistanceFactory@{nsga2::CrowdingDistanceFactory}!EquidistantSelection@{EquidistantSelection}}}\mbox{\Hypertarget{classnsga2_1_1CrowdingDistanceFactory_a1a8c49d9ce3527f077d077c5d8d4b316a38d44c1d2ababdca31bd7811992dba2c}\label{classnsga2_1_1CrowdingDistanceFactory_a1a8c49d9ce3527f077d077c5d8d4b316a38d44c1d2ababdca31bd7811992dba2c}} 
+Equidistant\+Selection&\\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00099}{99}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00100\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1CrowdingDistanceFactory_a1a8c49d9ce3527f077d077c5d8d4b316a1bfbcce75c3c9a52a464d4cb0984488a}{Traditional}},}
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1CrowdingDistanceFactory_a1a8c49d9ce3527f077d077c5d8d4b316a38d44c1d2ababdca31bd7811992dba2c}{EquidistantSelection}}}
+\DoxyCodeLine{00102\ \ \ \ \ \};}
+
+\end{DoxyCode}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classnsga2_1_1CrowdingDistanceFactory_aa1b849a32ee30761426a25647eb2aa7e}\label{classnsga2_1_1CrowdingDistanceFactory_aa1b849a32ee30761426a25647eb2aa7e}} 
+\index{nsga2::CrowdingDistanceFactory@{nsga2::CrowdingDistanceFactory}!create@{create}}
+\index{create@{create}!nsga2::CrowdingDistanceFactory@{nsga2::CrowdingDistanceFactory}}
+\doxysubsubsection{\texorpdfstring{create()}{create()}}
+{\footnotesize\ttfamily std\+::unique\+\_\+ptr$<$ \mbox{\hyperlink{classnsga2_1_1ICrowdingDistanceCalculator}{ICrowding\+Distance\+Calculator}} $>$ nsga2\+::\+Crowding\+Distance\+Factory\+::create (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classnsga2_1_1CrowdingDistanceFactory_a1a8c49d9ce3527f077d077c5d8d4b316}{Type}}}]{type,  }\item[{size\+\_\+t}]{selection\+\_\+size = {\ttfamily 0} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00335}{335}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00335\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00336\ \ \ \ \ \textcolor{keywordflow}{switch}\ (type)\ \{}
+\DoxyCodeLine{00337\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{classnsga2_1_1CrowdingDistanceFactory_a1a8c49d9ce3527f077d077c5d8d4b316a1bfbcce75c3c9a52a464d4cb0984488a}{Type::Traditional}}:}
+\DoxyCodeLine{00338\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ std::make\_unique<TraditionalCrowdingDistance>();}
+\DoxyCodeLine{00339\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{classnsga2_1_1CrowdingDistanceFactory_a1a8c49d9ce3527f077d077c5d8d4b316a38d44c1d2ababdca31bd7811992dba2c}{Type::EquidistantSelection}}:}
+\DoxyCodeLine{00340\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ std::make\_unique<EquidistantSelectionCrowdingDistance>(selection\_size);}
+\DoxyCodeLine{00341\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{default}:}
+\DoxyCodeLine{00342\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{throw}\ std::invalid\_argument(\textcolor{stringliteral}{"{}Unknown\ crowding\ distance\ type"{}});}
+\DoxyCodeLine{00343\ \ \ \ \ \}}
+\DoxyCodeLine{00344\ \}}
+
+\end{DoxyCode}
+Here is the caller graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classnsga2_1_1CrowdingDistanceFactory_aa1b849a32ee30761426a25647eb2aa7e_icgraph}
+\end{center}
+\end{figure}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/run/media/a-\/koike/ボリューム/\+DATA/pinns/module/nsga2\+\_\+optimizer/include/\mbox{\hyperlink{nsga2__optimizer_8hpp}{nsga2\+\_\+optimizer.\+hpp}}\item 
+/run/media/a-\/koike/ボリューム/\+DATA/pinns/module/nsga2\+\_\+optimizer/src/\mbox{\hyperlink{nsga2__optimizer_8cpp}{nsga2\+\_\+optimizer.\+cpp}}\end{DoxyCompactItemize}

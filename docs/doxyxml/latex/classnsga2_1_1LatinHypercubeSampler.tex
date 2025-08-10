@@ -1,0 +1,101 @@
+\hypertarget{classnsga2_1_1LatinHypercubeSampler}{}\doxysection{nsga2\+::Latin\+Hypercube\+Sampler Class Reference}
+\label{classnsga2_1_1LatinHypercubeSampler}\index{nsga2::LatinHypercubeSampler@{nsga2::LatinHypercubeSampler}}
+
+
+{\ttfamily \#include $<$nsga2\+\_\+optimizer.\+hpp$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classnsga2_1_1LatinHypercubeSampler_a9d50bf0474142f0ad000bbee940c623b}{Latin\+Hypercube\+Sampler}} (unsigned int seed=42)
+\item 
+std\+::vector$<$ std\+::vector$<$ double $>$ $>$ \mbox{\hyperlink{classnsga2_1_1LatinHypercubeSampler_ab86f147fc5a18cb612aecb9b8eef7ec7}{sample}} (size\+\_\+t n\+\_\+samples, size\+\_\+t n\+\_\+dims, const std\+::vector$<$ double $>$ \&lower\+\_\+bounds, const std\+::vector$<$ double $>$ \&upper\+\_\+bounds)
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::mt19937 \mbox{\hyperlink{classnsga2_1_1LatinHypercubeSampler_a8f7dee67d0614571efd83cb7af827c7c}{gen\+\_\+}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00121}{121}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classnsga2_1_1LatinHypercubeSampler_a9d50bf0474142f0ad000bbee940c623b}\label{classnsga2_1_1LatinHypercubeSampler_a9d50bf0474142f0ad000bbee940c623b}} 
+\index{nsga2::LatinHypercubeSampler@{nsga2::LatinHypercubeSampler}!LatinHypercubeSampler@{LatinHypercubeSampler}}
+\index{LatinHypercubeSampler@{LatinHypercubeSampler}!nsga2::LatinHypercubeSampler@{nsga2::LatinHypercubeSampler}}
+\doxysubsubsection{\texorpdfstring{LatinHypercubeSampler()}{LatinHypercubeSampler()}}
+{\footnotesize\ttfamily nsga2\+::\+Latin\+Hypercube\+Sampler\+::\+Latin\+Hypercube\+Sampler (\begin{DoxyParamCaption}\item[{unsigned int}]{seed = {\ttfamily 42} }\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00420}{420}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00420\ :\ \mbox{\hyperlink{classnsga2_1_1LatinHypercubeSampler_a8f7dee67d0614571efd83cb7af827c7c}{gen\_}}(seed)\ \{\}}
+
+\end{DoxyCode}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classnsga2_1_1LatinHypercubeSampler_ab86f147fc5a18cb612aecb9b8eef7ec7}\label{classnsga2_1_1LatinHypercubeSampler_ab86f147fc5a18cb612aecb9b8eef7ec7}} 
+\index{nsga2::LatinHypercubeSampler@{nsga2::LatinHypercubeSampler}!sample@{sample}}
+\index{sample@{sample}!nsga2::LatinHypercubeSampler@{nsga2::LatinHypercubeSampler}}
+\doxysubsubsection{\texorpdfstring{sample()}{sample()}}
+{\footnotesize\ttfamily std\+::vector$<$ std\+::vector$<$ double $>$ $>$ nsga2\+::\+Latin\+Hypercube\+Sampler\+::sample (\begin{DoxyParamCaption}\item[{size\+\_\+t}]{n\+\_\+samples,  }\item[{size\+\_\+t}]{n\+\_\+dims,  }\item[{const std\+::vector$<$ double $>$ \&}]{lower\+\_\+bounds,  }\item[{const std\+::vector$<$ double $>$ \&}]{upper\+\_\+bounds }\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00422}{422}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00425\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00426\ \ \ \ \ }
+\DoxyCodeLine{00427\ \ \ \ \ std::vector<std::vector<double>>\ samples(n\_samples,\ std::vector<double>(n\_dims));}
+\DoxyCodeLine{00428\ \ \ \ \ }
+\DoxyCodeLine{00429\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ dim\ =\ 0;\ dim\ <\ n\_dims;\ ++dim)\ \{}
+\DoxyCodeLine{00430\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Create\ intervals}}
+\DoxyCodeLine{00431\ \ \ \ \ \ \ \ \ std::vector<size\_t>\ intervals(n\_samples);}
+\DoxyCodeLine{00432\ \ \ \ \ \ \ \ \ std::iota(intervals.begin(),\ intervals.end(),\ 0);}
+\DoxyCodeLine{00433\ \ \ \ \ \ \ \ \ std::shuffle(intervals.begin(),\ intervals.end(),\ \mbox{\hyperlink{classnsga2_1_1LatinHypercubeSampler_a8f7dee67d0614571efd83cb7af827c7c}{gen\_}});}
+\DoxyCodeLine{00434\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00435\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Sample\ within\ intervals}}
+\DoxyCodeLine{00436\ \ \ \ \ \ \ \ \ std::uniform\_real\_distribution<>\ dist(0.0,\ 1.0);}
+\DoxyCodeLine{00437\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ range\ =\ upper\_bounds[dim]\ -\/\ lower\_bounds[dim];}
+\DoxyCodeLine{00438\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00439\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ n\_samples;\ ++i)\ \{}
+\DoxyCodeLine{00440\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ interval\_pos\ =\ (intervals[i]\ +\ dist(\mbox{\hyperlink{classnsga2_1_1LatinHypercubeSampler_a8f7dee67d0614571efd83cb7af827c7c}{gen\_}}))\ /\ n\_samples;}
+\DoxyCodeLine{00441\ \ \ \ \ \ \ \ \ \ \ \ \ samples[i][dim]\ =\ lower\_bounds[dim]\ +\ interval\_pos\ *\ range;}
+\DoxyCodeLine{00442\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00443\ \ \ \ \ \}}
+\DoxyCodeLine{00444\ \ \ \ \ }
+\DoxyCodeLine{00445\ \ \ \ \ \textcolor{keywordflow}{return}\ samples;}
+\DoxyCodeLine{00446\ \}}
+
+\end{DoxyCode}
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classnsga2_1_1LatinHypercubeSampler_a8f7dee67d0614571efd83cb7af827c7c}\label{classnsga2_1_1LatinHypercubeSampler_a8f7dee67d0614571efd83cb7af827c7c}} 
+\index{nsga2::LatinHypercubeSampler@{nsga2::LatinHypercubeSampler}!gen\_@{gen\_}}
+\index{gen\_@{gen\_}!nsga2::LatinHypercubeSampler@{nsga2::LatinHypercubeSampler}}
+\doxysubsubsection{\texorpdfstring{gen\_}{gen\_}}
+{\footnotesize\ttfamily std\+::mt19937 nsga2\+::\+Latin\+Hypercube\+Sampler\+::gen\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00123}{123}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/run/media/a-\/koike/ボリューム/\+DATA/pinns/module/nsga2\+\_\+optimizer/include/\mbox{\hyperlink{nsga2__optimizer_8hpp}{nsga2\+\_\+optimizer.\+hpp}}\item 
+/run/media/a-\/koike/ボリューム/\+DATA/pinns/module/nsga2\+\_\+optimizer/src/\mbox{\hyperlink{nsga2__optimizer_8cpp}{nsga2\+\_\+optimizer.\+cpp}}\end{DoxyCompactItemize}

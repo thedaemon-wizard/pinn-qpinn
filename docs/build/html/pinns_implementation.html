@@ -1,0 +1,746 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PINNs Implementation &mdash; PINNs-QPINNs Heat Conduction Benchmark 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=6703f69d" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "displayMath": [["$", "$"], ["\\[", "\\]"]], "processEscapes": true, "macros": {"bm": ["{\\boldsymbol{#1}}", 1], "abs": ["\\left|#1\\right|", 1], "norm": ["\\left\\|#1\\right\\|", 1]}}, "options": {"skipHtmlTags": ["script", "noscript", "style", "textarea", "pre"], "processHtmlClass": "tex2jax_process"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="QPINNs Implementation" href="qpinns_implementation.html" />
+    <link rel="prev" title="Theoretical Background" href="theoretical_background.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            PINNs-QPINNs Heat Conduction Benchmark
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#key-innovations">Key Innovations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="introduction.html#classical-pinns-enhancement">Classical PINNs Enhancement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="introduction.html#quantum-pinns-with-gqe-gpt">Quantum PINNs with GQE-GPT</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#scientific-contributions">Scientific Contributions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#problem-statement">Problem Statement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#implementation-highlights">Implementation Highlights</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#results-preview">Results Preview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#document-organization">Document Organization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#getting-started">Getting Started</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="theoretical_background.html">Theoretical Background</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="theoretical_background.html#heat-conduction-equation">Heat Conduction Equation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="theoretical_background.html#boundary-and-initial-conditions">Boundary and Initial Conditions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="theoretical_background.html#physics-informed-neural-networks-pinns">Physics-Informed Neural Networks (PINNs)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="theoretical_background.html#loss-function-components">Loss Function Components</a></li>
+<li class="toctree-l3"><a class="reference internal" href="theoretical_background.html#fourier-neural-operator-fno">Fourier Neural Operator (FNO)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="theoretical_background.html#temporal-attention-mechanism">Temporal Attention Mechanism</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="theoretical_background.html#quantum-physics-informed-neural-networks-qpinns">Quantum Physics-Informed Neural Networks (QPINNs)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="theoretical_background.html#quantum-circuit-architecture">Quantum Circuit Architecture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="theoretical_background.html#gqe-gpt-circuit-generation">GQE-GPT Circuit Generation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="theoretical_background.html#trainable-embedding-te-qpinn">Trainable Embedding (TE-QPINN)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="theoretical_background.html#nsga-ii-multi-objective-optimization">NSGA-II Multi-Objective Optimization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="theoretical_background.html#algorithm-overview">Algorithm Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="theoretical_background.html#rex-crossover-operator">REX Crossover Operator</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="theoretical_background.html#bayesian-multi-objective-optimization-for-energy-estimation">Bayesian Multi-Objective Optimization for Energy Estimation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="theoretical_background.html#objective-scores"><strong>Objective Scores</strong></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="theoretical_background.html#noise-models-and-hardware-efficiency">Noise Models and Hardware Efficiency</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="theoretical_background.html#quantum-noise-modeling">Quantum Noise Modeling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="theoretical_background.html#hardware-efficiency-metrics">Hardware Efficiency Metrics</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">PINNs Implementation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#architecture-overview">Architecture Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#multi-scale-fourier-feature-mapping">Multi-Scale Fourier Feature Mapping</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#spatial-features">Spatial Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#temporal-features">Temporal Features</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#fourier-neural-operator-fno-integration">Fourier Neural Operator (FNO) Integration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#memory-efficient-fno">Memory-Efficient FNO</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#temporal-attention-mechanism">Temporal Attention Mechanism</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#hard-boundary-constraints">Hard Boundary Constraints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#loss-function-components">Loss Function Components</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#initial-condition-loss">Initial Condition Loss</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#peak-value-loss">Peak Value Loss</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pde-residual-loss">PDE Residual Loss</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#nsga-ii-multi-objective-training">NSGA-II Multi-Objective Training</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#optimization-techniques">Optimization Techniques</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#weight-initialization">Weight Initialization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#gradient-checkpointing">Gradient Checkpointing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#learning-rate-scheduling">Learning Rate Scheduling</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#best-practices">Best Practices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#common-issues-and-solutions">Common Issues and Solutions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#memory-management">Memory Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#gradient-explosion">Gradient Explosion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#slow-convergence">Slow Convergence</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#references">References</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="qpinns_implementation.html">QPINNs Implementation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="qpinns_implementation.html#gqe-gpt-architecture-overview">GQE-GPT Architecture Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qpinns_implementation.html#ketgpt-integration">KetGPT Integration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="qpinns_implementation.html#dataset-loading">Dataset Loading</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qpinns_implementation.html#gpt-model-architecture">GPT Model Architecture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qpinns_implementation.html#circuit-tokenization">Circuit Tokenization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="qpinns_implementation.html#quantum-circuit-template">Quantum Circuit Template</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="qpinns_implementation.html#gate-sequence-structure">Gate Sequence Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qpinns_implementation.html#hardware-efficient-ansatz">Hardware-Efficient Ansatz</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="qpinns_implementation.html#trainable-embedding-te-qpinn">Trainable Embedding (TE-QPINN)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="qpinns_implementation.html#spatial-feature-embedding">Spatial Feature Embedding</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qpinns_implementation.html#temporal-feature-embedding">Temporal Feature Embedding</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qpinns_implementation.html#parameter-initialization">Parameter Initialization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="qpinns_implementation.html#circuit-optimization-with-nsga-ii">Circuit Optimization with NSGA-II</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="qpinns_implementation.html#objective-functions">Objective Functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qpinns_implementation.html#hardware-efficiency-calculation">Hardware Efficiency Calculation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="qpinns_implementation.html#noise-modeling">Noise Modeling</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="qpinns_implementation.html#noise-channels">Noise Channels</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="qpinns_implementation.html#measurement-processing">Measurement Processing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="qpinns_implementation.html#z-basis-measurements">Z-basis Measurements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qpinns_implementation.html#final-output-computation">Final Output Computation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="qpinns_implementation.html#bayesian-multi-objective-optimization">Bayesian Multi-Objective Optimization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="qpinns_implementation.html#nine-objective-functions">Nine Objective Functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qpinns_implementation.html#unsupervised-energy-estimation">Unsupervised Energy Estimation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qpinns_implementation.html#energy-landscape-analysis">Energy Landscape Analysis</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="qpinns_implementation.html#gqe-gpt-circuit-generation-process">GQE-GPT Circuit Generation Process</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="qpinns_implementation.html#bayesian-acquisition-function">Bayesian Acquisition Function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="qpinns_implementation.html#training-loss-functions">Training Loss Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="qpinns_implementation.html#trace-distance-calculation">Trace Distance Calculation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="qpinns_implementation.html#circuit-training-process">Circuit Training Process</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qpinns_implementation.html#references">References</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="nsga2_optimizer.html">NSGA-II Optimizer</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="nsga2_optimizer.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nsga2_optimizer.html#architecture">Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nsga2_optimizer.html#configuration">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nsga2_optimizer.html#non-dominated-sorting">Non-dominated Sorting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nsga2_optimizer.html#rex-crossover-operator">REX Crossover Operator</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="nsga2_optimizer.html#mathematical-formulation">Mathematical Formulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nsga2_optimizer.html#v-shaped-distribution">V-shaped Distribution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nsga2_optimizer.html#crossover-implementation">Crossover Implementation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="nsga2_optimizer.html#latin-hypercube-sampling">Latin Hypercube Sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nsga2_optimizer.html#crowding-distance">Crowding Distance</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="nsga2_optimizer.html#traditional-crowding-distance">Traditional Crowding Distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nsga2_optimizer.html#equidistant-selection">Equidistant Selection</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="nsga2_optimizer.html#parallelization">Parallelization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nsga2_optimizer.html#python-bindings">Python Bindings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nsga2_optimizer.html#usage-example">Usage Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nsga2_optimizer.html#building-from-source">Building from Source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nsga2_optimizer.html#performance-considerations">Performance Considerations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nsga2_optimizer.html#references">References</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="experimental_results.html">Experimental Results</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="experimental_results.html#experimental-setup">Experimental Setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="experimental_results.html#problem-configuration">Problem Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="experimental_results.html#hardware-configuration">Hardware Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="experimental_results.html#nsga-ii-configuration">NSGA-II Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="experimental_results.html#performance-metrics">Performance Metrics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="experimental_results.html#mean-squared-error-mse">Mean Squared Error (MSE)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="experimental_results.html#relative-l2-error">Relative L2 Error</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="experimental_results.html#results-summary">Results Summary</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="experimental_results.html#overall-performance-comparison">Overall Performance Comparison</a></li>
+<li class="toctree-l3"><a class="reference internal" href="experimental_results.html#multi-objective-analysis">Multi-Objective Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="experimental_results.html#convergence-analysis">Convergence Analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="experimental_results.html#loss-evolution">Loss Evolution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="experimental_results.html#boundary-condition-satisfaction">Boundary Condition Satisfaction</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="experimental_results.html#quantum-circuit-analysis">Quantum Circuit Analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="experimental_results.html#circuit-characteristics">Circuit Characteristics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="experimental_results.html#gate-composition">Gate Composition</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="experimental_results.html#computational-resource-analysis">Computational Resource Analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="experimental_results.html#memory-usage">Memory Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="experimental_results.html#time-breakdown">Time Breakdown</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="experimental_results.html#visualization-results">Visualization Results</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="experimental_results.html#temperature-distribution">Temperature Distribution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="experimental_results.html#error-distribution">Error Distribution</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="experimental_results.html#statistical-analysis">Statistical Analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="experimental_results.html#performance-statistics">Performance Statistics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="experimental_results.html#hypothesis-testing">Hypothesis Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="experimental_results.html#key-findings">Key Findings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="experimental_results.html#recommendations">Recommendations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="experimental_results.html#reproducibility">Reproducibility</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#python-api">Python API</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api_reference.html#pinns-d3-module">pinns_d3 Module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#functions">Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#neural-network-components">Neural Network Components</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#quantum-components">Quantum Components</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#data-structures">Data Structures</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#configuration">Configuration</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#c-api-nsga-ii-optimizer">C++ API (NSGA-II Optimizer)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api_reference.html#_CPPv45nsga2"><code class="docutils literal notranslate"><span class="pre">nsga2</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#_CPPv4N5nsga217ObjectiveFunctionE"><code class="docutils literal notranslate"><span class="pre">ObjectiveFunction</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#_CPPv4N5nsga213IndividualPtrE"><code class="docutils literal notranslate"><span class="pre">IndividualPtr</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#_CPPv4N5nsga213PopulationPtrE"><code class="docutils literal notranslate"><span class="pre">PopulationPtr</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#_CPPv4N5nsga219REXDistributionTypeE"><code class="docutils literal notranslate"><span class="pre">REXDistributionType</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#_CPPv4N5nsga223CrowdingDistanceFactoryE"><code class="docutils literal notranslate"><span class="pre">nsga2::CrowdingDistanceFactory</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#_CPPv4N5nsga236EquidistantSelectionCrowdingDistanceE"><code class="docutils literal notranslate"><span class="pre">nsga2::EquidistantSelectionCrowdingDistance</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#_CPPv4N5nsga220FastNonDominatedSortE"><code class="docutils literal notranslate"><span class="pre">nsga2::FastNonDominatedSort</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#_CPPv4N5nsga227ICrowdingDistanceCalculatorE"><code class="docutils literal notranslate"><span class="pre">nsga2::ICrowdingDistanceCalculator</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#_CPPv4N5nsga210IndividualE"><code class="docutils literal notranslate"><span class="pre">nsga2::Individual</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#_CPPv4N5nsga218ISelectionStrategyE"><code class="docutils literal notranslate"><span class="pre">nsga2::ISelectionStrategy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#_CPPv4N5nsga217ISortingAlgorithmE"><code class="docutils literal notranslate"><span class="pre">nsga2::ISortingAlgorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#_CPPv4N5nsga221LatinHypercubeSamplerE"><code class="docutils literal notranslate"><span class="pre">nsga2::LatinHypercubeSampler</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#_CPPv4N5nsga211NSGA2ConfigE"><code class="docutils literal notranslate"><span class="pre">nsga2::NSGA2Config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#_CPPv4N5nsga214NSGA2OptimizerE"><code class="docutils literal notranslate"><span class="pre">nsga2::NSGA2Optimizer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#_CPPv4N5nsga210PopulationE"><code class="docutils literal notranslate"><span class="pre">nsga2::Population</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#_CPPv4N5nsga212REXCrossoverE"><code class="docutils literal notranslate"><span class="pre">nsga2::REXCrossover</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#_CPPv4N5nsga219TournamentSelectionE"><code class="docutils literal notranslate"><span class="pre">nsga2::TournamentSelection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#_CPPv4N5nsga227TraditionalCrowdingDistanceE"><code class="docutils literal notranslate"><span class="pre">nsga2::TraditionalCrowdingDistance</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#python-bindings">Python Bindings</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api_reference.html#nsga2_optimizer.NSGA2Config"><code class="docutils literal notranslate"><span class="pre">NSGA2Config</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#nsga2_optimizer.NSGA2Config.population_size"><code class="docutils literal notranslate"><span class="pre">NSGA2Config.population_size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#nsga2_optimizer.NSGA2Config.max_generations"><code class="docutils literal notranslate"><span class="pre">NSGA2Config.max_generations</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#nsga2_optimizer.NSGA2Config.n_objectives"><code class="docutils literal notranslate"><span class="pre">NSGA2Config.n_objectives</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#nsga2_optimizer.NSGA2Config.lower_bounds"><code class="docutils literal notranslate"><span class="pre">NSGA2Config.lower_bounds</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#nsga2_optimizer.NSGA2Config.upper_bounds"><code class="docutils literal notranslate"><span class="pre">NSGA2Config.upper_bounds</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api_reference.html#nsga2_optimizer.NSGA2Optimizer"><code class="docutils literal notranslate"><span class="pre">NSGA2Optimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#nsga2_optimizer.NSGA2Optimizer.optimize"><code class="docutils literal notranslate"><span class="pre">NSGA2Optimizer.optimize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#nsga2_optimizer.NSGA2Optimizer.get_pareto_front"><code class="docutils literal notranslate"><span class="pre">NSGA2Optimizer.get_pareto_front()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#utility-functions">Utility Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api_reference.html#mathematical-functions">Mathematical Functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api_reference.html#visualization-functions">Visualization Functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api_reference.html#helper-functions">Helper Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#constants">Constants</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api_reference.html#physical-constants">Physical Constants</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#nsga2_optimizer.L"><code class="docutils literal notranslate"><span class="pre">L</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#nsga2_optimizer.T"><code class="docutils literal notranslate"><span class="pre">T</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#nsga2_optimizer.alpha"><code class="docutils literal notranslate"><span class="pre">alpha</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#nsga2_optimizer.u0_max"><code class="docutils literal notranslate"><span class="pre">u0_max</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#nsga2_optimizer.sigma"><code class="docutils literal notranslate"><span class="pre">sigma</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api_reference.html#numerical-constants">Numerical Constants</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#nsga2_optimizer.nx"><code class="docutils literal notranslate"><span class="pre">nx</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#nsga2_optimizer.ny"><code class="docutils literal notranslate"><span class="pre">ny</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#nsga2_optimizer.nz"><code class="docutils literal notranslate"><span class="pre">nz</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#nsga2_optimizer.nt"><code class="docutils literal notranslate"><span class="pre">nt</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#error-handling">Error Handling</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api_reference.html#custom-exceptions">Custom Exceptions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#example-usage">Example Usage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api_reference.html#basic-pinn-training">Basic PINN Training</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api_reference.html#qpinn-with-gqe-gpt">QPINN with GQE-GPT</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#thread-safety">Thread Safety</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#gpu-support">GPU Support</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="references.html#physics-informed-neural-networks-pinns">Physics-Informed Neural Networks (PINNs)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="references.html#foundational-works">Foundational Works</a></li>
+<li class="toctree-l3"><a class="reference internal" href="references.html#fourier-neural-operators">Fourier Neural Operators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="references.html#training-challenges-and-solutions">Training Challenges and Solutions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="references.html#multi-objective-optimization">Multi-objective Optimization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="references.html#quantum-physics-informed-neural-networks-qpinns">Quantum Physics-Informed Neural Networks (QPINNs)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="references.html#foundational-qpinns">Foundational QPINNs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="references.html#trainable-embeddings">Trainable Embeddings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="references.html#quantum-circuit-generation">Quantum Circuit Generation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="references.html#hardware-considerations">Hardware Considerations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="references.html#id1">Multi-Objective Optimization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="references.html#nsga-ii-algorithm">NSGA-II Algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="references.html#rex-crossover">REX Crossover</a></li>
+<li class="toctree-l3"><a class="reference internal" href="references.html#latin-hypercube-sampling">Latin Hypercube Sampling</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="references.html#additional-references">Additional References</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="references.html#numerical-methods">Numerical Methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="references.html#machine-learning-theory">Machine Learning Theory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="references.html#quantum-computing">Quantum Computing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="references.html#circuit-optimization">Circuit Optimization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="references.html#software-and-tools">Software and Tools</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="references.html#implementation-resources">Implementation Resources</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="references.html#github-repositories">GitHub Repositories</a></li>
+<li class="toctree-l3"><a class="reference internal" href="references.html#datasets">Datasets</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="references.html#citation-format">Citation Format</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PINNs-QPINNs Heat Conduction Benchmark</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">PINNs Implementation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/pinns_implementation.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pinns-implementation">
+<h1>PINNs Implementation<a class="headerlink" href="#pinns-implementation" title="Link to this heading"></a></h1>
+<p>This chapter details the implementation of Physics-Informed Neural Networks (PINNs) with advanced features including Fourier Neural Operators (FNO) and temporal attention mechanisms.</p>
+<section id="architecture-overview">
+<h2>Architecture Overview<a class="headerlink" href="#architecture-overview" title="Link to this heading"></a></h2>
+<p>The enhanced PINN architecture consists of several key components:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">PINN</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">layers</span><span class="o">=</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                 <span class="n">use_hard_constraints</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">boundary_epsilon</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+                 <span class="n">fourier_features</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">num_fourier_features</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
+                 <span class="n">use_fno</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">fno_modes</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span>
+                 <span class="n">use_temporal_attention</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">fno_memory_efficient</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+</pre></div>
+</div>
+</section>
+<section id="multi-scale-fourier-feature-mapping">
+<h2>Multi-Scale Fourier Feature Mapping<a class="headerlink" href="#multi-scale-fourier-feature-mapping" title="Link to this heading"></a></h2>
+<p>The implementation uses multi-scale Fourier features to capture both fine and coarse spatial patterns:</p>
+<section id="spatial-features">
+<h3>Spatial Features<a class="headerlink" href="#spatial-features" title="Link to this heading"></a></h3>
+<div class="math notranslate nohighlight">
+\[\begin{split}\phi_{\text{spatial}}(\mathbf{x}) = \begin{bmatrix}
+\sin(2\pi \mathbf{B}_{\text{coarse}} \mathbf{x}) \\
+\cos(2\pi \mathbf{B}_{\text{coarse}} \mathbf{x}) \\
+\sin(2\pi \mathbf{B}_{\text{fine}} \mathbf{x}) \\
+\cos(2\pi \mathbf{B}_{\text{fine}} \mathbf{x})
+\end{bmatrix}\end{split}\]</div>
+<p>where:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\mathbf{B}_{\text{coarse}} \sim \mathcal{N}(0, 5I)\)</span> for coarse features</p></li>
+<li><p><span class="math notranslate nohighlight">\(\mathbf{B}_{\text{fine}} \sim \mathcal{N}(0, 20I)\)</span> for fine features</p></li>
+</ul>
+</section>
+<section id="temporal-features">
+<h3>Temporal Features<a class="headerlink" href="#temporal-features" title="Link to this heading"></a></h3>
+<p>Based on the characteristic diffusion time <span class="math notranslate nohighlight">\(t_c = L^2/(4\alpha)\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\phi_{\text{temporal}}(t) = \begin{bmatrix}
+\sin(2\pi t/T) \\
+\cos(2\pi t/T) \\
+\sin(10\pi t/T) \\
+\cos(10\pi t/T)
+\end{bmatrix}\end{split}\]</div>
+<p>Implementation:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">fourier_feature_mapping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">B</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Multi-scale Fourier feature mapping&quot;&quot;&quot;</span>
+    <span class="n">x_proj</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">coords</span> <span class="o">@</span> <span class="n">B</span>
+    <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">torch</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">x_proj</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">x_proj</span><span class="p">)],</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="fourier-neural-operator-fno-integration">
+<h2>Fourier Neural Operator (FNO) Integration<a class="headerlink" href="#fourier-neural-operator-fno-integration" title="Link to this heading"></a></h2>
+<p>The FNO layer performs spectral convolution in 3D:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">SpectralConv3d</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_channels</span><span class="p">,</span> <span class="n">out_channels</span><span class="p">,</span> <span class="n">modes1</span><span class="p">,</span> <span class="n">modes2</span><span class="p">,</span> <span class="n">modes3</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="n">in_channels</span> <span class="o">*</span> <span class="n">out_channels</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weights1</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scale</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">in_channels</span><span class="p">,</span> <span class="n">out_channels</span><span class="p">,</span>
+                                  <span class="n">modes1</span><span class="p">,</span> <span class="n">modes2</span><span class="p">,</span> <span class="n">modes3</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">cfloat</span><span class="p">)</span>
+        <span class="p">)</span>
+</pre></div>
+</div>
+<p>The spectral convolution operation:</p>
+<div class="math notranslate nohighlight">
+\[\mathcal{S}[u](k_1, k_2, k_3) = W(k_1, k_2, k_3) \cdot \mathcal{F}[u](k_1, k_2, k_3)\]</div>
+<p>where <span class="math notranslate nohighlight">\(W\)</span> are learnable complex weights in Fourier space.</p>
+<section id="memory-efficient-fno">
+<h3>Memory-Efficient FNO<a class="headerlink" href="#memory-efficient-fno" title="Link to this heading"></a></h3>
+<p>For GPU memory constraints, a memory-efficient version uses learned projections instead of full 3D FFTs:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">fno_projection</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+    <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">64</span><span class="p">),</span>
+    <span class="n">nn</span><span class="o">.</span><span class="n">GELU</span><span class="p">(),</span>
+    <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">32</span><span class="p">),</span>
+    <span class="n">nn</span><span class="o">.</span><span class="n">GELU</span><span class="p">(),</span>
+    <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="temporal-attention-mechanism">
+<h2>Temporal Attention Mechanism<a class="headerlink" href="#temporal-attention-mechanism" title="Link to this heading"></a></h2>
+<p>The temporal attention enhances the network’s ability to model time-dependent dynamics:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">TemporalAttention</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">temporal_encoding</span><span class="p">):</span>
+        <span class="n">Q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">K</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">(</span><span class="n">temporal_encoding</span><span class="p">)</span>
+        <span class="n">V</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="n">temporal_encoding</span><span class="p">)</span>
+
+        <span class="n">scores</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="n">K</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">scores</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">attended</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">V</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">attended</span> <span class="o">+</span> <span class="n">x</span>  <span class="c1"># Residual connection</span>
+</pre></div>
+</div>
+</section>
+<section id="hard-boundary-constraints">
+<h2>Hard Boundary Constraints<a class="headerlink" href="#hard-boundary-constraints" title="Link to this heading"></a></h2>
+<p>Forward propagation with FNO and temporal attention:</p>
+<div class="math notranslate nohighlight">
+\[u_{\text{output}} = D(x,y,z) \cdot u_{\text{network}}(x,y,z,t)\]</div>
+<p>where <span class="math notranslate nohighlight">\(D(x,y,z)\)</span> is the distance function and <span class="math notranslate nohighlight">\(u_{\text{network}}\)</span> is the network output.</p>
+<p>The enhanced forward pass includes:</p>
+<ol class="arabic simple">
+<li><p><strong>Input normalization</strong>: <span class="math notranslate nohighlight">\(x_{\text{norm}} = 2x/L - 1\)</span></p></li>
+<li><p><strong>Multi-scale Fourier features</strong>: Spatial and temporal encodings</p></li>
+<li><p><strong>FNO features</strong>: Spectral convolution or memory-efficient projection</p></li>
+<li><p><strong>Temporal attention</strong>: Applied after first hidden layer</p></li>
+<li><p><strong>Distance modulation</strong>: For hard boundary constraints</p></li>
+</ol>
+<p>Implementation:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">compute_distance_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+    <span class="n">distances</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span>
+        <span class="n">x</span> <span class="o">/</span> <span class="n">L</span><span class="p">,</span> <span class="p">(</span><span class="n">L</span> <span class="o">-</span> <span class="n">x</span><span class="p">)</span> <span class="o">/</span> <span class="n">L</span><span class="p">,</span>
+        <span class="n">y</span> <span class="o">/</span> <span class="n">L</span><span class="p">,</span> <span class="p">(</span><span class="n">L</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span> <span class="o">/</span> <span class="n">L</span><span class="p">,</span>
+        <span class="n">z</span> <span class="o">/</span> <span class="n">L</span><span class="p">,</span> <span class="p">(</span><span class="n">L</span> <span class="o">-</span> <span class="n">z</span><span class="p">)</span> <span class="o">/</span> <span class="n">L</span>
+    <span class="p">],</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">d_min</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">distances</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">distance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">boundary_epsilon</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="n">d_min</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">boundary_epsilon</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">distance</span>
+</pre></div>
+</div>
+</section>
+<section id="loss-function-components">
+<h2>Loss Function Components<a class="headerlink" href="#loss-function-components" title="Link to this heading"></a></h2>
+<p>The PINN uses multiple loss components for comprehensive physics enforcement:</p>
+<section id="initial-condition-loss">
+<h3>Initial Condition Loss<a class="headerlink" href="#initial-condition-loss" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">compute_initial_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">u_pred_initial</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">training_data</span><span class="p">[</span><span class="s1">&#39;initial&#39;</span><span class="p">][</span><span class="s1">&#39;x&#39;</span><span class="p">],</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">training_data</span><span class="p">[</span><span class="s1">&#39;initial&#39;</span><span class="p">][</span><span class="s1">&#39;y&#39;</span><span class="p">],</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">training_data</span><span class="p">[</span><span class="s1">&#39;initial&#39;</span><span class="p">][</span><span class="s1">&#39;z&#39;</span><span class="p">],</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">training_data</span><span class="p">[</span><span class="s1">&#39;initial&#39;</span><span class="p">][</span><span class="s1">&#39;t&#39;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">mse_loss</span><span class="p">(</span><span class="n">u_pred_initial</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">training_data</span><span class="p">[</span><span class="s1">&#39;initial&#39;</span><span class="p">][</span><span class="s1">&#39;u&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</section>
+<section id="peak-value-loss">
+<h3>Peak Value Loss<a class="headerlink" href="#peak-value-loss" title="Link to this heading"></a></h3>
+<p>To ensure physical behavior at the center of the domain:</p>
+<div class="math notranslate nohighlight">
+\[\mathcal{L}_{\text{peak}} = \frac{1}{N_{\text{peak}}} \sum_{i=1}^{N_{\text{peak}}} |u(L/2, L/2, L/2, t_i) - u_{\text{analytical}}(L/2, L/2, L/2, t_i)|^2\]</div>
+</section>
+<section id="pde-residual-loss">
+<h3>PDE Residual Loss<a class="headerlink" href="#pde-residual-loss" title="Link to this heading"></a></h3>
+<p>The PDE residual is computed using automatic differentiation:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">compute_pde_residual</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+    <span class="n">x</span><span class="o">.</span><span class="n">requires_grad_</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">y</span><span class="o">.</span><span class="n">requires_grad_</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">z</span><span class="o">.</span><span class="n">requires_grad_</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">t</span><span class="o">.</span><span class="n">requires_grad_</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+
+    <span class="c1"># Compute gradients</span>
+    <span class="n">u_t</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">grad_outputs</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">u</span><span class="p">),</span>
+                             <span class="n">create_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">retain_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">u_x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">grad_outputs</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">u</span><span class="p">),</span>
+                             <span class="n">create_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">retain_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">u_y</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">grad_outputs</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">u</span><span class="p">),</span>
+                             <span class="n">create_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">retain_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">u_z</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">grad_outputs</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">u</span><span class="p">),</span>
+                             <span class="n">create_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">retain_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># Second derivatives</span>
+    <span class="n">u_xx</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">u_x</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">grad_outputs</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">u_x</span><span class="p">),</span>
+                              <span class="n">create_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">retain_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">u_yy</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">u_y</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">grad_outputs</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">u_y</span><span class="p">),</span>
+                              <span class="n">create_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">retain_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">u_zz</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">u_z</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">grad_outputs</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">u_z</span><span class="p">),</span>
+                              <span class="n">create_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">retain_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># PDE residual: u_t - α(u_xx + u_yy + u_zz)</span>
+    <span class="n">residual</span> <span class="o">=</span> <span class="n">u_t</span> <span class="o">-</span> <span class="n">alpha</span> <span class="o">*</span> <span class="p">(</span><span class="n">u_xx</span> <span class="o">+</span> <span class="n">u_yy</span> <span class="o">+</span> <span class="n">u_zz</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">residual</span>
+</pre></div>
+</div>
+<p>The residual loss is then:</p>
+<div class="math notranslate nohighlight">
+\[\mathcal{L}_{\text{PDE}} = \frac{1}{N_{\text{PDE}}} \sum_{i=1}^{N_{\text{PDE}}} \left|\frac{\partial u}{\partial t} - \alpha \left(\frac{\partial^2 u}{\partial x^2} + \frac{\partial^2 u}{\partial y^2} + \frac{\partial^2 u}{\partial z^2}\right)\right|^2\]</div>
+</section>
+</section>
+<section id="nsga-ii-multi-objective-training">
+<h2>NSGA-II Multi-Objective Training<a class="headerlink" href="#nsga-ii-multi-objective-training" title="Link to this heading"></a></h2>
+<p>The PINN is trained using NSGA-II with multiple objectives:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">train_with_nsga2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_samples</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">nsga2_config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="c1"># Configure NSGA-II</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">nsga2_optimizer</span><span class="o">.</span><span class="n">NSGA2Config</span><span class="p">()</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">population_size</span> <span class="o">=</span> <span class="n">nsga2_config</span><span class="p">[</span><span class="s1">&#39;population_size_pinn&#39;</span><span class="p">]</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">max_generations</span> <span class="o">=</span> <span class="n">nsga2_config</span><span class="p">[</span><span class="s1">&#39;max_generations_pinn&#39;</span><span class="p">]</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">n_objectives</span> <span class="o">=</span> <span class="mi">4</span>  <span class="c1"># IC, BC, PDE, Peak</span>
+
+    <span class="c1"># Define objective function</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">objective_function</span><span class="p">(</span><span class="n">params_array</span><span class="p">):</span>
+        <span class="c1"># Set parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_parameters_from_array</span><span class="p">(</span><span class="n">params_array</span><span class="p">[:</span><span class="n">total_nn_params</span><span class="p">])</span>
+
+        <span class="c1"># Compute losses</span>
+        <span class="n">losses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_individual_losses</span><span class="p">()</span>
+
+        <span class="c1"># Return objectives (to minimize)</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">losses</span><span class="p">[</span><span class="s1">&#39;initial&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+            <span class="n">losses</span><span class="p">[</span><span class="s1">&#39;boundary&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+            <span class="n">losses</span><span class="p">[</span><span class="s1">&#39;pde&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+            <span class="n">losses</span><span class="p">[</span><span class="s1">&#39;peak&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+        <span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="optimization-techniques">
+<h2>Optimization Techniques<a class="headerlink" href="#optimization-techniques" title="Link to this heading"></a></h2>
+<section id="weight-initialization">
+<h3>Weight Initialization<a class="headerlink" href="#weight-initialization" title="Link to this heading"></a></h3>
+<p>Xavier initialization adapted for temporal dynamics:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">_initialize_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">):</span>
+            <span class="n">fan_in</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">weight</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">fan_out</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">weight</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">fan_in</span> <span class="o">+</span> <span class="n">fan_out</span><span class="p">))</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">normal_</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">weight</span><span class="p">,</span> <span class="n">mean</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="n">std</span><span class="p">)</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">constant_</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">bias</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="gradient-checkpointing">
+<h3>Gradient Checkpointing<a class="headerlink" href="#gradient-checkpointing" title="Link to this heading"></a></h3>
+<p>For memory-efficient training with FNO:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">use_checkpoint</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_fno</span><span class="p">:</span>
+    <span class="n">h</span> <span class="o">=</span> <span class="n">checkpoint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fno_forward</span><span class="p">,</span> <span class="n">grid_points</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="learning-rate-scheduling">
+<h3>Learning Rate Scheduling<a class="headerlink" href="#learning-rate-scheduling" title="Link to this heading"></a></h3>
+<p>Adaptive learning rate based on loss plateaus:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">scheduler</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">lr_scheduler</span><span class="o">.</span><span class="n">ReduceLROnPlateau</span><span class="p">(</span>
+    <span class="n">optimizer</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;min&#39;</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">patience</span><span class="o">=</span><span class="mi">100</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="best-practices">
+<h2>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Data Generation</strong>: Use Latin Hypercube Sampling for better coverage of the domain</p></li>
+<li><p><strong>Batch Processing</strong>: Process large batches in chunks to avoid memory issues</p></li>
+<li><p><strong>Normalization</strong>: Normalize inputs to [-1, 1] for better gradient flow</p></li>
+<li><p><strong>Regularization</strong>: Add L2 regularization to prevent overfitting</p></li>
+</ol>
+</section>
+<section id="common-issues-and-solutions">
+<h2>Common Issues and Solutions<a class="headerlink" href="#common-issues-and-solutions" title="Link to this heading"></a></h2>
+<section id="memory-management">
+<h3>Memory Management<a class="headerlink" href="#memory-management" title="Link to this heading"></a></h3>
+<p>For large 3D problems, use memory-efficient FNO:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Instead of full 3D FFT</span>
+<span class="n">use_fno</span><span class="o">=</span><span class="kc">True</span>
+<span class="n">fno_memory_efficient</span><span class="o">=</span><span class="kc">True</span>
+</pre></div>
+</div>
+</section>
+<section id="gradient-explosion">
+<h3>Gradient Explosion<a class="headerlink" href="#gradient-explosion" title="Link to this heading"></a></h3>
+<p>Use gradient clipping:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">clip_grad_norm_</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">max_norm</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="slow-convergence">
+<h3>Slow Convergence<a class="headerlink" href="#slow-convergence" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Increase the number of Fourier features</p></li>
+<li><p>Use adaptive weight balancing for loss components</p></li>
+<li><p>Enable temporal attention mechanism</p></li>
+</ul>
+</section>
+</section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Li et al. (2021) “Fourier Neural Operator for Parametric Partial Differential Equations”</p></li>
+<li><p>Wang et al. (2022) “When and why PINNs fail to train”</p></li>
+<li><p>Krishnapriyan et al. (2021) “Characterizing possible failure modes in PINNs”</p></li>
+<li><p>Lu et al. (2023) “NSGA-PINN: A Multi-Objective Optimization Method”</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="theoretical_background.html" class="btn btn-neutral float-left" title="Theoretical Background" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="qpinns_implementation.html" class="btn btn-neutral float-right" title="QPINNs Implementation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Research Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

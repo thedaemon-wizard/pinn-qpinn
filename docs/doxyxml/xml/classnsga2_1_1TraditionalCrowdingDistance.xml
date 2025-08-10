@@ -1,0 +1,111 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.6" xml:lang="en-US">
+  <compounddef id="classnsga2_1_1TraditionalCrowdingDistance" kind="class" language="C++" prot="public">
+    <compoundname>nsga2::TraditionalCrowdingDistance</compoundname>
+    <basecompoundref refid="classnsga2_1_1ICrowdingDistanceCalculator" prot="public" virt="non-virtual">nsga2::ICrowdingDistanceCalculator</basecompoundref>
+    <includes refid="nsga2__optimizer_8hpp" local="no">nsga2_optimizer.hpp</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classnsga2_1_1TraditionalCrowdingDistance_1a1dee7852295a054769a7b568786f4921" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>nsga2::TraditionalCrowdingDistance::TraditionalCrowdingDistance</definition>
+        <argsstring>()=default</argsstring>
+        <name>TraditionalCrowdingDistance</name>
+        <qualifiedname>nsga2::TraditionalCrowdingDistance::TraditionalCrowdingDistance</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="74" column="5"/>
+      </memberdef>
+      <memberdef kind="function" id="classnsga2_1_1TraditionalCrowdingDistance_1a7156c44bd4285e669e36857b2305179e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>nsga2::TraditionalCrowdingDistance::TraditionalCrowdingDistance</definition>
+        <argsstring>(const TraditionalCrowdingDistance &amp;)=default</argsstring>
+        <name>TraditionalCrowdingDistance</name>
+        <qualifiedname>nsga2::TraditionalCrowdingDistance::TraditionalCrowdingDistance</qualifiedname>
+        <param>
+          <type>const <ref refid="classnsga2_1_1TraditionalCrowdingDistance" kindref="compound">TraditionalCrowdingDistance</ref> &amp;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="75" column="5"/>
+      </memberdef>
+      <memberdef kind="function" id="classnsga2_1_1TraditionalCrowdingDistance_1ae044ace8cebf183bb78b6921b120feac" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void nsga2::TraditionalCrowdingDistance::calculate</definition>
+        <argsstring>(std::vector&lt; IndividualPtr &gt; &amp;front) override</argsstring>
+        <name>calculate</name>
+        <qualifiedname>nsga2::TraditionalCrowdingDistance::calculate</qualifiedname>
+        <reimplements refid="classnsga2_1_1ICrowdingDistanceCalculator_1aba734883489f093ad8c8faadc21f7f43">calculate</reimplements>
+        <param>
+          <type>std::vector&lt; <ref refid="namespacensga2_1a9338ac68ee391d4b50ef5d878d0d89b3" kindref="member">IndividualPtr</ref> &gt; &amp;</type>
+          <declname>front</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="76" column="10" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/src/nsga2_optimizer.cpp" bodystart="208" bodyend="255"/>
+      </memberdef>
+      <memberdef kind="function" id="classnsga2_1_1TraditionalCrowdingDistance_1a6d462f8394f09a7624f79569f36f7828" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="virtual">
+        <type>std::string</type>
+        <definition>std::string nsga2::TraditionalCrowdingDistance::getName</definition>
+        <argsstring>() const override</argsstring>
+        <name>getName</name>
+        <qualifiedname>nsga2::TraditionalCrowdingDistance::getName</qualifiedname>
+        <reimplements refid="classnsga2_1_1ICrowdingDistanceCalculator_1ad993f171ab4da9d503d98413afd50eef">getName</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="77" column="17" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="77" bodyend="77"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>nsga2::ICrowdingDistanceCalculator</label>
+        <link refid="classnsga2_1_1ICrowdingDistanceCalculator"/>
+      </node>
+      <node id="1">
+        <label>nsga2::TraditionalCrowdingDistance</label>
+        <link refid="classnsga2_1_1TraditionalCrowdingDistance"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>nsga2::ICrowdingDistanceCalculator</label>
+        <link refid="classnsga2_1_1ICrowdingDistanceCalculator"/>
+      </node>
+      <node id="1">
+        <label>nsga2::TraditionalCrowdingDistance</label>
+        <link refid="classnsga2_1_1TraditionalCrowdingDistance"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="72" column="1" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="72" bodyend="78"/>
+    <listofallmembers>
+      <member refid="classnsga2_1_1TraditionalCrowdingDistance_1ae044ace8cebf183bb78b6921b120feac" prot="public" virt="virtual"><scope>nsga2::TraditionalCrowdingDistance</scope><name>calculate</name></member>
+      <member refid="classnsga2_1_1TraditionalCrowdingDistance_1a6d462f8394f09a7624f79569f36f7828" prot="public" virt="virtual"><scope>nsga2::TraditionalCrowdingDistance</scope><name>getName</name></member>
+      <member refid="classnsga2_1_1TraditionalCrowdingDistance_1a1dee7852295a054769a7b568786f4921" prot="public" virt="non-virtual"><scope>nsga2::TraditionalCrowdingDistance</scope><name>TraditionalCrowdingDistance</name></member>
+      <member refid="classnsga2_1_1TraditionalCrowdingDistance_1a7156c44bd4285e669e36857b2305179e" prot="public" virt="non-virtual"><scope>nsga2::TraditionalCrowdingDistance</scope><name>TraditionalCrowdingDistance</name></member>
+      <member refid="classnsga2_1_1ICrowdingDistanceCalculator_1afd68247f9ab22aa406c5b9321ae2cb99" prot="public" virt="virtual"><scope>nsga2::TraditionalCrowdingDistance</scope><name>~ICrowdingDistanceCalculator</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

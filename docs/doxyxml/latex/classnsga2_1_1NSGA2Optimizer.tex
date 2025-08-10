@@ -1,0 +1,1055 @@
+\hypertarget{classnsga2_1_1NSGA2Optimizer}{}\doxysection{nsga2\+::NSGA2\+Optimizer Class Reference}
+\label{classnsga2_1_1NSGA2Optimizer}\index{nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}}
+
+
+{\ttfamily \#include $<$nsga2\+\_\+optimizer.\+hpp$>$}
+
+
+
+Collaboration diagram for nsga2\+::NSGA2\+Optimizer\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classnsga2_1_1NSGA2Optimizer__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a374b974fc2bf1e1a7eb73b5c26ffbaa5}{NSGA2\+Optimizer}} (const \mbox{\hyperlink{structnsga2_1_1NSGA2Config}{NSGA2\+Config}} \&config)
+\item 
+void \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_aa4c4ff01ffd3f120011a0479a6ce4a36}{set\+Crowding\+Distance\+Calculator}} (std\+::unique\+\_\+ptr$<$ \mbox{\hyperlink{classnsga2_1_1ICrowdingDistanceCalculator}{ICrowding\+Distance\+Calculator}} $>$ calculator)
+\item 
+void \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_ad74d71eecedb159ec9e323f35337c09d}{set\+Crowding\+Distance\+Calculator}} (std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classnsga2_1_1ICrowdingDistanceCalculator}{ICrowding\+Distance\+Calculator}} $>$ calculator)
+\item 
+void \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a8ce58ce64ad90f71feb374bae2daf243}{set\+Sorting\+Algorithm}} (std\+::unique\+\_\+ptr$<$ \mbox{\hyperlink{classnsga2_1_1ISortingAlgorithm}{ISorting\+Algorithm}} $>$ algorithm)
+\item 
+void \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a75dd42644278c5c7048a17898c6e3b7f}{set\+Selection\+Strategy}} (std\+::unique\+\_\+ptr$<$ \mbox{\hyperlink{classnsga2_1_1ISelectionStrategy}{ISelection\+Strategy}} $>$ strategy)
+\item 
+std\+::pair$<$ std\+::vector$<$ std\+::vector$<$ double $>$ $>$, std\+::vector$<$ std\+::vector$<$ double $>$ $>$ $>$ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a82c8c27ec35b7842d3efb71830b30ce2}{optimize}} (const std\+::vector$<$ \mbox{\hyperlink{namespacensga2_a9c76b7fc7926d54405b46a2cccf115f4}{Objective\+Function}} $>$ \&objectives, std\+::function$<$ void(size\+\_\+t, const \mbox{\hyperlink{classnsga2_1_1Population}{Population}} \&)$>$ callback=nullptr, const std\+::function$<$ std\+::vector$<$ std\+::vector$<$ double $>$ $>$(const std\+::vector$<$ std\+::vector$<$ double $>$ $>$ \&)$>$ \&batch\+\_\+evaluator=nullptr)
+\item 
+std\+::vector$<$ \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{Individual\+Ptr}} $>$ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_aa5dae2bf9c615ed3a027aba29188ef9c}{get\+\_\+pareto\+\_\+front}} () const
+\item 
+const std\+::vector$<$ double $>$ \& \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_ae3e9a6a11233f01b8b68d686e5a05a7e}{get\+\_\+fitness\+\_\+history}} () const
+\item 
+const std\+::vector$<$ double $>$ \& \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_ace0fdf4f83b532abd7795ced99b66b35}{get\+\_\+mean\+\_\+fitness\+\_\+history}} () const
+\item 
+double \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_acf030b373ad687cda76df51d71f564f7}{get\+\_\+best\+\_\+fitness}} () const
+\item 
+size\+\_\+t \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a814b822231505e5deb54eb64b1ba3897}{get\+\_\+current\+\_\+generation}} () const
+\item 
+void \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_aa52554e3824033897dba470b287d3445}{evaluate\+\_\+batch}} (std\+::vector$<$ \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{Individual\+Ptr}} $>$ \&individuals, const std\+::vector$<$ \mbox{\hyperlink{namespacensga2_a9c76b7fc7926d54405b46a2cccf115f4}{Objective\+Function}} $>$ \&objectives, const std\+::function$<$ std\+::vector$<$ std\+::vector$<$ double $>$ $>$(const std\+::vector$<$ std\+::vector$<$ double $>$ $>$ \&)$>$ \&batch\+\_\+evaluator)
+\item 
+void \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_afcf521d8c4989310961b0389deeeb1fa}{adapt\+Parameter\+Space}} (size\+\_\+t new\+\_\+n\+\_\+params, const std\+::vector$<$ double $>$ \&new\+\_\+lower\+\_\+bounds, const std\+::vector$<$ double $>$ \&new\+\_\+upper\+\_\+bounds, const std\+::vector$<$ std\+::pair$<$ size\+\_\+t, size\+\_\+t $>$ $>$ \&parameter\+\_\+mapping=\{\})
+\item 
+size\+\_\+t \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2ee35399daaee13d3991a35076cbbf52}{get\+Parameter\+Space\+Size}} () const
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a6b12413cbfbfd22402abfc4eb7e0353c}{environmental\+\_\+selection}} (\mbox{\hyperlink{classnsga2_1_1Population}{Population}} \&combined\+\_\+pop, \mbox{\hyperlink{classnsga2_1_1Population}{Population}} \&new\+\_\+pop)
+\item 
+void \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a3b9ce3ae189b2d686c875860f2b1a408}{transform\+Population}} (size\+\_\+t old\+\_\+n\+\_\+params, size\+\_\+t new\+\_\+n\+\_\+params, const std\+::vector$<$ std\+::pair$<$ size\+\_\+t, size\+\_\+t $>$ $>$ \&parameter\+\_\+mapping)
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{structnsga2_1_1NSGA2Config}{NSGA2\+Config}} \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\+\_\+}}
+\item 
+\mbox{\hyperlink{namespacensga2_a39290dffb3965bb004e87e5c07f637c1}{Population\+Ptr}} \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a72b029699c51eb70ee957ef651551252}{population\+\_\+}}
+\item 
+std\+::mt19937 \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2b77ca7f5cca7444e27b900891483da9}{gen\+\_\+}}
+\item 
+std\+::unique\+\_\+ptr$<$ \mbox{\hyperlink{classnsga2_1_1LatinHypercubeSampler}{Latin\+Hypercube\+Sampler}} $>$ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_ad16674085aa9bc187ef412c73bb4638d}{lhs\+\_\+sampler\+\_\+}}
+\item 
+std\+::unique\+\_\+ptr$<$ \mbox{\hyperlink{classnsga2_1_1REXCrossover}{REXCrossover}} $>$ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a9a6f33fba4503647e5e289c83317a42c}{rex\+\_\+crossover\+\_\+}}
+\item 
+std\+::unique\+\_\+ptr$<$ \mbox{\hyperlink{classnsga2_1_1ICrowdingDistanceCalculator}{ICrowding\+Distance\+Calculator}} $>$ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_af17bd4901cfb116b86ba04a80e24a1df}{crowding\+\_\+calculator\+\_\+}}
+\item 
+std\+::unique\+\_\+ptr$<$ \mbox{\hyperlink{classnsga2_1_1ISortingAlgorithm}{ISorting\+Algorithm}} $>$ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_aa57edeb2e76c1c2f918a85033b038808}{sorting\+\_\+algorithm\+\_\+}}
+\item 
+std\+::unique\+\_\+ptr$<$ \mbox{\hyperlink{classnsga2_1_1ISelectionStrategy}{ISelection\+Strategy}} $>$ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_af4bb6929334fe2b7156621bdf7275083}{selection\+\_\+strategy\+\_\+}}
+\item 
+std\+::chrono\+::steady\+\_\+clock\+::time\+\_\+point \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_aeee0b01f755a7d65a671f588c535fa6b}{start\+\_\+time\+\_\+}}
+\item 
+std\+::vector$<$ double $>$ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_aa5090738f22caa95035b5e365956c4c4}{best\+\_\+fitness\+\_\+history\+\_\+}}
+\item 
+std\+::vector$<$ double $>$ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a454900d4a115d2fc7eb3666616f202e9}{mean\+\_\+fitness\+\_\+history\+\_\+}}
+\item 
+double \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a9695c0bebccb5c6fad4e169d6c00daa4}{best\+\_\+fitness\+\_\+}}
+\item 
+size\+\_\+t \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_ac95541d3820975e96991bec47f42a8ec}{current\+\_\+generation\+\_\+}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00192}{192}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classnsga2_1_1NSGA2Optimizer_a374b974fc2bf1e1a7eb73b5c26ffbaa5}\label{classnsga2_1_1NSGA2Optimizer_a374b974fc2bf1e1a7eb73b5c26ffbaa5}} 
+\index{nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}!NSGA2Optimizer@{NSGA2Optimizer}}
+\index{NSGA2Optimizer@{NSGA2Optimizer}!nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}}
+\doxysubsubsection{\texorpdfstring{NSGA2Optimizer()}{NSGA2Optimizer()}}
+{\footnotesize\ttfamily nsga2\+::\+NSGA2\+Optimizer\+::\+NSGA2\+Optimizer (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structnsga2_1_1NSGA2Config}{NSGA2\+Config}} \&}]{config }\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00581}{581}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00582\ \ \ \ \ :\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}(config),\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2b77ca7f5cca7444e27b900891483da9}{gen\_}}(config.random\_seed)\ \{}
+\DoxyCodeLine{00583\ \ \ \ \ }
+\DoxyCodeLine{00584\ \ \ \ \ \textcolor{comment}{//\ Initialize\ components}}
+\DoxyCodeLine{00585\ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_ad16674085aa9bc187ef412c73bb4638d}{lhs\_sampler\_}}\ =\ std::make\_unique<LatinHypercubeSampler>(config.random\_seed);}
+\DoxyCodeLine{00586\ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a9a6f33fba4503647e5e289c83317a42c}{rex\_crossover\_}}\ =\ std::make\_unique<REXCrossover>(config.random\_seed\ +\ 1,\ config.dist\_type);}
+\DoxyCodeLine{00587\ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_af17bd4901cfb116b86ba04a80e24a1df}{crowding\_calculator\_}}\ =\ \mbox{\hyperlink{classnsga2_1_1CrowdingDistanceFactory_aa1b849a32ee30761426a25647eb2aa7e}{CrowdingDistanceFactory::create}}(config.crowding\_type,\ config.population\_size);}
+\DoxyCodeLine{00588\ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_aa57edeb2e76c1c2f918a85033b038808}{sorting\_algorithm\_}}\ =\ std::make\_unique<FastNonDominatedSort>();}
+\DoxyCodeLine{00589\ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_af4bb6929334fe2b7156621bdf7275083}{selection\_strategy\_}}\ =\ std::make\_unique<TournamentSelection>();}
+\DoxyCodeLine{00590\ \}}
+
+\end{DoxyCode}
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classnsga2_1_1NSGA2Optimizer_a374b974fc2bf1e1a7eb73b5c26ffbaa5_cgraph}
+\end{center}
+\end{figure}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classnsga2_1_1NSGA2Optimizer_afcf521d8c4989310961b0389deeeb1fa}\label{classnsga2_1_1NSGA2Optimizer_afcf521d8c4989310961b0389deeeb1fa}} 
+\index{nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}!adaptParameterSpace@{adaptParameterSpace}}
+\index{adaptParameterSpace@{adaptParameterSpace}!nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}}
+\doxysubsubsection{\texorpdfstring{adaptParameterSpace()}{adaptParameterSpace()}}
+{\footnotesize\ttfamily void nsga2\+::\+NSGA2\+Optimizer\+::adapt\+Parameter\+Space (\begin{DoxyParamCaption}\item[{size\+\_\+t}]{new\+\_\+n\+\_\+params,  }\item[{const std\+::vector$<$ double $>$ \&}]{new\+\_\+lower\+\_\+bounds,  }\item[{const std\+::vector$<$ double $>$ \&}]{new\+\_\+upper\+\_\+bounds,  }\item[{const std\+::vector$<$ std\+::pair$<$ size\+\_\+t, size\+\_\+t $>$ $>$ \&}]{parameter\+\_\+mapping = {\ttfamily \{\}} }\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00087}{87}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00090\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00091\ \ \ \ \ \textcolor{comment}{/*}}
+\DoxyCodeLine{00092\ \textcolor{comment}{\ \ \ \ \ *\ Dynamic\ parameter\ space\ adaptation\ based\ on:}}
+\DoxyCodeLine{00093\ \textcolor{comment}{\ \ \ \ \ *\ -\/\ "{}Variable-\/Length\ Chromosome\ Genetic\ Algorithm"{}\ (Sensors\ 2021)}}
+\DoxyCodeLine{00094\ \textcolor{comment}{\ \ \ \ \ *\ -\/\ "{}Dimensionality\ reduction\ in\ evolutionary\ algorithms"{}\ (Swarm\ Evol.\ Comput.\ 2019)}}
+\DoxyCodeLine{00095\ \textcolor{comment}{\ \ \ \ \ *\ }}
+\DoxyCodeLine{00096\ \textcolor{comment}{\ \ \ \ \ *\ parameter\_mapping:\ pairs\ of\ (old\_index,\ new\_index)\ for\ preserved\ parameters}}
+\DoxyCodeLine{00097\ \textcolor{comment}{\ \ \ \ \ */}}
+\DoxyCodeLine{00098\ \ \ \ \ }
+\DoxyCodeLine{00099\ \ \ \ \ \textcolor{comment}{//\ Validate\ new\ bounds}}
+\DoxyCodeLine{00100\ \ \ \ \ \textcolor{keywordflow}{if}\ (new\_lower\_bounds.size()\ !=\ new\_n\_params\ ||\ new\_upper\_bounds.size()\ !=\ new\_n\_params)\ \{}
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{throw}\ std::invalid\_argument(\textcolor{stringliteral}{"{}New\ bounds\ size\ must\ match\ new\ parameter\ count"{}});}
+\DoxyCodeLine{00102\ \ \ \ \ \}}
+\DoxyCodeLine{00103\ \ \ \ \ }
+\DoxyCodeLine{00104\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ old\_n\_params\ =\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_a22f6c5167d3c46f6bf42e52625412441}{lower\_bounds}}.size();}
+\DoxyCodeLine{00105\ \ \ \ \ }
+\DoxyCodeLine{00106\ \ \ \ \ \textcolor{comment}{//\ IMPORTANT:\ Update\ configuration\ BEFORE\ transforming\ population}}
+\DoxyCodeLine{00107\ \ \ \ \ \textcolor{comment}{//\ Save\ old\ bounds\ for\ population\ transformation}}
+\DoxyCodeLine{00108\ \ \ \ \ std::vector<double>\ old\_lower\_bounds\ =\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_a22f6c5167d3c46f6bf42e52625412441}{lower\_bounds}};}
+\DoxyCodeLine{00109\ \ \ \ \ std::vector<double>\ old\_upper\_bounds\ =\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_a702acd772a7704550906edca52a6a4e6}{upper\_bounds}};}
+\DoxyCodeLine{00110\ \ \ \ \ }
+\DoxyCodeLine{00111\ \ \ \ \ \textcolor{comment}{//\ Update\ configuration\ with\ new\ bounds}}
+\DoxyCodeLine{00112\ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_a22f6c5167d3c46f6bf42e52625412441}{lower\_bounds}}\ =\ new\_lower\_bounds;}
+\DoxyCodeLine{00113\ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_a702acd772a7704550906edca52a6a4e6}{upper\_bounds}}\ =\ new\_upper\_bounds;}
+\DoxyCodeLine{00114\ \ \ \ \ }
+\DoxyCodeLine{00115\ \ \ \ \ \textcolor{comment}{//\ Transform\ existing\ population\ if\ size\ changes}}
+\DoxyCodeLine{00116\ \ \ \ \ \textcolor{keywordflow}{if}\ (old\_n\_params\ !=\ new\_n\_params\ \&\&\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a72b029699c51eb70ee957ef651551252}{population\_}})\ \{}
+\DoxyCodeLine{00117\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a3b9ce3ae189b2d686c875860f2b1a408}{transformPopulation}}(old\_n\_params,\ new\_n\_params,\ parameter\_mapping);}
+\DoxyCodeLine{00118\ \ \ \ \ \}}
+\DoxyCodeLine{00119\ \ \ \ \ }
+\DoxyCodeLine{00120\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_af0a7718158c5db4647b1b4b6a774c70f}{verbose}})\ \{}
+\DoxyCodeLine{00121\ \ \ \ \ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}Parameter\ space\ adapted:\ "{}}\ <<\ old\_n\_params\ <<\ \textcolor{stringliteral}{"{}\ -\/>\ "{}}\ <<\ new\_n\_params\ <<\ \textcolor{stringliteral}{"{}\ parameters"{}}\ <<\ std::endl;}
+\DoxyCodeLine{00122\ \ \ \ \ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}Preserved\ mappings:\ "{}}\ <<\ parameter\_mapping.size()\ <<\ std::endl;}
+\DoxyCodeLine{00123\ \ \ \ \ \}}
+\DoxyCodeLine{00124\ \}}
+
+\end{DoxyCode}
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classnsga2_1_1NSGA2Optimizer_afcf521d8c4989310961b0389deeeb1fa_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classnsga2_1_1NSGA2Optimizer_afcf521d8c4989310961b0389deeeb1fa_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{classnsga2_1_1NSGA2Optimizer_a6b12413cbfbfd22402abfc4eb7e0353c}\label{classnsga2_1_1NSGA2Optimizer_a6b12413cbfbfd22402abfc4eb7e0353c}} 
+\index{nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}!environmental\_selection@{environmental\_selection}}
+\index{environmental\_selection@{environmental\_selection}!nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}}
+\doxysubsubsection{\texorpdfstring{environmental\_selection()}{environmental\_selection()}}
+{\footnotesize\ttfamily void nsga2\+::\+NSGA2\+Optimizer\+::environmental\+\_\+selection (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classnsga2_1_1Population}{Population}} \&}]{combined\+\_\+pop,  }\item[{\mbox{\hyperlink{classnsga2_1_1Population}{Population}} \&}]{new\+\_\+pop }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00615}{615}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00615\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00616\ \ \ \ \ \textcolor{keyword}{auto}\ sorted\_fronts\ =\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_aa57edeb2e76c1c2f918a85033b038808}{sorting\_algorithm\_}}-\/>sort(combined\_pop);}
+\DoxyCodeLine{00617\ \ \ \ \ }
+\DoxyCodeLine{00618\ \ \ \ \ new\_pop.clear();}
+\DoxyCodeLine{00619\ \ \ \ \ }
+\DoxyCodeLine{00620\ \ \ \ \ \textcolor{comment}{//\ Add\ fronts\ until\ population\ is\ filled}}
+\DoxyCodeLine{00621\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ front\ :\ sorted\_fronts)\ \{}
+\DoxyCodeLine{00622\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (new\_pop.size()\ +\ front.size()\ <=\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_ae71a2f8e9d7ba5ee79a4212ab073203f}{population\_size}})\ \{}
+\DoxyCodeLine{00623\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ ind\ :\ front)\ \{}
+\DoxyCodeLine{00624\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ new\_pop.add(ind);}
+\DoxyCodeLine{00625\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00626\ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00627\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Calculate\ crowding\ distance\ for\ last\ front}}
+\DoxyCodeLine{00628\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_af17bd4901cfb116b86ba04a80e24a1df}{crowding\_calculator\_}}-\/>calculate(front);}
+\DoxyCodeLine{00629\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00630\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Sort\ by\ crowding\ distance}}
+\DoxyCodeLine{00631\ \ \ \ \ \ \ \ \ \ \ \ \ std::sort(front.begin(),\ front.end(),}
+\DoxyCodeLine{00632\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ [](\textcolor{keyword}{const}\ \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{IndividualPtr}}\&\ a,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{IndividualPtr}}\&\ b)\ \{}
+\DoxyCodeLine{00633\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ return\ a-\/>crowding\_distance\ >\ b-\/>crowding\_distance;}
+\DoxyCodeLine{00634\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \});}
+\DoxyCodeLine{00635\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00636\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Add\ individuals\ until\ population\ is\ full}}
+\DoxyCodeLine{00637\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ remaining\ =\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_ae71a2f8e9d7ba5ee79a4212ab073203f}{population\_size}}\ -\/\ new\_pop.size();}
+\DoxyCodeLine{00638\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ remaining;\ ++i)\ \{}
+\DoxyCodeLine{00639\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ new\_pop.add(front[i]);}
+\DoxyCodeLine{00640\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00641\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00642\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00643\ \ \ \ \ \}}
+\DoxyCodeLine{00644\ \}}
+
+\end{DoxyCode}
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classnsga2_1_1NSGA2Optimizer_a6b12413cbfbfd22402abfc4eb7e0353c_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classnsga2_1_1NSGA2Optimizer_a6b12413cbfbfd22402abfc4eb7e0353c_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{classnsga2_1_1NSGA2Optimizer_aa52554e3824033897dba470b287d3445}\label{classnsga2_1_1NSGA2Optimizer_aa52554e3824033897dba470b287d3445}} 
+\index{nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}!evaluate\_batch@{evaluate\_batch}}
+\index{evaluate\_batch@{evaluate\_batch}!nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}}
+\doxysubsubsection{\texorpdfstring{evaluate\_batch()}{evaluate\_batch()}}
+{\footnotesize\ttfamily void nsga2\+::\+NSGA2\+Optimizer\+::evaluate\+\_\+batch (\begin{DoxyParamCaption}\item[{std\+::vector$<$ \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{Individual\+Ptr}} $>$ \&}]{individuals,  }\item[{const std\+::vector$<$ \mbox{\hyperlink{namespacensga2_a9c76b7fc7926d54405b46a2cccf115f4}{Objective\+Function}} $>$ \&}]{objectives,  }\item[{const std\+::function$<$ std\+::vector$<$ std\+::vector$<$ double $>$ $>$(const std\+::vector$<$ std\+::vector$<$ double $>$ $>$ \&)$>$ \&}]{batch\+\_\+evaluator }\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00646}{646}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00649\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00650\ \ \ \ \ }
+\DoxyCodeLine{00651\ \ \ \ \ \textcolor{keywordflow}{if}\ (batch\_evaluator)\ \{}
+\DoxyCodeLine{00652\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Batch\ evaluation}}
+\DoxyCodeLine{00653\ \ \ \ \ \ \ \ \ std::vector<std::vector<double>>\ param\_batch;}
+\DoxyCodeLine{00654\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ \textcolor{keyword}{auto}\&\ ind\ :\ individuals)\ \{}
+\DoxyCodeLine{00655\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Verify\ individual\ has\ correct\ parameter\ size}}
+\DoxyCodeLine{00656\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (ind-\/>parameters.size()\ !=\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_a22f6c5167d3c46f6bf42e52625412441}{lower\_bounds}}.size())\ \{}
+\DoxyCodeLine{00657\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::cerr\ <<\ \textcolor{stringliteral}{"{}Error:\ Individual\ has\ "{}}\ <<\ ind-\/>parameters.size()\ }
+\DoxyCodeLine{00658\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ \textcolor{stringliteral}{"{}\ parameters,\ expected\ "{}}\ <<\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_a22f6c5167d3c46f6bf42e52625412441}{lower\_bounds}}.size()\ <<\ std::endl;}
+\DoxyCodeLine{00659\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{throw}\ std::runtime\_error(\textcolor{stringliteral}{"{}Individual\ parameter\ size\ mismatch"{}});}
+\DoxyCodeLine{00660\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00661\ \ \ \ \ \ \ \ \ \ \ \ \ param\_batch.push\_back(ind-\/>parameters);}
+\DoxyCodeLine{00662\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00663\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00664\ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ objectives\_batch\ =\ batch\_evaluator(param\_batch);}
+\DoxyCodeLine{00665\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00666\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Verify\ returned\ objectives\ match\ individual\ count}}
+\DoxyCodeLine{00667\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (objectives\_batch.size()\ !=\ individuals.size())\ \{}
+\DoxyCodeLine{00668\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{throw}\ std::runtime\_error(\textcolor{stringliteral}{"{}Batch\ evaluator\ returned\ wrong\ number\ of\ objectives"{}});}
+\DoxyCodeLine{00669\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00670\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00671\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ individuals.size();\ ++i)\ \{}
+\DoxyCodeLine{00672\ \ \ \ \ \ \ \ \ \ \ \ \ individuals[i]-\/>objectives\ =\ objectives\_batch[i];}
+\DoxyCodeLine{00673\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00674\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00675\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Individual\ evaluation\ (OpenMP\ parallelized)}}
+\DoxyCodeLine{00676\ \textcolor{preprocessor}{\ \ \ \ \ \ \ \ \#pragma\ omp\ parallel\ for\ schedule(dynamic)}}
+\DoxyCodeLine{00677\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ individuals.size();\ ++i)\ \{}
+\DoxyCodeLine{00678\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Verify\ individual\ has\ correct\ parameter\ size}}
+\DoxyCodeLine{00679\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (individuals[i]-\/>parameters.size()\ !=\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_a22f6c5167d3c46f6bf42e52625412441}{lower\_bounds}}.size())\ \{}
+\DoxyCodeLine{00680\ \textcolor{preprocessor}{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#pragma\ omp\ critical}}
+\DoxyCodeLine{00681\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00682\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::cerr\ <<\ \textcolor{stringliteral}{"{}Error:\ Individual\ "{}}\ <<\ i\ <<\ \textcolor{stringliteral}{"{}\ has\ "{}}\ }
+\DoxyCodeLine{00683\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ individuals[i]-\/>parameters.size()\ }
+\DoxyCodeLine{00684\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ \textcolor{stringliteral}{"{}\ parameters,\ expected\ "{}}\ <<\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_a22f6c5167d3c46f6bf42e52625412441}{lower\_bounds}}.size()\ <<\ std::endl;}
+\DoxyCodeLine{00685\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00686\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};\ \ \textcolor{comment}{//\ Skip\ this\ individual}}
+\DoxyCodeLine{00687\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00688\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00689\ \ \ \ \ \ \ \ \ \ \ \ \ individuals[i]-\/>objectives.clear();}
+\DoxyCodeLine{00690\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ \textcolor{keyword}{auto}\&\ obj\_func\ :\ objectives)\ \{}
+\DoxyCodeLine{00691\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ obj\_values\ =\ obj\_func(individuals[i]-\/>parameters);}
+\DoxyCodeLine{00692\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ individuals[i]-\/>objectives.insert(}
+\DoxyCodeLine{00693\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ individuals[i]-\/>objectives.end(),\ }
+\DoxyCodeLine{00694\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ obj\_values.begin(),\ }
+\DoxyCodeLine{00695\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ obj\_values.end()}
+\DoxyCodeLine{00696\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ );}
+\DoxyCodeLine{00697\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00698\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00699\ \ \ \ \ \}}
+\DoxyCodeLine{00700\ \}}
+
+\end{DoxyCode}
+Here is the caller graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classnsga2_1_1NSGA2Optimizer_aa52554e3824033897dba470b287d3445_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{classnsga2_1_1NSGA2Optimizer_acf030b373ad687cda76df51d71f564f7}\label{classnsga2_1_1NSGA2Optimizer_acf030b373ad687cda76df51d71f564f7}} 
+\index{nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}!get\_best\_fitness@{get\_best\_fitness}}
+\index{get\_best\_fitness@{get\_best\_fitness}!nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}}
+\doxysubsubsection{\texorpdfstring{get\_best\_fitness()}{get\_best\_fitness()}}
+{\footnotesize\ttfamily double nsga2\+::\+NSGA2\+Optimizer\+::get\+\_\+best\+\_\+fitness (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00240}{240}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00240\ \{\ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a9695c0bebccb5c6fad4e169d6c00daa4}{best\_fitness\_}};\ \}}
+
+\end{DoxyCode}
+Here is the caller graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classnsga2_1_1NSGA2Optimizer_acf030b373ad687cda76df51d71f564f7_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{classnsga2_1_1NSGA2Optimizer_a814b822231505e5deb54eb64b1ba3897}\label{classnsga2_1_1NSGA2Optimizer_a814b822231505e5deb54eb64b1ba3897}} 
+\index{nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}!get\_current\_generation@{get\_current\_generation}}
+\index{get\_current\_generation@{get\_current\_generation}!nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}}
+\doxysubsubsection{\texorpdfstring{get\_current\_generation()}{get\_current\_generation()}}
+{\footnotesize\ttfamily size\+\_\+t nsga2\+::\+NSGA2\+Optimizer\+::get\+\_\+current\+\_\+generation (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00241}{241}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00241\ \{\ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_ac95541d3820975e96991bec47f42a8ec}{current\_generation\_}};\ \}}
+
+\end{DoxyCode}
+Here is the caller graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classnsga2_1_1NSGA2Optimizer_a814b822231505e5deb54eb64b1ba3897_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{classnsga2_1_1NSGA2Optimizer_ae3e9a6a11233f01b8b68d686e5a05a7e}\label{classnsga2_1_1NSGA2Optimizer_ae3e9a6a11233f01b8b68d686e5a05a7e}} 
+\index{nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}!get\_fitness\_history@{get\_fitness\_history}}
+\index{get\_fitness\_history@{get\_fitness\_history}!nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}}
+\doxysubsubsection{\texorpdfstring{get\_fitness\_history()}{get\_fitness\_history()}}
+{\footnotesize\ttfamily const std\+::vector$<$ double $>$ \& nsga2\+::\+NSGA2\+Optimizer\+::get\+\_\+fitness\+\_\+history (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00238}{238}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00238\ \{\ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_aa5090738f22caa95035b5e365956c4c4}{best\_fitness\_history\_}};\ \}}
+
+\end{DoxyCode}
+Here is the caller graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classnsga2_1_1NSGA2Optimizer_ae3e9a6a11233f01b8b68d686e5a05a7e_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{classnsga2_1_1NSGA2Optimizer_ace0fdf4f83b532abd7795ced99b66b35}\label{classnsga2_1_1NSGA2Optimizer_ace0fdf4f83b532abd7795ced99b66b35}} 
+\index{nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}!get\_mean\_fitness\_history@{get\_mean\_fitness\_history}}
+\index{get\_mean\_fitness\_history@{get\_mean\_fitness\_history}!nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}}
+\doxysubsubsection{\texorpdfstring{get\_mean\_fitness\_history()}{get\_mean\_fitness\_history()}}
+{\footnotesize\ttfamily const std\+::vector$<$ double $>$ \& nsga2\+::\+NSGA2\+Optimizer\+::get\+\_\+mean\+\_\+fitness\+\_\+history (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00239}{239}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00239\ \{\ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a454900d4a115d2fc7eb3666616f202e9}{mean\_fitness\_history\_}};\ \}}
+
+\end{DoxyCode}
+Here is the caller graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classnsga2_1_1NSGA2Optimizer_ace0fdf4f83b532abd7795ced99b66b35_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{classnsga2_1_1NSGA2Optimizer_aa5dae2bf9c615ed3a027aba29188ef9c}\label{classnsga2_1_1NSGA2Optimizer_aa5dae2bf9c615ed3a027aba29188ef9c}} 
+\index{nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}!get\_pareto\_front@{get\_pareto\_front}}
+\index{get\_pareto\_front@{get\_pareto\_front}!nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}}
+\doxysubsubsection{\texorpdfstring{get\_pareto\_front()}{get\_pareto\_front()}}
+{\footnotesize\ttfamily std\+::vector$<$ \mbox{\hyperlink{namespacensga2_a9338ac68ee391d4b50ef5d878d0d89b3}{Individual\+Ptr}} $>$ nsga2\+::\+NSGA2\+Optimizer\+::get\+\_\+pareto\+\_\+front (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00952}{952}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00952\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00953\ \ \ \ \ std::vector<IndividualPtr>\ pareto\_front;}
+\DoxyCodeLine{00954\ \ \ \ \ }
+\DoxyCodeLine{00955\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ \textcolor{keyword}{auto}\&\ ind\ :\ *\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a72b029699c51eb70ee957ef651551252}{population\_}})\ \{}
+\DoxyCodeLine{00956\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (ind-\/>rank\ ==\ 0)\ \{}
+\DoxyCodeLine{00957\ \ \ \ \ \ \ \ \ \ \ \ \ pareto\_front.push\_back(ind);}
+\DoxyCodeLine{00958\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00959\ \ \ \ \ \}}
+\DoxyCodeLine{00960\ \ \ \ \ }
+\DoxyCodeLine{00961\ \ \ \ \ \textcolor{keywordflow}{return}\ pareto\_front;}
+\DoxyCodeLine{00962\ \}}
+
+\end{DoxyCode}
+Here is the caller graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classnsga2_1_1NSGA2Optimizer_aa5dae2bf9c615ed3a027aba29188ef9c_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{classnsga2_1_1NSGA2Optimizer_a2ee35399daaee13d3991a35076cbbf52}\label{classnsga2_1_1NSGA2Optimizer_a2ee35399daaee13d3991a35076cbbf52}} 
+\index{nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}!getParameterSpaceSize@{getParameterSpaceSize}}
+\index{getParameterSpaceSize@{getParameterSpaceSize}!nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}}
+\doxysubsubsection{\texorpdfstring{getParameterSpaceSize()}{getParameterSpaceSize()}}
+{\footnotesize\ttfamily size\+\_\+t nsga2\+::\+NSGA2\+Optimizer\+::get\+Parameter\+Space\+Size (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00259}{259}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00259\ \{\ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_a22f6c5167d3c46f6bf42e52625412441}{lower\_bounds}}.size();\ \}}
+
+\end{DoxyCode}
+Here is the caller graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classnsga2_1_1NSGA2Optimizer_a2ee35399daaee13d3991a35076cbbf52_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{classnsga2_1_1NSGA2Optimizer_a82c8c27ec35b7842d3efb71830b30ce2}\label{classnsga2_1_1NSGA2Optimizer_a82c8c27ec35b7842d3efb71830b30ce2}} 
+\index{nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}!optimize@{optimize}}
+\index{optimize@{optimize}!nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}}
+\doxysubsubsection{\texorpdfstring{optimize()}{optimize()}}
+{\footnotesize\ttfamily std\+::pair$<$ std\+::vector$<$ std\+::vector$<$ double $>$ $>$, std\+::vector$<$ std\+::vector$<$ double $>$ $>$ $>$ nsga2\+::\+NSGA2\+Optimizer\+::optimize (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ \mbox{\hyperlink{namespacensga2_a9c76b7fc7926d54405b46a2cccf115f4}{Objective\+Function}} $>$ \&}]{objectives,  }\item[{std\+::function$<$ void(size\+\_\+t, const \mbox{\hyperlink{classnsga2_1_1Population}{Population}} \&)$>$}]{callback = {\ttfamily nullptr},  }\item[{const std\+::function$<$ std\+::vector$<$ std\+::vector$<$ double $>$ $>$(const std\+::vector$<$ std\+::vector$<$ double $>$ $>$ \&)$>$ \&}]{batch\+\_\+evaluator = {\ttfamily nullptr} }\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00703}{703}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00706\ \{}
+\DoxyCodeLine{00707\ \ \ \ \ \textcolor{comment}{//\ Initialize}}
+\DoxyCodeLine{00708\ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_aeee0b01f755a7d65a671f588c535fa6b}{start\_time\_}}\ =\ std::chrono::steady\_clock::now();}
+\DoxyCodeLine{00709\ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_aa5090738f22caa95035b5e365956c4c4}{best\_fitness\_history\_}}.clear();}
+\DoxyCodeLine{00710\ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a454900d4a115d2fc7eb3666616f202e9}{mean\_fitness\_history\_}}.clear();}
+\DoxyCodeLine{00711\ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a9695c0bebccb5c6fad4e169d6c00daa4}{best\_fitness\_}}\ =\ std::numeric\_limits<double>::infinity();}
+\DoxyCodeLine{00712\ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_ac95541d3820975e96991bec47f42a8ec}{current\_generation\_}}\ =\ 0;}
+\DoxyCodeLine{00713\ \ \ \ \ }
+\DoxyCodeLine{00714\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ n\_params\ =\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_a22f6c5167d3c46f6bf42e52625412441}{lower\_bounds}}.size();}
+\DoxyCodeLine{00715\ \ \ \ \ }
+\DoxyCodeLine{00716\ \ \ \ \ \textcolor{comment}{//\ Initialize\ population\ using\ LHS}}
+\DoxyCodeLine{00717\ \ \ \ \ \textcolor{keyword}{auto}\ initial\_params\ =\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_ad16674085aa9bc187ef412c73bb4638d}{lhs\_sampler\_}}-\/>sample(}
+\DoxyCodeLine{00718\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_ae71a2f8e9d7ba5ee79a4212ab073203f}{population\_size}},\ n\_params,}
+\DoxyCodeLine{00719\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_a22f6c5167d3c46f6bf42e52625412441}{lower\_bounds}},\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_a702acd772a7704550906edca52a6a4e6}{upper\_bounds}}}
+\DoxyCodeLine{00720\ \ \ \ \ );}
+\DoxyCodeLine{00721\ \ \ \ \ }
+\DoxyCodeLine{00722\ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a72b029699c51eb70ee957ef651551252}{population\_}}\ =\ std::make\_shared<Population>();}
+\DoxyCodeLine{00723\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ \textcolor{keyword}{auto}\&\ params\ :\ initial\_params)\ }
+\DoxyCodeLine{00724\ \ \ \ \ \{}
+\DoxyCodeLine{00725\ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ ind\ =\ std::make\_shared<Individual>(params);}
+\DoxyCodeLine{00726\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a72b029699c51eb70ee957ef651551252}{population\_}}-\/>add(ind);}
+\DoxyCodeLine{00727\ \ \ \ \ \}}
+\DoxyCodeLine{00728\ \ \ \ \ }
+\DoxyCodeLine{00729\ \ \ \ \ \textcolor{comment}{//\ Evaluate\ initial\ population}}
+\DoxyCodeLine{00730\ \ \ \ \ std::vector<IndividualPtr>\ initial\_individuals;}
+\DoxyCodeLine{00731\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ ind\ :\ *\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a72b029699c51eb70ee957ef651551252}{population\_}})\ }
+\DoxyCodeLine{00732\ \ \ \ \ \{}
+\DoxyCodeLine{00733\ \ \ \ \ \ \ \ \ initial\_individuals.push\_back(ind);}
+\DoxyCodeLine{00734\ \ \ \ \ \}}
+\DoxyCodeLine{00735\ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_aa52554e3824033897dba470b287d3445}{evaluate\_batch}}(initial\_individuals,\ objectives,\ batch\_evaluator);}
+\DoxyCodeLine{00736\ \ \ \ \ }
+\DoxyCodeLine{00737\ \ \ \ \ \textcolor{comment}{//\ Main\ evolution\ loop}}
+\DoxyCodeLine{00738\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ gen\ =\ 0;\ gen\ <=\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_a88e311640cc9da72e8dae578b60bd76c}{max\_generations}};\ ++gen)\ }
+\DoxyCodeLine{00739\ \ \ \ \ \{}
+\DoxyCodeLine{00740\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_ac95541d3820975e96991bec47f42a8ec}{current\_generation\_}}\ =\ gen;}
+\DoxyCodeLine{00741\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00742\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00743\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Calculate\ statistics\ only\ if\ objectives\ are\ available}}
+\DoxyCodeLine{00744\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ min\_fitness\ =\ std::numeric\_limits<double>::max();}
+\DoxyCodeLine{00745\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ sum\_fitness\ =\ 0.0;}
+\DoxyCodeLine{00746\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ statistics\_valid\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00747\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00748\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ \textcolor{keyword}{auto}\&\ ind\ :\ *\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a72b029699c51eb70ee957ef651551252}{population\_}})\ }
+\DoxyCodeLine{00749\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00750\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (ind-\/>objectives.empty())\ }
+\DoxyCodeLine{00751\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00752\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::cerr\ <<\ \textcolor{stringliteral}{"{}ERROR:\ Individual\ has\ empty\ objectives\ after\ evaluation"{}}\ <<\ std::endl;}
+\DoxyCodeLine{00753\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ statistics\_valid\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00754\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00755\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00756\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00757\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ fitness\ =\ 0.0;}
+\DoxyCodeLine{00758\ \ \ \ \ \ \ \ \ \ \ \ \ std::vector<double>\ weights(objectives.size(),\ 1.0);}
+\DoxyCodeLine{00759\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00760\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ ind-\/>objectives.size()\ \&\&\ i\ <\ weights.size();\ ++i)\ }
+\DoxyCodeLine{00761\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00762\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ fitness\ +=\ weights[i]\ *\ ind-\/>objectives[i];}
+\DoxyCodeLine{00763\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00764\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00765\ \ \ \ \ \ \ \ \ \ \ \ \ min\_fitness\ =\ std::min(min\_fitness,\ fitness);}
+\DoxyCodeLine{00766\ \ \ \ \ \ \ \ \ \ \ \ \ sum\_fitness\ +=\ fitness;}
+\DoxyCodeLine{00767\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00768\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00769\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (statistics\_valid)\ }
+\DoxyCodeLine{00770\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00771\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ mean\_fitness\ =\ sum\_fitness\ /\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a72b029699c51eb70ee957ef651551252}{population\_}}-\/>size();}
+\DoxyCodeLine{00772\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a9695c0bebccb5c6fad4e169d6c00daa4}{best\_fitness\_}}\ =\ std::min(\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a9695c0bebccb5c6fad4e169d6c00daa4}{best\_fitness\_}},\ min\_fitness);}
+\DoxyCodeLine{00773\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_aa5090738f22caa95035b5e365956c4c4}{best\_fitness\_history\_}}.push\_back(\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a9695c0bebccb5c6fad4e169d6c00daa4}{best\_fitness\_}});}
+\DoxyCodeLine{00774\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a454900d4a115d2fc7eb3666616f202e9}{mean\_fitness\_history\_}}.push\_back(mean\_fitness);}
+\DoxyCodeLine{00775\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00776\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Progress\ reporting}}
+\DoxyCodeLine{00777\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_af0a7718158c5db4647b1b4b6a774c70f}{verbose}}\ \&\&\ gen\ \%\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_aafc726fab602787a1a04f1ce83fafd0d}{progress\_interval}}\ ==\ 0)\ }
+\DoxyCodeLine{00778\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00779\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ elapsed\ =\ std::chrono::duration\_cast<std::chrono::seconds>(}
+\DoxyCodeLine{00780\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::chrono::steady\_clock::now()\ -\/\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_aeee0b01f755a7d65a671f588c535fa6b}{start\_time\_}}}
+\DoxyCodeLine{00781\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ).count();}
+\DoxyCodeLine{00782\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00783\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}\(\backslash\)n-\/-\/-\/\ NSGA-\/II\ Generation\ "{}}\ <<\ gen\ <<\ \textcolor{stringliteral}{"{}\ -\/-\/-\/"{}}\ <<\ std::endl;}
+\DoxyCodeLine{00784\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}Best\ fitness:\ "{}}\ <<\ min\_fitness\ <<\ \textcolor{stringliteral}{"{},\ Mean\ fitness:\ "{}}\ <<\ mean\_fitness\ <<\ std::endl;}
+\DoxyCodeLine{00785\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}Elapsed\ time:\ "{}}\ <<\ elapsed\ <<\ \textcolor{stringliteral}{"{}\ seconds"{}}\ <<\ std::endl;}
+\DoxyCodeLine{00786\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}Crowding\ distance\ method:\ "{}}\ <<\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_af17bd4901cfb116b86ba04a80e24a1df}{crowding\_calculator\_}}-\/>getName()\ <<\ std::endl;}
+\DoxyCodeLine{00787\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00788\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (gen\ >=\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_aafc726fab602787a1a04f1ce83fafd0d}{progress\_interval}}\ \&\&\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_aa5090738f22caa95035b5e365956c4c4}{best\_fitness\_history\_}}.size()\ >=\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_aafc726fab602787a1a04f1ce83fafd0d}{progress\_interval}})}
+\DoxyCodeLine{00789\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00790\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ old\_fitness\ =\ std::min(\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_aa5090738f22caa95035b5e365956c4c4}{best\_fitness\_history\_}}[gen\ -\/\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_aafc726fab602787a1a04f1ce83fafd0d}{progress\_interval}}],\ std::numeric\_limits<double>::max());}
+\DoxyCodeLine{00791\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ improvement\ =\ (old\_fitness\ -\/\ min\_fitness)\ /\ old\_fitness\ *\ 100.0;}
+\DoxyCodeLine{00792\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}Improvement\ ("{}}\ <<\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_aafc726fab602787a1a04f1ce83fafd0d}{progress\_interval}}\ <<\ \textcolor{stringliteral}{"{}\ gen):\ "{}}\ <<\ improvement\ <<\ \textcolor{stringliteral}{"{}\%"{}}\ <<\ std::endl;}
+\DoxyCodeLine{00793\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00794\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00795\ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ }
+\DoxyCodeLine{00796\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00797\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ If\ statistics\ are\ not\ valid,\ use\ dummy\ values}}
+\DoxyCodeLine{00798\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_aa5090738f22caa95035b5e365956c4c4}{best\_fitness\_history\_}}.push\_back(\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a9695c0bebccb5c6fad4e169d6c00daa4}{best\_fitness\_}});}
+\DoxyCodeLine{00799\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a454900d4a115d2fc7eb3666616f202e9}{mean\_fitness\_history\_}}.push\_back(std::numeric\_limits<double>::max());}
+\DoxyCodeLine{00800\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00801\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00802\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00803\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Create\ offspring\ population}}
+\DoxyCodeLine{00804\ \ \ \ \ \ \ \ \ Population\ offspring\_pop;}
+\DoxyCodeLine{00805\ \ \ \ \ \ \ \ \ std::vector<IndividualPtr>\ all\_children;}
+\DoxyCodeLine{00806\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00807\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ IMPORTANT:\ Get\ current\ parameter\ size\ dynamically}}
+\DoxyCodeLine{00808\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ current\_n\_params\ =\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_a22f6c5167d3c46f6bf42e52625412441}{lower\_bounds}}.size();}
+\DoxyCodeLine{00809\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00810\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{while}\ (offspring\_pop.size()\ <\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_ae71a2f8e9d7ba5ee79a4212ab073203f}{population\_size}})\ }
+\DoxyCodeLine{00811\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00812\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Select\ parents}}
+\DoxyCodeLine{00813\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ parents\ =\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_af4bb6929334fe2b7156621bdf7275083}{selection\_strategy\_}}-\/>select(*\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a72b029699c51eb70ee957ef651551252}{population\_}},\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_ad9920bee36083733df22a0a9e12c1b04}{n\_parents}},\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2b77ca7f5cca7444e27b900891483da9}{gen\_}});}
+\DoxyCodeLine{00814\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00815\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Verify\ all\ parents\ have\ correct\ parameter\ size}}
+\DoxyCodeLine{00816\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ parents\_valid\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00817\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ \textcolor{keyword}{auto}\&\ parent\ :\ parents)\ }
+\DoxyCodeLine{00818\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00819\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (parent-\/>parameters.size()\ !=\ current\_n\_params)\ }
+\DoxyCodeLine{00820\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00821\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::cerr\ <<\ \textcolor{stringliteral}{"{}Warning:\ Parent\ has\ "{}}\ <<\ parent-\/>parameters.size()\ }
+\DoxyCodeLine{00822\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ \textcolor{stringliteral}{"{}\ parameters,\ expected\ "{}}\ <<\ current\_n\_params\ <<\ std::endl;}
+\DoxyCodeLine{00823\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ parents\_valid\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00824\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00825\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00826\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00827\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00828\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!parents\_valid)\ }
+\DoxyCodeLine{00829\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00830\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Skip\ this\ parent\ set\ and\ try\ again}}
+\DoxyCodeLine{00831\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{00832\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00833\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00834\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ REX\ crossover}}
+\DoxyCodeLine{00835\ \ \ \ \ \ \ \ \ \ \ \ \ std::vector<IndividualPtr>\ children;}
+\DoxyCodeLine{00836\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}\ }
+\DoxyCodeLine{00837\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00838\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ children\ =\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a9a6f33fba4503647e5e289c83317a42c}{rex\_crossover\_}}-\/>crossover(parents,\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_ae339f11b953e92e48b0843aca58fa2db}{n\_children}});}
+\DoxyCodeLine{00839\ \ \ \ \ \ \ \ \ \ \ \ \ \}\ }
+\DoxyCodeLine{00840\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{catch}\ (\textcolor{keyword}{const}\ std::exception\&\ e)\ }
+\DoxyCodeLine{00841\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00842\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::cerr\ <<\ \textcolor{stringliteral}{"{}Crossover\ error:\ "{}}\ <<\ e.what()\ <<\ std::endl;}
+\DoxyCodeLine{00843\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};\ \ \textcolor{comment}{//\ Try\ again\ with\ different\ parents}}
+\DoxyCodeLine{00844\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00845\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00846\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Apply\ bounds\ with\ current\ parameter\ size}}
+\DoxyCodeLine{00847\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ child\ :\ children)\ }
+\DoxyCodeLine{00848\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00849\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Ensure\ child\ has\ correct\ size}}
+\DoxyCodeLine{00850\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (child-\/>parameters.size()\ !=\ current\_n\_params)\ }
+\DoxyCodeLine{00851\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00852\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::cerr\ <<\ \textcolor{stringliteral}{"{}Warning:\ Child\ has\ "{}}\ <<\ child-\/>parameters.size()\ }
+\DoxyCodeLine{00853\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ \textcolor{stringliteral}{"{}\ parameters,\ resizing\ to\ "{}}\ <<\ current\_n\_params\ <<\ std::endl;}
+\DoxyCodeLine{00854\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ child-\/>parameters.resize(current\_n\_params,\ 0.0);}
+\DoxyCodeLine{00855\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00856\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00857\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Apply\ bounds}}
+\DoxyCodeLine{00858\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ current\_n\_params;\ ++i)\ }
+\DoxyCodeLine{00859\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00860\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ child-\/>parameters[i]\ =\ std::max(\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_a22f6c5167d3c46f6bf42e52625412441}{lower\_bounds}}[i],}
+\DoxyCodeLine{00861\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::min(\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_a702acd772a7704550906edca52a6a4e6}{upper\_bounds}}[i],\ child-\/>parameters[i]));}
+\DoxyCodeLine{00862\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00863\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ all\_children.push\_back(child);}
+\DoxyCodeLine{00864\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ offspring\_pop.add(child);}
+\DoxyCodeLine{00865\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00866\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (offspring\_pop.size()\ >=\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_ae71a2f8e9d7ba5ee79a4212ab073203f}{population\_size}})\ }
+\DoxyCodeLine{00867\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00868\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00869\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00870\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00871\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00872\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00873\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Evaluate\ offspring}}
+\DoxyCodeLine{00874\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_aa52554e3824033897dba470b287d3445}{evaluate\_batch}}(all\_children,\ objectives,\ batch\_evaluator);}
+\DoxyCodeLine{00875\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00876\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Combine\ parent\ and\ offspring\ populations}}
+\DoxyCodeLine{00877\ \ \ \ \ \ \ \ \ Population\ combined\_pop;}
+\DoxyCodeLine{00878\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ ind\ :\ *\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a72b029699c51eb70ee957ef651551252}{population\_}})\ }
+\DoxyCodeLine{00879\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00880\ \ \ \ \ \ \ \ \ \ \ \ \ combined\_pop.add(ind);}
+\DoxyCodeLine{00881\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00882\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ ind\ :\ offspring\_pop)}
+\DoxyCodeLine{00883\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00884\ \ \ \ \ \ \ \ \ \ \ \ \ combined\_pop.add(ind);}
+\DoxyCodeLine{00885\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00886\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00887\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Environmental\ selection}}
+\DoxyCodeLine{00888\ \ \ \ \ \ \ \ \ Population\ new\_population;}
+\DoxyCodeLine{00889\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a6b12413cbfbfd22402abfc4eb7e0353c}{environmental\_selection}}(combined\_pop,\ new\_population);}
+\DoxyCodeLine{00890\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a72b029699c51eb70ee957ef651551252}{population\_}}\ =\ std::make\_shared<Population>(std::move(new\_population));}
+\DoxyCodeLine{00891\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00892\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Callback}}
+\DoxyCodeLine{00893\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (callback)\ }
+\DoxyCodeLine{00894\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00895\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Store\ current\ parameter\ size\ before\ callback}}
+\DoxyCodeLine{00896\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ param\_size\_before\ =\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_a22f6c5167d3c46f6bf42e52625412441}{lower\_bounds}}.size();}
+\DoxyCodeLine{00897\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00898\ \ \ \ \ \ \ \ \ \ \ \ \ callback(gen,\ *\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a72b029699c51eb70ee957ef651551252}{population\_}});}
+\DoxyCodeLine{00899\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00900\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Check\ if\ parameter\ space\ was\ changed\ during\ callback}}
+\DoxyCodeLine{00901\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ param\_size\_after\ =\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_a22f6c5167d3c46f6bf42e52625412441}{lower\_bounds}}.size();}
+\DoxyCodeLine{00902\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (param\_size\_before\ !=\ param\_size\_after)\ }
+\DoxyCodeLine{00903\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00904\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}Parameter\ space\ changed\ during\ callback:\ "{}}\ }
+\DoxyCodeLine{00905\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ param\_size\_before\ <<\ \textcolor{stringliteral}{"{}\ -\/>\ "{}}\ <<\ param\_size\_after\ <<\ std::endl;}
+\DoxyCodeLine{00906\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00907\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Verify\ population\ consistency}}
+\DoxyCodeLine{00908\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ all\_consistent\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00909\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a72b029699c51eb70ee957ef651551252}{population\_}}-\/>size();\ ++i)\ }
+\DoxyCodeLine{00910\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00911\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ ((*\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a72b029699c51eb70ee957ef651551252}{population\_}})[i]-\/>parameters.size()\ !=\ param\_size\_after)\ }
+\DoxyCodeLine{00912\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00913\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::cerr\ <<\ \textcolor{stringliteral}{"{}ERROR:\ Individual\ "{}}\ <<\ i\ <<\ \textcolor{stringliteral}{"{}\ has\ inconsistent\ size\ after\ callback"{}}\ <<\ std::endl;}
+\DoxyCodeLine{00914\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ all\_consistent\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00915\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00916\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Clear\ objectives\ to\ force\ re-\/evaluation}}
+\DoxyCodeLine{00917\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (*population\_)[i]-\/>objectives.clear();}
+\DoxyCodeLine{00918\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (*population\_)[i]-\/>rank\ =\ 0;}
+\DoxyCodeLine{00919\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (*population\_)[i]-\/>crowding\_distance\ =\ 0.0;}
+\DoxyCodeLine{00920\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00921\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00922\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!all\_consistent)\ }
+\DoxyCodeLine{00923\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00924\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{throw}\ std::runtime\_error(\textcolor{stringliteral}{"{}Population\ inconsistency\ after\ parameter\ space\ change"{}});}
+\DoxyCodeLine{00925\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00926\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00927\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}Re-\/evaluating\ population\ with\ new\ parameter\ space"{}}\ <<\ std::endl;}
+\DoxyCodeLine{00928\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::vector<IndividualPtr>\ individuals\_to\_evaluate;}
+\DoxyCodeLine{00929\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{auto}\&\ ind\ :\ *\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a72b029699c51eb70ee957ef651551252}{population\_}})\ \{}
+\DoxyCodeLine{00930\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ individuals\_to\_evaluate.push\_back(ind);}
+\DoxyCodeLine{00931\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00932\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_aa52554e3824033897dba470b287d3445}{evaluate\_batch}}(individuals\_to\_evaluate,\ objectives,\ batch\_evaluator);}
+\DoxyCodeLine{00933\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00934\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00935\ \ \ \ \ \}}
+\DoxyCodeLine{00936\ \ \ \ \ }
+\DoxyCodeLine{00937\ \ \ \ \ \textcolor{comment}{//\ Extract\ final\ Pareto\ front}}
+\DoxyCodeLine{00938\ \ \ \ \ \textcolor{keyword}{auto}\ pareto\_front\ =\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_aa5dae2bf9c615ed3a027aba29188ef9c}{get\_pareto\_front}}();}
+\DoxyCodeLine{00939\ \ \ \ \ }
+\DoxyCodeLine{00940\ \ \ \ \ std::vector<std::vector<double>>\ final\_params;}
+\DoxyCodeLine{00941\ \ \ \ \ std::vector<std::vector<double>>\ final\_objectives;}
+\DoxyCodeLine{00942\ \ \ \ \ }
+\DoxyCodeLine{00943\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ \textcolor{keyword}{auto}\&\ ind\ :\ pareto\_front)\ }
+\DoxyCodeLine{00944\ \ \ \ \ \{}
+\DoxyCodeLine{00945\ \ \ \ \ \ \ \ \ final\_params.push\_back(ind-\/>parameters);}
+\DoxyCodeLine{00946\ \ \ \ \ \ \ \ \ final\_objectives.push\_back(ind-\/>objectives);}
+\DoxyCodeLine{00947\ \ \ \ \ \}}
+\DoxyCodeLine{00948\ \ \ \ \ }
+\DoxyCodeLine{00949\ \ \ \ \ \textcolor{keywordflow}{return}\ \{final\_params,\ final\_objectives\};}
+\DoxyCodeLine{00950\ \}}
+
+\end{DoxyCode}
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classnsga2_1_1NSGA2Optimizer_a82c8c27ec35b7842d3efb71830b30ce2_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classnsga2_1_1NSGA2Optimizer_a82c8c27ec35b7842d3efb71830b30ce2_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{classnsga2_1_1NSGA2Optimizer_ad74d71eecedb159ec9e323f35337c09d}\label{classnsga2_1_1NSGA2Optimizer_ad74d71eecedb159ec9e323f35337c09d}} 
+\index{nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}!setCrowdingDistanceCalculator@{setCrowdingDistanceCalculator}}
+\index{setCrowdingDistanceCalculator@{setCrowdingDistanceCalculator}!nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}}
+\doxysubsubsection{\texorpdfstring{setCrowdingDistanceCalculator()}{setCrowdingDistanceCalculator()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily void nsga2\+::\+NSGA2\+Optimizer\+::set\+Crowding\+Distance\+Calculator (\begin{DoxyParamCaption}\item[{std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classnsga2_1_1ICrowdingDistanceCalculator}{ICrowding\+Distance\+Calculator}} $>$}]{calculator }\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00596}{596}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00596\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00597\ \ \ \ \ \textcolor{comment}{//\ Create\ a\ unique\_ptr\ from\ a\ shared\_ptr\ (create\ a\ copy)}}
+\DoxyCodeLine{00598\ \ \ \ \ \textcolor{keywordflow}{if}\ (\textcolor{keyword}{auto}*\ traditional\ =\ \textcolor{keyword}{dynamic\_cast<}TraditionalCrowdingDistance*\textcolor{keyword}{>}(calculator.get()))\ \{}
+\DoxyCodeLine{00599\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_af17bd4901cfb116b86ba04a80e24a1df}{crowding\_calculator\_}}\ =\ std::make\_unique<TraditionalCrowdingDistance>(*traditional);}
+\DoxyCodeLine{00600\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (\textcolor{keyword}{auto}*\ equidistant\ =\ \textcolor{keyword}{dynamic\_cast<}EquidistantSelectionCrowdingDistance*\textcolor{keyword}{>}(calculator.get()))\ \{}
+\DoxyCodeLine{00601\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_af17bd4901cfb116b86ba04a80e24a1df}{crowding\_calculator\_}}\ =\ std::make\_unique<EquidistantSelectionCrowdingDistance>(*equidistant);}
+\DoxyCodeLine{00602\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00603\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{throw}\ std::invalid\_argument(\textcolor{stringliteral}{"{}Unknown\ crowding\ distance\ calculator\ type"{}});}
+\DoxyCodeLine{00604\ \ \ \ \ \}}
+\DoxyCodeLine{00605\ \}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classnsga2_1_1NSGA2Optimizer_aa4c4ff01ffd3f120011a0479a6ce4a36}\label{classnsga2_1_1NSGA2Optimizer_aa4c4ff01ffd3f120011a0479a6ce4a36}} 
+\index{nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}!setCrowdingDistanceCalculator@{setCrowdingDistanceCalculator}}
+\index{setCrowdingDistanceCalculator@{setCrowdingDistanceCalculator}!nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}}
+\doxysubsubsection{\texorpdfstring{setCrowdingDistanceCalculator()}{setCrowdingDistanceCalculator()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily void nsga2\+::\+NSGA2\+Optimizer\+::set\+Crowding\+Distance\+Calculator (\begin{DoxyParamCaption}\item[{std\+::unique\+\_\+ptr$<$ \mbox{\hyperlink{classnsga2_1_1ICrowdingDistanceCalculator}{ICrowding\+Distance\+Calculator}} $>$}]{calculator }\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00592}{592}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00592\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00593\ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_af17bd4901cfb116b86ba04a80e24a1df}{crowding\_calculator\_}}\ =\ std::move(calculator);}
+\DoxyCodeLine{00594\ \}}
+
+\end{DoxyCode}
+Here is the caller graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classnsga2_1_1NSGA2Optimizer_aa4c4ff01ffd3f120011a0479a6ce4a36_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{classnsga2_1_1NSGA2Optimizer_a75dd42644278c5c7048a17898c6e3b7f}\label{classnsga2_1_1NSGA2Optimizer_a75dd42644278c5c7048a17898c6e3b7f}} 
+\index{nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}!setSelectionStrategy@{setSelectionStrategy}}
+\index{setSelectionStrategy@{setSelectionStrategy}!nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}}
+\doxysubsubsection{\texorpdfstring{setSelectionStrategy()}{setSelectionStrategy()}}
+{\footnotesize\ttfamily void nsga2\+::\+NSGA2\+Optimizer\+::set\+Selection\+Strategy (\begin{DoxyParamCaption}\item[{std\+::unique\+\_\+ptr$<$ \mbox{\hyperlink{classnsga2_1_1ISelectionStrategy}{ISelection\+Strategy}} $>$}]{strategy }\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00611}{611}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00611\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00612\ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_af4bb6929334fe2b7156621bdf7275083}{selection\_strategy\_}}\ =\ std::move(strategy);}
+\DoxyCodeLine{00613\ \}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classnsga2_1_1NSGA2Optimizer_a8ce58ce64ad90f71feb374bae2daf243}\label{classnsga2_1_1NSGA2Optimizer_a8ce58ce64ad90f71feb374bae2daf243}} 
+\index{nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}!setSortingAlgorithm@{setSortingAlgorithm}}
+\index{setSortingAlgorithm@{setSortingAlgorithm}!nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}}
+\doxysubsubsection{\texorpdfstring{setSortingAlgorithm()}{setSortingAlgorithm()}}
+{\footnotesize\ttfamily void nsga2\+::\+NSGA2\+Optimizer\+::set\+Sorting\+Algorithm (\begin{DoxyParamCaption}\item[{std\+::unique\+\_\+ptr$<$ \mbox{\hyperlink{classnsga2_1_1ISortingAlgorithm}{ISorting\+Algorithm}} $>$}]{algorithm }\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00607}{607}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00607\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00608\ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_aa57edeb2e76c1c2f918a85033b038808}{sorting\_algorithm\_}}\ =\ std::move(algorithm);}
+\DoxyCodeLine{00609\ \}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classnsga2_1_1NSGA2Optimizer_a3b9ce3ae189b2d686c875860f2b1a408}\label{classnsga2_1_1NSGA2Optimizer_a3b9ce3ae189b2d686c875860f2b1a408}} 
+\index{nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}!transformPopulation@{transformPopulation}}
+\index{transformPopulation@{transformPopulation}!nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}}
+\doxysubsubsection{\texorpdfstring{transformPopulation()}{transformPopulation()}}
+{\footnotesize\ttfamily void nsga2\+::\+NSGA2\+Optimizer\+::transform\+Population (\begin{DoxyParamCaption}\item[{size\+\_\+t}]{old\+\_\+n\+\_\+params,  }\item[{size\+\_\+t}]{new\+\_\+n\+\_\+params,  }\item[{const std\+::vector$<$ std\+::pair$<$ size\+\_\+t, size\+\_\+t $>$ $>$ \&}]{parameter\+\_\+mapping }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00126}{126}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00127\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00128\ \ \ \ \ \textcolor{comment}{/*}}
+\DoxyCodeLine{00129\ \textcolor{comment}{\ \ \ \ \ *\ Population\ transformation\ strategy\ inspired\ by:}}
+\DoxyCodeLine{00130\ \textcolor{comment}{\ \ \ \ \ *\ -\/\ "{}Multi-\/space\ evolutionary\ search"{}\ (Neural\ Comput.\ Appl.\ 2022)}}
+\DoxyCodeLine{00131\ \textcolor{comment}{\ \ \ \ \ *\ -\/\ "{}Dynamic\ multi-\/objective\ optimization\ for\ complex\ changes"{}\ (Knowl.\ Based\ Syst.\ 2021)}}
+\DoxyCodeLine{00132\ \textcolor{comment}{\ \ \ \ \ */}}
+\DoxyCodeLine{00133\ \ \ \ \ }
+\DoxyCodeLine{00134\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a72b029699c51eb70ee957ef651551252}{population\_}}\ ||\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a72b029699c51eb70ee957ef651551252}{population\_}}-\/>size()\ ==\ 0)\ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00135\ \ \ \ \ }
+\DoxyCodeLine{00136\ \ \ \ \ \textcolor{comment}{//\ Bounds\ should\ already\ be\ updated\ at\ this\ point}}
+\DoxyCodeLine{00137\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_a22f6c5167d3c46f6bf42e52625412441}{lower\_bounds}}.size()\ !=\ new\_n\_params\ ||\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_a702acd772a7704550906edca52a6a4e6}{upper\_bounds}}.size()\ !=\ new\_n\_params)\ \{}
+\DoxyCodeLine{00138\ \ \ \ \ \ \ \ \ std::cerr\ <<\ \textcolor{stringliteral}{"{}Error:\ Bounds\ size\ mismatch\ -\/\ lower\_bounds.size()="{}}\ <<\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_a22f6c5167d3c46f6bf42e52625412441}{lower\_bounds}}.size()\ }
+\DoxyCodeLine{00139\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ \textcolor{stringliteral}{"{},\ upper\_bounds.size()="{}}\ <<\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_a702acd772a7704550906edca52a6a4e6}{upper\_bounds}}.size()\ }
+\DoxyCodeLine{00140\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ \textcolor{stringliteral}{"{},\ new\_n\_params="{}}\ <<\ new\_n\_params\ <<\ std::endl;}
+\DoxyCodeLine{00141\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{throw}\ std::runtime\_error(\textcolor{stringliteral}{"{}Bounds\ not\ properly\ set\ before\ population\ transformation"{}});}
+\DoxyCodeLine{00142\ \ \ \ \ \}}
+\DoxyCodeLine{00143\ \ \ \ \ }
+\DoxyCodeLine{00144\ \ \ \ \ \textcolor{comment}{//\ Create\ new\ population\ with\ transformed\ individuals}}
+\DoxyCodeLine{00145\ \ \ \ \ \textcolor{keyword}{auto}\ new\_population\ =\ std::make\_shared<Population>();}
+\DoxyCodeLine{00146\ \ \ \ \ }
+\DoxyCodeLine{00147\ \ \ \ \ \textcolor{comment}{//\ Validate\ parameter\ mappings}}
+\DoxyCodeLine{00148\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ \textcolor{keyword}{auto}\&\ mapping\ :\ parameter\_mapping)\ \{}
+\DoxyCodeLine{00149\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (mapping.first\ >=\ old\_n\_params)\ \{}
+\DoxyCodeLine{00150\ \ \ \ \ \ \ \ \ \ \ \ \ std::cerr\ <<\ \textcolor{stringliteral}{"{}Error:\ Invalid\ old\ index\ "{}}\ <<\ mapping.first\ }
+\DoxyCodeLine{00151\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ \textcolor{stringliteral}{"{}\ for\ old\ parameter\ space\ size\ "{}}\ <<\ old\_n\_params\ <<\ std::endl;}
+\DoxyCodeLine{00152\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{throw}\ std::out\_of\_range(\textcolor{stringliteral}{"{}Invalid\ old\ parameter\ index\ in\ mapping"{}});}
+\DoxyCodeLine{00153\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00154\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (mapping.second\ >=\ new\_n\_params)\ \{}
+\DoxyCodeLine{00155\ \ \ \ \ \ \ \ \ \ \ \ \ std::cerr\ <<\ \textcolor{stringliteral}{"{}Error:\ Invalid\ new\ index\ "{}}\ <<\ mapping.second\ }
+\DoxyCodeLine{00156\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ \textcolor{stringliteral}{"{}\ for\ new\ parameter\ space\ size\ "{}}\ <<\ new\_n\_params\ <<\ std::endl;}
+\DoxyCodeLine{00157\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{throw}\ std::out\_of\_range(\textcolor{stringliteral}{"{}Invalid\ new\ parameter\ index\ in\ mapping"{}});}
+\DoxyCodeLine{00158\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00159\ \ \ \ \ \}}
+\DoxyCodeLine{00160\ \ \ \ \ }
+\DoxyCodeLine{00161\ \ \ \ \ \textcolor{comment}{//\ Transform\ each\ individual}}
+\DoxyCodeLine{00162\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a72b029699c51eb70ee957ef651551252}{population\_}}-\/>size();\ ++i)\ \{}
+\DoxyCodeLine{00163\ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\&\ old\_ind\ =\ (*population\_)[i];}
+\DoxyCodeLine{00164\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00165\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Create\ new\ individual\ with\ new\ parameter\ space\ size}}
+\DoxyCodeLine{00166\ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ new\_ind\ =\ std::make\_shared<Individual>(new\_n\_params);}
+\DoxyCodeLine{00167\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00168\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Initialize\ all\ parameters\ with\ random\ values\ within\ new\ bounds}}
+\DoxyCodeLine{00169\ \ \ \ \ \ \ \ \ std::uniform\_real\_distribution<>\ dist(0.0,\ 1.0);}
+\DoxyCodeLine{00170\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ j\ =\ 0;\ j\ <\ new\_n\_params;\ ++j)\ \{}
+\DoxyCodeLine{00171\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Use\ stratified\ initialization\ based\ on\ population\ position}}
+\DoxyCodeLine{00172\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ interval\_pos\ =\ (i\ +\ dist(\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2b77ca7f5cca7444e27b900891483da9}{gen\_}}))\ /\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a72b029699c51eb70ee957ef651551252}{population\_}}-\/>size();}
+\DoxyCodeLine{00173\ \ \ \ \ \ \ \ \ \ \ \ \ new\_ind-\/>parameters[j]\ =\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_a22f6c5167d3c46f6bf42e52625412441}{lower\_bounds}}[j]\ +\ }
+\DoxyCodeLine{00174\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ interval\_pos\ *\ (\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_a702acd772a7704550906edca52a6a4e6}{upper\_bounds}}[j]\ -\/\ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_a22f6c5167d3c46f6bf42e52625412441}{lower\_bounds}}[j]);}
+\DoxyCodeLine{00175\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00176\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00177\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Copy\ preserved\ parameters\ according\ to\ mapping}}
+\DoxyCodeLine{00178\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ \textcolor{keyword}{auto}\&\ mapping\ :\ parameter\_mapping)\ \{}
+\DoxyCodeLine{00179\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ old\_idx\ =\ mapping.first;}
+\DoxyCodeLine{00180\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ new\_idx\ =\ mapping.second;}
+\DoxyCodeLine{00181\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00182\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Safety\ check\ for\ old\ individual\ parameter\ access}}
+\DoxyCodeLine{00183\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (old\_idx\ <\ old\_ind-\/>parameters.size())\ \{}
+\DoxyCodeLine{00184\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ new\_ind-\/>parameters[new\_idx]\ =\ old\_ind-\/>parameters[old\_idx];}
+\DoxyCodeLine{00185\ \ \ \ \ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00186\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::cerr\ <<\ \textcolor{stringliteral}{"{}Warning:\ Old\ individual\ "{}}\ <<\ i\ <<\ \textcolor{stringliteral}{"{}\ has\ fewer\ parameters\ than\ expected"{}}\ <<\ std::endl;}
+\DoxyCodeLine{00187\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00188\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00189\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00190\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Clear\ objectives\ for\ re-\/evaluation}}
+\DoxyCodeLine{00191\ \ \ \ \ \ \ \ \ new\_ind-\/>objectives.clear();}
+\DoxyCodeLine{00192\ \ \ \ \ \ \ \ \ new\_ind-\/>rank\ =\ 0;}
+\DoxyCodeLine{00193\ \ \ \ \ \ \ \ \ new\_ind-\/>crowding\_distance\ =\ 0.0;}
+\DoxyCodeLine{00194\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00195\ \ \ \ \ \ \ \ \ new\_population-\/>add(new\_ind);}
+\DoxyCodeLine{00196\ \ \ \ \ \}}
+\DoxyCodeLine{00197\ \ \ \ \ }
+\DoxyCodeLine{00198\ \ \ \ \ \textcolor{comment}{//\ Replace\ old\ population}}
+\DoxyCodeLine{00199\ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a72b029699c51eb70ee957ef651551252}{population\_}}\ =\ new\_population;}
+\DoxyCodeLine{00200\ \ \ \ \ }
+\DoxyCodeLine{00201\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}{config\_}}.\mbox{\hyperlink{structnsga2_1_1NSGA2Config_af0a7718158c5db4647b1b4b6a774c70f}{verbose}})\ \{}
+\DoxyCodeLine{00202\ \ \ \ \ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}Population\ transformation\ complete.\ New\ population\ size:\ "{}}\ }
+\DoxyCodeLine{00203\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ new\_population-\/>size()\ <<\ \textcolor{stringliteral}{"{}\ with\ "{}}\ <<\ new\_n\_params\ <<\ \textcolor{stringliteral}{"{}\ parameters\ each"{}}\ <<\ std::endl;}
+\DoxyCodeLine{00204\ \ \ \ \ \}}
+\DoxyCodeLine{00205\ \}}
+
+\end{DoxyCode}
+Here is the caller graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classnsga2_1_1NSGA2Optimizer_a3b9ce3ae189b2d686c875860f2b1a408_icgraph}
+\end{center}
+\end{figure}
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classnsga2_1_1NSGA2Optimizer_a9695c0bebccb5c6fad4e169d6c00daa4}\label{classnsga2_1_1NSGA2Optimizer_a9695c0bebccb5c6fad4e169d6c00daa4}} 
+\index{nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}!best\_fitness\_@{best\_fitness\_}}
+\index{best\_fitness\_@{best\_fitness\_}!nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}}
+\doxysubsubsection{\texorpdfstring{best\_fitness\_}{best\_fitness\_}}
+{\footnotesize\ttfamily double nsga2\+::\+NSGA2\+Optimizer\+::best\+\_\+fitness\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00216}{216}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
+
+\mbox{\Hypertarget{classnsga2_1_1NSGA2Optimizer_aa5090738f22caa95035b5e365956c4c4}\label{classnsga2_1_1NSGA2Optimizer_aa5090738f22caa95035b5e365956c4c4}} 
+\index{nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}!best\_fitness\_history\_@{best\_fitness\_history\_}}
+\index{best\_fitness\_history\_@{best\_fitness\_history\_}!nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}}
+\doxysubsubsection{\texorpdfstring{best\_fitness\_history\_}{best\_fitness\_history\_}}
+{\footnotesize\ttfamily std\+::vector$<$double$>$ nsga2\+::\+NSGA2\+Optimizer\+::best\+\_\+fitness\+\_\+history\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00214}{214}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
+
+\mbox{\Hypertarget{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}\label{classnsga2_1_1NSGA2Optimizer_a2c3071fb33a7188a146b6922c79ae238}} 
+\index{nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}!config\_@{config\_}}
+\index{config\_@{config\_}!nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}}
+\doxysubsubsection{\texorpdfstring{config\_}{config\_}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structnsga2_1_1NSGA2Config}{NSGA2\+Config}} nsga2\+::\+NSGA2\+Optimizer\+::config\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00194}{194}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
+
+\mbox{\Hypertarget{classnsga2_1_1NSGA2Optimizer_af17bd4901cfb116b86ba04a80e24a1df}\label{classnsga2_1_1NSGA2Optimizer_af17bd4901cfb116b86ba04a80e24a1df}} 
+\index{nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}!crowding\_calculator\_@{crowding\_calculator\_}}
+\index{crowding\_calculator\_@{crowding\_calculator\_}!nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}}
+\doxysubsubsection{\texorpdfstring{crowding\_calculator\_}{crowding\_calculator\_}}
+{\footnotesize\ttfamily std\+::unique\+\_\+ptr$<$\mbox{\hyperlink{classnsga2_1_1ICrowdingDistanceCalculator}{ICrowding\+Distance\+Calculator}}$>$ nsga2\+::\+NSGA2\+Optimizer\+::crowding\+\_\+calculator\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00201}{201}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
+
+\mbox{\Hypertarget{classnsga2_1_1NSGA2Optimizer_ac95541d3820975e96991bec47f42a8ec}\label{classnsga2_1_1NSGA2Optimizer_ac95541d3820975e96991bec47f42a8ec}} 
+\index{nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}!current\_generation\_@{current\_generation\_}}
+\index{current\_generation\_@{current\_generation\_}!nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}}
+\doxysubsubsection{\texorpdfstring{current\_generation\_}{current\_generation\_}}
+{\footnotesize\ttfamily size\+\_\+t nsga2\+::\+NSGA2\+Optimizer\+::current\+\_\+generation\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00217}{217}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
+
+\mbox{\Hypertarget{classnsga2_1_1NSGA2Optimizer_a2b77ca7f5cca7444e27b900891483da9}\label{classnsga2_1_1NSGA2Optimizer_a2b77ca7f5cca7444e27b900891483da9}} 
+\index{nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}!gen\_@{gen\_}}
+\index{gen\_@{gen\_}!nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}}
+\doxysubsubsection{\texorpdfstring{gen\_}{gen\_}}
+{\footnotesize\ttfamily std\+::mt19937 nsga2\+::\+NSGA2\+Optimizer\+::gen\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00196}{196}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
+
+\mbox{\Hypertarget{classnsga2_1_1NSGA2Optimizer_ad16674085aa9bc187ef412c73bb4638d}\label{classnsga2_1_1NSGA2Optimizer_ad16674085aa9bc187ef412c73bb4638d}} 
+\index{nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}!lhs\_sampler\_@{lhs\_sampler\_}}
+\index{lhs\_sampler\_@{lhs\_sampler\_}!nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}}
+\doxysubsubsection{\texorpdfstring{lhs\_sampler\_}{lhs\_sampler\_}}
+{\footnotesize\ttfamily std\+::unique\+\_\+ptr$<$\mbox{\hyperlink{classnsga2_1_1LatinHypercubeSampler}{Latin\+Hypercube\+Sampler}}$>$ nsga2\+::\+NSGA2\+Optimizer\+::lhs\+\_\+sampler\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00199}{199}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
+
+\mbox{\Hypertarget{classnsga2_1_1NSGA2Optimizer_a454900d4a115d2fc7eb3666616f202e9}\label{classnsga2_1_1NSGA2Optimizer_a454900d4a115d2fc7eb3666616f202e9}} 
+\index{nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}!mean\_fitness\_history\_@{mean\_fitness\_history\_}}
+\index{mean\_fitness\_history\_@{mean\_fitness\_history\_}!nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}}
+\doxysubsubsection{\texorpdfstring{mean\_fitness\_history\_}{mean\_fitness\_history\_}}
+{\footnotesize\ttfamily std\+::vector$<$double$>$ nsga2\+::\+NSGA2\+Optimizer\+::mean\+\_\+fitness\+\_\+history\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00215}{215}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
+
+\mbox{\Hypertarget{classnsga2_1_1NSGA2Optimizer_a72b029699c51eb70ee957ef651551252}\label{classnsga2_1_1NSGA2Optimizer_a72b029699c51eb70ee957ef651551252}} 
+\index{nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}!population\_@{population\_}}
+\index{population\_@{population\_}!nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}}
+\doxysubsubsection{\texorpdfstring{population\_}{population\_}}
+{\footnotesize\ttfamily \mbox{\hyperlink{namespacensga2_a39290dffb3965bb004e87e5c07f637c1}{Population\+Ptr}} nsga2\+::\+NSGA2\+Optimizer\+::population\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00195}{195}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
+
+\mbox{\Hypertarget{classnsga2_1_1NSGA2Optimizer_a9a6f33fba4503647e5e289c83317a42c}\label{classnsga2_1_1NSGA2Optimizer_a9a6f33fba4503647e5e289c83317a42c}} 
+\index{nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}!rex\_crossover\_@{rex\_crossover\_}}
+\index{rex\_crossover\_@{rex\_crossover\_}!nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}}
+\doxysubsubsection{\texorpdfstring{rex\_crossover\_}{rex\_crossover\_}}
+{\footnotesize\ttfamily std\+::unique\+\_\+ptr$<$\mbox{\hyperlink{classnsga2_1_1REXCrossover}{REXCrossover}}$>$ nsga2\+::\+NSGA2\+Optimizer\+::rex\+\_\+crossover\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00200}{200}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
+
+\mbox{\Hypertarget{classnsga2_1_1NSGA2Optimizer_af4bb6929334fe2b7156621bdf7275083}\label{classnsga2_1_1NSGA2Optimizer_af4bb6929334fe2b7156621bdf7275083}} 
+\index{nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}!selection\_strategy\_@{selection\_strategy\_}}
+\index{selection\_strategy\_@{selection\_strategy\_}!nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}}
+\doxysubsubsection{\texorpdfstring{selection\_strategy\_}{selection\_strategy\_}}
+{\footnotesize\ttfamily std\+::unique\+\_\+ptr$<$\mbox{\hyperlink{classnsga2_1_1ISelectionStrategy}{ISelection\+Strategy}}$>$ nsga2\+::\+NSGA2\+Optimizer\+::selection\+\_\+strategy\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00203}{203}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
+
+\mbox{\Hypertarget{classnsga2_1_1NSGA2Optimizer_aa57edeb2e76c1c2f918a85033b038808}\label{classnsga2_1_1NSGA2Optimizer_aa57edeb2e76c1c2f918a85033b038808}} 
+\index{nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}!sorting\_algorithm\_@{sorting\_algorithm\_}}
+\index{sorting\_algorithm\_@{sorting\_algorithm\_}!nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}}
+\doxysubsubsection{\texorpdfstring{sorting\_algorithm\_}{sorting\_algorithm\_}}
+{\footnotesize\ttfamily std\+::unique\+\_\+ptr$<$\mbox{\hyperlink{classnsga2_1_1ISortingAlgorithm}{ISorting\+Algorithm}}$>$ nsga2\+::\+NSGA2\+Optimizer\+::sorting\+\_\+algorithm\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00202}{202}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
+
+\mbox{\Hypertarget{classnsga2_1_1NSGA2Optimizer_aeee0b01f755a7d65a671f588c535fa6b}\label{classnsga2_1_1NSGA2Optimizer_aeee0b01f755a7d65a671f588c535fa6b}} 
+\index{nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}!start\_time\_@{start\_time\_}}
+\index{start\_time\_@{start\_time\_}!nsga2::NSGA2Optimizer@{nsga2::NSGA2Optimizer}}
+\doxysubsubsection{\texorpdfstring{start\_time\_}{start\_time\_}}
+{\footnotesize\ttfamily std\+::chrono\+::steady\+\_\+clock\+::time\+\_\+point nsga2\+::\+NSGA2\+Optimizer\+::start\+\_\+time\+\_\+\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00213}{213}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/run/media/a-\/koike/ボリューム/\+DATA/pinns/module/nsga2\+\_\+optimizer/include/\mbox{\hyperlink{nsga2__optimizer_8hpp}{nsga2\+\_\+optimizer.\+hpp}}\item 
+/run/media/a-\/koike/ボリューム/\+DATA/pinns/module/nsga2\+\_\+optimizer/src/\mbox{\hyperlink{nsga2__optimizer_8cpp}{nsga2\+\_\+optimizer.\+cpp}}\end{DoxyCompactItemize}

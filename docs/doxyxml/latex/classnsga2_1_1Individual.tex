@@ -1,0 +1,189 @@
+\hypertarget{classnsga2_1_1Individual}{}\doxysection{nsga2\+::Individual Class Reference}
+\label{classnsga2_1_1Individual}\index{nsga2::Individual@{nsga2::Individual}}
+
+
+{\ttfamily \#include $<$nsga2\+\_\+optimizer.\+hpp$>$}
+
+
+
+Collaboration diagram for nsga2\+::Individual\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=189pt]{classnsga2_1_1Individual__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classnsga2_1_1Individual_a23c5e4f0133f264d2461293aecc980c5}{Individual}} (size\+\_\+t n\+\_\+params)
+\item 
+\mbox{\hyperlink{classnsga2_1_1Individual_afae65a17c7adab1824be396ee3285117}{Individual}} (const std\+::vector$<$ double $>$ \&params)
+\item 
+bool \mbox{\hyperlink{classnsga2_1_1Individual_ac1a07454279ad2a3f682e7bcce5ec563}{dominates}} (const \mbox{\hyperlink{classnsga2_1_1Individual}{Individual}} \&other) const
+\item 
+void \mbox{\hyperlink{classnsga2_1_1Individual_ae3aed14e78a78525b79feb5576b8233f}{reset}} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::vector$<$ double $>$ \mbox{\hyperlink{classnsga2_1_1Individual_a895f4b83e89c061bf9b45921fd7c5a02}{parameters}}
+\item 
+std\+::vector$<$ double $>$ \mbox{\hyperlink{classnsga2_1_1Individual_a833dd8ab67dbe3b5366a569d1c8e1686}{objectives}}
+\item 
+int \mbox{\hyperlink{classnsga2_1_1Individual_a513a879fef7dc5f7fe92d2e06d598793}{rank}}
+\item 
+double \mbox{\hyperlink{classnsga2_1_1Individual_a5c9accb3f0c936654e5c51377847726e}{crowding\+\_\+distance}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00028}{28}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classnsga2_1_1Individual_a23c5e4f0133f264d2461293aecc980c5}\label{classnsga2_1_1Individual_a23c5e4f0133f264d2461293aecc980c5}} 
+\index{nsga2::Individual@{nsga2::Individual}!Individual@{Individual}}
+\index{Individual@{Individual}!nsga2::Individual@{nsga2::Individual}}
+\doxysubsubsection{\texorpdfstring{Individual()}{Individual()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily nsga2\+::\+Individual\+::\+Individual (\begin{DoxyParamCaption}\item[{size\+\_\+t}]{n\+\_\+params }\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00016}{16}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00017\ \ \ \ \ :\ \mbox{\hyperlink{classnsga2_1_1Individual_a895f4b83e89c061bf9b45921fd7c5a02}{parameters}}(n\_params),\ \mbox{\hyperlink{classnsga2_1_1Individual_a513a879fef7dc5f7fe92d2e06d598793}{rank}}(0),\ \mbox{\hyperlink{classnsga2_1_1Individual_a5c9accb3f0c936654e5c51377847726e}{crowding\_distance}}(0.0)\ \{\}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{classnsga2_1_1Individual_afae65a17c7adab1824be396ee3285117}\label{classnsga2_1_1Individual_afae65a17c7adab1824be396ee3285117}} 
+\index{nsga2::Individual@{nsga2::Individual}!Individual@{Individual}}
+\index{Individual@{Individual}!nsga2::Individual@{nsga2::Individual}}
+\doxysubsubsection{\texorpdfstring{Individual()}{Individual()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily nsga2\+::\+Individual\+::\+Individual (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ double $>$ \&}]{params }\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00019}{19}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00020\ \ \ \ \ :\ \mbox{\hyperlink{classnsga2_1_1Individual_a895f4b83e89c061bf9b45921fd7c5a02}{parameters}}(params),\ \mbox{\hyperlink{classnsga2_1_1Individual_a513a879fef7dc5f7fe92d2e06d598793}{rank}}(0),\ \mbox{\hyperlink{classnsga2_1_1Individual_a5c9accb3f0c936654e5c51377847726e}{crowding\_distance}}(0.0)\ \{\}}
+
+\end{DoxyCode}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classnsga2_1_1Individual_ac1a07454279ad2a3f682e7bcce5ec563}\label{classnsga2_1_1Individual_ac1a07454279ad2a3f682e7bcce5ec563}} 
+\index{nsga2::Individual@{nsga2::Individual}!dominates@{dominates}}
+\index{dominates@{dominates}!nsga2::Individual@{nsga2::Individual}}
+\doxysubsubsection{\texorpdfstring{dominates()}{dominates()}}
+{\footnotesize\ttfamily bool nsga2\+::\+Individual\+::dominates (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classnsga2_1_1Individual}{Individual}} \&}]{other }\end{DoxyParamCaption}) const}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00022}{22}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00022\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{keywordtype}{bool}\ at\_least\_one\_better\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00024\ \ \ \ \ }
+\DoxyCodeLine{00025\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{classnsga2_1_1Individual_a833dd8ab67dbe3b5366a569d1c8e1686}{objectives}}.size();\ ++i)\ \{}
+\DoxyCodeLine{00026\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classnsga2_1_1Individual_a833dd8ab67dbe3b5366a569d1c8e1686}{objectives}}[i]\ >\ other.objectives[i])\ \{}
+\DoxyCodeLine{00027\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00028\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00029\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{classnsga2_1_1Individual_a833dd8ab67dbe3b5366a569d1c8e1686}{objectives}}[i]\ <\ other.objectives[i])\ \{}
+\DoxyCodeLine{00030\ \ \ \ \ \ \ \ \ \ \ \ \ at\_least\_one\_better\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00031\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00032\ \ \ \ \ \}}
+\DoxyCodeLine{00033\ \ \ \ \ }
+\DoxyCodeLine{00034\ \ \ \ \ \textcolor{keywordflow}{return}\ at\_least\_one\_better;}
+\DoxyCodeLine{00035\ \}}
+
+\end{DoxyCode}
+Here is the caller graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=325pt]{classnsga2_1_1Individual_ac1a07454279ad2a3f682e7bcce5ec563_icgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{classnsga2_1_1Individual_ae3aed14e78a78525b79feb5576b8233f}\label{classnsga2_1_1Individual_ae3aed14e78a78525b79feb5576b8233f}} 
+\index{nsga2::Individual@{nsga2::Individual}!reset@{reset}}
+\index{reset@{reset}!nsga2::Individual@{nsga2::Individual}}
+\doxysubsubsection{\texorpdfstring{reset()}{reset()}}
+{\footnotesize\ttfamily void nsga2\+::\+Individual\+::reset (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8cpp_source_l00037}{37}} of file \mbox{\hyperlink{nsga2__optimizer_8cpp_source}{nsga2\+\_\+optimizer.\+cpp}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00038\ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1Individual_a513a879fef7dc5f7fe92d2e06d598793}{rank}}\ =\ 0;}
+\DoxyCodeLine{00039\ \ \ \ \ \mbox{\hyperlink{classnsga2_1_1Individual_a5c9accb3f0c936654e5c51377847726e}{crowding\_distance}}\ =\ 0.0;}
+\DoxyCodeLine{00040\ \}}
+
+\end{DoxyCode}
+Here is the caller graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=325pt]{classnsga2_1_1Individual_ae3aed14e78a78525b79feb5576b8233f_icgraph}
+\end{center}
+\end{figure}
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classnsga2_1_1Individual_a5c9accb3f0c936654e5c51377847726e}\label{classnsga2_1_1Individual_a5c9accb3f0c936654e5c51377847726e}} 
+\index{nsga2::Individual@{nsga2::Individual}!crowding\_distance@{crowding\_distance}}
+\index{crowding\_distance@{crowding\_distance}!nsga2::Individual@{nsga2::Individual}}
+\doxysubsubsection{\texorpdfstring{crowding\_distance}{crowding\_distance}}
+{\footnotesize\ttfamily double nsga2\+::\+Individual\+::crowding\+\_\+distance}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00033}{33}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
+
+\mbox{\Hypertarget{classnsga2_1_1Individual_a833dd8ab67dbe3b5366a569d1c8e1686}\label{classnsga2_1_1Individual_a833dd8ab67dbe3b5366a569d1c8e1686}} 
+\index{nsga2::Individual@{nsga2::Individual}!objectives@{objectives}}
+\index{objectives@{objectives}!nsga2::Individual@{nsga2::Individual}}
+\doxysubsubsection{\texorpdfstring{objectives}{objectives}}
+{\footnotesize\ttfamily std\+::vector$<$double$>$ nsga2\+::\+Individual\+::objectives}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00031}{31}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
+
+\mbox{\Hypertarget{classnsga2_1_1Individual_a895f4b83e89c061bf9b45921fd7c5a02}\label{classnsga2_1_1Individual_a895f4b83e89c061bf9b45921fd7c5a02}} 
+\index{nsga2::Individual@{nsga2::Individual}!parameters@{parameters}}
+\index{parameters@{parameters}!nsga2::Individual@{nsga2::Individual}}
+\doxysubsubsection{\texorpdfstring{parameters}{parameters}}
+{\footnotesize\ttfamily std\+::vector$<$double$>$ nsga2\+::\+Individual\+::parameters}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00030}{30}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
+
+\mbox{\Hypertarget{classnsga2_1_1Individual_a513a879fef7dc5f7fe92d2e06d598793}\label{classnsga2_1_1Individual_a513a879fef7dc5f7fe92d2e06d598793}} 
+\index{nsga2::Individual@{nsga2::Individual}!rank@{rank}}
+\index{rank@{rank}!nsga2::Individual@{nsga2::Individual}}
+\doxysubsubsection{\texorpdfstring{rank}{rank}}
+{\footnotesize\ttfamily int nsga2\+::\+Individual\+::rank}
+
+
+
+Definition at line \mbox{\hyperlink{nsga2__optimizer_8hpp_source_l00032}{32}} of file \mbox{\hyperlink{nsga2__optimizer_8hpp_source}{nsga2\+\_\+optimizer.\+hpp}}.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/run/media/a-\/koike/ボリューム/\+DATA/pinns/module/nsga2\+\_\+optimizer/include/\mbox{\hyperlink{nsga2__optimizer_8hpp}{nsga2\+\_\+optimizer.\+hpp}}\item 
+/run/media/a-\/koike/ボリューム/\+DATA/pinns/module/nsga2\+\_\+optimizer/src/\mbox{\hyperlink{nsga2__optimizer_8cpp}{nsga2\+\_\+optimizer.\+cpp}}\end{DoxyCompactItemize}

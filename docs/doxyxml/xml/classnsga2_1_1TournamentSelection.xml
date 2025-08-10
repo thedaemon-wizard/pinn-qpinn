@@ -1,0 +1,98 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.6" xml:lang="en-US">
+  <compounddef id="classnsga2_1_1TournamentSelection" kind="class" language="C++" prot="public">
+    <compoundname>nsga2::TournamentSelection</compoundname>
+    <basecompoundref refid="classnsga2_1_1ISelectionStrategy" prot="public" virt="non-virtual">nsga2::ISelectionStrategy</basecompoundref>
+    <includes refid="nsga2__optimizer_8hpp" local="no">nsga2_optimizer.hpp</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classnsga2_1_1TournamentSelection_1aa96672dd08d890082d1ac556f87a6be1" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>std::vector&lt; <ref refid="namespacensga2_1a9338ac68ee391d4b50ef5d878d0d89b3" kindref="member">IndividualPtr</ref> &gt;</type>
+        <definition>std::vector&lt; IndividualPtr &gt; nsga2::TournamentSelection::select</definition>
+        <argsstring>(const Population &amp;population, size_t n_select, std::mt19937 &amp;gen) override</argsstring>
+        <name>select</name>
+        <qualifiedname>nsga2::TournamentSelection::select</qualifiedname>
+        <reimplements refid="classnsga2_1_1ISelectionStrategy_1a278f8ce70ef2ab3483adcd2e16ca8508">select</reimplements>
+        <param>
+          <type>const <ref refid="classnsga2_1_1Population" kindref="compound">Population</ref> &amp;</type>
+          <declname>population</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>n_select</declname>
+        </param>
+        <param>
+          <type>std::mt19937 &amp;</type>
+          <declname>gen</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="183" column="17" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/src/nsga2_optimizer.cpp" bodystart="556" bodyend="578"/>
+        <references refid="classnsga2_1_1TournamentSelection_1a68e37a8b15de35977d465fb20b12c3eb" compoundref="nsga2__optimizer_8cpp" startline="550" endline="554">crowding_operator</references>
+        <references refid="classnsga2_1_1Population_1a872435fe0d8cdca441202595d77a2450" compoundref="nsga2__optimizer_8cpp" startline="58" endline="60">nsga2::Population::size</references>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classnsga2_1_1TournamentSelection_1a68e37a8b15de35977d465fb20b12c3eb" prot="private" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool nsga2::TournamentSelection::crowding_operator</definition>
+        <argsstring>(const IndividualPtr &amp;a, const IndividualPtr &amp;b) const</argsstring>
+        <name>crowding_operator</name>
+        <qualifiedname>nsga2::TournamentSelection::crowding_operator</qualifiedname>
+        <param>
+          <type>const <ref refid="namespacensga2_1a9338ac68ee391d4b50ef5d878d0d89b3" kindref="member">IndividualPtr</ref> &amp;</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespacensga2_1a9338ac68ee391d4b50ef5d878d0d89b3" kindref="member">IndividualPtr</ref> &amp;</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="188" column="10" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/src/nsga2_optimizer.cpp" bodystart="550" bodyend="554"/>
+        <referencedby refid="classnsga2_1_1TournamentSelection_1aa96672dd08d890082d1ac556f87a6be1" compoundref="nsga2__optimizer_8cpp" startline="556" endline="578">select</referencedby>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>nsga2::ISelectionStrategy</label>
+        <link refid="classnsga2_1_1ISelectionStrategy"/>
+      </node>
+      <node id="1">
+        <label>nsga2::TournamentSelection</label>
+        <link refid="classnsga2_1_1TournamentSelection"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>nsga2::ISelectionStrategy</label>
+        <link refid="classnsga2_1_1ISelectionStrategy"/>
+      </node>
+      <node id="1">
+        <label>nsga2::TournamentSelection</label>
+        <link refid="classnsga2_1_1TournamentSelection"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" line="181" column="1" bodyfile="/run/media/a-koike/ボリューム/DATA/pinns/module/nsga2_optimizer/include/nsga2_optimizer.hpp" bodystart="181" bodyend="189"/>
+    <listofallmembers>
+      <member refid="classnsga2_1_1TournamentSelection_1a68e37a8b15de35977d465fb20b12c3eb" prot="private" virt="non-virtual"><scope>nsga2::TournamentSelection</scope><name>crowding_operator</name></member>
+      <member refid="classnsga2_1_1TournamentSelection_1aa96672dd08d890082d1ac556f87a6be1" prot="public" virt="virtual"><scope>nsga2::TournamentSelection</scope><name>select</name></member>
+      <member refid="classnsga2_1_1ISelectionStrategy_1affef79b97446640a8776a5ed88f68c17" prot="public" virt="virtual"><scope>nsga2::TournamentSelection</scope><name>~ISelectionStrategy</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>
