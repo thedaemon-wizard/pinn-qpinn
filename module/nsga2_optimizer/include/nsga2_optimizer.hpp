@@ -129,14 +129,25 @@ public:
                                            const std::vector<double>& upper_bounds);
 };
 
-// REX (Real-coded Ensemble Crossover) operator
+// Add this enum before REXCrossover class definition
+enum class REXDistributionType {
+    Normal,      // Normal distribution
+    Uniform,     // Uniform distribution  
+    VShaped      // V-shaped distribution
+};
+
+// Modified REX (Real-coded Ensemble Crossover) operator
 class REXCrossover {
 private:
-    double xi_;  // Extension rate parameter
     std::mt19937 gen_;
+    REXDistributionType dist_type_;  // Distribution type for REX
+    
+    // Generate V-shaped distributed random number
+    double generateVShapedRandom(double a);
     
 public:
-    REXCrossover(double xi = 1.2, unsigned int seed = 42);
+    REXCrossover(unsigned int seed = 42, 
+                 REXDistributionType dist_type = REXDistributionType::VShaped);
     std::vector<IndividualPtr> crossover(const std::vector<IndividualPtr>& parents,
                                         size_t n_children);
 };
@@ -146,9 +157,10 @@ struct NSGA2Config {
     size_t population_size = 100;
     size_t max_generations = 1000;
     size_t n_objectives = 2;
+    size_t n_parameters = 0;  // Add this: explicit parameter count
     std::vector<double> lower_bounds;
     std::vector<double> upper_bounds;
-    double rex_xi = 1.2;
+    REXDistributionType dist_type = REXDistributionType::VShaped;
     size_t n_parents = 3;
     size_t n_children = 10;
     unsigned int random_seed = 42;
@@ -193,6 +205,10 @@ private:
     
     // Core NSGA-II operations
     void environmental_selection(Population& combined_pop, Population& new_pop);
+
+    // Helper method for population transformation
+    void transformPopulation(size_t old_n_params, size_t new_n_params,
+                           const std::vector<std::pair<size_t, size_t>>& parameter_mapping);
     
     // Statistics tracking
     std::chrono::steady_clock::time_point start_time_;
@@ -231,6 +247,20 @@ public:
         const std::vector<ObjectiveFunction>& objectives,
         const std::function<std::vector<std::vector<double>>(const std::vector<std::vector<double>>&)>& batch_evaluator
     );
+
+
+    // Dynamic parameter space adaptation
+    void adaptParameterSpace(size_t new_n_params, 
+                       const std::vector<double>& new_lower_bounds,
+                       const std::vector<double>& new_upper_bounds,
+                       const std::vector<std::pair<size_t, size_t>>& parameter_mapping = {});
+
+    
+    // Get current parameter space size
+    size_t getParameterSpaceSize() const { return config_.n_parameters; }  // Use n_parameters instead of bounds.size()
+    
+    // Add method to set parameter count
+    void setParameterCount(size_t n_params) { config_.n_parameters = n_params; }
 };
 
 } // namespace nsga2
