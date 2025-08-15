@@ -68,10 +68,10 @@ try:
         'population_size_pinn': 100,
         'population_size_qpinn': 100,
         'max_generations_pinn': 1000,
-        'max_generations_qpinn': 100,
-        'n_children_pinn': 50,
-        'n_children_qpinn': 50,
-        'n_parents': 10,
+        'max_generations_qpinn': 200,
+        'n_children_pinn': 100,
+        'n_children_qpinn': 100,
+        'n_parents': 50,
         'random_seed': 42
     }
 except ImportError:
@@ -1131,44 +1131,34 @@ class MultiObjectiveBayesianCircuitOptimizer:
         objectives = []
         
         # Existing 8 objective functions
-        noise_scale = 1e-4
         
         # 1-8. Existing objective functions (listed without omission)
         hw_efficiency = self._compute_hardware_efficiency_scientific(template)
-        hw_efficiency += np.random.normal(0, noise_scale)
         objectives.append(max(0.0, min(1.0, hw_efficiency)))
         
         noise_resilience = self._compute_noise_resilience_scientific(template)
-        noise_resilience += np.random.normal(0, noise_scale)
         objectives.append(max(0.0, min(1.0, noise_resilience)))
         
         expressivity = self._compute_expressivity_scientific(template)
-        expressivity += np.random.normal(0, noise_scale)
         objectives.append(max(0.0, min(1.0, expressivity)))
         
         mitigation = self._compute_mitigation_compatibility_scientific(template)
-        mitigation += np.random.normal(0, noise_scale)
         objectives.append(max(0.0, min(1.0, mitigation)))
         
         trainability = self._compute_trainability_scientific(template)
-        trainability += np.random.normal(0, noise_scale)
         objectives.append(max(0.0, min(1.0, trainability)))
         
         entanglement = self._compute_entanglement_capability_scientific(template)
-        entanglement += np.random.normal(0, noise_scale)
         objectives.append(max(0.0, min(1.0, entanglement)))
         
         depth_efficiency = self._compute_depth_efficiency_scientific(template)
-        depth_efficiency += np.random.normal(0, noise_scale)
         objectives.append(max(0.0, min(1.0, depth_efficiency)))
         
         param_efficiency = self._compute_parameter_efficiency_scientific(template)
-        param_efficiency += np.random.normal(0, noise_scale)
         objectives.append(max(0.0, min(1.0, param_efficiency)))
         
         # 9. Energy estimation quality (newly added)
         energy_quality = self._compute_energy_estimation_quality_scientific(template, training_data)
-        energy_quality += np.random.normal(0, noise_scale)
         objectives.append(max(0.0, min(1.0, energy_quality)))
         
         return torch.tensor(objectives, dtype=torch.float64).to(self.device)
@@ -8726,17 +8716,18 @@ class GQEQuantumPINN:
         # Update config
         config.lower_bounds = new_lower_bounds
         config.upper_bounds = new_upper_bounds
+        config.n_parameters = len(new_lower_bounds)  # Set parameter count explicitly
         
         # If optimizer exists, adapt its parameter space
         if optimizer is not None:
-            new_size = len(new_lower_bounds)
+            new_size = config.n_parameters
             
             if current_size != new_size:
                 # Create parameter mapping (old_index, new_index) pairs
                 parameter_mapping = []
                 
                 # Only map non-circuit parameters if they exist in both old and new spaces
-                # Output processing parameters (7 params)
+                # Output processing parameters 
                 for i in range(len(self.output_param_dict)):
                     old_idx = old_n_circuit + i
                     new_idx = n_circuit_params + i
@@ -9732,13 +9723,15 @@ class PINN(nn.Module):
         elif self.use_fno and self.fno_memory_efficient:
             # Memory-efficient FNO projection
             self.fno_projection = nn.Sequential(
-                                nn.Linear(20, 128),
+                                nn.Linear(20, 32),
                                 nn.Tanh(),
-                                nn.Linear(128, 128),
+                                nn.Linear(32, 64),
                                 nn.Tanh(),
-                                nn.Linear(128, 64),
+                                nn.Linear(64, 64),
                                 nn.Tanh(),
-                                nn.Linear(64, 1)
+                                nn.Linear(64, 32),
+                                nn.Tanh(),
+                                nn.Linear(32, 1)
                             )
 
             
@@ -10143,7 +10136,7 @@ class PINN(nn.Module):
 
         # Initial condition points with dense sampling near peak
         for i in range(n_initial):
-            if i < int(0.7 * n_initial):
+            if i < int(0.8 * n_initial):
                 # Near peak
                 x = float(torch.normal(L/2, sigma_0, (1,)).clamp(0, L))
                 y = float(torch.normal(L/2, sigma_0, (1,)).clamp(0, L))
@@ -10428,6 +10421,8 @@ class PINN(nn.Module):
         if self.use_hard_constraints:
             config.lower_bounds += [epsilon_bounds[0]]
             config.upper_bounds += [epsilon_bounds[1]]
+
+        config.n_parameters = len(config.lower_bounds)  # Set parameter count explicitly
         config.n_parents = nsga2_config['n_parents']
         config.n_children = nsga2_config['n_children_pinn']
         config.random_seed = nsga2_config['random_seed']
@@ -11126,7 +11121,7 @@ def train_pinn_nsga2(use_hard_constraints=True, boundary_epsilon=0.1, use_fourie
     
     # Train with NSGA-II using unified settings
     # Reduce samples if using full FNO to avoid memory issues
-    n_training_samples = 40000 if (use_fno and not fno_memory_efficient) else 80000
+    n_training_samples = 50000 if (use_fno and not fno_memory_efficient) else 100000
     
     state_dict, losses, training_time = model.train_with_nsga2(
         n_samples=n_training_samples, 
@@ -11595,6 +11590,8 @@ def main():
                 # Restore additional attributes
                 if 'pareto_front_history' in pinn_checkpoint:
                     pinn_model.pareto_front_history = pinn_checkpoint['pareto_front_history']
+                if 'objective_history' in pinn_checkpoint:
+                    pinn_model.objective_history = pinn_checkpoint['objective_history']
                 
                 print(f"✓ PINN model loaded successfully")
                 print(f"  - Training time: {pinn_time:.2f} seconds")
@@ -11740,7 +11737,7 @@ def main():
             if NSGA2_AVAILABLE:
                 print("Using NSGA-II multi-objective optimization for QPINN")
                 _, qnn_losses, qnn_time = qsolver.train_with_nsga2(
-                    n_samples=20000,
+                    n_samples=100000,
                     nsga2_config=NSGA2_COMMON_CONFIG
                 )
             else:
