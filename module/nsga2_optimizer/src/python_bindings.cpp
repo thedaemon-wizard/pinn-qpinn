@@ -63,16 +63,32 @@ PYBIND11_MODULE(nsga2_optimizer, m) {
     py::enum_<nsga2::CrowdingDistanceFactory::Type>(m, "CrowdingDistanceType")
         .value("Traditional", nsga2::CrowdingDistanceFactory::Type::Traditional)
         .value("EquidistantSelection", nsga2::CrowdingDistanceFactory::Type::EquidistantSelection);
+
     
+    py::enum_<nsga2::REXDistributionType>(m, "REXDistributionType")
+        .value("VShaped", nsga2::REXDistributionType::VShaped)
+        .value("Uniform", nsga2::REXDistributionType::Uniform)
+        .value("Normal", nsga2::REXDistributionType::Normal);
+
+    py::class_<nsga2::REXCrossover>(m, "REXCrossover")
+    .def(py::init<unsigned int, nsga2::REXDistributionType>(), 
+         py::arg("seed") = 42,
+         py::arg("dist_type") = nsga2::REXDistributionType::VShaped,
+         "REX crossover with selectable distribution type (default: V-shaped)")
+    .def("crossover", &nsga2::REXCrossover::crossover);
+
+    
+
     // NSGA2Config
     py::class_<nsga2::NSGA2Config>(m, "NSGA2Config")
         .def(py::init<>())
         .def_readwrite("population_size", &nsga2::NSGA2Config::population_size)
         .def_readwrite("max_generations", &nsga2::NSGA2Config::max_generations)
         .def_readwrite("n_objectives", &nsga2::NSGA2Config::n_objectives)
+        .def_readwrite("n_parameters", &nsga2::NSGA2Config::n_parameters)
         .def_readwrite("lower_bounds", &nsga2::NSGA2Config::lower_bounds)
         .def_readwrite("upper_bounds", &nsga2::NSGA2Config::upper_bounds)
-        .def_readwrite("rex_xi", &nsga2::NSGA2Config::rex_xi)
+        .def_readwrite("dist_type", &nsga2::NSGA2Config::dist_type)
         .def_readwrite("n_parents", &nsga2::NSGA2Config::n_parents)
         .def_readwrite("n_children", &nsga2::NSGA2Config::n_children)
         .def_readwrite("random_seed", &nsga2::NSGA2Config::random_seed)
@@ -84,6 +100,20 @@ PYBIND11_MODULE(nsga2_optimizer, m) {
     py::class_<nsga2::NSGA2Optimizer>(m, "NSGA2Optimizer")
         .def(py::init<const nsga2::NSGA2Config&>())
         
+
+        .def("adaptParameterSpace", &nsga2::NSGA2Optimizer::adaptParameterSpace,
+             py::arg("new_n_params"),
+             py::arg("new_lower_bounds"), 
+             py::arg("new_upper_bounds"),
+             py::arg("parameter_mapping") = std::vector<std::pair<size_t, size_t>>{},
+             "Adapt optimizer to new parameter space with population transformation")
+
+        .def("getParameterSpaceSize", &nsga2::NSGA2Optimizer::getParameterSpaceSize,
+             "Get current parameter space size")
+        // In NSGA2Optimizer binding:
+        .def("setParameterCount", &nsga2::NSGA2Optimizer::setParameterCount,
+            "Set the parameter count explicitly")
+
         // Strategy setters
         .def("setCrowdingDistanceCalculator", 
              py::overload_cast<std::shared_ptr<nsga2::ICrowdingDistanceCalculator>>(

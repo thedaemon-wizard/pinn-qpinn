@@ -83,6 +83,125 @@ std::vector<IndividualPtr>::const_iterator Population::end() const {
     return individuals_.end();
 }
 
+// Add these implementations to NSGA2Optimizer
+void NSGA2Optimizer::adaptParameterSpace(size_t new_n_params,
+                                        const std::vector<double>& new_lower_bounds,
+                                        const std::vector<double>& new_upper_bounds,
+                                        const std::vector<std::pair<size_t, size_t>>& parameter_mapping) {
+    /*
+     * Dynamic parameter space adaptation based on:
+     * - "Variable-Length Chromosome Genetic Algorithm" (Sensors 2021)
+     * - "Dimensionality reduction in evolutionary algorithms" (Swarm Evol. Comput. 2019)
+     * 
+     * parameter_mapping: pairs of (old_index, new_index) for preserved parameters
+     */
+    
+    // Validate new bounds
+    if (new_lower_bounds.size() != new_n_params || new_upper_bounds.size() != new_n_params) {
+        throw std::invalid_argument("New bounds size must match new parameter count");
+    }
+    
+    size_t old_n_params = config_.n_parameters;  // Use n_parameters instead of bounds.size()
+    
+    // Update configuration with new bounds and parameter count
+    config_.lower_bounds = new_lower_bounds;
+    config_.upper_bounds = new_upper_bounds;
+    config_.n_parameters = new_n_params;  // Update parameter count
+    
+    // Transform existing population if size changes
+    if (old_n_params != new_n_params && population_) {
+        transformPopulation(old_n_params, new_n_params, parameter_mapping);
+    }
+    
+    if (config_.verbose) {
+        std::cout << "Parameter space adapted: " << old_n_params << " -> " << new_n_params << " parameters" << std::endl;
+        std::cout << "Preserved mappings: " << parameter_mapping.size() << std::endl;
+    }
+}
+
+void NSGA2Optimizer::transformPopulation(size_t old_n_params, size_t new_n_params,
+                                       const std::vector<std::pair<size_t, size_t>>& parameter_mapping) {
+    /*
+     * Population transformation strategy inspired by:
+     * - "Multi-space evolutionary search" (Neural Comput. Appl. 2022)
+     * - "Dynamic multi-objective optimization for complex changes" (Knowl. Based Syst. 2021)
+     */
+    
+    if (!population_ || population_->size() == 0) return;
+    
+    // Bounds should already be updated at this point
+    if (config_.lower_bounds.size() != new_n_params || config_.upper_bounds.size() != new_n_params) {
+        std::cerr << "Error: Bounds size mismatch - lower_bounds.size()=" << config_.lower_bounds.size() 
+                  << ", upper_bounds.size()=" << config_.upper_bounds.size() 
+                  << ", new_n_params=" << new_n_params << std::endl;
+        throw std::runtime_error("Bounds not properly set before population transformation");
+    }
+    
+    // Create new population with transformed individuals
+    auto new_population = std::make_shared<Population>();
+    
+    // Validate parameter mappings
+    for (const auto& mapping : parameter_mapping) {
+        if (mapping.first >= old_n_params) {
+            std::cerr << "Error: Invalid old index " << mapping.first 
+                      << " for old parameter space size " << old_n_params << std::endl;
+            throw std::out_of_range("Invalid old parameter index in mapping");
+        }
+        if (mapping.second >= new_n_params) {
+            std::cerr << "Error: Invalid new index " << mapping.second 
+                      << " for new parameter space size " << new_n_params << std::endl;
+            throw std::out_of_range("Invalid new parameter index in mapping");
+        }
+    }
+    
+    // Generate new parameters using Latin Hypercube Sampling
+    auto lhs_samples = lhs_sampler_->sample(
+        population_->size(), 
+        new_n_params,
+        config_.lower_bounds, 
+        config_.upper_bounds
+    );
+    
+    // Transform each individual
+    for (size_t i = 0; i < population_->size(); ++i) {
+        auto& old_ind = (*population_)[i];
+        
+        // Create new individual with new parameter space size
+        auto new_ind = std::make_shared<Individual>(new_n_params);
+        
+        // Initialize with LHS sample
+        new_ind->parameters = lhs_samples[i];
+        
+        // Copy preserved parameters according to mapping
+        for (const auto& mapping : parameter_mapping) {
+            size_t old_idx = mapping.first;
+            size_t new_idx = mapping.second;
+            
+            // Safety check for old individual parameter access
+            if (old_idx < old_ind->parameters.size()) {
+                new_ind->parameters[new_idx] = old_ind->parameters[old_idx];
+            } else {
+                std::cerr << "Warning: Old individual " << i << " has fewer parameters than expected" << std::endl;
+            }
+        }
+        
+        // Clear objectives for re-evaluation
+        new_ind->objectives.clear();
+        new_ind->rank = 0;
+        new_ind->crowding_distance = 0.0;
+        
+        new_population->add(new_ind);
+    }
+    
+    // Replace old population
+    population_ = new_population;
+    
+    if (config_.verbose) {
+        std::cout << "Population transformation complete using LHS. New population size: " 
+                  << new_population->size() << " with " << new_n_params << " parameters each" << std::endl;
+    }
+}
+
 // Traditional crowding distance implementation
 void TraditionalCrowdingDistance::calculate(std::vector<IndividualPtr>& front) {
     size_t n = front.size();
@@ -325,21 +444,43 @@ std::vector<std::vector<double>> LatinHypercubeSampler::sample(
 }
 
 // REX Crossover implementation
-REXCrossover::REXCrossover(double xi, unsigned int seed) 
-    : xi_(xi), gen_(seed) {}
+REXCrossover::REXCrossover(unsigned int seed, REXDistributionType dist_type) 
+    : gen_(seed), dist_type_(dist_type) {}
+
+// In nsga2_optimizer.cpp
+
+double REXCrossover::generateVShapedRandom(double a) {
+    std::uniform_real_distribution<> dist(0.0, 1.0);
+    double u = dist(gen_);
+    
+    // V-shaped distribution: f(x) = |x|/a² for x in [-a, a]
+    // CDF: F(x) = 1/2 - x²/(2a²) for x < 0
+    //      F(x) = 1/2 + x²/(2a²) for x ≥ 0
+    // Inverse transform:
+    if (u < 0.5) {
+        // Left side: x = -a*sqrt(1-2u)
+        return -a * std::sqrt(1.0 - 2.0 * u);
+    } else {
+        // Right side: x = a*sqrt(2u-1)
+        return a * std::sqrt(2.0 * u - 1.0);
+    }
+}
 
 std::vector<IndividualPtr> REXCrossover::crossover(
     const std::vector<IndividualPtr>& parents,
     size_t n_children) {
-    
+    /*
+        References:The Frontiers of Real-coded Genetic Algorithms (2009)
+    */
     if (parents.size() < 2) {
         throw std::invalid_argument("REX crossover requires at least 2 parents");
     }
     
     size_t n_dims = parents[0]->parameters.size();
+    size_t n_parents = parents.size();
     std::vector<IndividualPtr> children;
     
-    // Calculate center of mass
+    // Calculate center of mass (xg in the PDF)
     std::vector<double> center(n_dims, 0.0);
     for (const auto& parent : parents) {
         for (size_t i = 0; i < n_dims; ++i) {
@@ -347,36 +488,49 @@ std::vector<IndividualPtr> REXCrossover::crossover(
         }
     }
     for (double& c : center) {
-        c /= parents.size();
+        c /= n_parents;
     }
     
-    // Generate children
-    std::uniform_real_distribution<> dist(0.0, 1.0);
-    
+    // Generate children according to REX(φ,n+k) from the PDF
     for (size_t c = 0; c < n_children; ++c) {
         auto child = std::make_shared<Individual>(n_dims);
         
-        // Generate weights
-        std::vector<double> weights(parents.size());
-        double sum_weights = 0.0;
-        
-        for (size_t i = 0; i < parents.size(); ++i) {
-            weights[i] = dist(gen_);
-            sum_weights += weights[i];
-        }
-        
-        // Normalize weights
-        for (double& w : weights) {
-            w /= sum_weights;
-        }
-        
-        // Create child
+        // Initialize with center
         for (size_t d = 0; d < n_dims; ++d) {
             child->parameters[d] = center[d];
+        }
+        
+        // Add deviations using specified distribution
+        if (dist_type_ == REXDistributionType::VShaped) {
+            // V-shaped distribution: a = sqrt(2/(n+k)) as stated in PDF
+            double a = std::sqrt(2.0 / n_parents);
             
-            for (size_t p = 0; p < parents.size(); ++p) {
-                child->parameters[d] += xi_ * weights[p] * 
-                    (parents[p]->parameters[d] - center[d]);
+            for (size_t p = 0; p < n_parents; ++p) {
+                double xi = generateVShapedRandom(a);
+                for (size_t d = 0; d < n_dims; ++d) {
+                    child->parameters[d] += xi * (parents[p]->parameters[d] - center[d]);
+                }
+            }
+        } else if (dist_type_ == REXDistributionType::Normal) {
+            // Normal distribution N(0, σ²) where σ² = 1/(n+k)
+            std::normal_distribution<> normal_dist(0.0, std::sqrt(1.0 / n_parents));
+            
+            for (size_t p = 0; p < n_parents; ++p) {
+                double xi = normal_dist(gen_);
+                for (size_t d = 0; d < n_dims; ++d) {
+                    child->parameters[d] += xi * (parents[p]->parameters[d] - center[d]);
+                }
+            }
+        } else {  // Uniform distribution
+            // Uniform distribution U(-a, a) where a = sqrt(3/(n+k)) for variance = 1/(n+k)
+            double a = std::sqrt(3.0 / n_parents);
+            std::uniform_real_distribution<> uniform_dist(-a, a);
+            
+            for (size_t p = 0; p < n_parents; ++p) {
+                double xi = uniform_dist(gen_);
+                for (size_t d = 0; d < n_dims; ++d) {
+                    child->parameters[d] += xi * (parents[p]->parameters[d] - center[d]);
+                }
             }
         }
         
@@ -423,7 +577,7 @@ NSGA2Optimizer::NSGA2Optimizer(const NSGA2Config& config)
     
     // Initialize components
     lhs_sampler_ = std::make_unique<LatinHypercubeSampler>(config.random_seed);
-    rex_crossover_ = std::make_unique<REXCrossover>(config.rex_xi, config.random_seed + 1);
+    rex_crossover_ = std::make_unique<REXCrossover>(config.random_seed + 1, config.dist_type);
     crowding_calculator_ = CrowdingDistanceFactory::create(config.crowding_type, config.population_size);
     sorting_algorithm_ = std::make_unique<FastNonDominatedSort>();
     selection_strategy_ = std::make_unique<TournamentSelection>();
@@ -434,7 +588,7 @@ void NSGA2Optimizer::setCrowdingDistanceCalculator(std::unique_ptr<ICrowdingDist
 }
 
 void NSGA2Optimizer::setCrowdingDistanceCalculator(std::shared_ptr<ICrowdingDistanceCalculator> calculator) {
-    // shared_ptrからunique_ptrを作成（コピーを作成）
+    // Create a unique_ptr from a shared_ptr (create a copy)
     if (auto* traditional = dynamic_cast<TraditionalCrowdingDistance*>(calculator.get())) {
         crowding_calculator_ = std::make_unique<TraditionalCrowdingDistance>(*traditional);
     } else if (auto* equidistant = dynamic_cast<EquidistantSelectionCrowdingDistance*>(calculator.get())) {
@@ -529,7 +683,7 @@ NSGA2Optimizer::optimize(const std::vector<ObjectiveFunction>& objectives,
     best_fitness_ = std::numeric_limits<double>::infinity();
     current_generation_ = 0;
     
-    size_t n_params = config_.lower_bounds.size();
+    size_t n_params = config_.n_parameters;  // Use n_parameters instead of lower_bounds.size()
     
     // Initialize population using LHS
     auto initial_params = lhs_sampler_->sample(
@@ -551,11 +705,11 @@ NSGA2Optimizer::optimize(const std::vector<ObjectiveFunction>& objectives,
     evaluate_batch(initial_individuals, objectives, batch_evaluator);
     
     // Main evolution loop
-    for (size_t gen = 0; gen < config_.max_generations; ++gen) {
+    for (size_t gen = 0; gen <= config_.max_generations; ++gen) {
         current_generation_ = gen;
         
         // Calculate statistics
-        double min_fitness = std::numeric_limits<double>::infinity();
+        double min_fitness = std::numeric_limits<double>::max();
         double sum_fitness = 0.0;
         
         for (const auto& ind : *population_) {
@@ -586,8 +740,8 @@ NSGA2Optimizer::optimize(const std::vector<ObjectiveFunction>& objectives,
             std::cout << "Elapsed time: " << elapsed << " seconds" << std::endl;
             std::cout << "Crowding distance method: " << crowding_calculator_->getName() << std::endl;
             
-            if (gen > config_.progress_interval && best_fitness_history_.size() > config_.progress_interval) {
-                double old_fitness = best_fitness_history_[gen - config_.progress_interval];
+            if (gen >= config_.progress_interval && best_fitness_history_.size() >= config_.progress_interval) {
+                double old_fitness = std::min(best_fitness_history_[gen - config_.progress_interval], std::numeric_limits<double>::max());
                 double improvement = (old_fitness - min_fitness) / old_fitness * 100.0;
                 std::cout << "Improvement (" << config_.progress_interval << " gen): " << improvement << "%" << std::endl;
             }
@@ -638,7 +792,41 @@ NSGA2Optimizer::optimize(const std::vector<ObjectiveFunction>& objectives,
         
         // Callback
         if (callback) {
+            // Store current parameter size before callback
+            size_t param_size_before = config_.n_parameters;
+            
             callback(gen, *population_);
+            
+            // Check if parameter space was changed during callback
+            size_t param_size_after = config_.n_parameters;
+            if (param_size_before != param_size_after) {
+                std::cout << "Parameter space changed during callback: " 
+                        << param_size_before << " -> " << param_size_after << std::endl;
+                
+                // Verify population consistency
+                bool all_consistent = true;
+                for (size_t i = 0; i < population_->size(); ++i) {
+                    if ((*population_)[i]->parameters.size() != param_size_after) {
+                        std::cerr << "ERROR: Individual " << i << " has inconsistent size after callback" << std::endl;
+                        all_consistent = false;
+                    }
+                }
+                
+                if (!all_consistent) {
+                    throw std::runtime_error("Population inconsistency after parameter space change");
+                }
+                
+                // Re-evaluate population immediately
+                std::cout << "Re-evaluating population after parameter space change" << std::endl;
+                std::vector<IndividualPtr> individuals_to_evaluate;
+                for (auto& ind : *population_) {
+                    individuals_to_evaluate.push_back(ind);
+                }
+                evaluate_batch(individuals_to_evaluate, objectives, batch_evaluator);
+                
+                // Continue with the current generation
+                std::cout << "Continuing with current generation after re-evaluation" << std::endl;
+            }
         }
     }
     
