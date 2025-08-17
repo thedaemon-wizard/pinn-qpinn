@@ -47,6 +47,8 @@ try:
     from botorch.utils.multi_objective.scalarization import get_chebyshev_scalarization
     from botorch.utils.sampling import sample_simplex
     from botorch.fit import fit_gpytorch_mll
+    from botorch.models.transforms.input import Normalize
+    from botorch.models.transforms.outcome import Standardize
     from gpytorch.mlls import ExactMarginalLogLikelihood
     print("BoTorch/GPyTorch available")
     BOTORCH_AVAILABLE = True
@@ -69,14 +71,25 @@ try:
         'population_size_qpinn': 100,
         'max_generations_pinn': 1000,
         'max_generations_qpinn': 200,
-        'n_children_pinn': 100,
-        'n_children_qpinn': 100,
+        'n_children_pinn': 50,
+        'n_children_qpinn': 50,
         'n_parents': 50,
         'random_seed': 42
     }
 except ImportError:
     print("Warning: NSGA-II optimization not available.")
     NSGA2_AVAILABLE = False
+
+# Try importing Braket plugin
+try:
+    import boto3
+    from braket.aws import AwsDevice, AwsSession
+    import braket.pennylane_plugin
+    BRAKET_AVAILABLE = True
+except ImportError:
+    BRAKET_AVAILABLE = False
+    warnings.warn("Amazon Braket PennyLane plugin not installed. Install with: pip install amazon-braket-pennylane-plugin")
+
 
 # Suppress warnings
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -147,6 +160,332 @@ class QuantumCircuitTemplate:
     param_efficiency: float
     metadata: Dict[str, Any] = field(default_factory=dict)
 
+@dataclass
+class QPUConfig:
+    """Configuration for a specific QPU device"""
+    arn: str
+    shots: Optional[int]
+    poll_timeout_seconds: int = 432000
+    poll_interval_seconds: int = 1
+    noise_params: Optional[Dict[str, float]] = None
+    region: Optional[str] = None
+
+#================================================
+# QuantumDeviceManager
+#================================================
+
+class QuantumDeviceManager:
+    """
+    Manages quantum device creation and configuration for both simulators and QPUs
+    Handles Amazon Braket QPU connections with proper error handling
+    """
+    
+    def __init__(self, config_file: str = "braket_config.json"):
+        """
+        Initialize the Quantum Device Manager
+        
+        Args:
+            config_file: Path to JSON configuration file
+        """
+        self.config = self._load_config(config_file)
+        self.aws_session = None
+        self.device_cache = {}
+        self.current_device = None
+        self.current_device_type = "simulator"
+        
+        # Initialize AWS session if credentials are provided
+        if BRAKET_AVAILABLE:
+            self._initialize_aws_session()
+    
+    def _load_config(self, config_file: str) -> Dict:
+        """Load configuration from JSON file"""
+        if os.path.exists(config_file):
+            with open(config_file, 'r') as f:
+                return json.load(f)
+        else:
+            # Return default configuration
+            return self._get_default_config()
+    
+    def _get_default_config(self) -> Dict:
+        """Return default configuration for simulator mode"""
+        return {
+            "simulator_devices": {
+                "local": {
+                    "backend": "default.mixed",
+                    "shots": None,
+                    "noise_params": {
+                        "depolarizing_1q": 0.001,
+                        "depolarizing_2q": 0.01,
+                        "amplitude_damping": 0.0001,
+                        "phase_damping": 0.0001,
+                        "readout_error": 0.01
+                    }
+                }
+            },
+            "execution_settings": {
+                "max_parallel": 4,
+                "use_error_mitigation": True,
+                "zero_noise_extrapolation": {
+                    "enabled": True,
+                    "scale_factors": [1.0, 1.5, 2.0]
+                }
+            }
+        }
+    
+    def _initialize_aws_session(self):
+        """Initialize AWS session for Braket access"""
+        try:
+            aws_config = self.config.get("aws_settings", {})
+            credentials = aws_config.get("credentials", {})
+            
+            if credentials.get("aws_access_key_id"):
+                # Use provided credentials
+                session = boto3.Session(
+                    aws_access_key_id=credentials.get("aws_access_key_id"),
+                    aws_secret_access_key=credentials.get("aws_secret_access_key"),
+                    aws_session_token=credentials.get("aws_session_token"),
+                    region_name=aws_config.get("region", "us-east-1")
+                )
+                self.aws_session = AwsSession(boto_session=session)
+            else:
+                # Use default credentials
+                self.aws_session = AwsSession()
+                
+        except Exception as e:
+            print(f"Warning: Could not initialize AWS session: {e}")
+            print("Falling back to simulator mode")
+            self.aws_session = None
+    
+    def create_device(self, device_name: str, n_qubits: int, 
+                     shots: Optional[int] = None,
+                     use_qpu: bool = False) -> qml.device:
+        """
+        Create a quantum device (simulator or QPU)
+        
+        Args:
+            device_name: Name of the device (from config)
+            n_qubits: Number of qubits
+            shots: Number of shots for sampling
+            use_qpu: Whether to use QPU instead of simulator
+            
+        Returns:
+            PennyLane device object
+        """
+        device_key = f"{device_name}_{n_qubits}_{shots}_{use_qpu}"
+        
+        # Check cache
+        if device_key in self.device_cache:
+            return self.device_cache[device_key]
+        
+        if use_qpu and BRAKET_AVAILABLE and self.aws_session:
+            device = self._create_qpu_device(device_name, n_qubits, shots)
+            self.current_device_type = "qpu"
+        else:
+            device = self._create_simulator_device(device_name, n_qubits, shots)
+            self.current_device_type = "simulator"
+        
+        # Cache the device
+        self.device_cache[device_key] = device
+        self.current_device = device
+        
+        return device
+    
+    def _create_qpu_device(self, device_name: str, n_qubits: int, 
+                          shots: Optional[int] = None) -> qml.device:
+        """Create a QPU device via Amazon Braket"""
+        qpu_config = self.config.get("qpu_devices", {}).get(device_name)
+        
+        if not qpu_config:
+            print(f"QPU {device_name} not found in config, using simulator")
+            return self._create_simulator_device("local", n_qubits, shots)
+        
+        try:
+            # Get S3 settings
+            aws_config = self.config.get("aws_settings", {})
+            s3_destination = (
+                aws_config.get("s3_bucket", "amazon-braket-results"),
+                aws_config.get("s3_prefix", "qpinn-experiments")
+            )
+            
+            # Check device availability
+            braket_device = AwsDevice(qpu_config["arn"], aws_session=self.aws_session)
+            status = braket_device.status
+            
+            if status != "ONLINE":
+                print(f"QPU {device_name} is {status}, using simulator instead")
+                return self._create_simulator_device("local", n_qubits, shots)
+            
+            # Create PennyLane device
+            device = qml.device(
+                "braket.aws.qubit",
+                device_arn=qpu_config["arn"],
+                wires=n_qubits,
+                shots=shots or qpu_config.get("shots", 1000),
+                s3_destination_folder=s3_destination,
+                poll_timeout_seconds=qpu_config.get("poll_timeout_seconds", 432000),
+                poll_interval_seconds=qpu_config.get("poll_interval_seconds", 1),
+                aws_session=self.aws_session,
+                parallel=self.config.get("execution_settings", {}).get("max_parallel", 10) > 1,
+                max_parallel=self.config.get("execution_settings", {}).get("max_parallel", 10)
+            )
+            
+            print(f"Successfully connected to QPU: {device_name} ({qpu_config['arn']})")
+            return device
+            
+        except Exception as e:
+            print(f"Error creating QPU device: {e}")
+            print("Falling back to simulator")
+            return self._create_simulator_device("local", n_qubits, shots)
+    
+    def _create_simulator_device(self, device_name: str, n_qubits: int,
+                                 shots: Optional[int] = None) -> qml.device:
+        """Create a simulator device"""
+        sim_config = self.config.get("simulator_devices", {}).get(device_name, {})
+        
+        if device_name == "local" or not BRAKET_AVAILABLE:
+            # Use PennyLane's default mixed simulator
+            if shots is not None:
+                device = qml.device("default.mixed", wires=n_qubits, shots=shots)
+            else:
+                device = qml.device("default.mixed", wires=n_qubits)
+        else:
+            # Use Braket simulator
+            try:
+                device = qml.device(
+                    "braket.aws.qubit",
+                    device_arn=sim_config.get("arn"),
+                    wires=n_qubits,
+                    shots=shots or sim_config.get("shots"),
+                    aws_session=self.aws_session
+                )
+            except:
+                # Fallback to local simulator
+                device = qml.device("default.mixed", wires=n_qubits, shots=shots)
+        
+        print(f"Using simulator: {device_name}")
+        return device
+    
+    def get_noise_params(self, device_name: str) -> Dict[str, float]:
+        """Get noise parameters for a specific device"""
+        # Check QPU devices first
+        qpu_config = self.config.get("qpu_devices", {}).get(device_name)
+        if qpu_config and qpu_config.get("noise_params"):
+            return qpu_config["noise_params"]
+        
+        # Check simulator devices
+        sim_config = self.config.get("simulator_devices", {}).get(device_name)
+        if sim_config and sim_config.get("noise_params"):
+            return sim_config["noise_params"]
+        
+        # Return default noise parameters
+        return {
+            "depolarizing_1q": 0.001,
+            "depolarizing_2q": 0.01,
+            "amplitude_damping": 0.0001,
+            "phase_damping": 0.0001,
+            "readout_error": 0.01,
+            "T1": 0.00001,
+            "T2": 0.000005
+        }
+    
+    def apply_hardware_noise(self, wire: int, noise_params: Dict[str, float],
+                            gate_type: str = "1q"):
+        """
+        Apply realistic hardware noise to a qubit
+        Uses noise parameters from device configuration
+        
+        Args:
+            wire: Qubit index
+            noise_params: Noise parameters dictionary
+            gate_type: Type of gate ("1q" or "2q")
+        """
+        # Apply depolarizing noise
+        if gate_type == "1q":
+            error_rate = noise_params.get("depolarizing_1q", 0.001)
+        else:
+            error_rate = noise_params.get("depolarizing_2q", 0.01)
+        
+        if error_rate > 0:
+            qml.DepolarizingChannel(error_rate, wires=wire)
+        
+        # Apply amplitude damping (T1 decay)
+        t1_rate = noise_params.get("amplitude_damping", 0.0001)
+        if t1_rate > 0:
+            qml.AmplitudeDamping(t1_rate, wires=wire)
+        
+        # Apply phase damping (T2 decay)
+        t2_rate = noise_params.get("phase_damping", 0.0001)
+        if t2_rate > 0:
+            qml.PhaseDamping(t2_rate, wires=wire)
+    
+    def check_device_status(self, device_name: str) -> Dict[str, Any]:
+        """
+        Check the status of a QPU device
+        
+        Returns:
+            Dictionary with device status information
+        """
+        if not BRAKET_AVAILABLE or not self.aws_session:
+            return {"status": "SIMULATOR_MODE", "available": True}
+        
+        qpu_config = self.config.get("qpu_devices", {}).get(device_name)
+        if not qpu_config:
+            return {"status": "NOT_CONFIGURED", "available": False}
+        
+        try:
+            device = AwsDevice(qpu_config["arn"], aws_session=self.aws_session)
+            
+            # Get device properties
+            properties = device.properties.dict()
+            
+            return {
+                "status": device.status,
+                "available": device.status == "ONLINE",
+                "name": device.name,
+                "provider": device.provider_name,
+                "qubits": properties.get("paradigm", {}).get("qubitCount", 0),
+                "connectivity": properties.get("paradigm", {}).get("connectivity", {}),
+                "native_gates": properties.get("paradigm", {}).get("nativeGateSet", []),
+                "queue_depth": device.queue_depth().quantum_tasks if hasattr(device, 'queue_depth') else "N/A"
+            }
+        except Exception as e:
+            return {"status": "ERROR", "available": False, "error": str(e)}
+    
+    def estimate_circuit_runtime(self, n_gates: int, n_qubits: int, 
+                                 shots: int, device_name: str) -> float:
+        """
+        Estimate runtime for a quantum circuit on a specific device
+        
+        Returns:
+            Estimated runtime in seconds
+        """
+        if self.current_device_type == "simulator":
+            # Rough estimate for simulators
+            return 0.001 * n_gates * shots / 1000
+        else:
+            # Rough estimate for QPUs (includes queue time)
+            noise_params = self.get_noise_params(device_name)
+            gate_time = 0.0001  # ~100 microseconds per gate
+            measurement_time = 0.001  # ~1ms per measurement
+            
+            circuit_time = n_gates * gate_time + measurement_time
+            total_time = circuit_time * shots
+            
+            # Add overhead for QPU scheduling
+            overhead = 10.0  # 10 seconds overhead
+            
+            return total_time + overhead
+    
+    def get_error_mitigation_config(self) -> Dict[str, Any]:
+        """Get error mitigation configuration"""
+        return self.config.get("execution_settings", {}).get("zero_noise_extrapolation", {})
+    
+    def cleanup(self):
+        """Cleanup resources"""
+        self.device_cache.clear()
+        if self.aws_session:
+            # Close AWS session if needed
+            pass
 
 if hasattr(torch.serialization, 'add_safe_globals'):
     # Register custom classes as safe globals
@@ -995,20 +1334,21 @@ class UnsupervisedQuantumEnergyEstimator:
         if len(self.circuit_features) >= self.n_energy_clusters:
             # Convert all features to array
             all_features = np.array(self.circuit_features)
+            scaled_features = self.scaler.fit_transform(all_features)
             
             # Dimensionality reduction (PCA)
-            target_dim = min(5, all_features.shape[0] - 1, all_features.shape[1])
+            target_dim = min(5, scaled_features.shape[0] - 1, scaled_features.shape[1])
             
             if self.pca is None:
                 self.pca = PCA(n_components=target_dim)
-                reduced_features = self.pca.fit_transform(all_features)
+                reduced_features = self.pca.fit_transform(scaled_features)
             else:
                 try:
-                    reduced_features = self.pca.transform(all_features)
+                    reduced_features = self.pca.transform(scaled_features)
                 except Exception as e:
                     # Refit PCA
                     self.pca = PCA(n_components=target_dim)
-                    reduced_features = self.pca.fit_transform(all_features)
+                    reduced_features = self.pca.fit_transform(scaled_features)
             
             # Reduced version of current features
             current_reduced = reduced_features[-1]
@@ -1805,66 +2145,50 @@ class MultiObjectiveBayesianCircuitOptimizer:
             self._update_gp_models()
     
     def _update_gp_models(self):
-        """Update Gaussian process models (BoTorch compatible version - standardization support)"""
-        X = torch.stack(self.observations_X)
-        Y = torch.stack(self.observations_Y)
-        
-        # Unify devices
-        X = X.to(self.device)
-        Y = Y.to(self.device)
-        
-        # Min-Max scaling for X (input features)
-        self.X_min = X.min(dim=0).values
-        self.X_max = X.max(dim=0).values
-        # Prevent division by zero
-        X_range = self.X_max - self.X_min
-        X_range[X_range < 1e-6] = 1.0
-        # Scale to [0, 1] range
-        X_norm = (X - self.X_min) / X_range
-        
-        # Standardization for Y (output observations)
-        self.Y_mean = Y.mean(dim=0)
-        self.Y_std = Y.std(dim=0)
-        
-        # Handle cases where standard deviation is too small (all values are same)
-        min_std = 1e-6
-        self.Y_std[self.Y_std < min_std] = 1.0
-        
-        # Standardize (mean 0, variance 1)
-        Y_standardized = (Y - self.Y_mean) / self.Y_std
-        
-        # Build GP model for each objective function
+        """Update Gaussian process models (BoTorch version with built-in transforms & constant-target guard)."""
+        X = torch.stack(self.observations_X).to(self.device, dtype=torch.float64)
+        Y = torch.stack(self.observations_Y).to(self.device, dtype=torch.float64)
+
+        # NOTE:
+        # - Stop manual min-max scaling (X) and manual standardization (Y).
+        # - Let BoTorch handle normalization/standardization via transforms below.
+
         models = []
+        d = X.shape[-1]
+        eps_const = 1e-10       # Threshold to detect near-constant targets
+        jitter_std = 1e-6      # Tiny jitter to avoid exactly zero variance
+
         for i in range(self.n_objectives):
-            try:
-                # Build GP model
-                gp = SingleTaskGP(X_norm, Y_standardized[:, i:i+1])
-                # Explicitly set device
-                gp = gp.to(self.device)
-                mll = ExactMarginalLogLikelihood(gp.likelihood, gp)
-                
-                # Use BoTorch's fit_gpytorch_mll
-                fit_gpytorch_mll(mll)
-                models.append(gp)
-            except Exception as e:
-                print(f"GP fitting error (objective {i}): {e}")
-                # Fallback: simple GP model
-                try:
-                    gp = SingleTaskGP(X_norm, Y_standardized[:, i:i+1])
-                    gp = gp.to(self.device)
-                    models.append(gp)
-                except:
-                    # Skip if still fails
-                    print(f"Skipping GP model creation for objective {i}")
-        
+            y_i = Y[:, i:i+1]
+
+            # --- Guard for constant/near-constant targets -----------------------
+            # If std ~ 0, GP training & BoTorch checks are ill-posed. Add tiny noise.
+            # This preserves the mean while giving a unit-scale after Standardize().
+            if torch.nan_to_num(y_i.std()).item() < eps_const:
+                # Add tiny symmetric jitter; keeps the problem essentially unchanged,
+                # but avoids degenerate zero-variance targets.
+                y_i = y_i + jitter_std * torch.randn_like(y_i)
+
+            # --- Build a GP with transforms -------------------------------------
+            # input_transform: Normalize to [0,1]^d hypercube (affine in feature space)
+            # outcome_transform: Standardize to zero-mean, unit-variance (per-output)
+            gp = SingleTaskGP(
+                X, y_i,
+                input_transform=Normalize(d=d),
+                outcome_transform=Standardize(m=1),
+            ).to(self.device, dtype=torch.float64)
+
+            mll = ExactMarginalLogLikelihood(gp.likelihood, gp)
+            fit_gpytorch_mll(mll)
+            models.append(gp)
+
         if models:
             self.models = ModelListGP(*models)
-            # Set ModelListGP device property
-            self.models.device = self.device
-            
-            # Update reference point (in standardized space)
-            # Negative values in standardized space as reference point for maximization
-            self.ref_point = torch.full((self.n_objectives,), -0.1, device=self.device)
+            # Ref. point should be in the *original* objective scale since
+            # outcome_transform in BoTorch undoes standardization at posterior time.
+            # Here we keep a conservative dominated point for maximization.
+            self.ref_point = torch.full((self.n_objectives,), -0.1,
+                                        device=self.device, dtype=torch.float64)
         else:
             print("Failed to create GP models")
             self.models = None
