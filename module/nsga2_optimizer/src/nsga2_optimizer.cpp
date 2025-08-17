@@ -801,7 +801,7 @@ NSGA2Optimizer::optimize(const std::vector<ObjectiveFunction>& objectives,
             size_t param_size_after = config_.n_parameters;
             if (param_size_before != param_size_after) {
                 std::cout << "Parameter space changed during callback: " 
-                        << param_size_before << " -> " << param_size_after << std::endl;
+                          << param_size_before << " -> " << param_size_after << std::endl;
                 
                 // Verify population consistency
                 bool all_consistent = true;
@@ -810,6 +810,10 @@ NSGA2Optimizer::optimize(const std::vector<ObjectiveFunction>& objectives,
                         std::cerr << "ERROR: Individual " << i << " has inconsistent size after callback" << std::endl;
                         all_consistent = false;
                     }
+                    // Clear objectives to force re-evaluation
+                    (*population_)[i]->objectives.clear();
+                    (*population_)[i]->rank = 0;
+                    (*population_)[i]->crowding_distance = 0.0;
                 }
                 
                 if (!all_consistent) {
