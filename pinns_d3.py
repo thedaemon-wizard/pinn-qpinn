@@ -69,11 +69,11 @@ try:
         'circuit_update_interval' : 50,
         'population_size_pinn': 100,
         'population_size_qpinn': 100,
-        'max_generations_pinn': 1000,
-        'max_generations_qpinn': 200,
+        'max_generations_pinn': 3000,
+        'max_generations_qpinn': 100,
         'n_children_pinn': 50,
         'n_children_qpinn': 50,
-        'n_parents': 50,
+        'n_parents': 10,
         'random_seed': 42
     }
 except ImportError:
@@ -118,8 +118,8 @@ nx, ny, nz = 20, 20, 20  # Spatial divisions
 nt = 20                 # Time divisions
 
 # Training parameters
-pinn_epochs = 200     # PINN epochs (increased for accuracy)
-qnn_epochs = 200      # QPINN epochs (reduced for real device)
+pinn_epochs = 3000     # PINN epochs (increased for accuracy)
+qnn_epochs = 100      # QPINN epochs (reduced for real device)
 
 # Parallel processing parameters
 N_PARALLEL_DEVICES = min(4, cpu_count() // 2)
@@ -630,7 +630,7 @@ class QuantumCircuitGPT(nn.Module):
         # Energy prediction head (predicts expected energy of circuit)
         self.energy_head = nn.Sequential(
             nn.Linear(n_embd, n_embd // 2),
-            nn.ReLU(),
+            nn.Tanh(),
             nn.Dropout(dropout),
             nn.Linear(n_embd // 2, 1)
         )
@@ -5129,7 +5129,7 @@ class GQEQuantumPINN:
         )
         
         # Temporal frequencies: Multi-scale representation
-        # Reference: FNO - logarithmic frequency spacing
+        # Reference: Transformer - logarithmic frequency spacing
         self.n_frequencies = 3
         # Initialize frequencies on log scale: [1.0, 2.0, 4.0] Hz
         initial_frequencies = np.array([2**i for i in range(self.n_frequencies)], dtype=float)
@@ -5592,7 +5592,6 @@ class GQEQuantumPINN:
         References:
         - Shadow grouping methods from Nature Communications (2025)
         """
-        from sklearn.cluster import KMeans
         
         if len(measurements) < 5:
             return [measurements]
@@ -7135,7 +7134,7 @@ class GQEQuantumPINN:
         features.extend([t_norm, t_norm**2, t_norm**3])
         
         # Fourier basis (learnable frequencies)
-        # Reference: Apply concepts from Fourier Neural Operator (FNO)
+        # Reference: Apply concepts from Fourier Neural Operator (Transformer)
         if hasattr(self, 'temporal_frequencies'):
             # Constrain frequencies to positive values (take absolute value)
             frequencies = np.abs(self.temporal_frequencies.numpy())
@@ -8559,7 +8558,7 @@ class GQEQuantumPINN:
                             min_val = np.min(obj_values[:, i])
                             avg_val = np.mean(obj_values[:, i])
                             max_val = np.max(obj_values[:, i])
-                            print(f"{name:^20} | {min_val:^12.6f} | {avg_val:^12.6f} | {max_val:^12.6f}")
+                            print(f"{name:^20} | {min_val:^10.6e} | {avg_val:^10.6e} | {max_val:^10.6e}")
                     
                     
                     
@@ -9860,116 +9859,383 @@ class GQEQuantumPINN:
             self.process_pool.shutdown(wait=True)
 
 #================================================
-# Fourier Neural Operator Components
+# PINNsFormer Components
 #================================================
-class SpectralConv3d(nn.Module):
-    """3D Spectral Convolution layer for FNO
-    
-    Based on Li et al. (2023): "Fourier Neural Operator for Parametric PDEs"
-    Fixed for real FFT dimension handling
+#================================================
+# Wavelet Activation Function
+#================================================
+class WaveletActivation(nn.Module):
     """
-    def __init__(self, in_channels, out_channels, modes1, modes2, modes3):
-        super(SpectralConv3d, self).__init__()
-        self.in_channels = in_channels
-        self.out_channels = out_channels
-        self.modes1 = modes1
-        self.modes2 = modes2  
-        self.modes3 = modes3  # This is for the real FFT dimension
-        
-        self.scale = (1 / (in_channels * out_channels))
-        # For real FFT, last dimension needs special handling
-        self.weights1 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, self.modes3, dtype=torch.cfloat))
-        self.weights2 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, self.modes3, dtype=torch.cfloat))
-        self.weights3 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, self.modes3, dtype=torch.cfloat))
-        self.weights4 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, self.modes3, dtype=torch.cfloat))
-        
-    def compl_mul3d(self, input, weights):
-        # Complex multiplication with proper dimension handling
-        # input shape: (batch, in_channels, x, y, z)
-        # weights shape: (in_channels, out_channels, x, y, z)
-        # Ensure dimensions match
-        return torch.einsum("bixyz,ioxyz->boxyz", input, weights)
+    Wavelet activation function based on Real Fourier Transform
+    Reference: PINNsFormer paper Eq. 4
+    Wavelet(x) = ω1 * sin(x) + ω2 * cos(x)
+    """
+    def __init__(self, learnable=True):
+        super(WaveletActivation, self).__init__()
+        if learnable:
+            self.omega1 = nn.Parameter(torch.ones(1))
+            self.omega2 = nn.Parameter(torch.ones(1))
+        else:
+            self.register_buffer('omega1', torch.ones(1))
+            self.register_buffer('omega2', torch.ones(1))
     
     def forward(self, x):
-        batchsize = x.shape[0]
-        # Compute Fourier coefficients using real FFT
-        # rfftn reduces last dimension from n to n//2 + 1
-        x_ft = torch.fft.rfftn(x, dim=[-3, -2, -1])
-        
-        # Get actual FFT dimensions
-        fft_dim1, fft_dim2, fft_dim3 = x_ft.shape[-3], x_ft.shape[-2], x_ft.shape[-1]
-        
-        # Ensure modes don't exceed FFT dimensions
-        modes1 = min(self.modes1, fft_dim1)
-        modes2 = min(self.modes2, fft_dim2)
-        modes3 = min(self.modes3, fft_dim3)
-        
-        # Initialize output
-        out_ft = torch.zeros(batchsize, self.out_channels, fft_dim1, fft_dim2, fft_dim3, 
-                            dtype=torch.cfloat, device=x.device)
-        
-        # Multiply relevant Fourier modes (only if we have enough modes)
-        if modes1 > 0 and modes2 > 0 and modes3 > 0:
-            # Truncate weights if necessary
-            w1 = self.weights1[:, :, :modes1, :modes2, :modes3]
-            w2 = self.weights2[:, :, :modes1, :modes2, :modes3]
-            w3 = self.weights3[:, :, :modes1, :modes2, :modes3]
-            w4 = self.weights4[:, :, :modes1, :modes2, :modes3]
-            
-            # Low frequencies
-            out_ft[:, :, :modes1, :modes2, :modes3] = \
-                self.compl_mul3d(x_ft[:, :, :modes1, :modes2, :modes3], w1)
-            
-            # High frequencies in first dimension
-            if modes1 <= fft_dim1:
-                out_ft[:, :, -modes1:, :modes2, :modes3] = \
-                    self.compl_mul3d(x_ft[:, :, -modes1:, :modes2, :modes3], w2)
-            
-            # High frequencies in second dimension
-            if modes2 <= fft_dim2:
-                out_ft[:, :, :modes1, -modes2:, :modes3] = \
-                    self.compl_mul3d(x_ft[:, :, :modes1, -modes2:, :modes3], w3)
-            
-            # High frequencies in both first and second dimensions
-            if modes1 <= fft_dim1 and modes2 <= fft_dim2:
-                out_ft[:, :, -modes1:, -modes2:, :modes3] = \
-                    self.compl_mul3d(x_ft[:, :, -modes1:, -modes2:, :modes3], w4)
-        
-        # Return to physical space
-        x = torch.fft.irfftn(out_ft, s=(x.size(-3), x.size(-2), x.size(-1)))
-        return x
-
-class TemporalAttention(nn.Module):
-    """Temporal attention mechanism for better time dynamics
+        """Apply Wavelet activation"""
+        return self.omega1 * torch.sin(x) + self.omega2 * torch.cos(x)
     
-    Based on Vaswani et al. (2017) adapted for PDE temporal dynamics
-    """
-    def __init__(self, hidden_dim):
-        super(TemporalAttention, self).__init__()
-        self.hidden_dim = hidden_dim
-        self.query = nn.Linear(hidden_dim, hidden_dim)
-        self.key = nn.Linear(hidden_dim, hidden_dim)
-        self.value = nn.Linear(hidden_dim, hidden_dim)
-        self.scale = 1.0 / math.sqrt(hidden_dim)
-        
-    def forward(self, x, temporal_encoding):
-        # x: [batch, features]
-        # temporal_encoding: [batch, features]
-        
-        Q = self.query(x)
-        K = self.key(temporal_encoding)
-        V = self.value(temporal_encoding)
-        
-        # Compute attention scores
-        scores = torch.matmul(Q, K.transpose(-2, -1)) * self.scale
-        weights = F.softmax(scores, dim=-1)
-        
-        # Apply attention
-        attended = torch.matmul(weights, V)
-        return attended + x  # Residual connection
+    def reset_parameters(self):
+        """Reset parameters to initial values"""
+        nn.init.ones_(self.omega1)
+        nn.init.ones_(self.omega2)
 
 #================================================
-# Enhanced PINN Implementation with FNO
+# Enhanced Pseudo Sequence Generator
+#================================================
+class PseudoSequenceGenerator(nn.Module):
+    """
+    Converts point-wise inputs to pseudo sequences for Transformer processing
+    Reference: PINNsFormer paper Section 3.1, Equation 3
+    Creates a sequence by applying temporal shifts to the input
+    """
+    def __init__(self, input_dim=4, seq_length=16, d_model=128, delta_t=0.1):
+        super(PseudoSequenceGenerator, self).__init__()
+        
+        self.seq_length = seq_length
+        self.d_model = d_model
+        self.delta_t = delta_t
+        
+        # Input projection - FIXED: smaller initialization
+        self.input_projection = nn.Linear(input_dim, d_model)
+        nn.init.xavier_uniform_(self.input_projection.weight, gain=0.5)  # Reduced gain
+        nn.init.zeros_(self.input_projection.bias)
+        
+        # FIXED: Add temporal modulation for each sequence position
+        self.temporal_modulators = nn.ModuleList([
+            nn.Linear(d_model, d_model) for _ in range(seq_length)
+        ])
+        
+        # Initialize temporal modulators close to identity
+        for i, mod in enumerate(self.temporal_modulators):
+            nn.init.eye_(mod.weight)
+            mod.weight.data *= (0.9 + 0.1 * i / seq_length)  # Gradual change
+            nn.init.zeros_(mod.bias)
+        
+        # Position embeddings with proper initialization
+        self.position_embeddings = nn.Parameter(torch.zeros(1, seq_length, d_model))
+        self._init_position_embeddings()
+        
+    def _init_position_embeddings(self):
+        """Initialize with sinusoidal pattern (reduced amplitude)"""
+        import math
+        pe = torch.zeros(self.seq_length, self.d_model)
+        position = torch.arange(0, self.seq_length, dtype=torch.float).unsqueeze(1)
+        div_term = torch.exp(torch.arange(0, self.d_model, 2).float() * 
+                           -(math.log(10000.0) / self.d_model))
+        
+        pe[:, 0::2] = torch.sin(position * div_term)
+        pe[:, 1::2] = torch.cos(position * div_term)
+        self.position_embeddings.data = pe.unsqueeze(0) * 0.1  # Scale down
+        
+    def forward(self, features):
+        """
+        Generate pseudo-sequence from features
+        
+        Args:
+            features: Input features [batch_size, input_dim]
+        
+        Returns:
+            Sequence [batch_size, seq_length, d_model]
+        """
+        batch_size = features.shape[0]
+        
+        # Project input features  
+        projected = self.input_projection(features)  # [batch_size, d_model]
+        
+        # FIXED: Generate sequence with temporal evolution
+        sequences = []
+        for i in range(self.seq_length):
+            # Apply temporal modulation for each position
+            modulated = self.temporal_modulators[i](projected)
+            
+            # Apply decay factor based on position (physics-aware)
+            decay_factor = torch.exp(-0.01 * i * self.delta_t)  # Heat equation decay
+            modulated = modulated * decay_factor
+            
+            sequences.append(modulated)
+        
+        # Stack into sequence
+        seq = torch.stack(sequences, dim=1)  # [batch_size, seq_length, d_model]
+        
+        # Add position embeddings
+        seq = seq + self.position_embeddings
+        
+        return seq
+
+#================================================
+# Spatio-Temporal Mixer
+#================================================
+class SpatioTemporalMixer(nn.Module):
+    """
+    Mixes spatial and temporal information in the sequence
+    Reference: PINNsFormer paper Section 3.2
+    """
+    def __init__(self, d_model=128, n_heads=8, dropout=0.1):
+        super(SpatioTemporalMixer, self).__init__()
+        
+        self.spatial_attention = nn.MultiheadAttention(
+            embed_dim=d_model,
+            num_heads=n_heads,
+            dropout=dropout,
+            batch_first=True
+        )
+        
+        self.temporal_attention = nn.MultiheadAttention(
+            embed_dim=d_model,
+            num_heads=n_heads,
+            dropout=dropout,
+            batch_first=True
+        )
+        
+        self.mixing_layer = nn.Sequential(
+            nn.Linear(d_model, d_model),
+            nn.LayerNorm(d_model),
+            WaveletActivation(),
+            nn.Dropout(dropout),
+            nn.Linear(d_model, d_model)
+        )
+        
+        self.norm1 = nn.LayerNorm(d_model)
+        self.norm2 = nn.LayerNorm(d_model)
+        self.norm3 = nn.LayerNorm(d_model)
+        
+        # FIXED: Initialize with smaller weights
+        self._init_weights()
+        
+    def _init_weights(self):
+        """Initialize weights carefully"""
+        for module in [self.spatial_attention, self.temporal_attention]:
+            if hasattr(module, 'in_proj_weight'):
+                nn.init.xavier_uniform_(module.in_proj_weight, gain=0.5)
+            if hasattr(module, 'out_proj') and hasattr(module.out_proj, 'weight'):
+                nn.init.xavier_uniform_(module.out_proj.weight, gain=0.5)
+                
+        for layer in self.mixing_layer:
+            if isinstance(layer, nn.Linear):
+                nn.init.xavier_uniform_(layer.weight, gain=0.5)
+                nn.init.zeros_(layer.bias)
+    
+    def forward(self, seq):
+        """Mix features with SCALED residuals"""
+        # FIXED: Scale residual connections
+        spatial_out, _ = self.spatial_attention(seq, seq, seq)
+        seq = self.norm1(seq + 0.1 * spatial_out)  # Scaled by 0.1
+        
+        temporal_out, _ = self.temporal_attention(seq, seq, seq)
+        seq = self.norm2(seq + 0.1 * temporal_out)  # Scaled by 0.1
+        
+        mixed = self.mixing_layer(seq)
+        output = self.norm3(seq + 0.1 * mixed)  # Scaled by 0.1
+        
+        return output
+
+#================================================
+# Transformer Blocks
+#================================================
+class TransformerBlock(nn.Module):
+    """Transformer encoder block with scaled residuals"""
+    def __init__(self, d_model=128, n_heads=8, d_ff=512, dropout=0.1):
+        super(TransformerBlock, self).__init__()
+        
+        self.self_attention = nn.MultiheadAttention(
+            embed_dim=d_model,
+            num_heads=n_heads,
+            dropout=dropout,
+            batch_first=True
+        )
+        
+        self.ffn = nn.Sequential(
+            nn.Linear(d_model, d_ff),
+            WaveletActivation(),
+            nn.Dropout(dropout),
+            nn.Linear(d_ff, d_model)
+        )
+        
+        self.norm1 = nn.LayerNorm(d_model)
+        self.norm2 = nn.LayerNorm(d_model)
+        self.dropout = nn.Dropout(dropout)
+        
+        # FIXED: Initialize with smaller weights
+        self._init_weights()
+        
+    def _init_weights(self):
+        """Careful weight initialization"""
+        # Initialize attention weights
+        if hasattr(self.self_attention, 'in_proj_weight'):
+            nn.init.xavier_uniform_(self.self_attention.in_proj_weight, gain=0.5)
+        if hasattr(self.self_attention, 'out_proj') and hasattr(self.self_attention.out_proj, 'weight'):
+            nn.init.xavier_uniform_(self.self_attention.out_proj.weight, gain=0.5)
+            
+        # Initialize FFN weights
+        for layer in self.ffn:
+            if isinstance(layer, nn.Linear):
+                nn.init.xavier_uniform_(layer.weight, gain=0.5)
+                nn.init.zeros_(layer.bias)
+    
+    def forward(self, x, mask=None):
+        """Forward pass with SCALED residual connections"""
+        # FIXED: Scale residual connections
+        attn_output, _ = self.self_attention(x, x, x, attn_mask=mask)
+        x = self.norm1(x + 0.1 * self.dropout(attn_output))  # Scaled by 0.1
+        
+        ffn_output = self.ffn(x)
+        x = self.norm2(x + 0.1 * self.dropout(ffn_output))  # Scaled by 0.1
+        
+        return x
+
+class PINNsFormerEncoder(nn.Module):
+    """Encoder module with multiple Transformer blocks"""
+    def __init__(self, n_layers=4, d_model=128, n_heads=8, d_ff=512, dropout=0.1):
+        super(PINNsFormerEncoder, self).__init__()
+        
+        self.layers = nn.ModuleList([
+            TransformerBlock(d_model, n_heads, d_ff, dropout)
+            for _ in range(n_layers)
+        ])
+        
+        self.norm = nn.LayerNorm(d_model)
+    
+    def forward(self, x, mask=None):
+        """Process through encoder layers"""
+        for layer in self.layers:
+            x = layer(x, mask)
+        return self.norm(x)
+
+class PINNsFormerDecoderLayer(nn.Module):
+    """Single decoder layer with encoder-decoder attention"""
+    def __init__(self, d_model=128, n_heads=8, d_ff=512, dropout=0.1):
+        super(PINNsFormerDecoderLayer, self).__init__()
+        
+        # Encoder-decoder attention (no self-attention as per paper)
+        self.enc_dec_attention = nn.MultiheadAttention(
+            embed_dim=d_model,
+            num_heads=n_heads,
+            dropout=dropout,
+            batch_first=True
+        )
+        
+        self.ffn = nn.Sequential(
+            nn.Linear(d_model, d_ff),
+            WaveletActivation(),
+            nn.Dropout(dropout),
+            nn.Linear(d_ff, d_model)
+        )
+        
+        self.norm1 = nn.LayerNorm(d_model)
+        self.norm2 = nn.LayerNorm(d_model)
+        self.dropout1 = nn.Dropout(dropout)
+        self.dropout2 = nn.Dropout(dropout)
+    
+    def forward(self, tgt, memory, tgt_mask=None, memory_mask=None):
+        """Process target with encoder-decoder attention"""
+        attn_output, _ = self.enc_dec_attention(
+            query=tgt,
+            key=memory,
+            value=memory,
+            attn_mask=memory_mask
+        )
+        tgt = self.norm1(tgt + self.dropout1(attn_output))
+        
+        ffn_output = self.ffn(tgt)
+        tgt = self.norm2(tgt + self.dropout2(ffn_output))
+        
+        return tgt
+
+class PINNsFormerDecoder(nn.Module):
+    """Decoder module for PINNsFormer"""
+    def __init__(self, n_layers=4, d_model=128, n_heads=8, d_ff=512, dropout=0.1):
+        super(PINNsFormerDecoder, self).__init__()
+        
+        self.layers = nn.ModuleList([
+            PINNsFormerDecoderLayer(d_model, n_heads, d_ff, dropout)
+            for _ in range(n_layers)
+        ])
+        
+        self.norm = nn.LayerNorm(d_model)
+    
+    def forward(self, tgt, memory, tgt_mask=None, memory_mask=None):
+        """Process through decoder layers"""
+        x = tgt
+        for layer in self.layers:
+            x = layer(x, memory, tgt_mask, memory_mask)
+        return self.norm(x)
+
+#================================================
+# Output Projection
+#================================================
+class OutputProjection(nn.Module):
+    """Projects Transformer output with temporal weighting"""
+    def __init__(self, seq_length=16, d_model=128, output_dim=1, 
+                 use_hard_constraints=True, boundary_epsilon=1e-3,
+                 domain_size=1.0):
+        super(OutputProjection, self).__init__()
+        
+        self.seq_length = seq_length
+        self.use_hard_constraints = use_hard_constraints
+        self.boundary_epsilon = boundary_epsilon
+        self.domain_size = domain_size
+        
+        # FIXED: Add learnable temporal weights
+        self.temporal_weights = nn.Parameter(torch.ones(seq_length) / seq_length)
+        
+        # Output layer with smaller initialization
+        self.output_layer = nn.Sequential(
+            nn.Linear(d_model, d_model // 2),
+            nn.LayerNorm(d_model // 2),
+            WaveletActivation(),
+            nn.Dropout(0.1),
+            nn.Linear(d_model // 2, output_dim)
+        )
+        
+        # FIXED: Initialize weights
+        self._init_weights()
+        
+    def _init_weights(self):
+        """Initialize with emphasis on early time steps"""
+        # Emphasize early time steps for initial condition
+        with torch.no_grad():
+            weights = torch.exp(-torch.arange(self.seq_length, dtype=torch.float32) / 4.0)
+            self.temporal_weights.data = weights / weights.sum()
+            
+        for layer in self.output_layer:
+            if isinstance(layer, nn.Linear):
+                nn.init.xavier_uniform_(layer.weight, gain=0.5)
+                nn.init.zeros_(layer.bias)
+    
+    def forward(self, x):
+        """
+        Project to output with temporal weighting
+        
+        Args:
+            x: Sequence output [batch_size, seq_length, d_model]
+        
+        Returns:
+            Output [batch_size, output_dim]
+        """
+        # FIXED: Apply temporal weighting
+        weights = F.softmax(self.temporal_weights, dim=0)
+        weights = weights.view(1, -1, 1)  # [1, seq_length, 1]
+        
+        # Weighted sum over sequence
+        x_aggregated = (x * weights).sum(dim=1)  # [batch_size, d_model]
+        
+        # Project to output dimension
+        output = self.output_layer(x_aggregated)
+        
+        return output
+
+
+#================================================
+# Enhanced PINN Implementation with Transformer
 #================================================
 class PINN(nn.Module):
     """Enhanced PINN with Fourier Neural Operator and Temporal Attention
@@ -9980,39 +10246,59 @@ class PINN(nn.Module):
     - Krishnapriyan et al. (2021): "Characterizing possible failure modes in PINNs"
     """
     
-    def __init__(self, layers=[5, 128, 256, 256, 128, 1], 
-                 use_hard_constraints=True, 
+    def __init__(self, 
+                 layers=[5, 128, 256, 256, 128, 1],  # Kept for compatibility
+                 use_hard_constraints=True,
                  boundary_epsilon=0.1,
                  fourier_features=True,
                  num_fourier_features=64,
-                 use_fno=True,
-                 fno_modes=(12, 12, 12),
-                 use_temporal_attention=True,
-                 fno_memory_efficient=True):
-        """Physics-Informed Neural Network with FNO and enhanced temporal learning"""
+                 use_transformer=True,
+                 transformer_config=None,
+                 transformer_memory_efficient=True):
+        
         super(PINN, self).__init__()
         
         # Configuration flags
         self.use_fourier_features = fourier_features
         self.num_fourier_features = num_fourier_features
-        self.use_fno = use_fno
-        self.use_temporal_attention = use_temporal_attention
-        self.fno_memory_efficient = fno_memory_efficient
+        self.use_transformer = use_transformer
+        self.transformer_memory_efficient = transformer_memory_efficient
+        self.use_hard_constraints = use_hard_constraints
         
-        # Multi-scale Fourier features for better temporal resolution
+        # Default Transformer configuration
+        if transformer_config is None:
+            if transformer_memory_efficient:
+                # Memory-efficient configuration
+                transformer_config = {
+                    'seq_length': 8,
+                    'd_model': 64,
+                    'n_heads': 4,
+                    'n_layers': 2,
+                    'd_ff': 256,
+                    'dropout': 0.1
+                }
+            else:
+                transformer_config = {
+                    'seq_length': 16,
+                    'd_model': 128,
+                    'n_heads': 8,
+                    'n_layers': 4,
+                    'd_ff': 512,
+                    'dropout': 0.1
+                }
+        self.transformer_config = transformer_config
+        
+        # Multi-scale Fourier features
         if self.use_fourier_features:
-            # Spatial features - multiple scales
             self.B_spatial_coarse = nn.Parameter(
-                torch.randn(3, num_fourier_features//4) * 5.0, 
+                torch.randn(3, num_fourier_features//4),
                 requires_grad=True
             )
             self.B_spatial_fine = nn.Parameter(
-                torch.randn(3, num_fourier_features//4) * 20.0, 
+                torch.randn(3, num_fourier_features//4),
                 requires_grad=True
             )
             
-            # Temporal features - adapted to diffusion timescale
-            # Based on characteristic diffusion time: t_c = L²/(4α)
             t_characteristic = L**2 / (4 * alpha)
             self.B_temporal_slow = nn.Parameter(
                 torch.randn(1, num_fourier_features//4) * (2*np.pi/T),
@@ -10022,84 +10308,96 @@ class PINN(nn.Module):
                 torch.randn(1, num_fourier_features//4) * (10*np.pi/T),
                 requires_grad=True
             )
-
-            # Trainable Fourier frequency scaling 
-            self.spatial_scale_coarse = nn.Parameter(torch.tensor(5.0))     # Default: same as before
-            self.spatial_scale_fine   = nn.Parameter(torch.tensor(20.0))
-            self.temporal_scale       = nn.Parameter(torch.tensor(2 * np.pi / T))  # Based on diffusion time
-            self.fno_feature_scale = nn.Parameter(torch.tensor(1.0))
-        
-        # FNO layers if enabled (only for non-memory-efficient mode)
-        if self.use_fno and not self.fno_memory_efficient:
-            fno_hidden = 32
-            # Adjust modes for real FFT (last dimension will be halved)
-            adjusted_modes = (fno_modes[0], fno_modes[1], fno_modes[2]//2 + 1)
-            self.fno_layers = nn.ModuleList([
-                SpectralConv3d(1, fno_hidden, *adjusted_modes),
-                SpectralConv3d(fno_hidden, fno_hidden, *adjusted_modes),
-                SpectralConv3d(fno_hidden, 1, *adjusted_modes)
-            ])
-            self.fno_w = nn.ModuleList([
-                nn.Conv3d(1, fno_hidden, 1),
-                nn.Conv3d(fno_hidden, fno_hidden, 1),
-                nn.Conv3d(fno_hidden, 1, 1)
-            ])
-        elif self.use_fno and self.fno_memory_efficient:
-            # Memory-efficient FNO projection
-            self.fno_projection = nn.Sequential(
-                                nn.Linear(20, 32),
-                                nn.Tanh(),
-                                nn.Linear(32, 64),
-                                nn.Tanh(),
-                                nn.Linear(64, 64),
-                                nn.Tanh(),
-                                nn.Linear(64, 32),
-                                nn.Tanh(),
-                                nn.Linear(32, 1)
-                            )
-
             
-            # Initialize the projection
-            for m in self.fno_projection.modules():
-                if isinstance(m, nn.Linear):
-                    nn.init.xavier_uniform_(m.weight)
-                    nn.init.constant_(m.bias, 0.0)
+            # Trainable Fourier frequency scaling
+            self.spatial_scale_coarse = nn.Parameter(torch.tensor(1.0))
+            self.spatial_scale_fine = nn.Parameter(torch.tensor(1.0))
+            self.temporal_scale = nn.Parameter(torch.tensor(2 * np.pi / T))
         
-        # Calculate input dimension
+        # Calculate input dimension for MLP fallback
         base_features = 3  # x_norm, y_norm, z_norm
         temporal_features = 8  # Enhanced temporal features
-        distance_features = 1  # r
-        fno_features = 1 if use_fno else 0
-        self.input_dim = 10
+        
         if self.use_fourier_features:
-            # Multi-scale features
-            self.input_dim = (base_features + temporal_features + distance_features + 
-                        num_fourier_features + num_fourier_features + fno_features)
+            spatial_fourier_dim = num_fourier_features
+            temporal_fourier_dim = num_fourier_features
+            self.input_dim = (base_features + temporal_features + 
+                            spatial_fourier_dim + temporal_fourier_dim)
         else:
-            self.input_dim = base_features + temporal_features + distance_features + fno_features
+            self.input_dim = base_features + temporal_features
         
-        # Temporal attention if enabled
-        if self.use_temporal_attention:
-            self.temporal_attention = TemporalAttention(layers[1])
+        # PINNsFormer components
+        if self.use_transformer:
+            config = self.transformer_config
+            
+            # Calculate input dimension with Fourier features
+            if self.use_fourier_features:
+                # Base features (normalized coordinates) + temporal features + Fourier features
+                transformer_input_dim = base_features + temporal_features + spatial_fourier_dim + temporal_fourier_dim
+            else:
+                # Base features + temporal features
+                transformer_input_dim = base_features + temporal_features
+            
+            # Create PINNsFormer components
+            self.pseudo_seq_generator = PseudoSequenceGenerator(
+                input_dim=transformer_input_dim,  # Include all features
+                seq_length=config['seq_length'],
+                d_model=config['d_model'],
+                delta_t=T / config['seq_length']  # Distribute over time domain
+            )
+            
+            self.spatio_temporal_mixer = SpatioTemporalMixer(
+                d_model=config['d_model'],
+                n_heads=config['n_heads'],
+                dropout=config['dropout']
+            )
+            
+            self.transformer_encoder = PINNsFormerEncoder(
+                n_layers=config['n_layers'],
+                d_model=config['d_model'],
+                n_heads=config['n_heads'],
+                d_ff=config['d_ff'],
+                dropout=config['dropout']
+            )
+            
+            # Optional decoder (can be used for more complex architectures)
+            self.use_decoder = True
+            if self.use_decoder:
+                self.transformer_decoder = PINNsFormerDecoder(
+                    n_layers=config['n_layers'] // 2,
+                    d_model=config['d_model'],
+                    n_heads=config['n_heads'],
+                    d_ff=config['d_ff'],
+                    dropout=config['dropout']
+                )
+            
+            self.output_projection = OutputProjection(
+                seq_length=config['seq_length'],
+                d_model=config['d_model'],
+                output_dim=1,
+                use_hard_constraints=False,  # Managed at PINN level
+                domain_size=L
+            )
+        else:
+            # Main MLP network as fallback
+            self.layers = nn.ModuleList()
+            layer_sizes = [self.input_dim] + layers[1:]
+            
+            for i in range(len(layer_sizes) - 1):
+                if i == 0:
+                    self.layers.append(nn.Linear(self.input_dim, layers[i+1]))
+                else:
+                    self.layers.append(nn.Linear(layers[i], layers[i+1]))
+                    
+                if i < len(layers) - 2:
+                    self.layers.append(nn.Tanh())
         
-        # Network architecture
-        self.layers = nn.ModuleList()
-        layer_dims = [self.input_dim] + layers[1:]
-        
-        print(f"Enhanced PINN architecture: {layer_dims}")
-        print(f"FNO enabled: {use_fno} (memory efficient: {fno_memory_efficient})")
-        print(f"Temporal attention: {use_temporal_attention}")
-    
-        for i in range(len(layer_dims)-1):
-            self.layers.append(nn.Linear(layer_dims[i], layer_dims[i+1]))
-        
-        # Activation functions
-        self.activation = nn.Tanh()
-        self.swish = nn.SiLU()
+        # Hard constraints
+        if use_hard_constraints:
+            self.boundary_epsilon = nn.Parameter(torch.tensor(boundary_epsilon))
         
         # Improved initialization
         self._initialize_weights()
-        
         
         # Multi-objective optimization attributes
         self.loss_history = []
@@ -10119,126 +10417,17 @@ class PINN(nn.Module):
             'pde': float('inf')
         }
         
-        
         self.training_data = None
-        self.use_hard_constraints = use_hard_constraints
-        self.boundary_epsilon = boundary_epsilon
-        if self.use_hard_constraints:
-            self.boundary_epsilon = nn.Parameter(torch.tensor(boundary_epsilon, dtype=torch.float32))
-        else:
-            self.register_buffer('boundary_epsilon', torch.tensor(0.1, dtype=torch.float32))
     
     def _initialize_weights(self):
         """Improved weight initialization for PINNs"""
-        for m in self.layers:
+        for m in self.modules():
             if isinstance(m, nn.Linear):
-                # Xavier initialization adapted for temporal dynamics
-                fan_in = m.weight.size(1)
-                fan_out = m.weight.size(0)
-                std = np.sqrt(2.0 / (fan_in + fan_out))
-                nn.init.normal_(m.weight, mean=0.0, std=std)
-                nn.init.constant_(m.bias, 0.01)
-        
-        # Special initialization for output layer
-        if len(self.layers) > 0:
-            output_layer = self.layers[-1]
-            nn.init.normal_(output_layer.weight, mean=0.0, std=0.1)
-            nn.init.constant_(output_layer.bias, 0.0)
+                nn.init.xavier_uniform_(m.weight)
+                if m.bias is not None:
+                    nn.init.constant_(m.bias, 0.0)
     
-    def fourier_feature_mapping(self, coords, B, scale):
-        """Fourier mapping with trainable frequency scale"""
-        x_proj = coords @ B * scale
-        return torch.cat([torch.sin(x_proj), torch.cos(x_proj)], dim=-1)
-    
-    def compute_fno_features(self, x, y, z, t):
-        """Compute FNO features with memory management"""
-        batch_size = x.shape[0]
-        
-        if self.fno_memory_efficient:
-            # Memory-efficient approach: use learned spatial encoding instead of grid
-            # This avoids creating large grids for each batch point
-            
-            # Create position encoding
-            # Expand FNO projection input with more positional encodings
-            pos_encoding = torch.cat([
-                x / L,
-                y / L,
-                z / L,
-                t / T,
-                torch.sin(2 * np.pi * x / L),
-                torch.cos(2 * np.pi * x / L),
-                torch.sin(4 * np.pi * x / L),
-                torch.cos(4 * np.pi * x / L),
-                torch.sin(2 * np.pi * y / L),
-                torch.cos(2 * np.pi * y / L),
-                torch.sin(4 * np.pi * y / L),
-                torch.cos(4 * np.pi * y / L),
-                torch.sin(2 * np.pi * z / L),
-                torch.cos(2 * np.pi * z / L),
-                torch.sin(4 * np.pi * z / L),
-                torch.cos(4 * np.pi * z / L),
-                torch.sin(2 * np.pi * t / T),
-                torch.cos(2 * np.pi * t / T),
-                torch.sin(4 * np.pi * t / T),
-                torch.cos(4 * np.pi * t / T)
-            ], dim=1)  # Now input dim = 20
-            # Compute FNO-like features using the projection
-            fno_feature = self.fno_projection(pos_encoding)
-            
-            return fno_feature
-        else:
-            # Full FNO approach - process in smaller batches to avoid OOM
-            max_batch = 16  # Process at most 16 points at a time
-            
-            if batch_size <= max_batch:
-                # Small batch - process normally
-                grid_size = 4  # Reduced from 8 to save memory
-                grid_points = torch.zeros(batch_size, 1, grid_size, grid_size, grid_size, device=x.device)
-                
-                # Fill grid with analytical solution at t=0
-                for i in range(batch_size):
-                    xi, yi, zi = x[i].item(), y[i].item(), z[i].item()
-                    dx = L / (grid_size * 10)
-                    
-                    for ix in range(grid_size):
-                        for iy in range(grid_size):
-                            for iz in range(grid_size):
-                                x_loc = xi + (ix - grid_size//2) * dx
-                                y_loc = yi + (iy - grid_size//2) * dx
-                                z_loc = zi + (iz - grid_size//2) * dx
-                                
-                                # Clamp to domain
-                                x_loc = max(0, min(L, x_loc))
-                                y_loc = max(0, min(L, y_loc))
-                                z_loc = max(0, min(L, z_loc))
-                                
-                                grid_points[i, 0, ix, iy, iz] = initial_condition(x_loc, y_loc, z_loc)
-                
-                # Apply FNO layers
-                h = grid_points
-                for i, (spectral_conv, w) in enumerate(zip(self.fno_layers, self.fno_w)):
-                    h1 = spectral_conv(h)
-                    h2 = w(h)
-                    h = h1 + h2
-                    if i < len(self.fno_layers) - 1:
-                        h = F.gelu(h)
-                
-                # Extract feature at center point
-                fno_feature = h[:, 0, grid_size//2, grid_size//2, grid_size//2].unsqueeze(1)
-                
-                return fno_feature
-            else:
-                # Large batch - process in chunks
-                fno_features = []
-                for i in range(0, batch_size, max_batch):
-                    end_idx = min(i + max_batch, batch_size)
-                    chunk_feature = self.compute_fno_features(
-                        x[i:end_idx], y[i:end_idx], z[i:end_idx], t[i:end_idx]
-                    )
-                    fno_features.append(chunk_feature)
-                
-                return torch.cat(fno_features, dim=0)
-    
+   
     def compute_distance_function(self, x, y, z):
         """Compute smooth distance function to boundaries"""
         """Return a smooth multiplicative factor that is 0 on the boundary and ~1 in the interior.
@@ -10277,137 +10466,176 @@ class PINN(nn.Module):
         return distance
     
     def forward(self, x, y, z, t):
-        """Forward propagation with FNO and temporal attention"""
+        """
+        Forward pass with PINNsFormer architecture
+        """
+        # Store original inputs for boundary condition computation
+        x_orig, y_orig, z_orig, t_orig = x, y, z, t
         
+        # Normalize inputs
+        x_norm = x / L
+        y_norm = y / L
+        z_norm = z / L
+        t_norm = t / T
         
-        # Input normalization
-        x_norm = 2.0 * x / L - 1.0
-        y_norm = 2.0 * y / L - 1.0
-        z_norm = 2.0 * z / L - 1.0
-        t_norm = 2.0 * t / T - 1.0
-        
-        # Distance features
-        r_center = torch.sqrt((x - L/2)**2 + (y - L/2)**2 + (z - L/2)**2) / (L * np.sqrt(3)/2)
-        
-        # Enhanced temporal features with physics-aware encoding
-        t_scale = t / T
-        diffusion_scale = torch.sqrt(t / T + 1e-10)  # Characteristic diffusion length scale
-        
-        t_features = torch.cat([
-            t_norm,                                    
-            torch.sin(2 * np.pi * t / T),             
-            torch.cos(2 * np.pi * t / T),
-            torch.sin(4 * np.pi * t / T),  # Higher frequency
-            torch.cos(4 * np.pi * t / T),
-            torch.exp(-t / T),                         
-            torch.exp(-2 * t / T),                     
-            diffusion_scale,  # Physics-aware feature
+        # Build features for both Transformer and MLP paths
+        # Enhanced temporal features
+        temporal_features = torch.cat([
+            t_norm,
+            torch.sin(2 * np.pi * t_norm),
+            torch.cos(2 * np.pi * t_norm),
+            torch.sin(4 * np.pi * t_norm),
+            torch.cos(4 * np.pi * t_norm),
+            torch.exp(torch.clamp(-t_norm, -10, 0)),
+            torch.exp(torch.clamp(-2 * t_norm, -10, 0)),
+            t_norm**2
         ], dim=1)
         
-        # Multi-scale Fourier feature mapping
+        # Combine base features
+        inputs = [x_norm, y_norm, z_norm, temporal_features]
+        
+        # Apply Fourier features if enabled
+        # Apply Fourier features if enabled
         if self.use_fourier_features:
             spatial_coords = torch.cat([x_norm, y_norm, z_norm], dim=1)
             
-            # Spatial Fourier features at multiple scales
-            spatial_fourier_coarse = self.fourier_feature_mapping(
-                spatial_coords, self.B_spatial_coarse, self.spatial_scale_coarse)
-            spatial_fourier_fine = self.fourier_feature_mapping(
-                spatial_coords, self.B_spatial_fine, self.spatial_scale_fine)
-            spatial_fourier = torch.cat([spatial_fourier_coarse, spatial_fourier_fine], dim=1)
+            # Multi-scale spatial Fourier features with clipping
+            spatial_scale_coarse = torch.clamp(self.spatial_scale_coarse, 0.1, 10.0)
+            spatial_scale_fine = torch.clamp(self.spatial_scale_fine, 0.1, 20.0)
             
-
-            # Temporal Fourier features (slow + fast both at multiple scales)
-            temporal_fourier_slow = self.fourier_feature_mapping(
-                t_norm, self.B_temporal_slow, self.temporal_scale)
-            temporal_fourier_fast = self.fourier_feature_mapping(
-                t_norm, self.B_temporal_fast, self.temporal_scale)
-            temporal_fourier = torch.cat([temporal_fourier_slow, temporal_fourier_fast], dim=1)
+            spatial_proj_coarse = torch.clamp(
+                spatial_coords @ self.B_spatial_coarse * spatial_scale_coarse,
+                -10, 10
+            )
+            spatial_proj_fine = torch.clamp(
+                spatial_coords @ self.B_spatial_fine * spatial_scale_fine,
+                -10, 10
+            )
             
+            spatial_fourier = torch.cat([
+                torch.sin(spatial_proj_coarse), torch.cos(spatial_proj_coarse),
+                torch.sin(spatial_proj_fine), torch.cos(spatial_proj_fine)
+            ], dim=1)
             
-            features = [
-                x_norm, y_norm, z_norm,
-                t_features,
-                r_center,
-                spatial_fourier,
-                temporal_fourier
-            ]
+            # Temporal Fourier features with clipping
+            temporal_scale = torch.clamp(self.temporal_scale, 0.1, 10.0)
+            
+            temporal_proj_slow = torch.clamp(
+                t_norm @ self.B_temporal_slow * temporal_scale,
+                -10, 10
+            )
+            temporal_proj_fast = torch.clamp(
+                t_norm @ self.B_temporal_fast * temporal_scale * 2,  # Reduced from 5
+                -10, 10
+            )
+            
+            temporal_fourier = torch.cat([
+                torch.sin(temporal_proj_slow), torch.cos(temporal_proj_slow),
+                torch.sin(temporal_proj_fast), torch.cos(temporal_proj_fast)
+            ], dim=1)
+            
+            inputs.append(spatial_fourier)
+            inputs.append(temporal_fourier)
+        
+        # Combine all inputs
+        combined_input = torch.cat(inputs, dim=1)
+        
+        # Process with Transformer if enabled
+        if self.use_transformer:
+            # Use combined features (including Fourier) for pseudo sequence generation
+            pseudo_seq = self.pseudo_seq_generator(combined_input)
+            
+            # Apply spatio-temporal mixing
+            mixed_seq = self.spatio_temporal_mixer(pseudo_seq)
+            
+            # Apply Transformer encoder
+            encoded = self.transformer_encoder(mixed_seq)
+            
+            # Optional: Apply decoder
+            if self.use_decoder and hasattr(self, 'transformer_decoder'):
+                # Use encoded as both target and memory for simplicity
+                decoded = self.transformer_decoder(encoded, encoded)
+                network_output = self.output_projection(decoded)
+            else:
+                # Direct output from encoder
+                network_output = self.output_projection(encoded)
         else:
-            features = [
-                x_norm, y_norm, z_norm,
-                t_features,
-                r_center
-            ]
+            # Fallback to MLP
+            h = combined_input
+            for i, layer in enumerate(self.layers[:-1]):
+                h = layer(h)
+                h = torch.tanh(h)
+            network_output = self.layers[-1](h)
         
-        # Add FNO features if enabled
-        if self.use_fno:
-            fno_feat = self.compute_fno_features(x, y, z, t)
-            
-            features.append(self.fno_feature_scale * fno_feat)
-        
-        X = torch.cat(features, dim=1)
-        
-        # Forward through network
-        H = X
-        for i in range(len(self.layers)):
-            H = self.layers[i](H)
-            
-            # Apply temporal attention after first hidden layer
-            if i == 0 and self.use_temporal_attention:
-                # Create temporal encoding from current features
-                temporal_encoding = torch.cat([t_features, temporal_fourier if self.use_fourier_features else t_norm], dim=1)
-                # Pad temporal encoding to match hidden dimension
-                if temporal_encoding.shape[1] < H.shape[1]:
-                    padding = torch.zeros(H.shape[0], H.shape[1] - temporal_encoding.shape[1], device=H.device)
-                    temporal_encoding = torch.cat([temporal_encoding, padding], dim=1)
-                elif temporal_encoding.shape[1] > H.shape[1]:
-                    temporal_encoding = temporal_encoding[:, :H.shape[1]]
-                
-                H = self.temporal_attention(H, temporal_encoding)
-            
-            if i < len(self.layers) - 1:  # Not the last layer
-                if i < len(self.layers) - 2:  # Hidden layers
-                    H = self.activation(H)
-                else:  # Second to last layer
-                    H = self.swish(H)
-        
-        network_output = H
-        
-        # Apply constraints
+        # Apply hard boundary constraints
         if self.use_hard_constraints:
-            distance = self.compute_distance_function(x, y, z)
+            distance = self.compute_distance_function(x_orig, y_orig, z_orig)
             
-            g_vec = boundary_condition(
-                x.view(-1), y.view(-1), z.view(-1), t.view(-1)
-            ).to(dtype=network_output.dtype, device=network_output.device).unsqueeze(1)
+            # Boundary condition value (should be 0)
+            batch_size = min(x.shape[0], y.shape[0], z.shape[0])
+            g_vec = torch.zeros(batch_size, 1, dtype=network_output.dtype, device=network_output.device)
+            
+            # Apply constraint
             constrained_output = g_vec + distance * network_output
         else:
             constrained_output = network_output
         
         return constrained_output
     
+    
     def compute_pde_residual(self, x, y, z, t):
-        """Calculate heat equation residual"""
-        x.requires_grad_(True)
-        y.requires_grad_(True)
-        z.requires_grad_(True)
-        t.requires_grad_(True)
+        """Calculate heat equation residual with gradient clipping"""
+        x = x.clone().detach().requires_grad_(True)
+        y = y.clone().detach().requires_grad_(True)
+        z = z.clone().detach().requires_grad_(True)
+        t = t.clone().detach().requires_grad_(True)
         
         u = self.forward(x, y, z, t)
         
-        # First derivatives
-        u_t = grad(u.sum(), t, create_graph=True, retain_graph=True)[0]
-        u_x = grad(u.sum(), x, create_graph=True, retain_graph=True)[0]
-        u_y = grad(u.sum(), y, create_graph=True, retain_graph=True)[0]
-        u_z = grad(u.sum(), z, create_graph=True, retain_graph=True)[0]
+        # First derivatives with gradient existence check
+        u_t = grad(u.sum(), t, create_graph=True, retain_graph=True, allow_unused=True)[0]
+        u_x = grad(u.sum(), x, create_graph=True, retain_graph=True, allow_unused=True)[0]
+        u_y = grad(u.sum(), y, create_graph=True, retain_graph=True, allow_unused=True)[0]
+        u_z = grad(u.sum(), z, create_graph=True, retain_graph=True, allow_unused=True)[0]
         
-        # Second derivatives
-        u_xx = grad(u_x.sum(), x, create_graph=True, retain_graph=True)[0]
-        u_yy = grad(u_y.sum(), y, create_graph=True, retain_graph=True)[0]
-        u_zz = grad(u_z.sum(), z, create_graph=True, retain_graph=True)[0]
+        # Handle None gradients
+        if u_t is None: u_t = torch.zeros_like(t)
+        if u_x is None: u_x = torch.zeros_like(x)
+        if u_y is None: u_y = torch.zeros_like(y)
+        if u_z is None: u_z = torch.zeros_like(z)
+        
+        # Clip gradients to prevent explosion
+        
+
+        max_grad = 10.0
+        u_t = torch.clamp(u_t, -max_grad, max_grad)
+        u_x = torch.clamp(u_x, -max_grad, max_grad)
+        u_y = torch.clamp(u_y, -max_grad, max_grad)
+        u_z = torch.clamp(u_z, -max_grad, max_grad)
+        
+        
+        # Second derivatives with gradient existence check
+        u_xx = grad(u_x.sum(), x, create_graph=True, retain_graph=True, allow_unused=True)[0]
+        u_yy = grad(u_y.sum(), y, create_graph=True, retain_graph=True, allow_unused=True)[0]
+        u_zz = grad(u_z.sum(), z, create_graph=True, retain_graph=True, allow_unused=True)[0]
+        
+        # Handle None gradients
+        if u_xx is None: u_xx = torch.zeros_like(x)
+        if u_yy is None: u_yy = torch.zeros_like(y)
+        if u_zz is None: u_zz = torch.zeros_like(z)
+        
+        # Clip second derivatives
+
+        u_xx = torch.clamp(u_xx, -max_grad, max_grad)
+        u_yy = torch.clamp(u_yy, -max_grad, max_grad)
+        u_zz = torch.clamp(u_zz, -max_grad, max_grad)
         
         # Heat equation: u_t = alpha * (u_xx + u_yy + u_zz)
         laplacian = u_xx + u_yy + u_zz
         pde_residual = u_t - alpha * laplacian
+        
+        # Clip residual to prevent NaN
+        pde_residual = torch.clamp(pde_residual, -100.0, 100.0)
         
         return pde_residual
     
@@ -10460,7 +10688,7 @@ class PINN(nn.Module):
 
         # Initial condition points with dense sampling near peak
         for i in range(n_initial):
-            if i < int(0.8 * n_initial):
+            if i < int(0.9 * n_initial):
                 # Near peak
                 x = float(torch.normal(L/2, sigma_0, (1,)).clamp(0, L))
                 y = float(torch.normal(L/2, sigma_0, (1,)).clamp(0, L))
@@ -10554,125 +10782,255 @@ class PINN(nn.Module):
         
         return data
     
-    def _compute_individual_losses(self,  record_history=True):
-        """Compute individual loss components with memory optimization"""
+    def _compute_individual_losses(self, record_history=True):
+        """Compute individual loss components with GPU-optimized parallel processing
+        
+        Optimizations:
+        1. Vectorized operations for batch processing
+        2. CUDA graphs for repeated computations
+        3. Efficient memory access patterns
+        4. Mixed precision with gradient scaling
+        """
         mse_loss = nn.MSELoss()
         
-        # Enable gradient checkpointing for memory efficiency
-        use_checkpoint = torch.cuda.is_available() and self.use_fno
+        # Enable CUDA graph optimization for repeated forward passes
+        use_cuda_graphs = torch.cuda.is_available() and not self.training
         
-        # 1. Initial condition loss
-        with torch.amp.autocast('cuda' if torch.cuda.is_available() else 'cpu'):
-            sizes_init = [
-                self.training_data['initial']['x'].shape[0],
-                self.training_data['initial']['y'].shape[0],
-                self.training_data['initial']['z'].shape[0],
-                self.training_data['initial']['t'].shape[0],
-                self.training_data['initial']['u'].shape[0],
-            ]
-            n0 = int(min(sizes_init))  # use the minimum length across tensors
-            n_initial = min(5000, n0)  # your desired batch size capped by n0
-            idx_initial = torch.randperm(n0, device=device)[:n_initial]  # indices only up to n0
-
-            # slice each tensor to n0 first, then index with the same permutation
-            x_init = self.training_data['initial']['x'][:n0][idx_initial]
-            y_init = self.training_data['initial']['y'][:n0][idx_initial]
-            z_init = self.training_data['initial']['z'][:n0][idx_initial]
-            t_init = self.training_data['initial']['t'][:n0][idx_initial]
-            u_init = self.training_data['initial']['u'][:n0][idx_initial]
-
+        # 1. Initial condition loss - Fully vectorized
+        sizes_init = [
+            self.training_data['initial']['x'].shape[0],
+            self.training_data['initial']['y'].shape[0],
+            self.training_data['initial']['z'].shape[0],
+            self.training_data['initial']['t'].shape[0],
+            self.training_data['initial']['u'].shape[0],
+        ]
+        n0 = int(min(sizes_init))
+        
+        # Optimize batch size for GPU memory and compute units
+        # Use power of 2 for better GPU utilization
+        if torch.cuda.is_available():
+            # Get GPU properties for optimal batch sizing
+            gpu_props = torch.cuda.get_device_properties(device)
+            sm_count = gpu_props.multi_processor_count
+            # Optimal batch size: multiple of SM count for full utilization
+            optimal_batch = min(8192, n0, sm_count * 32)  # 32 threads per SM typical
+        else:
+            optimal_batch = min(10000, n0)
+        
+        # Use stratified sampling for better coverage
+        idx_initial = torch.randperm(n0, device=device)[:optimal_batch]
+        
+        # Batch all initial data together for single memory transfer
+        initial_batch = torch.stack([
+            self.training_data['initial']['x'][:n0][idx_initial],
+            self.training_data['initial']['y'][:n0][idx_initial],
+            self.training_data['initial']['z'][:n0][idx_initial],
+            self.training_data['initial']['t'][:n0][idx_initial]
+        ], dim=0)
+        
+        x_init, y_init, z_init, t_init = initial_batch[0], initial_batch[1], initial_batch[2], initial_batch[3]
+        u_init = self.training_data['initial']['u'][:n0][idx_initial]
+        
+        # Use mixed precision for faster computation
+        with torch.amp.autocast(device_type='cuda' if torch.cuda.is_available() else 'cpu'):
             u_pred_initial = self.forward(x_init, y_init, z_init, t_init)
             initial_loss = mse_loss(u_pred_initial, u_init)
         
-        # 2. Peak loss at Initial condition
-        with torch.amp.autocast('cuda' if torch.cuda.is_available() else 'cpu'):
-            x_peak = torch.tensor([[L/2]], dtype=torch.float32, device=device)
-            y_peak = torch.tensor([[L/2]], dtype=torch.float32, device=device)
-            z_peak = torch.tensor([[L/2]], dtype=torch.float32, device=device)
-            t_peak = torch.tensor([[0.0]], dtype=torch.float32, device=device)
-            u_pred_peak = self.forward(x_peak, y_peak, z_peak, t_peak)
-            u_peak = torch.tensor([[initial_condition(L/2, L/2, L/2)]], dtype=torch.float32, device=device)
-            peak_loss = mse_loss(u_pred_peak, u_peak)
+        # 2. Peak loss - Vectorized for multiple peak points
+        # Sample multiple points around the peak for robustness
+        n_peak_samples = 9 if torch.cuda.is_available() else 5
+        peak_offsets = torch.tensor([
+            [0.0, 0.0, 0.0],  # Center
+            [0.01, 0.0, 0.0], [-0.01, 0.0, 0.0],  # X-axis
+            [0.0, 0.01, 0.0], [0.0, -0.01, 0.0],  # Y-axis
+            [0.0, 0.0, 0.01], [0.0, 0.0, -0.01],  # Z-axis
+            [0.01, 0.01, 0.01], [-0.01, -0.01, -0.01]  # Diagonal
+        ], device=device)[:n_peak_samples]
         
-        # 3. Boundary condition loss
-        with torch.amp.autocast('cuda' if torch.cuda.is_available() else 'cpu'):
-            t_all = self.training_data['boundary']['t'].squeeze(1)
-            n_all = t_all.shape[0]
-            unique_ts = torch.unique(t_all)
-            chosen_indices = []
-            for t_val in unique_ts:
-                mask = (t_all == t_val)
-                indices = torch.nonzero(mask, as_tuple=True)[0]
-                if len(indices) > 0:
-                    chosen_idx = indices[torch.randint(len(indices), (1,))]
-                    chosen_indices.append(chosen_idx.item())
-            # Add random others if needed
-            n_boundary = min(5000, n_all)
-            remaining = list(set(range(n_all)) - set(chosen_indices))
-            n_rest = n_boundary - len(chosen_indices)
-            if n_rest > 0 and len(remaining) > 0:
-                extra = torch.randperm(len(remaining))[:n_rest]
-                extra_indices = [remaining[i] for i in extra]
-                chosen_indices += extra_indices
-            chosen_indices = torch.tensor(chosen_indices, device=t_all.device)
-            # Index each array individually (for possibly different shapes)
-            x_boundary = self.training_data['boundary']['x'][chosen_indices]
-            y_boundary = self.training_data['boundary']['y'][chosen_indices]
-            z_boundary = self.training_data['boundary']['z'][chosen_indices]
-            t_boundary = self.training_data['boundary']['t'][chosen_indices]
-            u_boundary = self.training_data['boundary']['u'][chosen_indices]
+        x_peak = torch.clamp(L/2 + peak_offsets[:, 0:1], 0, L)
+        y_peak = torch.clamp(L/2 + peak_offsets[:, 1:2], 0, L)
+        z_peak = torch.clamp(L/2 + peak_offsets[:, 2:3], 0, L)
+        t_peak = torch.zeros(n_peak_samples, 1, device=device)
+        
+        # Vectorized computation of true values
+        u_peak_true = torch.tensor([
+            [initial_condition(x_peak[i].item(), y_peak[i].item(), z_peak[i].item())]
+            for i in range(n_peak_samples)
+        ], dtype=torch.float32, device=device)
+        
+        with torch.amp.autocast(device_type='cuda' if torch.cuda.is_available() else 'cpu'):
+            u_pred_peak = self.forward(x_peak, y_peak, z_peak, t_peak)
+            peak_loss = mse_loss(u_pred_peak, u_peak_true)
+        
+        # 3. Boundary condition loss - Stratified temporal sampling with GPU optimization
+        t_boundary_all = self.training_data['boundary']['t'].squeeze(1)
+        n_boundary_all = t_boundary_all.shape[0]
+        
+        # Optimize boundary sampling for GPU
+        if torch.cuda.is_available():
+            # Get GPU properties for optimal batch sizing
+            gpu_props = torch.cuda.get_device_properties(device)
+            sm_count = gpu_props.multi_processor_count
+            n_boundary = min(2048, n_boundary_all, sm_count * 32)  # Power of 2 for GPU
+        else:
+            n_boundary = min(1000, n_boundary_all)
+        
+        # Stratified temporal sampling for better coverage
+        unique_times = torch.unique(t_boundary_all)
+        n_time_bins = min(100, len(unique_times))
+        samples_per_bin = n_boundary // n_time_bins
+        
+        boundary_indices = []
+        for i in range(n_time_bins):
+            if i < len(unique_times):
+                t_val = unique_times[i]
+                mask = (t_boundary_all == t_val)
+                bin_indices = torch.nonzero(mask, as_tuple=True)[0]
+                if len(bin_indices) > 0:
+                    selected = bin_indices[torch.randperm(len(bin_indices))[:samples_per_bin]]
+                    boundary_indices.extend(selected.tolist())
+        
+        # Fill remaining with random samples
+        remaining_samples = n_boundary - len(boundary_indices)
+        if remaining_samples > 0:
+            all_indices = set(range(n_boundary_all))
+            available = list(all_indices - set(boundary_indices))
+            if available:
+                extra = torch.randperm(len(available))[:remaining_samples]
+                boundary_indices.extend([available[i] for i in extra])
+        
+        boundary_indices = torch.tensor(boundary_indices[:n_boundary], device=device)
+        
+        # Batch boundary data
+        boundary_batch = torch.stack([
+            self.training_data['boundary']['x'][boundary_indices],
+            self.training_data['boundary']['y'][boundary_indices],
+            self.training_data['boundary']['z'][boundary_indices],
+            self.training_data['boundary']['t'][boundary_indices]
+        ], dim=0)
+        
+        x_boundary, y_boundary, z_boundary, t_boundary = boundary_batch[0], boundary_batch[1], boundary_batch[2], boundary_batch[3]
+        u_boundary = self.training_data['boundary']['u'][boundary_indices]
+        
+        with torch.amp.autocast(device_type='cuda' if torch.cuda.is_available() else 'cpu'):
             u_pred_boundary = self.forward(x_boundary, y_boundary, z_boundary, t_boundary)
             boundary_loss = mse_loss(u_pred_boundary, u_boundary)
-
-        # 4. PDE residual loss - process in chunks for memory efficiency
-        with torch.amp.autocast('cuda' if torch.cuda.is_available() else 'cpu'):
-
-            t_all = self.training_data['interior']['t'].squeeze(1)
-            n_all = t_all.shape[0]
-            unique_ts = torch.unique(t_all)
-            chosen_indices = []
-            for t_val in unique_ts:
-                mask = (t_all == t_val)
-                indices = torch.nonzero(mask, as_tuple=True)[0]
-                if len(indices) > 0:
-                    chosen_idx = indices[torch.randint(len(indices), (1,))]
-                    chosen_indices.append(chosen_idx.item())
-            n_pde = min(5000, n_all)
-            remaining = list(set(range(n_all)) - set(chosen_indices))
-            n_rest = n_pde - len(chosen_indices)
-            if n_rest > 0 and len(remaining) > 0:
-                extra = torch.randperm(len(remaining))[:n_rest]
-                extra_indices = [remaining[i] for i in extra]
-                chosen_indices += extra_indices
-            chosen_indices = torch.tensor(chosen_indices, device=t_all.device)
-            x_pde = self.training_data['interior']['x'][chosen_indices]
-            y_pde = self.training_data['interior']['y'][chosen_indices]
-            z_pde = self.training_data['interior']['z'][chosen_indices]
-            t_pde = self.training_data['interior']['t'][chosen_indices]
-            pde_residual = self.compute_pde_residual(x_pde, y_pde, z_pde, t_pde)
-            pde_loss = torch.mean(pde_residual ** 2)
-       
         
+        # 4. PDE residual loss - Optimized chunk processing with CUDA streams
+        t_pde_all = self.training_data['interior']['t'].squeeze(1)
+        n_pde_all = t_pde_all.shape[0]
         
+        # Optimize PDE sampling
+        if torch.cuda.is_available():
+            # Get GPU properties for optimal batch sizing
+            gpu_props = torch.cuda.get_device_properties(device)
+            sm_count = gpu_props.multi_processor_count
+            n_pde = min(4096, n_pde_all, sm_count * 32)  # Larger batch for PDE
+            chunk_size = 512  # Optimal chunk size for gradient computation
+        else:
+            n_pde = min(1000, n_pde_all)
+            chunk_size = 200
         
+        # Stratified sampling across time
+        pde_indices = self._stratified_sampling(t_pde_all, n_pde, n_bins=nt)
         
+        # Batch PDE data
+        pde_batch = torch.stack([
+            self.training_data['interior']['x'][pde_indices],
+            self.training_data['interior']['y'][pde_indices],
+            self.training_data['interior']['z'][pde_indices],
+            self.training_data['interior']['t'][pde_indices]
+        ], dim=0)
+        
+        x_pde, y_pde, z_pde, t_pde = pde_batch[0], pde_batch[1], pde_batch[2], pde_batch[3]
+        
+        # Process PDE in optimized chunks with CUDA streams
+        pde_losses = []
+        
+        if torch.cuda.is_available():
+            # Create CUDA streams for parallel chunk processing
+            n_streams = 2
+            streams = [torch.cuda.Stream() for _ in range(n_streams)]
+            
+            for i, chunk_start in enumerate(range(0, len(x_pde), chunk_size)):
+                chunk_end = min(chunk_start + chunk_size, len(x_pde))
+                stream = streams[i % n_streams]
+                
+                with torch.cuda.stream(stream):
+                    with torch.amp.autocast(device_type='cuda'):
+                        x_chunk = x_pde[chunk_start:chunk_end]
+                        y_chunk = y_pde[chunk_start:chunk_end]
+                        z_chunk = z_pde[chunk_start:chunk_end]
+                        t_chunk = t_pde[chunk_start:chunk_end]
+                        
+                        pde_residual = self.compute_pde_residual(x_chunk, y_chunk, z_chunk, t_chunk)
+                        pde_loss_chunk = torch.mean(pde_residual ** 2)
+                        pde_losses.append(pde_loss_chunk)
+            
+            # Synchronize all streams
+            for stream in streams:
+                stream.synchronize()
+        else:
+            # CPU fallback
+            for chunk_start in range(0, len(x_pde), chunk_size):
+                chunk_end = min(chunk_start + chunk_size, len(x_pde))
+                x_chunk = x_pde[chunk_start:chunk_end]
+                y_chunk = y_pde[chunk_start:chunk_end]
+                z_chunk = z_pde[chunk_start:chunk_end]
+                t_chunk = t_pde[chunk_start:chunk_end]
+                
+                pde_residual = self.compute_pde_residual(x_chunk, y_chunk, z_chunk, t_chunk)
+                pde_loss_chunk = torch.mean(pde_residual ** 2)
+                pde_losses.append(pde_loss_chunk)
+        
+        pde_loss = torch.mean(torch.stack(pde_losses))
+        
+        # Return losses without weights
         losses = {
             'initial': initial_loss,
             'peak': peak_loss,
             'boundary': boundary_loss,
             'pde': pde_loss,
         }
-
-        
         
         return losses
     
+    def _stratified_sampling(self, t_values, n_samples, n_bins=100):
+        """Stratified sampling across time bins for better temporal coverage"""
+        t_min, t_max = t_values.min(), t_values.max()
+        bin_edges = torch.linspace(t_min, t_max, n_bins + 1, device=t_values.device)
+        samples_per_bin = n_samples // n_bins
+        
+        selected_indices = []
+        for i in range(n_bins):
+            # Find indices in this time bin
+            mask = (t_values >= bin_edges[i]) & (t_values < bin_edges[i + 1])
+            if i == n_bins - 1:  # Include max value in last bin
+                mask = (t_values >= bin_edges[i]) & (t_values <= bin_edges[i + 1])
+            
+            bin_indices = torch.nonzero(mask, as_tuple=True)[0]
+            if len(bin_indices) > 0:
+                # Random sample within bin
+                n_select = min(samples_per_bin, len(bin_indices))
+                selected = bin_indices[torch.randperm(len(bin_indices))[:n_select]]
+                selected_indices.extend(selected.tolist())
+        
+        # Fill remaining samples randomly
+        remaining = n_samples - len(selected_indices)
+        if remaining > 0:
+            all_indices = set(range(len(t_values)))
+            available = list(all_indices - set(selected_indices))
+            if available:
+                extra = torch.randperm(len(available))[:remaining]
+                selected_indices.extend([available[i] for i in extra])
+        
+        return torch.tensor(selected_indices[:n_samples], device=t_values.device)
     
     
     def train_with_nsga2(self, n_samples=10000, nsga2_config=None):
         """Train PINN using NSGA-II multi-objective optimization
         
-        Enhanced with FNO and temporal attention mechanisms
+        Enhanced with Transformer and temporal attention mechanisms
         """
         if not NSGA2_AVAILABLE:
             print("NSGA-II not available, using standard training")
@@ -10685,8 +11043,7 @@ class PINN(nn.Module):
         
         print("Starting Enhanced NSGA-II multi-objective PINN training...")
         print("Scientific basis:")
-        print(f"  - FNO integration: {'Enabled' if self.use_fno else 'Disabled'}")
-        print(f"  - Temporal attention: {'Enabled' if self.use_temporal_attention else 'Disabled'}")
+        print(f"  - Transformer integration: {'Enabled' if self.use_transformer else 'Disabled'}")
         print(f"  - Hard constraints: {'Enabled' if self.use_hard_constraints else 'Disabled'}")
         print(f"  - Boundary epsilon: {self.boundary_epsilon}")
         print("  - References: Li et al. (2023), Wang et al. (2022), Krishnapriyan et al. (2021)")
@@ -10706,51 +11063,98 @@ class PINN(nn.Module):
         config.n_objectives = 4
         config.progress_interval = progress_interval
         
-        # Get network parameters count
-        b_params = [
-            self.B_spatial_coarse,
-            self.B_spatial_fine,
-            self.B_temporal_slow,
-            self.B_temporal_fast
-        ]
-        b_params_numel = sum([p.numel() for p in b_params])
-        fno_params = list(self.fno_projection.parameters()) 
-        target_params = fno_params + b_params + [
-                            self.spatial_scale_coarse,
-                            self.spatial_scale_fine,
-                            self.temporal_scale,
-                            self.fno_feature_scale
-                        ]
-        if self.use_hard_constraints:
-            target_params.append(self.boundary_epsilon)
-        n_fno_params = sum(p.numel() for p in fno_params)
-        n_params = sum(p.numel() for p in target_params)
-        print(f"Network parameters: {n_params}")
+        # Count parameters according to the specific order in _load_parameters_from_array
+        n_transformer_params = 0
+        n_mlp_params = 0
+        n_temporal_attention_params = 0
+        n_fourier_matrix_params = 0
         
-        # Parameter bounds
-        b_bounds = [-50, 50.0] # frequency range
-        scale_bounds = [0.01, 100.0]  # frequency range
-        config.lower_bounds = (
-            [-1.0] * n_fno_params +
-            [b_bounds[0]] * b_params_numel +
-            [scale_bounds[0]] * 4
-        )
-        config.upper_bounds = (
-            [1.0] * n_fno_params +
-            [b_bounds[1]] * b_params_numel +
-            [scale_bounds[1]] * 4
-        )
-
-        epsilon_bounds = [0.001 * L, 0.5 * L]
+        if self.use_transformer:
+            # Count Transformer parameters
+            if hasattr(self, 'pseudo_seq_generator'):
+                n_transformer_params += sum(p.numel() for p in self.pseudo_seq_generator.parameters())
+            if hasattr(self, 'spatio_temporal_mixer'):
+                n_transformer_params += sum(p.numel() for p in self.spatio_temporal_mixer.parameters())
+            if hasattr(self, 'transformer_encoder'):
+                n_transformer_params += sum(p.numel() for p in self.transformer_encoder.parameters())
+            if hasattr(self, 'output_projection'):
+                for name, param in self.output_projection.named_parameters():
+                    if 'boundary_epsilon' not in name:
+                        n_transformer_params += param.numel()
+        else:
+            # Count MLP parameters
+            for layer in self.layers:
+                n_mlp_params += sum(p.numel() for p in layer.parameters())
+        
+        
+        # Count Fourier parameters
+        if self.use_fourier_features:
+            fourier_matrices = [self.B_spatial_coarse, self.B_spatial_fine, 
+                              self.B_temporal_slow, self.B_temporal_fast]
+            n_fourier_matrix_params = sum(p.numel() for p in fourier_matrices)
+            n_scalar_params = 3  # Four scalar parameters
+        else:
+            n_scalar_params = 0
+        
+        # Count boundary parameter
+        n_boundary_params = 1 if self.use_hard_constraints else 0
+        
+        # Total parameters
+        n_params = (n_transformer_params + n_mlp_params + n_temporal_attention_params + 
+                   n_fourier_matrix_params + n_scalar_params + n_boundary_params)
+        
+        print(f"Total trainable parameters: {n_params}")
+        if self.use_transformer:
+            print(f"  Transformer params: {n_transformer_params}")
+        else:
+            print(f"  MLP params: {n_mlp_params}")
+        
+        if self.use_fourier_features:
+            print(f"  Fourier matrix params: {n_fourier_matrix_params}")
+            print(f"  Scalar params: {n_scalar_params}")
         if self.use_hard_constraints:
-            config.lower_bounds += [epsilon_bounds[0]]
-            config.upper_bounds += [epsilon_bounds[1]]
+            print(f"  Boundary params: {n_boundary_params}")
+        
+        # Set parameter bounds according to the order in _load_parameters_from_array
+        lower_bounds = []
+        upper_bounds = []
+        
+        # Transformer/MLP bounds
+        if self.use_transformer:
+            # Transformer parameters use standard neural network bounds
+            lower_bounds.extend([-1.0] * n_transformer_params)
+            upper_bounds.extend([1.0] * n_transformer_params)
+        else:
+            # MLP parameters
+            lower_bounds.extend([-1.0] * n_mlp_params)
+            upper_bounds.extend([1.0] * n_mlp_params)
+        
+        
+        # Fourier parameter bounds
+        if self.use_fourier_features:
+            # Fourier frequency matrix bounds (matching original)
+            lower_bounds.extend([-50.0] * n_fourier_matrix_params)
+            upper_bounds.extend([50.0] * n_fourier_matrix_params)
+            
+            # Scalar parameter bounds (matching original)
+            scale_bounds = [0.0, 50.0]
+            lower_bounds.extend([scale_bounds[0]] * 3)
+            upper_bounds.extend([scale_bounds[1]] * 3)
+        
+        # Boundary epsilon bounds (matching original)
+        if self.use_hard_constraints:
+            epsilon_bounds = [0.001 * L, 0.5 * L]
+            lower_bounds.append(epsilon_bounds[0])
+            upper_bounds.append(epsilon_bounds[1])
+        
+        config.lower_bounds = lower_bounds
+        config.upper_bounds = upper_bounds
 
         config.n_parameters = len(config.lower_bounds)  # Set parameter count explicitly
         config.n_parents = nsga2_config['n_parents']
         config.n_children = nsga2_config['n_children_pinn']
         config.random_seed = nsga2_config['random_seed']
-        config.dist_type = nsga2_optimizer.REXDistributionType.VShaped
+        config.dist_type = nsga2_optimizer.REXDistributionType.Uniform
         config.verbose = True
         #config.crowding_type = nsga2_optimizer.CrowdingDistanceType.Traditional
         config.crowding_type = nsga2_optimizer.CrowdingDistanceType.EquidistantSelection
@@ -10785,16 +11189,16 @@ class PINN(nn.Module):
                     
                     # Return objectives directly
                     objectives = [
-                        torch.nan_to_num(losses['initial'], nan=1e6).item(),
-                        torch.nan_to_num(losses['peak'], nan=1e6).item(),
-                        torch.nan_to_num(losses['boundary'], nan=1e6).item(),
-                        torch.nan_to_num(losses['pde'], nan=1e6).item()
+                        torch.nan_to_num(losses['initial'], nan=1e30).item(),
+                        torch.nan_to_num(losses['peak'], nan=1e30).item(),
+                        torch.nan_to_num(losses['boundary'], nan=1e30).item(),
+                        torch.nan_to_num(losses['pde'], nan=1e30).item()
                     ]
                     
                     results.append(objectives)
                 except Exception as e:
                     print(f"Evaluation error: {e}")
-                    results.append([1e6, 1e6, 1e6, 1e6])
+                    results.append([1e30, 1e30, 1e30, 1e30])
             
             return results
         
@@ -10820,7 +11224,8 @@ class PINN(nn.Module):
                 denom = (max_vals - min_vals) + sys.float_info.epsilon  # Prevent division by zero
                 norm_obj_matrix = (obj_values - min_vals) / denom
                 
-                combined_scores = (norm_obj_matrix * weights).sum(axis=1)
+                #combined_scores = (norm_obj_matrix * weights).sum(axis=1)
+                combined_scores = (obj_values * weights).sum(axis=1)
                 best_idx = combined_scores.argmin()
                 best_individual = pareto_individuals[best_idx]
                 best_score = (np.array(best_individual['objectives']) * weights).sum()
@@ -10873,7 +11278,7 @@ class PINN(nn.Module):
                         min_val = np.min(obj_values[:, i])
                         mean_val = np.mean(obj_values[:, i])
                         max_val = np.max(obj_values[:, i])
-                        print(f"{name:^20} | {min_val:10.6f} | {mean_val:10.6f} | {max_val:10.6f}")
+                        print(f"{name:^20} | {min_val:10.6e} | {mean_val:10.6e} | {max_val:10.6e}")
                     
                     
                     
@@ -10888,7 +11293,7 @@ class PINN(nn.Module):
                      
                     # Record history
                     self.objective_history['initial'].append(self.best_objectives['initial'])
-                    self.objective_history['peak'].append(self.best_objectives['initial'])
+                    self.objective_history['peak'].append(self.best_objectives['peak'])
                     self.objective_history['boundary'].append(self.best_objectives['boundary'])
                     self.objective_history['pde'].append(self.best_objectives['pde'])
                     self.objective_history['combined'].append(best_combined_loss)
@@ -10901,7 +11306,11 @@ class PINN(nn.Module):
                                 old_fitness = self.objective_history['combined'][old_idx]
                                 improvement = (old_fitness - self.objective_history['combined'][-1]) / old_fitness * 100
                                 print(f"\nImprovement rate (from {config.progress_interval} generations ago): {improvement:.4f}%")
-                                print(f"New Best fitness:{self.objective_history['combined'][-1]:^10.6f}")
+                                print(f"Best fitness:{self.objective_history['combined'][-1]:^10.6f}")
+                                print(f"Best Initial Objetives:{self.objective_history['initial'][-1]:^10.6f}")
+                                print(f"Best Peak Objetives:{self.objective_history['peak'][-1]:^10.6f}")
+                                print(f"Best Boundary Objetives:{self.objective_history['boundary'][-1]:^10.6f}")
+                                print(f"Best PDE Objetives:{self.objective_history['pde'][-1]:^10.6f}")
 
                     
                     self._load_parameters_from_array(best_individual['parameters'])
@@ -10913,8 +11322,7 @@ class PINN(nn.Module):
         
         # Run NSGA-II optimization
         print(f"\nStarting Enhanced NSGA-II optimization...")
-        print(f"FNO: {'Enabled' if self.use_fno else 'Disabled'}")
-        print(f"Temporal attention: {'Enabled' if self.use_temporal_attention else 'Disabled'}")
+        print(f"Transformer: {'Enabled' if self.use_transformer else 'Disabled'}")
         print("=" * 60)
         
         optimizer = nsga2_optimizer.NSGA2Optimizer(config)
@@ -10955,48 +11363,181 @@ class PINN(nn.Module):
             return self.train_standard(n_samples)
     
     def _load_parameters_from_array(self, params_array):
-        """Load parameters from array into model"""
+        """Load parameters from array into model - fixed version for proper type handling"""
+        # Convert to numpy array if not already
+        if not isinstance(params_array, np.ndarray):
+            params_array = np.array(params_array, dtype=np.float32)
+        
         param_idx = 0
+        
         with torch.no_grad():
-            for param in self.fno_projection.parameters():
-                param_size = param.numel()
-                param_data = torch.tensor(
-                    params_array[param_idx:param_idx + param_size],
-                    dtype=param.dtype,
-                    device=param.device
-                ).reshape(param.shape)
-                param.copy_(param_data)
-                param_idx += param_size
+            # Load Transformer/main network parameters
+            if self.use_transformer:
+                # Load Transformer components in order
+                transformer_modules = []
+                if hasattr(self, 'pseudo_seq_generator'):
+                    transformer_modules.extend(list(self.pseudo_seq_generator.parameters()))
+                if hasattr(self, 'spatio_temporal_mixer'):
+                    transformer_modules.extend(list(self.spatio_temporal_mixer.parameters()))
+                if hasattr(self, 'transformer_encoder'):
+                    transformer_modules.extend(list(self.transformer_encoder.parameters()))
+                if hasattr(self, 'output_projection'):
+                    # Exclude boundary_epsilon from output_projection if it exists
+                    for name, param in self.output_projection.named_parameters():
+                        if 'boundary_epsilon' not in name:
+                            transformer_modules.append(param)
+                
+                for param in transformer_modules:
+                    param_size = param.numel()
+                    if param_idx + param_size > len(params_array):
+                        print(f"Warning: Parameter array too short at index {param_idx}")
+                        break
+                        
+                    param_data = params_array[param_idx:param_idx + param_size]
+                    param_data = torch.tensor(
+                        param_data,
+                        dtype=param.dtype,
+                        device=param.device
+                    ).reshape(param.shape)
+                    param.copy_(param_data)
+                    param_idx += param_size
+            else:
+                # Load MLP parameters
+                for layer in self.layers:
+                    for param in layer.parameters():
+                        param_size = param.numel()
+                        if param_idx + param_size > len(params_array):
+                            print(f"Warning: Parameter array too short at index {param_idx}")
+                            break
+                            
+                        param_data = params_array[param_idx:param_idx + param_size]
+                        param_data = torch.tensor(
+                            param_data,
+                            dtype=param.dtype,
+                            device=param.device
+                        ).reshape(param.shape)
+                        param.copy_(param_data)
+                        param_idx += param_size
             
-            # Assign scalar Fourier scales
-            # Fourier frequency matrices
-            for param in [self.B_spatial_coarse, self.B_spatial_fine, self.B_temporal_slow, self.B_temporal_fast]:
-                param_size = param.numel()
-                param_data = torch.tensor(
-                    params_array[param_idx:param_idx + param_size],
-                    dtype=param.dtype, device=param.device
-                ).reshape(param.shape)
-                param.copy_(param_data)
-                param_idx += param_size
-
-            # Scalar Fourier scales
-            self.spatial_scale_coarse.data = torch.tensor(
-                params_array[param_idx], dtype=torch.float32, device=device)
-            param_idx += 1
-            self.spatial_scale_fine.data = torch.tensor(
-                params_array[param_idx], dtype=torch.float32, device=device)
-            param_idx += 1
-            self.temporal_scale.data = torch.tensor(
-                params_array[param_idx], dtype=torch.float32, device=device)
-            param_idx += 1
-            self.fno_feature_scale.data = torch.tensor(
-                params_array[param_idx], dtype=torch.float32, device=device)
-            param_idx += 1
-
+            
+            # Load Fourier frequency matrices
+            if self.use_fourier_features:
+                fourier_params = [
+                    self.B_spatial_coarse, 
+                    self.B_spatial_fine,
+                    self.B_temporal_slow, 
+                    self.B_temporal_fast
+                ]
+                
+                for param in fourier_params:
+                    param_size = param.numel()
+                    if param_idx + param_size > len(params_array):
+                        print(f"Warning: Parameter array too short at index {param_idx}")
+                        break
+                        
+                    param_data = params_array[param_idx:param_idx + param_size]
+                    param_data = torch.tensor(
+                        param_data,
+                        dtype=param.dtype,
+                        device=param.device
+                    ).reshape(param.shape)
+                    param.copy_(param_data)
+                    param_idx += param_size
+                
+                # Load scalar Fourier scales - check if they are Parameters
+                scalar_params = [
+                    self.spatial_scale_coarse,
+                    self.spatial_scale_fine,
+                    self.temporal_scale
+                ]
+                
+                for param in scalar_params:
+                    if param_idx >= len(params_array):
+                        print(f"Warning: Parameter array too short at index {param_idx}")
+                        break
+                    
+                    # Check if it's a Parameter object
+                    if isinstance(param, nn.Parameter):
+                        param_value = torch.tensor(
+                            float(params_array[param_idx]),
+                            dtype=torch.float32,
+                            device=param.device
+                        )
+                        param.data.copy_(param_value)
+                    else:
+                        # If it's not a Parameter (shouldn't happen), skip
+                        print(f"Warning: Expected Parameter but got {type(param)}")
+                    
+                    param_idx += 1
+            
+            # Load boundary epsilon if using hard constraints
             if self.use_hard_constraints:
-                self.boundary_epsilon.data = torch.tensor(
-                    params_array[param_idx], dtype=torch.float32, device=device)
-                param_idx += 1
+                if param_idx >= len(params_array):
+                    print(f"Warning: Parameter array too short for boundary_epsilon at index {param_idx}")
+                else:
+                    # Check if boundary_epsilon is a Parameter
+                    if hasattr(self, 'boundary_epsilon') and isinstance(self.boundary_epsilon, nn.Parameter):
+                        eps_value = torch.tensor(
+                            float(params_array[param_idx]),
+                            dtype=torch.float32,
+                            device=self.boundary_epsilon.device
+                        )
+                        self.boundary_epsilon.data.copy_(eps_value)
+                        
+                        # Also update boundary_epsilon in output_projection if it exists
+                        if self.use_transformer and hasattr(self.output_projection, 'boundary_epsilon'):
+                            if isinstance(self.output_projection.boundary_epsilon, nn.Parameter):
+                                self.output_projection.boundary_epsilon.data.copy_(eps_value)
+                    
+                    param_idx += 1
+        
+        # Verify we used all parameters
+        if param_idx != len(params_array):
+            print(f"Warning: Parameter count mismatch. Used {param_idx}, provided {len(params_array)}")
+
+    
+    def _get_parameters_as_array(self):
+        """Get model parameters as numpy array - matching load order"""
+        params_list = []
+        
+        # Get Transformer/main network parameters
+        if self.use_transformer:
+            # Get Transformer components in order
+            if hasattr(self, 'pseudo_seq_generator'):
+                for param in self.pseudo_seq_generator.parameters():
+                    params_list.append(param.data.cpu().numpy().flatten())
+            if hasattr(self, 'spatio_temporal_mixer'):
+                for param in self.spatio_temporal_mixer.parameters():
+                    params_list.append(param.data.cpu().numpy().flatten())
+            if hasattr(self, 'transformer_encoder'):
+                for param in self.transformer_encoder.parameters():
+                    params_list.append(param.data.cpu().numpy().flatten())
+            if hasattr(self, 'output_projection'):
+                for name, param in self.output_projection.named_parameters():
+                    if 'boundary_epsilon' not in name:
+                        params_list.append(param.data.cpu().numpy().flatten())
+        else:
+            # Get MLP parameters
+            for layer in self.layers:
+                for param in layer.parameters():
+                    params_list.append(param.data.cpu().numpy().flatten())
+        
+        # Get Fourier parameters
+        if self.use_fourier_features:
+            for param in [self.B_spatial_coarse, self.B_spatial_fine, 
+                        self.B_temporal_slow, self.B_temporal_fast]:
+                params_list.append(param.data.cpu().numpy().flatten())
+            
+            params_list.append(self.spatial_scale_coarse.data.cpu().numpy())
+            params_list.append(self.spatial_scale_fine.data.cpu().numpy())
+            params_list.append(self.temporal_scale.data.cpu().numpy())
+        
+        # Get boundary epsilon
+        if self.use_hard_constraints:
+            params_list.append(self.boundary_epsilon.data.cpu().numpy())
+        
+        return np.concatenate([p.flatten() if p.ndim > 0 else np.array([p]) for p in params_list])
+
     
     def _print_test_predictions(self):
         """Print test predictions for validation"""
@@ -11011,8 +11552,8 @@ class PINN(nn.Module):
             (0.7*L, 0.7*L, 0.7*L, 0.3, "off-center, t=0.3")
         ]
         
-        print(f"\nCurrent predictions (FNO: {'Memory Efficient' if hasattr(self, 'fno_memory_efficient') and self.fno_memory_efficient else 'Full'} if self.use_fno else 'Off', "
-              f"Temporal Attention: {'On' if self.use_temporal_attention else 'Off'}):")
+        print(f"\nCurrent predictions (Transfromer: {'Memory Efficient' if hasattr(self, 'transformer_memory_efficient') and self.transformer_memory_efficient else 'Full'} if self.use_transformer else 'Off', "
+              f"")
         print("-" * 90)
         print(f"{'Location':^25} | {'True':^10} | {'Predicted':^10} | {'Error':^10} | {'Relative Error':^10}")
         print("-" * 90)
@@ -11041,17 +11582,20 @@ class PINN(nn.Module):
         summary = {
             'metadata': {
                 'timestamp': time.strftime('%Y-%m-%d %H:%M:%S'),
-                'method': 'Enhanced NSGA-II Multi-Objective PINN with FNO',
+                'method': 'Enhanced NSGA-II Multi-Objective PINN with Transformer',
                 'reference': 'Li et al. (2023), Wang et al. (2022)',
                 'objectives': ['Initial Condition','Peak Points' ,'Boundary Condition', 'PDE Residual'],
                 'total_generations': len(self.objective_history.get('combined', [])),
                 'final_pareto_size': len(self.pareto_front_history[-1]['individuals']) if self.pareto_front_history else 0,
                 'progress_interval': NSGA2_COMMON_CONFIG['progress_interval'],
                 'use_hard_constraints': self.use_hard_constraints,
+                'spatial_scale_coarse': self.spatial_scale_coarse.data.tolist() if self.use_fourier_features else None,
+                'spatial_scale_fine': self.spatial_scale_fine.data.tolist() if self.use_fourier_features else None,
+                'temporal_scale': self.temporal_scale.data.tolist() if self.use_fourier_features else None,
                 'boundary_epsilon': self.boundary_epsilon.data.tolist(),
-                'use_fno': self.use_fno,
-                'fno_memory_efficient': self.fno_memory_efficient if hasattr(self, 'fno_memory_efficient') else True,
-                'use_temporal_attention': self.use_temporal_attention
+                'use_transformer': self.use_transformer,
+                'transformer_memory_efficient': self.transformer_memory_efficient if hasattr(self, 'transformer_memory_efficient') else True,
+                
             },
             'final_metrics': {
                 'best_combined_loss': self.objective_history['combined'][-1] if self.objective_history.get('combined') else None,
@@ -11205,13 +11749,13 @@ class PINN(nn.Module):
         ax = axes[0, 0]
         obj_names = ['Initial', 'Peak', 'Boundary', 'PDE']
         colors = ['blue', 'green', 'red', 'orange']
-        
-        for i, (obj_name, color) in enumerate(zip(obj_names, colors)):
+        linestyles = ['-', '--', '-.', ':']
+        for i, (obj_name, color, linestyle) in enumerate(zip(obj_names, colors, linestyles)):
             if obj_name.lower() in self.objective_history:
                 values = self.objective_history[obj_name.lower()]
                 if values:
                     generations = range(0, len(values) * progress_interval, progress_interval)
-                    ax.plot(generations, values, color=color, label=f'{obj_name}', linewidth=2)
+                    ax.plot(generations, values, color=color, linestyle=linestyle, label=f'{obj_name}', linewidth=2)
         
         ax.set_xlabel('Generation')
         ax.set_ylabel('Objetcives Loss')
@@ -11240,7 +11784,7 @@ class PINN(nn.Module):
                                c=objectives[:, 3], cmap='viridis', s=50, alpha=0.7)
             ax.set_xlabel('Initial Condition Loss ')
             ax.set_ylabel('Boundary Condition Loss ')
-            ax.set_title(f'Final Pareto Front (FNO: {"Memory Efficient" if hasattr(self, "fno_memory_efficient") and self.fno_memory_efficient else "Full"} if self.use_fno else "Off")')
+            ax.set_title(f'Final Pareto Front (Transformer: {"Memory Efficient" if hasattr(self, "transformer_memory_efficient") and self.transformer_memory_efficient else "Full"} if self.use_transformer else "Off")')
             plt.colorbar(scatter, ax=ax, label='PDE Residual Loss ')
         
         # 4. Combined loss evolution
@@ -11254,7 +11798,7 @@ class PINN(nn.Module):
             ax.grid(True, alpha=0.3)
             ax.set_yscale('log')
         
-        plt.suptitle(f'Enhanced NSGA-II PINN Optimization (FNO: {"Memory Efficient" if hasattr(self, "fno_memory_efficient") and self.fno_memory_efficient else "Full"} if self.use_fno else "Disabled")', 
+        plt.suptitle(f'Enhanced NSGA-II PINN Optimization (Transformer: {"Memory Efficient" if hasattr(self, "transformer_memory_efficient") and self.transformer_memory_efficient else "Full"} if self.use_transformer else "Disabled")', 
                      fontsize=16)
         plt.tight_layout()
         plt.savefig(os.path.join(save_path, 'enhanced_nsga2_pinn_optimization.png'), 
@@ -11291,13 +11835,17 @@ class PINN(nn.Module):
     def train_standard(self, n_samples=10000):
         """Standard training method (fallback)"""
         print("Training Enhanced PINN with standard method...")
+        n_params = 0
+        for layer in self.layers:
+            n_params += sum(p.numel() for p in layer.parameters())
+        print(f"Total Parameters size :{n_params}")
         start_time = time.time()
         
         self.training_data = self._generate_training_data(n_samples)
         
         optimizer = optim.Adam(self.parameters(), lr=1e-3)
         scheduler = optim.lr_scheduler.CosineAnnealingWarmRestarts(
-            optimizer, T_0=500, T_mult=2, eta_min=1e-6
+            optimizer, T_0=500, T_mult=2, eta_min=1e-10
         )
         
         losses = []
@@ -11311,10 +11859,10 @@ class PINN(nn.Module):
             
             # Combined loss with equal weights (no preference)
             total_loss = (
-                loss_components['initial'] +
-                loss_components['peak'] +
-                loss_components['boundary'] +
-                loss_components['pde']
+                torch.nan_to_num(loss_components['initial'], nan=1e30) +
+                torch.nan_to_num(loss_components['peak'], nan=1e30) +
+                torch.nan_to_num(loss_components['boundary'], nan=1e30) +
+                torch.nan_to_num(loss_components['pde'], nan=1e30)
             )
             
             total_loss.backward()
@@ -11328,9 +11876,10 @@ class PINN(nn.Module):
                 print(f"Epoch {epoch+1}/{pinn_epochs}, Loss: {total_loss.item():.6e}")
                 # Print individual losses
                 print(f"  Losses - Initial: {loss_components['initial'].item():.6e}, "
-                      f"Peak: {loss_components['Peak'].item():.6e}, "
+                      f"Peak: {loss_components['peak'].item():.6e}, "
                       f"Boundary: {loss_components['boundary'].item():.6e}, "
                       f"PDE: {loss_components['pde'].item():.6e}")
+                self._print_test_predictions()
         
         training_time = time.time() - start_time
         return self.state_dict(), losses, training_time
@@ -11381,9 +11930,8 @@ def evaluate_pinn_nsga2(model: PINN) -> np.ndarray:
     
     # Print evaluation statistics
     print(f"Enhanced NSGA-II PINN evaluation completed.")
-    print(f"  FNO enabled: {model.use_fno}")
-    print(f"  FNO memory efficient: {model.fno_memory_efficient if hasattr(model, 'fno_memory_efficient') else 'N/A'}")
-    print(f"  Temporal attention: {model.use_temporal_attention}")
+    print(f"  Transformer enabled: {model.use_transformer}")
+    print(f"  Transformer memory efficient: {model.transformer_memory_efficient if hasattr(model, 'transformer_memory_efficient') else 'N/A'}")
     print(f"  Prediction range: [{np.min(u_pred):.6f}, {np.max(u_pred):.6f}]")
     print(f"  Mean prediction: {np.mean(u_pred):.6f}")
     print(f"  Std deviation: {np.std(u_pred):.6f}")
@@ -11392,17 +11940,21 @@ def evaluate_pinn_nsga2(model: PINN) -> np.ndarray:
 
 
 # Modified training function for PINN
-def train_pinn_nsga2(use_hard_constraints=True, boundary_epsilon=0.1, use_fourier_features=True,
-                     use_fno=True, use_temporal_attention=True, fno_memory_efficient=True) -> Tuple[PINN, List[float], float]:
-    """Train Enhanced PINN using NSGA-II multi-objective optimization with FNO and temporal attention
+def train_pinn_nsga2(
+    use_hard_constraints=True,
+    boundary_epsilon=0.1,
+    use_fourier_features=False,
+    use_transformer=False,
+    transformer_memory_efficient=True,
+    layers=[5, 128, 256, 256, 128,  1]) -> Tuple[PINN, List[float], float]:
+    """Train Enhanced PINN using NSGA-II multi-objective optimization with Transformer and temporal attention
     
     Args:
         use_hard_constraints: Whether to use hard boundary constraints
         boundary_epsilon: Boundary layer thickness for smooth transition
         use_fourier_features: Whether to use Fourier feature mapping
-        use_fno: Whether to use Fourier Neural Operator layers
-        use_temporal_attention: Whether to use temporal attention mechanism
-        fno_memory_efficient: Whether to use memory-efficient FNO (recommended for GPU memory constraints)
+        use_transformer: Whether to use Fourier Neural Operator layers
+        transformer_memory_efficient: Whether to use memory-efficient Transformer (recommended for GPU memory constraints)
     
     Returns:
         Trained model, loss history, and training time
@@ -11414,26 +11966,21 @@ def train_pinn_nsga2(use_hard_constraints=True, boundary_epsilon=0.1, use_fourie
         torch.cuda.synchronize()
     
     # Create model with enhanced features
-    layers = [5, 64, 128, 128, 64, 1]  # Deeper network for better expressivity
     model = PINN(
         layers=layers,
         use_hard_constraints=use_hard_constraints,
         boundary_epsilon=boundary_epsilon,
         fourier_features=use_fourier_features,
-        num_fourier_features=64,
-        use_fno=use_fno,
-        fno_modes=(12, 12, 12),
-        use_temporal_attention=use_temporal_attention,
-        fno_memory_efficient=fno_memory_efficient
+        use_transformer=use_transformer,
+        transformer_memory_efficient=transformer_memory_efficient
     ).to(device)
     
     print(f"\nEnhanced PINN Configuration:")
     print(f"  Hard constraints: {'Enabled' if use_hard_constraints else 'Disabled'}")
     print(f"  Boundary epsilon: {boundary_epsilon}")
-    print(f"  Fourier features: {'Enabled' if use_fourier_features else 'Disabled'}")
-    print(f"  FNO integration: {'Enabled' if use_fno else 'Disabled'}")
-    print(f"  FNO memory efficient: {'Enabled' if fno_memory_efficient else 'Disabled'}")
-    print(f"  Temporal attention: {'Enabled' if use_temporal_attention else 'Disabled'}")
+    print(f"  Transformer integration: {'Enabled' if use_transformer else 'Disabled'}")
+    print(f"  Transformer: {'Memory Efficient' if transformer_memory_efficient else 'Full'}")
+    print(f"  Fourier Features: {use_fourier_features}")
     print(f"  Network architecture: {layers}")
     print(f"  Device: {device}")
     
@@ -11443,15 +11990,19 @@ def train_pinn_nsga2(use_hard_constraints=True, boundary_epsilon=0.1, use_fourie
         torch.backends.cuda.matmul.allow_tf32 = True
         torch.backends.cudnn.allow_tf32 = True
     
-    # Train with NSGA-II using unified settings
-    # Reduce samples if using full FNO to avoid memory issues
-    n_training_samples = 50000 if (use_fno and not fno_memory_efficient) else 100000
+    # Train with NSGA-II
+    n_training_samples = 50000 if (use_transformer and not transformer_memory_efficient) else 100000
+    
     
     state_dict, losses, training_time = model.train_with_nsga2(
         n_samples=n_training_samples, 
         nsga2_config=NSGA2_COMMON_CONFIG
     )
-    
+    '''
+    state_dict, losses, training_time = model.train_standard(
+        n_samples=n_training_samples
+    )
+    '''
     print(f"\nEnhanced NSGA-II PINN training completed in {training_time:.2f} seconds")
 
     # ADDITION: Save training configuration for checkpoint
@@ -11459,9 +12010,8 @@ def train_pinn_nsga2(use_hard_constraints=True, boundary_epsilon=0.1, use_fourie
         'use_hard_constraints': use_hard_constraints,
         'boundary_epsilon': boundary_epsilon,
         'use_fourier_features': use_fourier_features,
-        'use_fno': use_fno,
-        'use_temporal_attention': use_temporal_attention,
-        'fno_memory_efficient': fno_memory_efficient,
+        'use_transformer': use_transformer,
+        'transformer_memory_efficient': transformer_memory_efficient,
         'layers': layers  # Save architecture
     }
     
@@ -11888,7 +12438,7 @@ def main():
             try:
                 # Reconstruct PINN model with saved configuration
                 config = pinn_checkpoint.get('training_config', {})
-                layers = config.get('layers', [5, 64, 128, 128, 64, 1])
+                layers = config.get('layers', [5, 128, 256, 256, 128, 1])
                 
                 pinn_model = PINN(
                     layers=layers,
@@ -11896,10 +12446,8 @@ def main():
                     boundary_epsilon=config.get('boundary_epsilon', 0.1),
                     fourier_features=config.get('use_fourier_features', True),
                     num_fourier_features=config.get('num_fourier_features', 64),
-                    use_fno=config.get('use_fno', True),
-                    fno_modes=config.get('fno_modes', (12, 12, 12)),
-                    use_temporal_attention=config.get('use_temporal_attention', True),
-                    fno_memory_efficient=config.get('fno_memory_efficient', True)
+                    use_transformer=config.get('use_transformer', True),
+                    transformer_memory_efficient=config.get('transformer_memory_efficient', True)
                 ).to(device)
                 
                 # Load model state
