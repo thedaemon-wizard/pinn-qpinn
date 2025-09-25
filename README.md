@@ -1,7 +1,6 @@
 # Quantum Physics-Informed Neural Networks (QPINNs) for 3D Heat Equation
 
-A comprehensive benchmark implementation of Quantum Physics-Informed Neural Networks (QPINNs) for solving the 3D heat conduction equation forward problem, featuring state-of-the-art quantum circuit generation using GQE-GPT integration, multi-objective optimization, and comparison with enhanced classical PINNs.
-
+A comprehensive benchmark implementation of Quantum Physics-Informed Neural Networks (QPINNs) for solving the 3D heat conduction equation forward problem, featuring state-of-the-art quantum circuit generation using GQE-GPT integration, multi-objective optimization, and comparison with enhanced classical PINNs using PINNsFormer architecture.
 
 ## Documentation(In progress)
 Project Documentation: [HTML Pages](https://thedaemon-wizard.github.io/pinn-qpinn/build/html)
@@ -12,7 +11,6 @@ NSGA2 Code Documents: [Doxygen Page](https://thedaemon-wizard.github.io/pinn-qpi
 
 This repository provides highly optimized implementations of both QPINNs and classical PINNs with cutting-edge techniques:
 
-
 ### Quantum PINN Features:
 - **GQE-GPT Integration**: Generative Quantum Eigensolver enhanced with GPT-based circuit generation
 - **Multi-Objective Optimization**: NSGA-II algorithm with dynamic circuit updates
@@ -20,12 +18,14 @@ This repository provides highly optimized implementations of both QPINNs and cla
 - **Hardware-Efficient Design**: Optimized for NISQ (Noisy Intermediate-Scale Quantum) devices
 - **Parallel Processing**: Efficient batch evaluation for large-scale problems
 
-### Classical PINN Features:
-- **Fourier Neural Operator (FNO) Integration**: 3D spectral convolution layers for enhanced expressivity
-- **Temporal Attention Mechanism**: Improved time dynamics modeling
-- **Multi-Scale Fourier Features**: Better temporal and spatial resolution
-- **Hard Boundary Constraints**: Smooth distance function enforcement
-- **Memory-Efficient FNO Mode**: Optimized for GPU memory constraints
+### Classical PINN Features (PINNsFormer):
+- **Transformer Architecture (PINNsFormer)**: State-of-the-art attention-based neural network for PDEs
+- **Wavelet Activation Function**: ω₁*sin(x) + ω₂*cos(x) with learnable parameters for enhanced expressivity
+- **Pseudo-Sequence Generation**: Converts point-wise inputs to sequences for Transformer processing
+- **Spatio-Temporal Mixing**: Dedicated attention mechanisms for spatial and temporal dynamics
+- **Multi-Scale Fourier Features**: Coarse/fine spatial and slow/fast temporal frequencies
+- **Hard Boundary Constraints**: Smooth distance function enforcement using tanh-based transitions
+- **Memory-Efficient Implementation**: Optimized configurations for GPU memory constraints
 
 ## Key Features
 
@@ -43,64 +43,112 @@ This repository provides highly optimized implementations of both QPINNs and cla
   - Parameter Efficiency
   - Energy Estimation Quality
 
-### 2. Enhanced Classical PINN Architecture
-- **Fourier Neural Operator (FNO)**: 3D spectral convolution for capturing multi-scale features
-- **Temporal Attention**: Self-attention mechanism for temporal dynamics
-- **Multi-Scale Fourier Feature Mapping**: Separate coarse/fine spatial and slow/fast temporal features
-- **Hard Constraints**: Smooth boundary enforcement using tanh-based distance functions
-- **Memory-Efficient Implementation**: Chunked processing for large-scale problems
+### 2. PINNsFormer Architecture (Classical PINN)
+The implementation features a cutting-edge Transformer-based architecture specifically designed for PDEs:
 
-### 3. Multi-Objective Optimization
+#### Core Components:
+- **Wavelet Activation Function**: Based on Real Fourier Transform with learnable weights (ω₁, ω₂)
+- **Pseudo-Sequence Generator**: Creates temporal sequences from spatial points with learnable time offsets
+- **Spatio-Temporal Mixer**: Dual attention mechanism for spatial and temporal correlations
+- **Transformer Encoder**: Multi-layer self-attention blocks with residual connections
+- **Transformer Decoder**: Optional encoder-decoder attention for complex architectures
+- **Output Projection**: Maps sequence representations to final predictions
+
+#### Technical Specifications:
+```python
+# Memory-Efficient Configuration
+transformer_config = {
+    'seq_length': 8,       # Sequence length for pseudo-temporal points
+    'd_model': 64,         # Model dimension
+    'n_heads': 4,          # Number of attention heads
+    'n_layers': 2,         # Number of Transformer layers
+    'd_ff': 256,          # Feedforward dimension
+    'dropout': 0.1        # Dropout rate
+}
+
+# Full Configuration (for high-memory systems)
+transformer_config = {
+    'seq_length': 16,
+    'd_model': 128,
+    'n_heads': 8,
+    'n_layers': 4,
+    'd_ff': 512,
+    'dropout': 0.1
+}
+```
+
+### 3. Multi-Objective Optimization (NSGA-II)
 Both QPINN and classical PINN use NSGA-II (Non-dominated Sorting Genetic Algorithm II) with:
 - **Multiple Objectives**:
-  - Classical PINN: Initial condition, Peak value, Boundary condition, PDE residual
+  - Classical PINN: Initial condition, Boundary condition, PDE residual
   - QPINN: Initial condition, Peak value, Boundary condition, PDE residual, Trace loss
-- **REX Crossover**: Real-coded crossover operator
+- **REX Crossover**: Real-coded crossover operator for continuous parameters
 - **Dynamic Parameter Bounds**: Adaptive scaling based on network/circuit complexity
 - **Pareto Front Tracking**: Complete history of non-dominated solutions
+- **Unified Configuration**: Ensures fair comparison between methods
 
-### 4. Problem-Agnostic Design
+### 4. Feature Engineering
+
+#### Multi-Scale Fourier Features:
+- **Spatial Features**: 
+  - Coarse-scale (σ=5.0): Captures global structure
+  - Fine-scale (σ=20.0): Captures local variations
+- **Temporal Features**: 
+  - Slow frequencies (2π/T): Long-term dynamics
+  - Fast frequencies (10π/T): Rapid oscillations
+- **Physics-aware scaling**: √(t/T + ε) for diffusion processes
+
+#### Hard Boundary Constraints:
+```python
+u(x,y,z,t) = D(x,y,z) × N(x,y,z,t)
+where D is smooth distance function: ε·tanh(d_min/ε)
+```
+
+### 5. Problem-Agnostic Design
 The implementation uses scientifically grounded, problem-agnostic transformations:
 - Trainable embedding functions for spatial and temporal features
 - Learnable measurement combination weights (QPINN)
-- Adaptive activation functions
+- Adaptive activation functions (Wavelet for PINN, tanh for QPINN)
 
-### 5. Noise Mitigation (QPINN)
+### 6. Noise Mitigation (QPINN)
 - Zero-noise extrapolation for error mitigation
 - Noise-aware circuit evaluation
 - Support for different noise models (light, realistic, heavy)
 
 ## Algorithm Details
 
-### Classical PINN with FNO
+### Classical PINN with PINNsFormer
 
-The enhanced PINN implementation combines several state-of-the-art techniques:
+The enhanced PINN implementation leverages the Transformer architecture adapted for physics-informed learning:
 
-1. **Fourier Neural Operator Layer**
+1. **Pseudo-Sequence Generation**
    ```
-   SpectralConv3d: Performs convolution in Fourier space
-   - Input → FFT → Multiply with learnable weights → IFFT → Output
-   - Captures global features efficiently
-   - Handles multiple frequency modes
+   Point (x,y,z,t) → Sequence of length L with temporal offsets
+   Each element: embedded features + time shift encoding
    ```
 
-2. **Temporal Attention Mechanism**
+2. **Spatio-Temporal Mixing**
    ```
-   Based on Vaswani et al. (2017) self-attention:
-   - Query, Key, Value projections from hidden states
-   - Scaled dot-product attention
-   - Residual connections
+   Dual attention mechanism:
+   - Spatial attention: Self-attention on spatial features
+   - Temporal attention: Cross-attention between time steps
+   - Feature mixing: Non-linear combination layer
    ```
 
-3. **Multi-Scale Feature Engineering**
-   - Spatial features: Coarse (σ=5.0) and Fine (σ=20.0) scales
-   - Temporal features: Slow (2π/T) and Fast (10π/T) frequencies
-   - Physics-aware features: Diffusion scale √(t/T + ε)
-
-4. **Hard Boundary Constraints**
+3. **Transformer Processing**
    ```
-   u(x,y,z,t) = D(x,y,z) × N(x,y,z,t)
-   where D is smooth distance function: ε·tanh(d_min/ε)
+   Encoder: Multiple self-attention blocks with Wavelet activation
+   Decoder (optional): Encoder-decoder attention for refinement
+   Output: First sequence element projected to solution
+   ```
+
+4. **Physics-Informed Loss**
+   ```
+   L = λ_ic·L_ic + λ_bc·L_bc + λ_pde·L_pde
+   where:
+   - L_ic: Initial condition loss
+   - L_bc: Boundary condition loss  
+   - L_pde: PDE residual loss
    ```
 
 ### Core Algorithm: GQE-QPINNs
@@ -148,11 +196,11 @@ Both PINN and QPINN implementations use NSGA-II with:
 
 ## Key References
 
-### Classical PINN with FNO
-- Li et al. "Fourier Neural Operator for Parametric PDEs" (2023)
+### Classical PINN with PINNsFormer
+- **PINNsFormer Architecture**: Transformer-based PDE solvers with attention mechanisms
 - Wang et al. "When and why PINNs fail to train" (2022)
 - Krishnapriyan et al. "Characterizing possible failure modes in PINNs" (2021)
-- Vaswani et al. "Attention is All You Need" (2017)
+- Vaswani et al. "Attention is All You Need" (2017) - Transformer architecture
 - Lu et al. "NSGA-PINN: A Multi-Objective Optimization Method for Physics-Informed Neural Network Training" (2023)
 - Ma et al. "A comprehensive survey on NSGA-II for multi-objective optimization and applications" (2023)
 
@@ -171,23 +219,6 @@ Both PINN and QPINN implementations use NSGA-II with:
 - Abbas et al. "The power of quantum neural networks" Nat Comput Sci 1, 403-409 (2021)
 - Schuld et al. "Evaluating analytic gradients on quantum hardware" Phys. Rev. A 99, 032331 (2019)
 
-### Error Mitigation
-- Temme et al. "Error mitigation for short-depth quantum circuits" Phys. Rev. Lett. 119, 180509 (2017)
-- Endo et al. "Practical Quantum Error Mitigation for Near-Future Applications" Phys. Rev. X 11, 031057 (2021)
-- Li & Benjamin "Efficient Variational Quantum Simulator Incorporating Active Error Minimization" Phys. Rev. X 7, 021050 (2017)
-
-### Optimization and Trainability
-- McClean et al. "Barren plateaus in quantum neural network training landscapes" Nature Communications 9, 4812 (2018)
-- Cerezo et al. "Cost function dependent barren plateaus in shallow parametrized quantum circuits" Nature Communications 12, 1791 (2021)
-- Larocca et al. "Diagnosing Barren Plateaus with Tools from Quantum Optimal Control" Quantum 6, 824 (2022)
-
-### Hardware Efficiency
-- Kandala et al. "Hardware-efficient variational quantum eigensolver" Nature 549, 242-246 (2017)
-- "Trainability enhancement of parameterized quantum circuits" Phys. Rev. Applied 22, 054005 (2024)
-
-### Datasets
-- Apak et al. "KetGPT – Dataset Augmentation of Quantum Circuits using Transformers" arXiv:2402.13352 (2024)
-
 ### Additional Resources
 - NVIDIA Technical Blog "Advancing Quantum Algorithm Design with GPTs" (2024)
 - "Guaranteed efficient energy estimation using ShadowGrouping" Nature Communications 15, 799 (2025)
@@ -195,9 +226,9 @@ Both PINN and QPINN implementations use NSGA-II with:
 
 ## Requirements
 
-- Python 3.8+
-- PennyLane 0.28+
-- PyTorch 2.0+
+- Python 3.12+
+- PennyLane 0.41+
+- PyTorch 2.7+
 - NumPy
 - SciPy
 - Matplotlib
@@ -213,6 +244,30 @@ pip install -r requirements.txt
 ```
 
 ## Usage
+
+### Basic Usage - Classical PINN with PINNsFormer:
+```python
+# Initialize Enhanced PINN with PINNsFormer
+pinn = PINN(
+    layers=[5, 128, 256, 256, 128, 1],  # Kept for compatibility
+    use_hard_constraints=True,
+    boundary_epsilon=0.1,
+    fourier_features=True,
+    num_fourier_features=64,
+    use_transformer=True,  # Enable PINNsFormer
+    transformer_config=None,  # Use default config
+    transformer_memory_efficient=True  # Recommended for GPU
+)
+
+# Train with NSGA-II
+state_dict, losses, training_time = pinn.train_with_nsga2(
+    n_samples=100000,
+    nsga2_config=NSGA2_COMMON_CONFIG
+)
+
+# Evaluate model
+predictions = evaluate_pinn_nsga2(pinn)
+```
 
 ### Basic Usage - Quantum PINN:
 ```python
@@ -233,46 +288,43 @@ params, loss_history, training_time = qpinn.train_with_nsga2(n_samples=1500)
 predictions = qpinn.evaluate()
 ```
 
-### Basic Usage - Classical PINN with FNO:
-```python
-# Initialize Enhanced PINN
-pinn = PINN(
-    layers=[5, 128, 256, 256, 128, 1],
-    use_hard_constraints=True,
-    boundary_epsilon=0.1,
-    fourier_features=True,
-    num_fourier_features=64,
-    use_fno=True,
-    fno_modes=(8, 8, 8),
-    use_temporal_attention=True,
-    fno_memory_efficient=True
-)
-
-# Train with NSGA-II
-state_dict, losses, training_time = pinn.train_with_nsga2(n_samples=10000)
-
-# Evaluate model
-predictions = evaluate_pinn_nsga2(pinn)
-```
-
 ## Configuration
 
 Key parameters in the implementation:
-- `n_qubits`: Number of qubits (default: 6) [QPINN]
-- `layers`: Neural network architecture [PINN]
-- `use_fno`: Enable Fourier Neural Operator [PINN]
-- `use_temporal_attention`: Enable temporal attention mechanism [PINN]
-- `fno_memory_efficient`: Use memory-efficient FNO implementation [PINN]
-- `pinn_epochs`: PINN training epochs (for standard training)
-- `qnn_epochs`: QPINN training epochs (for standard training)
-- `N_PARALLEL_DEVICES`: Number of parallel devices
+
+### Classical PINN (PINNsFormer):
+- `use_transformer`: Enable PINNsFormer architecture (default: True)
+- `transformer_config`: Configuration dict for Transformer
+  - `seq_length`: Length of pseudo-sequence (8 or 16)
+  - `d_model`: Model dimension (64 or 128)
+  - `n_heads`: Number of attention heads (4 or 8)
+  - `n_layers`: Number of Transformer layers (2 or 4)
+- `transformer_memory_efficient`: Use memory-efficient config (default: True)
+- `use_hard_constraints`: Enable boundary constraints
+- `fourier_features`: Enable multi-scale Fourier features
+- `num_fourier_features`: Number of Fourier features (default: 64)
+
+### Quantum PINN:
+- `n_qubits`: Number of qubits (default: 6)
+- `use_gpt_circuit_generation`: Enable GPT-based circuit generation
+
+### Common:
 - `alpha`: Thermal diffusivity
 - `L`: Cube side length
 - `T`: Final time
+- `N_PARALLEL_DEVICES`: Number of parallel devices
 
 ## Output
 
 The code generates comprehensive results including:
+
+### For Classical PINN (PINNsFormer):
+- Network architecture visualization
+- Attention weight heatmaps
+- Pseudo-sequence analysis
+- Multi-scale feature maps
+- Wavelet activation patterns
+- Transformer layer outputs
 
 ### For QPINN:
 - Quantum circuit diagrams
@@ -281,12 +333,6 @@ The code generates comprehensive results including:
 - GPT generation statistics
 - Gate evolution heatmaps
 - Energy estimation analysis
-
-### For Classical PINN:
-- Network architecture visualization
-- FNO feature analysis
-- Attention weight visualization
-- Multi-scale feature maps
 
 ### For Both:
 - Optimization history plots
@@ -319,21 +365,15 @@ This implementation is provided for research purposes. Please check individual p
 
 ## Acknowledgments
 
-<<<<<<< HEAD
-- Based on the GQE algorithm proposed by Nakaji et al.
-- GPT architecture inspired by nanoGPT implementation
-- PINN methodology based on Raissi et al.
-- RCGA implementation follows standard real-coded genetic algorithm principles
-- NSGA-II implementation based on Deb et al.
-- Circuit visualization inspired by quantum circuit diagram standards
+This implementation builds upon numerous research contributions in quantum machine learning, QPINNs, classical PINNs with Transformer architectures, and multi-objective optimization. Special thanks to all researchers whose work is referenced in this implementation.
 
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request. Areas of particular interest:
-- Additional circuit optimization strategies
-- Enhanced AI energy prediction models
-- Support for more quantum backends
-- Performance improvements
+- Additional Transformer architectures for PINNs
+- Enhanced attention mechanisms for PDEs
+- Additional quantum circuit optimization strategies
+- Performance improvements for large-scale problems
 - New visualization features
 - Multi-objective optimization enhancements
 
@@ -341,45 +381,50 @@ Contributions are welcome! Please feel free to submit a Pull Request. Areas of p
 
 ### Common Issues
 
-1. **RCGA/NSGA-II optimizer not available**: 
+1. **NSGA-II optimizer not available**: 
    - Ensure C++ compiler is properly installed
-   - Run the build command again with verbose output: `pip install -v . rcga_optimizer nsga2_optimizer`
+   - Run the build command again with verbose output: `pip install -v . module/nsga2_optimizer`
    
-2. **Circuit visualization errors**: 
+2. **Transformer memory issues**: 
+   - Enable `transformer_memory_efficient=True`
+   - Reduce `seq_length` in transformer_config
+   - Decrease batch size
+   
+3. **Attention weight visualization errors**: 
    - Check matplotlib and required fonts are installed
    - Verify write permissions in results directory
    
-3. **Memory issues with large circuits**: 
-   - Reduce batch size or use sequential evaluation
-   - Adjust `N_PARALLEL_DEVICES` parameter
-   
-4. **AI energy prediction errors**:
-   - Ensure sufficient training data (50+ samples)
-   - Check model file permissions and disk space
+4. **Circuit visualization errors**: 
+   - Check matplotlib backend settings
+   - Verify PennyLane installation
    
 5. **NSGA-II convergence issues**:
    - Increase population size or generation count
    - Adjust crossover and mutation parameters
+   - Check objective function scaling
 
 ### Performance Optimization Tips
 
-1. **For Hardware Devices**: Use RCGA with smaller population sizes
-2. **For Simulation**: Use NSGA-II for comprehensive analysis
-3. **For Quick Testing**: Disable AI energy prediction and use simple optimization
-4. **For Production**: Enable all features with appropriate resource allocation
+1. **For GPU Training**: 
+   - Use `transformer_memory_efficient=True`
+   - Enable mixed precision with `torch.cuda.amp`
+   
+2. **For Hardware Devices**: 
+   - Use smaller population sizes in NSGA-II
+   - Enable parallel evaluation
+   
+3. **For Quick Testing**: 
+   - Disable Transformer layers temporarily
+   - Use smaller network architectures
+   
+4. **For Production**: 
+   - Enable all features with appropriate resource allocation
+   - Use checkpoint saving/loading
 
 ## Contact
 
-<<<<<<< HEAD
-For questions or issues, please open an issue on GitHub or contact.
-
-=======
 For questions or issues, please open an issue on GitHub or contact the maintainers.
 
 ---
 
-**Note**: This implementation represents a research prototype. For production use, consider additional validation and testing appropriate to your specific application requirements.
->>>>>>> 7e184e2de3046b26b7ae5c21b0a170585414cb7b
-=======
-This implementation builds upon numerous research contributions in quantum machine learning, QPINNs, classical PINNs with advanced architectures, and multi-objective optimization. Special thanks to all researchers whose work is referenced in this implementation.
->>>>>>> origin/Develops
+**Note**: This implementation represents a research prototype combining state-of-the-art techniques in both classical and quantum physics-informed neural networks. For production use, consider additional validation and testing appropriate to your specific application requirements.

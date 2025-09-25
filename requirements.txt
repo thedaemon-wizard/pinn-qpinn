@@ -2,8 +2,11 @@ numpy==2.2.6
 matplotlib==3.10.3
 torch==2.7.0
 pennylane==0.41.1
+autoray==0.7.1
 transformers==4.52.4
 pybind11==2.13.6
 scikit-learn==1.7.0
 gpytorch==1.14
 botorch==0.14
+pandas==2.3.2
+psutil==7.1.0
