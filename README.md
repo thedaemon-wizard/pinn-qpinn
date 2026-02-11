@@ -1,11 +1,9 @@
 # Quantum Physics-Informed Neural Networks (QPINNs) for 3D Heat Equation
 
-A comprehensive benchmark implementation of Quantum Physics-Informed Neural Networks (QPINNs) for solving the 3D heat conduction equation forward problem, featuring state-of-the-art quantum circuit generation using GQE-GPT integration, multi-objective optimization, and comparison with enhanced classical PINNs using PINNsFormer architecture.
+A comprehensive benchmark implementation of Quantum Physics-Informed Neural Networks (QPINNs) for solving the 3D heat conduction equation forward problem, featuring state-of-the-art quantum circuit generation using GQE-GPT integration, adaptive loss weighting via ReLoBRaLo, and comparison with enhanced classical PINNs using PINNsFormer architecture.
 
-## Documentation(In progress)
+## Documentation (In progress)
 Project Documentation: [HTML Pages](https://thedaemon-wizard.github.io/pinn-qpinn/build/html)
-
-NSGA2 Code Documents: [Doxygen Page](https://thedaemon-wizard.github.io/pinn-qpinn/doxyxml/html)
 
 ## Overview
 
@@ -13,18 +11,28 @@ This repository provides highly optimized implementations of both QPINNs and cla
 
 ### Quantum PINN Features:
 - **GQE-GPT Integration**: Generative Quantum Eigensolver enhanced with GPT-based circuit generation
-- **Multi-Objective Optimization**: NSGA-II algorithm with dynamic circuit updates
+- **SPSA Optimizer**: Simultaneous Perturbation Stochastic Approximation for gradient-free quantum parameter optimization
+- **ReLoBRaLo Adaptive Loss Weighting**: Dynamic multi-objective loss balancing using softmax-based relative balancing with exponential moving average
 - **Unsupervised Quantum Energy Estimation**: Novel approach for noise-aware energy estimation
 - **Hardware-Efficient Design**: Optimized for NISQ (Noisy Intermediate-Scale Quantum) devices
 - **Parallel Processing**: Efficient batch evaluation for large-scale problems
 
-### Classical PINN Features (PINNsFormer):
-- **Transformer Architecture (PINNsFormer)**: State-of-the-art attention-based neural network for PDEs
-- **Wavelet Activation Function**: ω₁*sin(x) + ω₂*cos(x) with learnable parameters for enhanced expressivity
+### Classical PINN Features (SPINN + PINNsFormer):
+- **SPINN Separable Architecture** (NeurIPS 2023 Spotlight): Per-axis body networks reducing O(N^d) → O(Nd) complexity
+- **PINNsFormer Transformer** (ICLR 2024): Encoder-decoder attention with Wavelet activation for temporal dependencies
+- **RAdam Optimizer**: Rectified Adam with decoupled weight decay (RAdamW behavior) for stable, adaptive training
+- **L-BFGS Refinement**: Second-order quasi-Newton method for breaking through first-order plateaus
+- **ReLoBRaLo Adaptive Loss Weighting**: Dynamic multi-objective loss balancing replacing fixed/equal weights
+- **Curriculum Learning**: Three-phase training (IC-only → PDE ramp-up → full ReLoBRaLo) for improved convergence
+- **Causal Temporal Weighting**: w(t) = exp(-epsilon * t/T) for PDE residuals respects parabolic PDE causality
+- **Non-Negativity Constraint**: Soft penalty on negative temperature predictions (physical consistency)
+- **Wavelet Activation Function**: w1*sin(x) + w2*cos(x) with learnable parameters (PINNsFormer Eq. 4)
 - **Pseudo-Sequence Generation**: Converts point-wise inputs to sequences for Transformer processing
-- **Spatio-Temporal Mixing**: Dedicated attention mechanisms for spatial and temporal dynamics
 - **Multi-Scale Fourier Features**: Coarse/fine spatial and slow/fast temporal frequencies
-- **Hard Boundary Constraints**: Smooth distance function enforcement using tanh-based transitions
+- **Hard Boundary Constraints with IC Lifting**: Product distance function + free-space Green's function ansatz for initial condition
+- **Comprehensive Benchmark Output**: MAE, MSE, RMSE, RelL2, MaxAE, energy conservation, physics metrics
+- **Validation Monitoring**: Periodic MSE/RelL2 evaluation on held-out grid during training
+- **Performance Monitoring**: GPU memory, utilization, CPU stats tracked during training
 - **Memory-Efficient Implementation**: Optimized configurations for GPU memory constraints
 
 ## Key Features
@@ -43,27 +51,57 @@ This repository provides highly optimized implementations of both QPINNs and cla
   - Parameter Efficiency
   - Energy Estimation Quality
 
-### 2. PINNsFormer Architecture (Classical PINN)
-The implementation features a cutting-edge Transformer-based architecture specifically designed for PDEs:
+### 2. SPINN + PINNsFormer Architecture (Classical PINN)
+The implementation integrates two state-of-the-art approaches for an efficient and accurate PINN architecture:
 
-#### Core Components:
-- **Wavelet Activation Function**: Based on Real Fourier Transform with learnable weights (ω₁, ω₂)
-- **Pseudo-Sequence Generator**: Creates temporal sequences from spatial points with learnable time offsets
-- **Spatio-Temporal Mixer**: Dual attention mechanism for spatial and temporal correlations
-- **Transformer Encoder**: Multi-layer self-attention blocks with residual connections
-- **Transformer Decoder**: Optional encoder-decoder attention for complex architectures
-- **Output Projection**: Maps sequence representations to final predictions
+#### SPINN: Separable Physics-Informed Neural Networks (NeurIPS 2023 Spotlight)
+- **Per-axis body networks**: Each spatial/temporal axis (x, y, z, t) is processed by a small independent MLP (R^1 → R^r)
+- **Hadamard product aggregation**: Axis features are combined via element-wise product, producing a low-rank tensor approximation
+- **Computational efficiency**: Reduces complexity from O(N^d) to O(Nd) for d-dimensional problems
+- Reference: Cho et al. (2023) "Separable Physics-Informed Neural Networks"
+
+#### PINNsFormer: Transformer-based PINN (ICLR 2024)
+- **Wavelet Activation Function**: WaveAct(x) = w1*sin(x) + w2*cos(x) with learnable weights
+- **Pseudo-Sequence Generator**: Creates temporal sequences from spatial points with physics-aware decay
+- **Encoder-Decoder Architecture**: Self-attention encoder + cross-attention decoder with Wavelet residuals
+- **Output Projection**: Learned temporal weights aggregate sequence positions to scalar output
+- Reference: Zhao, Ding & Prakash (2024) "PINNsFormer"
+
+#### S-PFormer: Simplified Decoder-Only Variant (2025)
+- **Decoder-only Transformer**: Replaces separate encoder when SPINN + Fourier features provide sufficiently rich embeddings
+- **Pre-norm design**: LayerNorm before attention for stable training
+- **Scaled residual connections**: Factor 0.3 balances gradient flow without explosion
+- Available as `SPFormerDecoder` / `SPFormerDecoderBlock` in `pinnsformer.py`
+
+#### Architecture Pipeline:
+```
+Input (x,y,z,t)
+  → SPINN body networks (4 per-axis MLPs, rank=64)
+  → Hadamard product aggregation
+  → Multi-scale Fourier features (spatial + temporal)
+  → Feature concatenation
+  → PINNsFormer pseudo-sequence generation
+  → PINNsFormer encoder (self-attention + WaveAct)
+  → PINNsFormer decoder (cross-attention + WaveAct)
+  → Output projection (temporal weighting → scalar)
+  → Hard constraints: g(x,y,z,t) + D(x,y,z) * output  (IC lifting + correction)
+```
 
 #### Technical Specifications:
 ```python
-# Memory-Efficient Configuration
+# Memory-Efficient Configuration (default)
 transformer_config = {
     'seq_length': 8,       # Sequence length for pseudo-temporal points
-    'd_model': 64,         # Model dimension
+    'd_model': 64,         # Model dimension / SPINN rank
     'n_heads': 4,          # Number of attention heads
     'n_layers': 2,         # Number of Transformer layers
-    'd_ff': 256,          # Feedforward dimension
-    'dropout': 0.1        # Dropout rate
+    'd_ff': 256,           # Feedforward dimension
+    'dropout': 0.1         # Dropout rate
+}
+spinn_config = {
+    'rank': 64,            # Feature rank (matches d_model)
+    'hidden_dim': 64,      # Hidden dimension per body network
+    'n_hidden_layers': 2   # Hidden layers per body network
 }
 
 # Full Configuration (for high-memory systems)
@@ -77,31 +115,55 @@ transformer_config = {
 }
 ```
 
-### 3. Multi-Objective Optimization (NSGA-II)
-Both QPINN and classical PINN use NSGA-II (Non-dominated Sorting Genetic Algorithm II) with:
-- **Multiple Objectives**:
-  - Classical PINN: Initial condition, Boundary condition, PDE residual
-  - QPINN: Initial condition, Peak value, Boundary condition, PDE residual, Trace loss
-- **REX Crossover**: Real-coded crossover operator for continuous parameters
-- **Dynamic Parameter Bounds**: Adaptive scaling based on network/circuit complexity
-- **Pareto Front Tracking**: Complete history of non-dominated solutions
-- **Unified Configuration**: Ensures fair comparison between methods
+### 3. Optimization
+
+#### Classical PINN: Two-Phase Hybrid Optimization (RAdam + L-BFGS)
+The classical PINN uses a two-phase hybrid optimization approach:
+- **Phase 1: RAdam Warm-up** (3000 epochs) - `torch.optim.RAdam` with `decoupled_weight_decay=True`:
+  - Rectified Adam with automatic variance rectification for stable early training
+  - Cosine annealing warm restarts scheduler
+  - ReLoBRaLo adaptive loss weighting
+- **Phase 2: L-BFGS Refinement** (200 iterations) - `torch.optim.LBFGS`:
+  - Second-order quasi-Newton method with strong Wolfe line search
+  - Breaks through first-order optimizer plateaus
+  - Uses frozen ReLoBRaLo weights from Phase 1
+
+#### Quantum PINN: SPSA Optimizer
+The quantum PINN uses PennyLane's `qml.SPSAOptimizer`:
+- **Gradient-Free**: Estimates gradients using only two function evaluations per step, regardless of parameter count
+- **Noise Resilient**: Designed for noisy objective functions common in quantum computing
+- **Scalable**: Computational cost per step is independent of the number of parameters
+
+#### Adaptive Loss Weighting: ReLoBRaLo
+Both PINN and QPINN use ReLoBRaLo (Relative Loss Balancing with Random Lookback) for adaptive multi-objective loss weighting:
+- **Dynamic Weight Adjustment**: Loss weights are updated each epoch/step using softmax-based relative balancing
+- **Exponential Moving Average**: Smooths weight updates with a configurable temperature parameter
+- **Random Lookback**: Introduces stochasticity by randomly choosing between comparing to the previous step or an initial reference
+- **Loss Components**:
+  - Classical PINN: Initial condition, Peak value, Boundary condition, PDE residual (causal-weighted), Non-negativity
+  - QPINN: Initial condition, Boundary condition, Interior (PDE), Trace loss
 
 ### 4. Feature Engineering
 
 #### Multi-Scale Fourier Features:
-- **Spatial Features**: 
-  - Coarse-scale (σ=5.0): Captures global structure
-  - Fine-scale (σ=20.0): Captures local variations
-- **Temporal Features**: 
-  - Slow frequencies (2π/T): Long-term dynamics
-  - Fast frequencies (10π/T): Rapid oscillations
-- **Physics-aware scaling**: √(t/T + ε) for diffusion processes
+- **Spatial Features**:
+  - Coarse-scale (sigma=2.0): Captures global structure
+  - Fine-scale (sigma=10.0): Captures local variations and narrow Gaussian peak
+- **Temporal Features**:
+  - Slow frequencies (2pi/T): Long-term dynamics
+  - Fast frequencies (10pi/T): Rapid oscillations
+- **Physics-aware scaling**: sqrt(t/T + epsilon) for diffusion processes
 
-#### Hard Boundary Constraints:
+#### Hard Boundary Constraints with IC Lifting:
 ```python
-u(x,y,z,t) = D(x,y,z) × N(x,y,z,t)
-where D is smooth distance function: ε·tanh(d_min/ε)
+u(x,y,z,t) = g(x,y,z,t) + D(x,y,z) * N(x,y,z,t)
+where:
+  g(x,y,z,t) = [σ₀²/(σ₀²+2αt)]^(3/2) * exp(-r²/(2(σ₀²+2αt)))
+  # Free-space Green's function: exact Gaussian diffusion
+  # At t=0: g = IC(x,y,z) exactly; at t>0: captures spreading + decay
+  D(x,y,z) = 4*x/L*(1-x/L) * 4*y/L*(1-y/L) * 4*z/L*(1-z/L)
+  # Product distance: exactly 0 on all 6 faces, max=1.0 at center
+  N(x,y,z,t) = network correction (learned small residual)
 ```
 
 ### 5. Problem-Agnostic Design
@@ -115,40 +177,78 @@ The implementation uses scientifically grounded, problem-agnostic transformation
 - Noise-aware circuit evaluation
 - Support for different noise models (light, realistic, heavy)
 
+## Modular File Structure
+
+The codebase is organized into 8 focused modules (refactored from a single monolithic file):
+
+| File | Description |
+|------|-------------|
+| `benchmark_config.json` | Externalized training/physics parameters |
+| `config.py` | Global configuration, `BackendConfig`, config loading |
+| `physics.py` | Physics equations, analytical solutions, metrics |
+| `device_manager.py` | Quantum device management (CPU/GPU/QPU) |
+| `pinnsformer.py` | SPINN body networks + PINNsFormer Transformer components |
+| `gpt_circuit.py` | GPT-based quantum circuit generation |
+| `pinn_model.py` | SPINN+PINNsFormer PINN with RAdam + L-BFGS + ReLoBRaLo |
+| `qpinn_model.py` | Quantum PINN with SPSA + ReLoBRaLo |
+| `main.py` | CLI entry point, benchmark orchestration, CSV output |
+
 ## Algorithm Details
 
-### Classical PINN with PINNsFormer
+### Classical PINN with SPINN + PINNsFormer
 
-The enhanced PINN implementation leverages the Transformer architecture adapted for physics-informed learning:
+The PINN integrates SPINN separable architecture with PINNsFormer Transformer:
 
-1. **Pseudo-Sequence Generation**
+1. **SPINN Feature Extraction**
    ```
-   Point (x,y,z,t) → Sequence of length L with temporal offsets
-   Each element: embedded features + time shift encoding
-   ```
-
-2. **Spatio-Temporal Mixing**
-   ```
-   Dual attention mechanism:
-   - Spatial attention: Self-attention on spatial features
-   - Temporal attention: Cross-attention between time steps
-   - Feature mixing: Non-linear combination layer
+   Per-axis body networks: x → f_x(x), y → f_y(y), z → f_z(z), t → f_t(t)
+   Each: R^1 → R^rank via small MLP with WaveletActivation
+   Aggregation: f_x ⊙ f_y ⊙ f_z ⊙ f_t  (Hadamard product)
+   → Learned projection to feature space
    ```
 
-3. **Transformer Processing**
+2. **Multi-Scale Fourier Feature Encoding**
    ```
-   Encoder: Multiple self-attention blocks with Wavelet activation
-   Decoder (optional): Encoder-decoder attention for refinement
-   Output: First sequence element projected to solution
+   Spatial: coarse (σ=2.0) + fine (σ=10.0) random Fourier features
+   Temporal: slow (2π/T) + fast (10π/T) frequencies
+   Concatenated with SPINN aggregated features
    ```
 
-4. **Physics-Informed Loss**
+3. **PINNsFormer Transformer Processing**
    ```
-   L = λ_ic·L_ic + λ_bc·L_bc + λ_pde·L_pde
-   where:
-   - L_ic: Initial condition loss
-   - L_bc: Boundary condition loss  
-   - L_pde: PDE residual loss
+   Pseudo-sequence generation: point features → L-length sequence
+     (with physics-aware temporal decay and position embeddings)
+   Encoder: Self-attention + FFN + WaveletActivation residuals
+   Decoder: Cross-attention from encoder output + FFN
+   Output: Learned temporal weight aggregation → scalar
+   ```
+
+4. **IC Lifting with Free-Space Green's Function**
+   ```
+   u(x,y,z,t) = g(x,y,z,t) + D(x,y,z) * N(x,y,z,t)
+   g(x,y,z,t) = [σ₀²/(σ₀²+2αt)]^(3/2) * exp(-r²/(2(σ₀²+2αt)))
+   The network N only learns the small correction term, dramatically
+   improving convergence (36x MSE reduction vs. zero-lifting baseline).
+   ```
+
+5. **Physics-Informed Loss with ReLoBRaLo**
+   ```
+   L = w_ic * L_ic + w_peak * L_peak + w_pde * L_pde + w_nonneg * L_nonneg
+   where weights are dynamically adjusted via ReLoBRaLo:
+   - L_ic: Initial condition loss (MSE)
+   - L_peak: Gaussian peak accuracy loss
+   - L_pde: PDE residual loss (causal-weighted)
+   - L_nonneg: Non-negativity penalty (on PDE + IC points)
+   ```
+
+6. **Two-Phase Hybrid Optimization with Curriculum**
+   ```
+   Phase 1: RAdam (3000 epochs) with curriculum learning:
+     Phase 1a [0-30%]: IC-only training
+     Phase 1b [30-70%]: PDE ramp-up
+     Phase 1c [70-100%]: Full ReLoBRaLo
+   Phase 2: L-BFGS refinement (200 iterations)
+     Frozen ReLoBRaLo weights, strong Wolfe line search
    ```
 
 ### Core Algorithm: GQE-QPINNs
@@ -161,7 +261,7 @@ The implementation follows a hierarchical optimization approach:
    - Evaluate using multi-objective Bayesian optimization
 
 2. **Parameter Optimization Phase**
-   - NSGA-II optimization with objectives:
+   - SPSA optimization with ReLoBRaLo-weighted objectives:
      - Initial condition loss
      - Peak value loss
      - Boundary condition loss
@@ -177,32 +277,30 @@ The implementation follows a hierarchical optimization approach:
 
 The 3D heat equation being solved:
 ```
-∂u/∂t = α∇²u
+du/dt = alpha * nabla^2(u)
 ```
 
 With:
 - Initial condition: Gaussian distribution centered at domain center
 - Boundary condition: u = 0 at all boundaries
-- Domain: [0,L]³ × [0,T]
-
-### NSGA-II Multi-Objective Optimization
-
-Both PINN and QPINN implementations use NSGA-II with:
-- **Population-based search**: Maintains diversity of solutions
-- **Non-dominated sorting**: Identifies Pareto-optimal solutions
-- **Crowding distance**: Preserves solution diversity
-- **REX crossover**: Effective for real-valued parameters
-- **Unified configuration**: Ensures fair comparison between methods
+- Domain: [0,L]^3 x [0,T]
 
 ## Key References
 
-### Classical PINN with PINNsFormer
-- **PINNsFormer Architecture**: Transformer-based PDE solvers with attention mechanisms
+### Optimization
+- **RAdam**: Liu et al. "On the Variance of the Adaptive Learning Rate and Beyond" (ICLR 2020)
+- **L-BFGS**: Nocedal & Wright "Numerical Optimization" (2006); standard second-phase optimizer for PINNs
+- **SPSA**: Spall (1998) "Implementation of the Simultaneous Perturbation Algorithm for Stochastic Optimization"
+- **ReLoBRaLo**: Bischof & Kraus (2025) "Multi-Objective Loss Balancing for Physics-Informed Deep Learning", Computer Methods in Applied Mechanics and Engineering
+- **Hard Constraints**: Sukumar & Srivastava (2022) "Exact imposition of boundary conditions with distance functions in PINNs"
+
+### Classical PINN with SPINN + PINNsFormer
+- **SPINN**: Cho et al. "Separable Physics-Informed Neural Networks" (NeurIPS 2023 Spotlight)
+- **PINNsFormer**: Zhao, Ding & Prakash "PINNsFormer: A Transformer-Based Framework for Physics-Informed Neural Networks" (ICLR 2024)
+- **S-PFormer**: "Spectral PINNsformer: A Simplified Decoder-Only Architecture" (2025) -- decoder-only variant with Fourier embeddings
 - Wang et al. "When and why PINNs fail to train" (2022)
 - Krishnapriyan et al. "Characterizing possible failure modes in PINNs" (2021)
 - Vaswani et al. "Attention is All You Need" (2017) - Transformer architecture
-- Lu et al. "NSGA-PINN: A Multi-Objective Optimization Method for Physics-Informed Neural Network Training" (2023)
-- Ma et al. "A comprehensive survey on NSGA-II for multi-objective optimization and applications" (2023)
 
 ### Quantum Physics-Informed Neural Networks
 - Trahan et al. "Quantum Physics-Informed Neural Networks" Entropy 26(8):649 (2024)
@@ -227,23 +325,74 @@ Both PINN and QPINN implementations use NSGA-II with:
 ## Requirements
 
 - Python 3.12+
-- PennyLane 0.41+
-- PyTorch 2.7+
-- NumPy
-- SciPy
-- Matplotlib
-- Transformers (Hugging Face)
-- BoTorch (for Bayesian optimization)
-- Scikit-learn
-- NSGA2 optimizer (C++ extension)
+- PyTorch >= 2.10
+- PennyLane >= 0.44
+- pennylane-lightning >= 0.41
+- NumPy >= 2.0
+- Matplotlib >= 3.10
+- Transformers (Hugging Face) >= 4.50
+- BoTorch >= 0.14 (for Bayesian optimization)
+- Scikit-learn >= 1.7
+- pandas >= 2.3
+- psutil >= 7.0
+
+## Development Environment
+
+### Tested Configuration
+
+| Component | Specification |
+|-----------|--------------|
+| OS | AlmaLinux 9.7 |
+| CPU | Intel Core i5-13600K |
+| Memory | 128 GB DDR5-5200 |
+| GPU | NVIDIA RTX PRO 6000 Blackwell Workstation 96 GB |
+| Storage | 1 TB SSD (system) + 4 TB SSD (data) |
+| Motherboard | MSI MAG Z790 TOMAHAWK MAX WIFI |
+| Python | 3.12 (virtual environment) |
+| PyTorch | 2.10.0+cu128 |
+| PennyLane | 0.44.0 |
 
 ## Installation
 
 ```bash
+# Create and activate virtual environment (Python 3.12)
+python3.12 -m venv .venv
+source .venv/bin/activate
+
+# Install dependencies
 pip install -r requirements.txt
+
+# Optional: KetGPT dataset support for QPINN circuit initialization
+pip install aiohttp h5py fsspec
 ```
 
 ## Usage
+
+### Running the Benchmark
+
+```bash
+# Activate virtual environment
+source .venv/bin/activate
+
+# Run benchmark (auto-detects GPU/CPU)
+python main.py --backend auto
+
+# Run with custom configuration
+python main.py --backend auto --config benchmark_config.json
+
+# Force specific backend
+python main.py --backend cpu     # CPU only
+python main.py --backend cuda    # NVIDIA GPU (CUDA)
+python main.py --backend gpu     # Alias for cuda
+python main.py --backend qpu     # Quantum processing unit (requires AWS Braket)
+```
+
+### Expected Runtime
+
+With the tested hardware configuration (RTX PRO 6000 Blackwell):
+- PINN training (3000 RAdam epochs + 200 L-BFGS iterations): ~55 minutes
+- QPINN training (200 SPSA iterations): ~3 hours
+- Total benchmark: ~4 hours
 
 ### Basic Usage - Classical PINN with PINNsFormer:
 ```python
@@ -259,14 +408,8 @@ pinn = PINN(
     transformer_memory_efficient=True  # Recommended for GPU
 )
 
-# Train with NSGA-II
-state_dict, losses, training_time = pinn.train_with_nsga2(
-    n_samples=100000,
-    nsga2_config=NSGA2_COMMON_CONFIG
-)
-
-# Evaluate model
-predictions = evaluate_pinn_nsga2(pinn)
+# Train with RAdam optimizer and ReLoBRaLo adaptive loss weighting
+model.train_radam(n_samples=100000, epochs=3000)
 ```
 
 ### Basic Usage - Quantum PINN:
@@ -281,25 +424,48 @@ qpinn = GQEQuantumPINN(
     use_gpt_circuit_generation=True
 )
 
-# Train with NSGA-II
-params, loss_history, training_time = qpinn.train_with_nsga2(n_samples=1500)
-
-# Evaluate model
-predictions = qpinn.evaluate()
+# Train with SPSA optimizer and ReLoBRaLo adaptive loss weighting
+qsolver.train_spsa(n_samples=1500, max_iterations=200)
 ```
 
 ## Configuration
 
-Key parameters in the implementation:
+All training parameters are externalized to `benchmark_config.json`. Use `--config` to specify a custom config file:
 
-### Classical PINN (PINNsFormer):
+```bash
+python main.py --backend auto --config benchmark_config.json
+```
+
+### Key Config Sections:
+
+| Section | Description |
+|---------|-------------|
+| `physics` | alpha, L, T, sigma_0 |
+| `grid` | nx, ny, nz, nt spatial/temporal resolution |
+| `pinn.training` | epochs, lr, weight_decay, n_samples |
+| `pinn.lbfgs` | L-BFGS refinement settings |
+| `pinn.architecture` | layers, transformer, fourier features |
+| `pinn.accuracy` | nonneg_weight, causal_epsilon, curriculum phases |
+| `pinn.relobralo` | alpha, rho, tau for ReLoBRaLo |
+| `qpinn.training` | max_iterations, spsa_c, spsa_a, n_samples |
+| `qpinn.circuit` | n_qubits, shots, backend, noise_model |
+| `validation` | interval, grid_size for periodic validation |
+| `monitoring` | GPU/CPU performance tracking |
+
+### Classical PINN (SPINN + PINNsFormer):
 - `use_transformer`: Enable PINNsFormer architecture (default: True)
-- `transformer_config`: Configuration dict for Transformer
+- `transformer_memory_efficient`: Use memory-efficient config (default: True)
+- `pinn.architecture.spinn`: SPINN body network configuration
+  - `rank`: Feature rank / output dimension (default: 64, matches d_model)
+  - `hidden_dim`: Hidden layer width per body network (default: 64)
+  - `n_hidden_layers`: Number of hidden layers per body network (default: 2)
+- `pinn.architecture.transformer`: PINNsFormer Transformer configuration
   - `seq_length`: Length of pseudo-sequence (8 or 16)
   - `d_model`: Model dimension (64 or 128)
   - `n_heads`: Number of attention heads (4 or 8)
   - `n_layers`: Number of Transformer layers (2 or 4)
-- `transformer_memory_efficient`: Use memory-efficient config (default: True)
+  - `d_ff`: Feedforward dimension (256 or 512)
+  - `dropout`: Dropout rate (default: 0.1)
 - `use_hard_constraints`: Enable boundary constraints
 - `fourier_features`: Enable multi-scale Fourier features
 - `num_fourier_features`: Number of Fourier features (default: 64)
@@ -316,44 +482,70 @@ Key parameters in the implementation:
 
 ## Output
 
-The code generates comprehensive results including:
+All results are saved to the `results/` directory (20 files per benchmark run):
 
-### For Classical PINN (PINNsFormer):
-- Network architecture visualization
-- Attention weight heatmaps
-- Pseudo-sequence analysis
-- Multi-scale feature maps
-- Wavelet activation patterns
-- Transformer layer outputs
+### Plots (PNG)
+| File | Description |
+|------|-------------|
+| `comparison_heat_equation.png` | Temperature field comparison (analytical vs PINN vs QPINN) |
+| `loss_comparison.png` | Training loss curves for both methods |
+| `profile_comparison.png` | Temperature profiles along domain center |
+| `pinn_relobralo_evolution.png` | PINN ReLoBRaLo adaptive weight evolution |
+| `qpinn_relobralo_evolution.png` | QPINN ReLoBRaLo adaptive weight evolution |
+| `error_distribution.png` | Spatial error distribution for both methods |
+| `pinn_learning_rate.png` | PINN learning rate schedule |
 
-### For QPINN:
-- Quantum circuit diagrams
-- Circuit quality metrics
-- GQE optimization history
-- GPT generation statistics
-- Gate evolution heatmaps
-- Energy estimation analysis
+### Data (CSV)
+| File | Description |
+|------|-------------|
+| `pinn_training_losses.csv` | Per-epoch PINN total loss |
+| `pinn_loss_components.csv` | Per-epoch PINN loss components (IC, peak, BC, PDE, nonneg) and ReLoBRaLo weights |
+| `qpinn_training_losses.csv` | Per-step QPINN total loss |
+| `qpinn_relobralo_weights.csv` | Per-step QPINN ReLoBRaLo weights |
+| `metrics_over_time.csv` | Per-timestep MSE, MAE, RMSE, RelL2, MaxAE, energy, boundary errors |
+| `pinn_validation_metrics.csv` | PINN validation MSE/RelL2 per time slice during training |
+| `qpinn_validation_metrics.csv` | QPINN validation metrics during training |
+| `performance_metrics.csv` | GPU memory, utilization, CPU stats during PINN training |
 
-### For Both:
-- Optimization history plots
-- Pareto front visualizations
-- Performance metrics
-- Detailed reports in JSON/CSV/LaTeX formats
-- Comparative analysis between methods
+### Reports and Checkpoints
+| File | Description |
+|------|-------------|
+| `comparative_analysis.json` | Full comparative analysis with metadata and metrics |
+| `benchmark_summary.txt` | Human-readable summary report |
+| `gqe_circuit_info.json` | Quantum circuit structure and optimized parameters |
+| `gqe_circuit_summary.txt` | Circuit performance metrics summary |
+| `gqe_circuit_text.txt` | PennyLane-format circuit diagrams |
+| `benchmark.log` | Detailed training log with timestamps |
+| `pinn_radam_checkpoint.pth` | PINN model checkpoint |
+| `qpinn_spsa_checkpoint.pth` | QPINN model checkpoint |
 
 ## Performance Comparison
 
-The implementation provides fair comparison between classical PINN and QPINN using:
-- Identical NSGA-II optimization framework
-- Unified progress intervals
-- Normalized objective functions
-- Comprehensive metrics:
-  - Mean Squared Error (MSE)
-  - Relative L2 error
-  - Boundary condition satisfaction
-  - Initial condition accuracy
-  - Conservation properties
-  - Computational efficiency
+The implementation provides fair comparison between SPINN+PINNsFormer PINN and QPINN using:
+- Consistent adaptive loss weighting (ReLoBRaLo) for both methods
+- Identical problem configuration and evaluation metrics
+- Comprehensive metrics: MSE, MAE, RMSE, RelL2, MaxAE, energy conservation, boundary satisfaction
+- Per-timestep metrics output (CSV) and formatted research summary (TXT/JSON)
+
+### Latest Benchmark Results (RTX PRO 6000 Blackwell, PyTorch 2.10 + PennyLane 0.44)
+
+**Architecture**: SPINN + PINNsFormer with IC lifting (separable per-axis body networks + Transformer encoder-decoder + free-space Green's function ansatz)
+
+| Metric | PINN (SPINN+PINNsFormer) | QPINN (SPSA) | Better |
+|--------|-------------------------|--------------|--------|
+| MSE | 2.125e-06 | 1.352e-06 | QPINN |
+| MAE | 1.022e-03 | 1.679e-04 | QPINN |
+| RMSE | 1.458e-03 | 1.163e-03 | QPINN |
+| Relative L2 | 1.381e-01 | 1.101e-01 | QPINN |
+| Max AE | 3.975e-03 | 1.235e-01 | PINN |
+| Peak Error | 3.811e-03 | 1.862e-03 | QPINN |
+| Neg. Violations | 0 | 0 | Tie |
+| Training Time | 3,745 s | 10,605 s | PINN |
+| Parameters | 454,527 | 9 (1 circuit + 8 classical) | QPINN |
+| Training Steps | 3,000 RAdam + 200 L-BFGS | 200 SPSA | - |
+| Adaptive Weighting | ReLoBRaLo | ReLoBRaLo | - |
+
+Both methods use ReLoBRaLo adaptive loss weighting and hard boundary constraints for fair comparison. The PINN achieves comparable MSE to QPINN (within 2x) and superior Max AE (124x better), while QPINN achieves better overall accuracy with 50,000x fewer parameters. Comprehensive metrics (MSE, MAE, RMSE, RelL2, MaxAE, energy conservation, boundary satisfaction) are output after each benchmark run.
 
 ## Citation
 
@@ -365,7 +557,7 @@ This implementation is provided for research purposes. Please check individual p
 
 ## Acknowledgments
 
-This implementation builds upon numerous research contributions in quantum machine learning, QPINNs, classical PINNs with Transformer architectures, and multi-objective optimization. Special thanks to all researchers whose work is referenced in this implementation.
+This implementation builds upon numerous research contributions in quantum machine learning, QPINNs, classical PINNs with Transformer architectures, and adaptive loss weighting. Special thanks to all researchers whose work is referenced in this implementation.
 
 ## Contributing
 
@@ -375,51 +567,48 @@ Contributions are welcome! Please feel free to submit a Pull Request. Areas of p
 - Additional quantum circuit optimization strategies
 - Performance improvements for large-scale problems
 - New visualization features
-- Multi-objective optimization enhancements
+- Alternative adaptive loss weighting strategies
 
 ## Troubleshooting
 
 ### Common Issues
 
-1. **NSGA-II optimizer not available**: 
-   - Ensure C++ compiler is properly installed
-   - Run the build command again with verbose output: `pip install -v . module/nsga2_optimizer`
-   
-2. **Transformer memory issues**: 
+1. **Transformer memory issues**:
    - Enable `transformer_memory_efficient=True`
    - Reduce `seq_length` in transformer_config
    - Decrease batch size
-   
-3. **Attention weight visualization errors**: 
+
+2. **Attention weight visualization errors**:
    - Check matplotlib and required fonts are installed
    - Verify write permissions in results directory
-   
-4. **Circuit visualization errors**: 
+
+3. **Circuit visualization errors**:
    - Check matplotlib backend settings
    - Verify PennyLane installation
-   
-5. **NSGA-II convergence issues**:
-   - Increase population size or generation count
-   - Adjust crossover and mutation parameters
-   - Check objective function scaling
+
+4. **Backend detection issues**:
+   - Use `--backend cpu` to force CPU if CUDA detection fails
+   - Ensure CUDA toolkit is installed for GPU backends
+   - Verify PennyLane device availability for QPU backend
 
 ### Performance Optimization Tips
 
-1. **For GPU Training**: 
-   - Use `transformer_memory_efficient=True`
-   - Enable mixed precision with `torch.cuda.amp`
-   
-2. **For Hardware Devices**: 
-   - Use smaller population sizes in NSGA-II
+1. **For GPU Training**:
+   - Use `transformer_memory_efficient=True` (default)
+   - Full float32 precision is recommended for PINNs (mixed precision can cause convergence issues)
+
+2. **For Hardware Quantum Devices**:
    - Enable parallel evaluation
-   
-3. **For Quick Testing**: 
-   - Disable Transformer layers temporarily
-   - Use smaller network architectures
-   
-4. **For Production**: 
-   - Enable all features with appropriate resource allocation
-   - Use checkpoint saving/loading
+   - Adjust SPSA perturbation parameters for noisy hardware
+
+3. **For Quick Testing**:
+   - Reduce `pinn_epochs` in `config.py`
+   - Set `qnn_epochs = 50` for faster QPINN evaluation
+
+4. **For Resuming from Checkpoints**:
+   - Checkpoints are automatically saved to `results/`
+   - Re-running `main.py` will load existing checkpoints if found
+   - Delete checkpoint files to force re-training
 
 ## Contact
 

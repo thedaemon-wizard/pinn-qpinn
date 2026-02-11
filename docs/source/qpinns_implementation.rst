@@ -13,7 +13,7 @@ The Generative Quantum Eigensolver with GPT (GQE-GPT) system consists of three m
 
 1. **GPT-based Circuit Generator**: Generates quantum circuit architectures
 2. **Quantum Circuit Executor**: Evaluates circuits on quantum simulators/hardware
-3. **Multi-objective Optimizer**: Selects optimal circuits using NSGA-II
+3. **Circuit Optimizer**: Selects optimal circuits via Bayesian multi-objective search
 
 .. code-block:: python
 
@@ -221,8 +221,8 @@ Parameter Initialization
            requires_grad=True
        )
 
-Circuit Optimization with NSGA-II
----------------------------------
+Circuit Optimization with Bayesian Multi-Objective Search
+-----------------------------------------------------------
 
 Multi-objective optimization for quantum circuits:
 
@@ -563,54 +563,94 @@ The Bayesian optimizer uses expected improvement for multi-objective optimizatio
        
        return improvement
 
-Training Loss Functions
------------------------
+Training with SPSA and ReLoBRaLo Adaptive Loss Weighting
+----------------------------------------------------------
 
-During QPINN training with NSGA-II, five objectives are optimized:
+The QPINN is trained using the PennyLane ``SPSAOptimizer`` (Simultaneous Perturbation
+Stochastic Approximation), combined with ReLoBRaLo adaptive loss weighting
+(Bischof & Kraus, 2025).
+
+SPSA Optimizer
+^^^^^^^^^^^^^^
+
+SPSA is well-suited for quantum circuit parameter optimization because it estimates
+the gradient using only two function evaluations per step, regardless of the number
+of parameters:
+
+.. math::
+
+   \hat{g}_k(\theta) = \frac{f(\theta + c_k \Delta_k) - f(\theta - c_k \Delta_k)}{2 c_k} \Delta_k^{-1}
+
+where :math:`\Delta_k` is a random perturbation vector with Rademacher-distributed
+components, and :math:`c_k` is a decreasing perturbation magnitude.
 
 .. code-block:: python
 
-   def objective_function_qpinn(params_array):
-       """QPINN multi-objective function for NSGA-II"""
-       # Set parameters
-       self._load_parameters_from_array_safe(params_array)
-       
-       # Compute predictions on test points
+   import pennylane as qml
+
+   opt = qml.SPSAOptimizer(maxiter=200)
+
+   for step in range(200):
+       params, cost = opt.step_and_cost(cost_fn, params)
+
+ReLoBRaLo Adaptive Loss Weighting
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+As with the PINN, the QPINN uses ReLoBRaLo to dynamically balance its five loss
+components during training.  See :doc:`pinns_implementation` for the full algorithm
+description.  The five loss components are:
+
+1. **Initial condition loss** -- agreement at :math:`t=0`
+2. **Peak value loss** -- agreement at the domain center :math:`(L/2, L/2, L/2)`
+3. **Boundary condition loss** -- Dirichlet BC satisfaction
+4. **PDE residual loss** -- heat equation residual (finite differences)
+5. **Trace distance** -- quantum state fidelity metric
+
+.. code-block:: python
+
+   def compute_qpinn_losses(qpinn, test_points):
+       """Compute QPINN loss components."""
        predictions = []
        for point in test_points:
-           u_pred = self.forward([point.x, point.y, point.z, point.t])
+           u_pred = qpinn.forward([point.x, point.y, point.z, point.t])
            predictions.append(u_pred)
-       
+
        # 1. Initial condition loss
        initial_loss = np.mean([
-           abs(pred - point.u_true)**2 
+           abs(pred - point.u_true)**2
            for pred, point in zip(predictions, test_points)
            if point.t == 0.0
        ])
-       
+
        # 2. Peak value loss
        peak_loss = np.mean([
            abs(pred - analytical_solution(L/2, L/2, L/2, point.t))**2
            for pred, point in zip(predictions, test_points)
            if point.x == L/2 and point.y == L/2 and point.z == L/2
        ])
-       
+
        # 3. Boundary condition loss
        boundary_loss = np.mean([
            abs(pred)**2
            for pred, point in zip(predictions, test_points)
-           if (point.x == 0 or point.x == L or 
+           if (point.x == 0 or point.x == L or
                point.y == 0 or point.y == L or
                point.z == 0 or point.z == L)
        ])
-       
+
        # 4. PDE residual loss (finite differences)
-       pde_loss = self._compute_pde_residual_fd(predictions, test_points)
-       
+       pde_loss = qpinn._compute_pde_residual_fd(predictions, test_points)
+
        # 5. Trace distance (quantum-specific)
-       trace_loss = self._compute_trace_distance()
-       
+       trace_loss = qpinn._compute_trace_distance()
+
        return [initial_loss, peak_loss, boundary_loss, pde_loss, trace_loss]
+
+The combined training loss at each step uses ReLoBRaLo weights:
+
+.. math::
+
+   \mathcal{L}_{\text{total}}^{(t)} = \sum_{i=1}^{5} \alpha_i^{(t)} \, \mathcal{L}_i^{(t)}
 
 Trace Distance Calculation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -641,33 +681,34 @@ The complete QPINN training flow:
 .. image:: _image/QPINNs_Detailed_Data_Flow.png
 
 1. **Initial Circuit Generation**
-   
+
    - Hardware-efficient ansatz or GPT-generated circuit
    - 9-objective evaluation for circuit quality
    - Select best initial circuit
 
-2. **NSGA-II Training**
-   
-   - Optimize circuit parameters for 5 PDE-specific objectives
-   - Population: 30 individuals
-   - Generations: 200
+2. **SPSA Training with ReLoBRaLo**
+
+   - Optimize circuit parameters using PennyLane SPSAOptimizer
+   - Adaptive loss weighting via ReLoBRaLo across 5 PDE-specific loss terms
+   - Iterations: 200
 
 3. **Dynamic Circuit Updates**
-   
-   - Every 50 generations, evaluate if circuit update needed
+
+   - Periodically evaluate if circuit update is needed
    - Generate new candidates with GQE-GPT
    - Replace circuit if improvement found
 
 4. **Final Evaluation**
-   
-   - Select best solution from Pareto front
-   - Evaluate on full grid
+
+   - Evaluate on full grid with best parameters
 
 References
 ----------
 
-* Apak et al. (2024) "KetGPT – Dataset Augmentation of Quantum Circuits"
-* Trahan et al. (2024) "Quantum Physics-Informed Neural Networks" 
+* Apak et al. (2024) "KetGPT -- Dataset Augmentation of Quantum Circuits"
+* Trahan et al. (2024) "Quantum Physics-Informed Neural Networks"
 * TE-QPINN (2025) "Trainable embedding quantum physics informed neural networks"
 * Panichi et al. (2025) "Quantum physics informed neural networks for multi-variable PDEs"
 * Nakaji & Yamamoto (2021) "Quantum circuit design by Generative Quantum Eigensolver"
+* Spall (1998) "An Overview of the Simultaneous Perturbation Method for Efficient Optimization" (SPSA)
+* Bischof & Kraus (2025) "ReLoBRaLo: Relative Loss Balancing with Random Lookback for Multi-Task Learning"

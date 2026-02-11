@@ -27,13 +27,34 @@ For the benchmark problem, we consider:
 * **Initial condition**: :math:`u(x,y,z,0) = u_0(x,y,z)`
 * **Boundary conditions**: Homogeneous Dirichlet :math:`u|_{\partial\Omega} = 0`
 
-The analytical solution for a Gaussian initial condition is:
+Analytical Solution
+^^^^^^^^^^^^^^^^^^^
+
+For a Gaussian initial condition :math:`u_0(x,y,z) = \exp\!\bigl(-\frac{(x-x_0)^2+(y-y_0)^2+(z-z_0)^2}{2\sigma^2}\bigr)`
+on a bounded domain :math:`[0, L]^3` with homogeneous Dirichlet boundaries, the
+analytical solution is a **Fourier sine series**:
 
 .. math::
 
-   u(x,y,z,t) = \left(\frac{\sigma^2}{\sigma^2 + 4\alpha t}\right)^{3/2} u_0 \exp\left(-\frac{(x-x_0)^2 + (y-y_0)^2 + (z-z_0)^2}{4\alpha t + \sigma^2}\right)
+   u(x,y,z,t) = \sum_{l,m,n=1}^{N_{\max}} C_{lmn} \, \sin\!\left(\frac{l\pi x}{L}\right) \sin\!\left(\frac{m\pi y}{L}\right) \sin\!\left(\frac{n\pi z}{L}\right) \, e^{-\alpha\pi^2(l^2+m^2+n^2)t/L^2}
 
-where :math:`u_0` is the initial peak amplitude, :math:`(x_0, y_0, z_0)` is the center position, and :math:`\sigma` is the initial width.
+where the Fourier coefficients are computed from the initial condition:
+
+.. math::
+
+   C_{lmn} = \left(\frac{2}{L}\right)^3 \int_0^L \!\!\int_0^L \!\!\int_0^L u_0(x,y,z) \,\sin\!\left(\frac{l\pi x}{L}\right)\sin\!\left(\frac{m\pi y}{L}\right)\sin\!\left(\frac{n\pi z}{L}\right) \,dx\,dy\,dz
+
+For the Gaussian initial condition centered at :math:`(L/2, L/2, L/2)` with
+:math:`\sigma = 0.05`, the integrals are computed via the error function. The
+series is truncated at :math:`N_{\max} = 30` modes per axis, which provides
+convergence to machine precision for this problem.
+
+.. note::
+
+   The unbounded-domain Green's function solution
+   :math:`u \propto (\sigma^2 + 4\alpha t)^{-3/2} \exp(-r^2/(\sigma^2 + 4\alpha t))`
+   is **not** used, because it does not satisfy homogeneous Dirichlet boundary
+   conditions on the finite domain :math:`[0, L]^3`.
 
 Physics-Informed Neural Networks (PINNs)
 ----------------------------------------
@@ -178,46 +199,171 @@ where:
 * "Trainable embedding quantum physics informed neural networks" *Scientific Reports* (2025)
 * Panichi et al. (2025) "Quantum physics informed neural networks for multi-variable PDEs" *arXiv:2503.12244*
 
-NSGA-II Multi-Objective Optimization
-------------------------------------
+SPINN: Separable Physics-Informed Neural Networks
+---------------------------------------------------
 
-Non-dominated Sorting Genetic Algorithm II (NSGA-II) is used for multi-objective optimization of both PINNs and QPINNs.
+SPINN (Cho et al., NeurIPS 2023 Spotlight) decomposes multi-dimensional PDE solving
+into independent per-axis networks, dramatically reducing computational complexity.
 
-Algorithm Overview
-^^^^^^^^^^^^^^^^^^
+Separable Body Networks
+^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. code-block:: text
-
-   1. Initialize population P using Latin Hypercube Sampling
-   2. Evaluate objectives for each individual
-   3. For each generation:
-      a. Generate offspring Q using REX crossover and mutation
-      b. Combine R = P ∪ Q
-      c. Perform non-dominated sorting on R
-      d. Select new population P using crowding distance
-   4. Return Pareto front
-
-REX Crossover Operator
-^^^^^^^^^^^^^^^^^^^^^^
-
-The REX(ϕ,n+k) crossover uses a V-shaped distribution:
+For a :math:`d`-dimensional problem, SPINN uses :math:`d` independent body networks:
 
 .. math::
 
-   \mathbf{x}_{\text{child}} = \mathbf{x}_g + \sum_{i=1}^{n_{\text{parents}}} \xi_i (\mathbf{x}_i - \mathbf{x}_g)
+   f_k: \mathbb{R}^1 \to \mathbb{R}^r, \quad k = 1, \ldots, d
 
-where:
+where :math:`r` is the feature rank. The aggregated feature is computed via Hadamard
+(element-wise) product:
 
-* :math:`\mathbf{x}_g` is the center of mass of parents
-* :math:`\xi_i \sim \text{V-shaped}(a)` with :math:`a = \sqrt{2/n_{\text{parents}}}`
+.. math::
+
+   \mathbf{h}(x,y,z,t) = f_x(x) \odot f_y(y) \odot f_z(z) \odot f_t(t)
+
+This reduces complexity from :math:`O(N^d)` to :math:`O(Nd)` for :math:`N` grid points
+per axis and :math:`d=4` dimensions (3 spatial + 1 temporal). Each body network is a
+small MLP with Wavelet activation.
 
 **References**:
 
-* Lu et al. (2023) "NSGA-PINN: A Multi-Objective Optimization Method for Physics-Informed Neural Network Training"
-* Ma et al. (2023) "A comprehensive survey on NSGA-II for multi-objective optimization"
+* Cho et al. (2023) "Separable Physics-Informed Neural Networks" *NeurIPS 2023 Spotlight*
+
+PINNsFormer Architecture
+------------------------------------
+
+PINNsFormer (Zhao, Ding & Prakash, ICLR 2024) extends Physics-Informed Neural Networks
+with a Transformer-based architecture that captures temporal dependencies. In our
+implementation, PINNsFormer processes SPINN-aggregated features combined with
+multi-scale Fourier features through an encoder-decoder pipeline.
+
+Wavelet Activation Function
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+PINNsFormer uses a learnable wavelet activation function (Eq. 4 in the original paper):
+
+.. math::
+
+   \sigma_{\text{wavelet}}(x) = w_1 \sin(x) + w_2 \cos(x)
+
+where :math:`w_1` and :math:`w_2` are learnable parameters initialized to 1.0. This
+activation naturally encodes oscillatory behavior relevant to PDE solutions and provides
+smooth derivatives needed for PDE residual computation via autograd.
+
+Pseudo-Sequence Generator
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The pseudo-sequence generator converts the concatenated SPINN + Fourier features into
+temporal sequences suitable for the Transformer architecture. Given a feature vector
+at a collocation point, it produces a sequence of :math:`L` positions with physics-aware
+temporal decay:
+
+.. math::
+
+   \mathbf{s}_i = M_i(\mathbf{h}) \cdot e^{-\lambda i \Delta t} + \mathbf{p}_i
+
+where :math:`M_i` is a learned temporal modulator, :math:`\lambda = 0.296` is the
+dominant decay rate for the 3D heat equation, and :math:`\mathbf{p}_i` is a sinusoidal
+position embedding.
+
+**References**:
+
+* Zhao, Ding & Prakash (2024) "PINNsFormer: A Transformer-Based Framework for Physics-Informed Neural Networks" *ICLR 2024*
+
+Transformer Encoder/Decoder Blocks
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The architecture uses Transformer encoder and decoder blocks with Wavelet residual connections:
+
+* **Encoder**: Self-attention where Q=K=V from the same source, followed by feed-forward
+  network with WaveletActivation. Uses residual connections with Wavelet activation instead
+  of standard addition, following the PINNsFormer paper.
+* **Decoder**: Cross-attention from encoder output, where queries come from the decoder and
+  keys/values from the encoder. Also uses Wavelet residual connections.
+
+Output Projection
+^^^^^^^^^^^^^^^^^^
+
+The decoder output is aggregated across sequence positions using learned temporal weights
+(initialized with exponential decay), then projected to scalar output:
+
+.. math::
+
+   \hat{u} = W_{\text{out}} \left( \sum_{i=0}^{L-1} \alpha_i \mathbf{h}_i \right) + b_{\text{out}}
+
+where :math:`\alpha_i = \text{softmax}(w_i)` are learned temporal weights.
+
+Optimization Strategy
+------------------------------------
+
+PINN Optimizer
+^^^^^^^^^^^^^^
+
+The classical PINN uses RAdam (Rectified Adam) with decoupled weight decay regularization. RAdam provides an adaptive learning rate with variance rectification that stabilizes early training:
+
+.. math::
+
+   \theta_{t+1} = \theta_t - \eta_t \cdot \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon} \quad \text{with variance rectification term } r_t
+
+The learning rate schedule uses **CosineAnnealingWarmRestarts**, which periodically resets the learning rate following a cosine curve to escape local minima.
+
+QPINN Optimizer
+^^^^^^^^^^^^^^^^
+
+The quantum PINN uses the PennyLane **SPSAOptimizer** (Simultaneous Perturbation Stochastic Approximation), which estimates gradients using only two circuit evaluations per step regardless of the number of parameters:
+
+.. math::
+
+   \hat{g}_k(\theta) = \frac{L(\theta + c_k \Delta_k) - L(\theta - c_k \Delta_k)}{2 c_k \Delta_k}
+
+where :math:`\Delta_k` is a random perturbation vector with Bernoulli-distributed components.
+
+ReLoBRaLo Adaptive Loss Weighting
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Both PINN (RAdam) and QPINN (SPSA) use **ReLoBRaLo** (Relative Loss Balancing with Random Lookback) to adaptively rebalance multi-component losses using softmax-based relative balancing.
+
+**Hyperparameters**:
+
+* :math:`\alpha = 0.999` -- exponential moving average (EMA) decay
+* :math:`\rho = 0.999` -- random lookback rate (probability of using the previous-step reference)
+* :math:`\tau = 1.0` -- softmax temperature controlling weight sharpness
+
+**Two reference points** are maintained:
+
+1. **Previous-step losses**: the loss values from the immediately preceding training step
+2. **Initial (epoch 0) losses**: the loss values recorded at the start of training
+
+At each step, softmax-normalized weights are computed relative to each reference point. The step-based weights :math:`\hat{\lambda}_k` compare the current losses to the previous step:
+
+.. math::
+
+   \hat{\lambda}_k = \frac{\exp\left(\mathcal{L}_k^{(t)} / (\tau \cdot \mathcal{L}_k^{(t-1)})\right)}{\sum_j \exp\left(\mathcal{L}_j^{(t)} / (\tau \cdot \mathcal{L}_j^{(t-1)})\right)}
+
+The initial-reference weights :math:`\hat{\lambda}_{0,k}` compare the current losses to the initial losses:
+
+.. math::
+
+   \hat{\lambda}_{0,k} = \frac{\exp\left(\mathcal{L}_k^{(t)} / (\tau \cdot \mathcal{L}_k^{(0)})\right)}{\sum_j \exp\left(\mathcal{L}_j^{(t)} / (\tau \cdot \mathcal{L}_j^{(0)})\right)}
+
+These are combined via an exponential moving average with a random lookback governed by :math:`\rho`:
+
+.. math::
+
+   \lambda_k = \rho \cdot \alpha \cdot \lambda_k + (1 - \rho) \cdot \alpha \cdot \hat{\lambda}_{0,k} + (1 - \alpha) \cdot \hat{\lambda}_k
+
+The random lookback (controlled by :math:`\rho`) stochastically mixes the history with the initial-reference weights, preventing the weighting from overfitting to a single reference trajectory.
+
+
+**References**:
+
+* Liu et al. (2020) "On the Variance of the Adaptive Learning Rate and Beyond" *ICLR 2020* (RAdam)
+* Spall (1998) "Implementation of the Simultaneous Perturbation Algorithm for Stochastic Optimization" *IEEE Transactions on Aerospace and Electronic Systems* (SPSA)
+* Bischof & Kraus (2025) "Multi-Objective Loss Balancing for Physics-Informed Deep Learning" *Computer Methods in Applied Mechanics and Engineering*, 431, 117521 (ReLoBRaLo)
+* Zhao et al. (2023) "PINNsFormer: A Transformer-Based Framework For Physics-Informed Neural Networks" *arXiv:2307.02049*
 
 Bayesian Multi-Objective Optimization for Energy Estimation
-----------------------------------------------------
+------------------------------------------------------------
 
 The QPINN circuit optimization uses nine objectives evaluated through Bayesian multi-objective optimization:
 

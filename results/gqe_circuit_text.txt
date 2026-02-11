@@ -1,18 +1,18 @@
 GQE Quantum Circuit Initial Time (PennyLane Format)
 ==================================================
 
-0: ──RY(0.79)──Z─┤  
-1: ──RY(0.79)────┤  
-2: ──RY(0.79)──Z─┤  
-3: ──RY(0.00)────┤  
+0: ──RY(1.06)─┤  
+1: ──RY(0.79)─┤  
+2: ──RY(0.79)─┤  
+3: ──RY(0.00)─┤  
 
 GQE Quantum Circuit Final Time(PennyLane Format)
 ==================================================
 
-0: ──RY(0.79)──Z─┤  
-1: ──RY(0.79)────┤  
-2: ──RY(0.79)──Z─┤  
-3: ──RY(1.57)────┤  
+0: ──RY(1.06)─┤  
+1: ──RY(0.79)─┤  
+2: ──RY(0.79)─┤  
+3: ──RY(1.57)─┤  
 
-Total gates: 11
-Trainable parameters: 2
+Total gates: 3
+Trainable parameters: 1
