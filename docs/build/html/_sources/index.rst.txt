@@ -9,7 +9,6 @@ PINNs-QPINNs Heat Conduction Benchmark Documentation
    theoretical_background
    pinns_implementation
    qpinns_implementation
-   nsga2_optimizer
    experimental_results
    api_reference
    references
@@ -19,10 +18,10 @@ Introduction
 
 This documentation describes a comprehensive benchmark comparison between Physics-Informed Neural Networks (PINNs) and Quantum Physics-Informed Neural Networks (QPINNs) for solving the 3D heat conduction equation. The implementation includes state-of-the-art techniques such as:
 
-* **Classical PINNs**: Enhanced with Fourier Neural Operators (FNO) and temporal attention mechanisms
-* **Quantum PINNs**: Featuring ketGPT, GQE-GPT circuit generation, and trainable embeddings (TE-QPINN)
-* **Multi-objective optimization**: NSGA-II algorithm for both classical and quantum approaches
-* **High-performance C++ implementation**: NSGA-II optimizer with Python bindings
+* **Classical PINNs**: SPINN (Separable PINN, NeurIPS 2023) + PINNsFormer (ICLR 2024) Transformer architecture with multi-scale Fourier features, trained with RAdam + L-BFGS
+* **Quantum PINNs**: Featuring ketGPT, GQE-GPT circuit generation, and trainable embeddings (TE-QPINN), trained with PennyLane SPSAOptimizer
+* **Adaptive loss weighting**: ReLoBRaLo (Relative Loss Balancing with Random Lookback) for dynamic multi-loss balancing (Bischof & Kraus, 2025)
+* **Modular architecture**: 8-file codebase with CLI-based backend selection (auto/cpu/cuda/gpu/qpu)
 
 Project Overview
 ----------------
@@ -38,12 +37,13 @@ where :math:`u(x,y,z,t)` is the temperature field and :math:`\alpha` is the ther
 Key Features
 ------------
 
-1. **Advanced PINNs Implementation**
-   
-   * Fourier Neural Operator (FNO) integration for improved spectral properties
-   * Multi-scale Fourier feature mapping
-   * Temporal attention mechanism for better time-dependent learning
-   * Hard boundary constraints with smooth transitions
+1. **Advanced PINNs Implementation (SPINN + PINNsFormer)**
+
+   * SPINN separable per-axis body networks (NeurIPS 2023 Spotlight) for O(Nd) complexity
+   * PINNsFormer Transformer encoder-decoder (ICLR 2024) with Wavelet activation
+   * Multi-scale Fourier feature mapping (coarse + fine spatial, slow + fast temporal)
+   * Hard boundary constraints with product distance function
+   * Curriculum learning (3-phase: IC → PDE ramp → full ReLoBRaLo)
 
 2. **Quantum PINNs with GQE-GPT**
    
@@ -52,12 +52,13 @@ Key Features
    * Unsupervised energy estimation
    * Bayesian multi-objective optimization for circuit selection
 
-3. **NSGA-II Multi-objective Optimization**
-   
-   * Unified optimization framework for fair comparison
-   * REX crossover operator with V-shaped distribution
-   * Latin Hypercube Sampling (LHS) for initialization
-   * Equidistant selection crowding distance
+3. **Optimizers and Adaptive Loss Weighting**
+
+   * PINNs: PyTorch RAdam with decoupled weight decay + L-BFGS refinement
+   * QPINNs: PennyLane SPSAOptimizer
+   * ReLoBRaLo adaptive loss weighting for dynamic multi-loss balancing
+   * Curriculum learning: IC-only warm-up, PDE ramp-up, full ReLoBRaLo
+   * CLI-based backend selection: auto/cpu/cuda/gpu/qpu
 
 4. **Comprehensive Benchmarking**
    
@@ -70,9 +71,8 @@ System Requirements
 -------------------
 
 * Python 3.12+
-* PyTorch 2.0+
-* PennyLane 0.39+
-* C++17 compiler (for NSGA-II optimizer)
+* PyTorch 2.10+
+* PennyLane 0.44+
 * CUDA-capable GPU (recommended)
 
 Installation
@@ -87,29 +87,23 @@ Installation
    # Install Python dependencies
    pip install -r requirements.txt
 
-   # Build the C++ NSGA-II optimizer
-   python setup.py build_ext --inplace
-
 Quick Start
 -----------
 
-.. code-block:: python
+.. code-block:: bash
 
-   from pinns_d3 import main
+   # Run the complete benchmark (auto-detect backend)
+   python main.py --backend auto
 
-   # Run the complete benchmark
-   main()
-
-This will execute both PINN and QPINN training with NSGA-II optimization and generate comparative visualizations.
+This will execute both PINN and QPINN training with RAdam/SPSA optimizers and ReLoBRaLo adaptive loss weighting, and generate comparative visualizations.
 
 Documentation Structure
 -----------------------
 
 * **Theoretical Background**: Mathematical foundations and algorithm descriptions
-* **PINNs Implementation**: Detailed explanation of the classical approach with FNO
+* **PINNs Implementation**: SPINN + PINNsFormer architecture with RAdam + L-BFGS + ReLoBRaLo
 * **QPINNs Implementation**: Quantum circuit design and optimization strategies
-* **NSGA-II Optimizer**: C++ implementation details and Python bindings
-* **Experimental Results**: Benchmark results and analysis
+* **Experimental Results**: Comprehensive benchmark results (MSE, MAE, RMSE, RelL2, energy, etc.)
 * **API Reference**: Complete API documentation for all modules
 * **References**: Scientific papers and resources
 

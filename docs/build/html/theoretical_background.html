@@ -8,15 +8,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Theoretical Background &mdash; PINNs-QPINNs Heat Conduction Benchmark 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/custom.css?v=6703f69d" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="_static/documentation_options.js?v=8d563738"></script>
-      <script src="_static/doctools.js?v=9bcbadda"></script>
-      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "displayMath": [["$", "$"], ["\\[", "\\]"]], "processEscapes": true, "macros": {"bm": ["{\\boldsymbol{#1}}", 1], "abs": ["\\left|#1\\right|", 1], "norm": ["\\left\\|#1\\right\\|", 1]}}, "options": {"skipHtmlTags": ["script", "noscript", "style", "textarea", "pre"], "processHtmlClass": "tex2jax_process"}}</script>
       <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
@@ -50,7 +50,7 @@
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="introduction.html#overview">Overview</a></li>
 <li class="toctree-l2"><a class="reference internal" href="introduction.html#key-innovations">Key Innovations</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="introduction.html#classical-pinns-enhancement">Classical PINNs Enhancement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="introduction.html#classical-pinns-enhancement-spinn-pinnsformer">Classical PINNs Enhancement: SPINN + PINNsFormer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="introduction.html#quantum-pinns-with-gqe-gpt">Quantum PINNs with GQE-GPT</a></li>
 </ul>
 </li>
@@ -65,6 +65,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Theoretical Background</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#heat-conduction-equation">Heat Conduction Equation</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#boundary-and-initial-conditions">Boundary and Initial Conditions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#analytical-solution">Analytical Solution</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#physics-informed-neural-networks-pinns">Physics-Informed Neural Networks (PINNs)</a><ul>
@@ -79,9 +80,21 @@
 <li class="toctree-l3"><a class="reference internal" href="#trainable-embedding-te-qpinn">Trainable Embedding (TE-QPINN)</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#nsga-ii-multi-objective-optimization">NSGA-II Multi-Objective Optimization</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#algorithm-overview">Algorithm Overview</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#rex-crossover-operator">REX Crossover Operator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#spinn-separable-physics-informed-neural-networks">SPINN: Separable Physics-Informed Neural Networks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#separable-body-networks">Separable Body Networks</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pinnsformer-architecture">PINNsFormer Architecture</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#wavelet-activation-function">Wavelet Activation Function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pseudo-sequence-generator">Pseudo-Sequence Generator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#transformer-encoder-decoder-blocks">Transformer Encoder/Decoder Blocks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#output-projection">Output Projection</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#optimization-strategy">Optimization Strategy</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pinn-optimizer">PINN Optimizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qpinn-optimizer">QPINN Optimizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#relobralo-adaptive-loss-weighting">ReLoBRaLo Adaptive Loss Weighting</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#bayesian-multi-objective-optimization-for-energy-estimation">Bayesian Multi-Objective Optimization for Energy Estimation</a><ul>
@@ -97,28 +110,52 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="pinns_implementation.html">PINNs Implementation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="pinns_implementation.html#architecture-overview">Architecture Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pinns_implementation.html#spinn-separable-per-axis-body-networks">SPINN: Separable Per-Axis Body Networks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pinns_implementation.html#multi-scale-fourier-feature-mapping">Multi-Scale Fourier Feature Mapping</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="pinns_implementation.html#spatial-features">Spatial Features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pinns_implementation.html#temporal-features">Temporal Features</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="pinns_implementation.html#fourier-neural-operator-fno-integration">Fourier Neural Operator (FNO) Integration</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pinns_implementation.html#memory-efficient-fno">Memory-Efficient FNO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pinns_implementation.html#pinnsformer-transformer-architecture">PINNsFormer Transformer Architecture</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pinns_implementation.html#wavelet-activation">Wavelet Activation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pinns_implementation.html#pseudo-sequence-generator">Pseudo-Sequence Generator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pinns_implementation.html#spatio-temporal-mixer">Spatio-Temporal Mixer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pinns_implementation.html#pinnsformer-encoder">PINNsFormer Encoder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pinns_implementation.html#pinnsformer-decoder-optional">PINNsFormer Decoder (Optional)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pinns_implementation.html#s-pformer-simplified-decoder-only-variant">S-PFormer: Simplified Decoder-Only Variant</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pinns_implementation.html#output-projection">Output Projection</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="pinns_implementation.html#temporal-attention-mechanism">Temporal Attention Mechanism</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pinns_implementation.html#hard-boundary-constraints">Hard Boundary Constraints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pinns_implementation.html#hard-boundary-constraints">Hard Boundary Constraints</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pinns_implementation.html#distance-function">Distance Function</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="pinns_implementation.html#loss-function-components">Loss Function Components</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="pinns_implementation.html#initial-condition-loss">Initial Condition Loss</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pinns_implementation.html#peak-value-loss">Peak Value Loss</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pinns_implementation.html#pde-residual-loss">PDE Residual Loss</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pinns_implementation.html#causal-temporal-weighting">Causal Temporal Weighting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pinns_implementation.html#non-negativity-soft-constraint">Non-Negativity Soft Constraint</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="pinns_implementation.html#nsga-ii-multi-objective-training">NSGA-II Multi-Objective Training</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pinns_implementation.html#radam-training-with-relobralo-adaptive-loss-weighting">RAdam Training with ReLoBRaLo Adaptive Loss Weighting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pinns_implementation.html#curriculum-learning-with-three-phase-training">Curriculum Learning with Three-Phase Training</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pinns_implementation.html#radam-optimizer">RAdam Optimizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pinns_implementation.html#relobralo-adaptive-loss-weighting">ReLoBRaLo Adaptive Loss Weighting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pinns_implementation.html#training-loop">Training Loop</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pinns_implementation.html#validation-and-performance-monitoring">Validation and Performance Monitoring</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pinns_implementation.html#validation-metrics">Validation Metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pinns_implementation.html#performance-metrics">Performance Metrics</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="pinns_implementation.html#optimization-techniques">Optimization Techniques</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="pinns_implementation.html#weight-initialization">Weight Initialization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pinns_implementation.html#gradient-checkpointing">Gradient Checkpointing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pinns_implementation.html#memory-efficient-pinnsformer">Memory-Efficient PINNsFormer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pinns_implementation.html#learning-rate-scheduling">Learning Rate Scheduling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pinns_implementation.html#training-data-generation">Training Data Generation</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="pinns_implementation.html#best-practices">Best Practices</a></li>
@@ -126,6 +163,8 @@
 <li class="toctree-l3"><a class="reference internal" href="pinns_implementation.html#memory-management">Memory Management</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pinns_implementation.html#gradient-explosion">Gradient Explosion</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pinns_implementation.html#slow-convergence">Slow Convergence</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pinns_implementation.html#analytical-solution-n-max-mismatch">Analytical Solution N_max Mismatch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pinns_implementation.html#structured-logging">Structured Logging</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="pinns_implementation.html#references">References</a></li>
@@ -150,7 +189,7 @@
 <li class="toctree-l3"><a class="reference internal" href="qpinns_implementation.html#parameter-initialization">Parameter Initialization</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="qpinns_implementation.html#circuit-optimization-with-nsga-ii">Circuit Optimization with NSGA-II</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="qpinns_implementation.html#circuit-optimization-with-bayesian-multi-objective-search">Circuit Optimization with Bayesian Multi-Objective Search</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="qpinns_implementation.html#objective-functions">Objective Functions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qpinns_implementation.html#hardware-efficiency-calculation">Hardware Efficiency Calculation</a></li>
 </ul>
@@ -176,7 +215,9 @@
 <li class="toctree-l3"><a class="reference internal" href="qpinns_implementation.html#bayesian-acquisition-function">Bayesian Acquisition Function</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="qpinns_implementation.html#training-loss-functions">Training Loss Functions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="qpinns_implementation.html#training-with-spsa-and-relobralo-adaptive-loss-weighting">Training with SPSA and ReLoBRaLo Adaptive Loss Weighting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="qpinns_implementation.html#spsa-optimizer">SPSA Optimizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qpinns_implementation.html#relobralo-adaptive-loss-weighting">ReLoBRaLo Adaptive Loss Weighting</a></li>
 <li class="toctree-l3"><a class="reference internal" href="qpinns_implementation.html#trace-distance-calculation">Trace Distance Calculation</a></li>
 </ul>
 </li>
@@ -184,36 +225,12 @@
 <li class="toctree-l2"><a class="reference internal" href="qpinns_implementation.html#references">References</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="nsga2_optimizer.html">NSGA-II Optimizer</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="nsga2_optimizer.html#overview">Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="nsga2_optimizer.html#architecture">Architecture</a></li>
-<li class="toctree-l2"><a class="reference internal" href="nsga2_optimizer.html#configuration">Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="nsga2_optimizer.html#non-dominated-sorting">Non-dominated Sorting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="nsga2_optimizer.html#rex-crossover-operator">REX Crossover Operator</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="nsga2_optimizer.html#mathematical-formulation">Mathematical Formulation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="nsga2_optimizer.html#v-shaped-distribution">V-shaped Distribution</a></li>
-<li class="toctree-l3"><a class="reference internal" href="nsga2_optimizer.html#crossover-implementation">Crossover Implementation</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="nsga2_optimizer.html#latin-hypercube-sampling">Latin Hypercube Sampling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="nsga2_optimizer.html#crowding-distance">Crowding Distance</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="nsga2_optimizer.html#traditional-crowding-distance">Traditional Crowding Distance</a></li>
-<li class="toctree-l3"><a class="reference internal" href="nsga2_optimizer.html#equidistant-selection">Equidistant Selection</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="nsga2_optimizer.html#parallelization">Parallelization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="nsga2_optimizer.html#python-bindings">Python Bindings</a></li>
-<li class="toctree-l2"><a class="reference internal" href="nsga2_optimizer.html#usage-example">Usage Example</a></li>
-<li class="toctree-l2"><a class="reference internal" href="nsga2_optimizer.html#building-from-source">Building from Source</a></li>
-<li class="toctree-l2"><a class="reference internal" href="nsga2_optimizer.html#performance-considerations">Performance Considerations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="nsga2_optimizer.html#references">References</a></li>
-</ul>
-</li>
 <li class="toctree-l1"><a class="reference internal" href="experimental_results.html">Experimental Results</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="experimental_results.html#experimental-setup">Experimental Setup</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="experimental_results.html#problem-configuration">Problem Configuration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="experimental_results.html#hardware-configuration">Hardware Configuration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="experimental_results.html#nsga-ii-configuration">NSGA-II Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="experimental_results.html#software-environment">Software Environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="experimental_results.html#pinn-training-configuration">PINN Training Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="experimental_results.html#qpinn-training-configuration">QPINN Training Configuration</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="experimental_results.html#performance-metrics">Performance Metrics</a><ul>
@@ -223,12 +240,11 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="experimental_results.html#results-summary">Results Summary</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="experimental_results.html#overall-performance-comparison">Overall Performance Comparison</a></li>
-<li class="toctree-l3"><a class="reference internal" href="experimental_results.html#multi-objective-analysis">Multi-Objective Analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="experimental_results.html#relobralo-adaptive-weights">ReLoBRaLo Adaptive Weights</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="experimental_results.html#convergence-analysis">Convergence Analysis</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="experimental_results.html#loss-evolution">Loss Evolution</a></li>
-<li class="toctree-l3"><a class="reference internal" href="experimental_results.html#boundary-condition-satisfaction">Boundary Condition Satisfaction</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="experimental_results.html#quantum-circuit-analysis">Quantum Circuit Analysis</a><ul>
@@ -237,121 +253,130 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="experimental_results.html#computational-resource-analysis">Computational Resource Analysis</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="experimental_results.html#memory-usage">Memory Usage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="experimental_results.html#time-breakdown">Time Breakdown</a></li>
+<li class="toctree-l3"><a class="reference internal" href="experimental_results.html#training-time">Training Time</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="experimental_results.html#visualization-results">Visualization Results</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="experimental_results.html#temperature-distribution">Temperature Distribution</a></li>
 <li class="toctree-l3"><a class="reference internal" href="experimental_results.html#error-distribution">Error Distribution</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="experimental_results.html#statistical-analysis">Statistical Analysis</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="experimental_results.html#performance-statistics">Performance Statistics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="experimental_results.html#hypothesis-testing">Hypothesis Testing</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="experimental_results.html#key-findings">Key Findings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="experimental_results.html#recommendations">Recommendations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="experimental_results.html#output-files">Output Files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="experimental_results.html#reproducibility">Reproducibility</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="api_reference.html#python-api">Python API</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="api_reference.html#pinns-d3-module">pinns_d3 Module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#classes">Classes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#functions">Functions</a></li>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#neural-network-components">Neural Network Components</a></li>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#quantum-components">Quantum Components</a></li>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#data-structures">Data Structures</a></li>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#configuration">Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api_reference.html#module-config">config Module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#config.BackendConfig"><code class="docutils literal notranslate"><span class="pre">BackendConfig</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#config.TrainingConfig"><code class="docutils literal notranslate"><span class="pre">TrainingConfig</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#config.load_benchmark_config"><code class="docutils literal notranslate"><span class="pre">load_benchmark_config()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#config.get_nested"><code class="docutils literal notranslate"><span class="pre">get_nested()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#config.apply_config"><code class="docutils literal notranslate"><span class="pre">apply_config()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api_reference.html#module-physics">physics Module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#physics.analytical_solution"><code class="docutils literal notranslate"><span class="pre">analytical_solution()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#physics.initial_condition"><code class="docutils literal notranslate"><span class="pre">initial_condition()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#physics.boundary_condition"><code class="docutils literal notranslate"><span class="pre">boundary_condition()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#physics.compute_analytical_solution"><code class="docutils literal notranslate"><span class="pre">compute_analytical_solution()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#physics.calculate_metrics"><code class="docutils literal notranslate"><span class="pre">calculate_metrics()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#physics.calculate_full_metrics"><code class="docutils literal notranslate"><span class="pre">calculate_full_metrics()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#physics.to_python_float"><code class="docutils literal notranslate"><span class="pre">to_python_float()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#physics.TrainingPoint"><code class="docutils literal notranslate"><span class="pre">TrainingPoint</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api_reference.html#module-device_manager">device_manager Module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#device_manager.QuantumDeviceManager"><code class="docutils literal notranslate"><span class="pre">QuantumDeviceManager</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#device_manager.QPUConfig"><code class="docutils literal notranslate"><span class="pre">QPUConfig</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api_reference.html#module-pinnsformer">pinnsformer Module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#pinnsformer.WaveletActivation"><code class="docutils literal notranslate"><span class="pre">WaveletActivation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#pinnsformer.SPINNBodyNetwork"><code class="docutils literal notranslate"><span class="pre">SPINNBodyNetwork</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#pinnsformer.SPINNAggregator"><code class="docutils literal notranslate"><span class="pre">SPINNAggregator</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#pinnsformer.PseudoSequenceGenerator"><code class="docutils literal notranslate"><span class="pre">PseudoSequenceGenerator</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#pinnsformer.SpatioTemporalMixer"><code class="docutils literal notranslate"><span class="pre">SpatioTemporalMixer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#pinnsformer.PINNsFormerEncoder"><code class="docutils literal notranslate"><span class="pre">PINNsFormerEncoder</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#pinnsformer.PINNsFormerDecoder"><code class="docutils literal notranslate"><span class="pre">PINNsFormerDecoder</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#pinnsformer.SPFormerDecoderBlock"><code class="docutils literal notranslate"><span class="pre">SPFormerDecoderBlock</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#pinnsformer.SPFormerDecoder"><code class="docutils literal notranslate"><span class="pre">SPFormerDecoder</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#pinnsformer.OutputProjection"><code class="docutils literal notranslate"><span class="pre">OutputProjection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#pinnsformer.TransformerBlock"><code class="docutils literal notranslate"><span class="pre">TransformerBlock</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api_reference.html#module-gpt_circuit">gpt_circuit Module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#gpt_circuit.QuantumCircuitGPT"><code class="docutils literal notranslate"><span class="pre">QuantumCircuitGPT</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#gpt_circuit.QuantumCircuitTemplate"><code class="docutils literal notranslate"><span class="pre">QuantumCircuitTemplate</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api_reference.html#module-pinn_model">pinn_model Module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#pinn_model.PINN"><code class="docutils literal notranslate"><span class="pre">PINN</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#pinn_model.PINN._compute_validation_metrics"><code class="docutils literal notranslate"><span class="pre">PINN._compute_validation_metrics()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#pinn_model.PINN._collect_performance_metrics"><code class="docutils literal notranslate"><span class="pre">PINN._collect_performance_metrics()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api_reference.html#module-qpinn_model">qpinn_model Module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#qpinn_model.GQEQuantumPINN"><code class="docutils literal notranslate"><span class="pre">GQEQuantumPINN</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#qpinn_model.GQEQuantumPINN._compute_validation_metrics"><code class="docutils literal notranslate"><span class="pre">GQEQuantumPINN._compute_validation_metrics()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api_reference.html#module-main">main Module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#main.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#main.setup_logging"><code class="docutils literal notranslate"><span class="pre">setup_logging()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#main.visualize_results_comparison"><code class="docutils literal notranslate"><span class="pre">visualize_results_comparison()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#main.save_comparative_results"><code class="docutils literal notranslate"><span class="pre">save_comparative_results()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#main.save_summary_report"><code class="docutils literal notranslate"><span class="pre">save_summary_report()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#main.save_pinn_training_csv"><code class="docutils literal notranslate"><span class="pre">save_pinn_training_csv()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#main.save_qpinn_training_csv"><code class="docutils literal notranslate"><span class="pre">save_qpinn_training_csv()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#main.save_metrics_over_time_csv"><code class="docutils literal notranslate"><span class="pre">save_metrics_over_time_csv()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#main.save_validation_csv"><code class="docutils literal notranslate"><span class="pre">save_validation_csv()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#main.save_performance_csv"><code class="docutils literal notranslate"><span class="pre">save_performance_csv()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#main.save_checkpoint"><code class="docutils literal notranslate"><span class="pre">save_checkpoint()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#main.load_checkpoint"><code class="docutils literal notranslate"><span class="pre">load_checkpoint()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#main.check_existing_checkpoints"><code class="docutils literal notranslate"><span class="pre">check_existing_checkpoints()</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="api_reference.html#c-api-nsga-ii-optimizer">C++ API (NSGA-II Optimizer)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="api_reference.html#_CPPv45nsga2"><code class="docutils literal notranslate"><span class="pre">nsga2</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#_CPPv4N5nsga217ObjectiveFunctionE"><code class="docutils literal notranslate"><span class="pre">ObjectiveFunction</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#_CPPv4N5nsga213IndividualPtrE"><code class="docutils literal notranslate"><span class="pre">IndividualPtr</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#_CPPv4N5nsga213PopulationPtrE"><code class="docutils literal notranslate"><span class="pre">PopulationPtr</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#_CPPv4N5nsga219REXDistributionTypeE"><code class="docutils literal notranslate"><span class="pre">REXDistributionType</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#_CPPv4N5nsga223CrowdingDistanceFactoryE"><code class="docutils literal notranslate"><span class="pre">nsga2::CrowdingDistanceFactory</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#_CPPv4N5nsga236EquidistantSelectionCrowdingDistanceE"><code class="docutils literal notranslate"><span class="pre">nsga2::EquidistantSelectionCrowdingDistance</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#_CPPv4N5nsga220FastNonDominatedSortE"><code class="docutils literal notranslate"><span class="pre">nsga2::FastNonDominatedSort</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#_CPPv4N5nsga227ICrowdingDistanceCalculatorE"><code class="docutils literal notranslate"><span class="pre">nsga2::ICrowdingDistanceCalculator</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#_CPPv4N5nsga210IndividualE"><code class="docutils literal notranslate"><span class="pre">nsga2::Individual</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#_CPPv4N5nsga218ISelectionStrategyE"><code class="docutils literal notranslate"><span class="pre">nsga2::ISelectionStrategy</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#_CPPv4N5nsga217ISortingAlgorithmE"><code class="docutils literal notranslate"><span class="pre">nsga2::ISortingAlgorithm</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#_CPPv4N5nsga221LatinHypercubeSamplerE"><code class="docutils literal notranslate"><span class="pre">nsga2::LatinHypercubeSampler</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#_CPPv4N5nsga211NSGA2ConfigE"><code class="docutils literal notranslate"><span class="pre">nsga2::NSGA2Config</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#_CPPv4N5nsga214NSGA2OptimizerE"><code class="docutils literal notranslate"><span class="pre">nsga2::NSGA2Optimizer</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#_CPPv4N5nsga210PopulationE"><code class="docutils literal notranslate"><span class="pre">nsga2::Population</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#_CPPv4N5nsga212REXCrossoverE"><code class="docutils literal notranslate"><span class="pre">nsga2::REXCrossover</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#_CPPv4N5nsga219TournamentSelectionE"><code class="docutils literal notranslate"><span class="pre">nsga2::TournamentSelection</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#_CPPv4N5nsga227TraditionalCrowdingDistanceE"><code class="docutils literal notranslate"><span class="pre">nsga2::TraditionalCrowdingDistance</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="api_reference.html#python-bindings">Python Bindings</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="api_reference.html#nsga2_optimizer.NSGA2Config"><code class="docutils literal notranslate"><span class="pre">NSGA2Config</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#nsga2_optimizer.NSGA2Config.population_size"><code class="docutils literal notranslate"><span class="pre">NSGA2Config.population_size</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#nsga2_optimizer.NSGA2Config.max_generations"><code class="docutils literal notranslate"><span class="pre">NSGA2Config.max_generations</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#nsga2_optimizer.NSGA2Config.n_objectives"><code class="docutils literal notranslate"><span class="pre">NSGA2Config.n_objectives</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#nsga2_optimizer.NSGA2Config.lower_bounds"><code class="docutils literal notranslate"><span class="pre">NSGA2Config.lower_bounds</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#nsga2_optimizer.NSGA2Config.upper_bounds"><code class="docutils literal notranslate"><span class="pre">NSGA2Config.upper_bounds</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="api_reference.html#nsga2_optimizer.NSGA2Optimizer"><code class="docutils literal notranslate"><span class="pre">NSGA2Optimizer</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#nsga2_optimizer.NSGA2Optimizer.optimize"><code class="docutils literal notranslate"><span class="pre">NSGA2Optimizer.optimize()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#nsga2_optimizer.NSGA2Optimizer.get_pareto_front"><code class="docutils literal notranslate"><span class="pre">NSGA2Optimizer.get_pareto_front()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="api_reference.html#utility-functions">Utility Functions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="api_reference.html#mathematical-functions">Mathematical Functions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api_reference.html#visualization-functions">Visualization Functions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api_reference.html#helper-functions">Helper Functions</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="api_reference.html#constants">Constants</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#constants-defined-in-config-py">Constants (defined in <code class="docutils literal notranslate"><span class="pre">config.py</span></code>)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="api_reference.html#physical-constants">Physical Constants</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#nsga2_optimizer.L"><code class="docutils literal notranslate"><span class="pre">L</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#nsga2_optimizer.T"><code class="docutils literal notranslate"><span class="pre">T</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#nsga2_optimizer.alpha"><code class="docutils literal notranslate"><span class="pre">alpha</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#nsga2_optimizer.u0_max"><code class="docutils literal notranslate"><span class="pre">u0_max</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#nsga2_optimizer.sigma"><code class="docutils literal notranslate"><span class="pre">sigma</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#main.config.L"><code class="docutils literal notranslate"><span class="pre">config.L</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#main.config.T_FINAL"><code class="docutils literal notranslate"><span class="pre">config.T_FINAL</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#main.config.alpha"><code class="docutils literal notranslate"><span class="pre">config.alpha</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#main.config.sigma_0"><code class="docutils literal notranslate"><span class="pre">config.sigma_0</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="api_reference.html#numerical-constants">Numerical Constants</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#nsga2_optimizer.nx"><code class="docutils literal notranslate"><span class="pre">nx</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#nsga2_optimizer.ny"><code class="docutils literal notranslate"><span class="pre">ny</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#nsga2_optimizer.nz"><code class="docutils literal notranslate"><span class="pre">nz</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#nsga2_optimizer.nt"><code class="docutils literal notranslate"><span class="pre">nt</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#main.config.nx"><code class="docutils literal notranslate"><span class="pre">config.nx</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#main.config.ny"><code class="docutils literal notranslate"><span class="pre">config.ny</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#main.config.nz"><code class="docutils literal notranslate"><span class="pre">config.nz</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api_reference.html#main.config.nt"><code class="docutils literal notranslate"><span class="pre">config.nt</span></code></a></li>
 </ul>
 </li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="api_reference.html#error-handling">Error Handling</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="api_reference.html#custom-exceptions">Custom Exceptions</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="api_reference.html#example-usage">Example Usage</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="api_reference.html#basic-pinn-training">Basic PINN Training</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api_reference.html#qpinn-with-gqe-gpt">QPINN with GQE-GPT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api_reference.html#cli-usage">CLI Usage</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="api_reference.html#thread-safety">Thread Safety</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api_reference.html#gpu-support">GPU Support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#backend-support">Backend Support</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="references.html">References</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="references.html#physics-informed-neural-networks-pinns">Physics-Informed Neural Networks (PINNs)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="references.html#foundational-works">Foundational Works</a></li>
+<li class="toctree-l3"><a class="reference internal" href="references.html#separable-pinns-spinn">Separable PINNs (SPINN)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="references.html#pinnsformer">PINNsFormer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="references.html#fourier-neural-operators">Fourier Neural Operators</a></li>
 <li class="toctree-l3"><a class="reference internal" href="references.html#training-challenges-and-solutions">Training Challenges and Solutions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="references.html#multi-objective-optimization">Multi-objective Optimization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="references.html#adaptive-loss-balancing">Adaptive Loss Balancing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="references.html#hard-boundary-constraints">Hard Boundary Constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="references.html#optimization">Optimization</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="references.html#quantum-physics-informed-neural-networks-qpinns">Quantum Physics-Informed Neural Networks (QPINNs)</a><ul>
@@ -359,12 +384,6 @@
 <li class="toctree-l3"><a class="reference internal" href="references.html#trainable-embeddings">Trainable Embeddings</a></li>
 <li class="toctree-l3"><a class="reference internal" href="references.html#quantum-circuit-generation">Quantum Circuit Generation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="references.html#hardware-considerations">Hardware Considerations</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="references.html#id1">Multi-Objective Optimization</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="references.html#nsga-ii-algorithm">NSGA-II Algorithm</a></li>
-<li class="toctree-l3"><a class="reference internal" href="references.html#rex-crossover">REX Crossover</a></li>
-<li class="toctree-l3"><a class="reference internal" href="references.html#latin-hypercube-sampling">Latin Hypercube Sampling</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="references.html#additional-references">Additional References</a><ul>
@@ -431,10 +450,28 @@
 <li><p><strong>Initial condition</strong>: <span class="math notranslate nohighlight">\(u(x,y,z,0) = u_0(x,y,z)\)</span></p></li>
 <li><p><strong>Boundary conditions</strong>: Homogeneous Dirichlet <span class="math notranslate nohighlight">\(u|_{\partial\Omega} = 0\)</span></p></li>
 </ul>
-<p>The analytical solution for a Gaussian initial condition is:</p>
+</section>
+<section id="analytical-solution">
+<h3>Analytical Solution<a class="headerlink" href="#analytical-solution" title="Link to this heading"></a></h3>
+<p>For a Gaussian initial condition <span class="math notranslate nohighlight">\(u_0(x,y,z) = \exp\!\bigl(-\frac{(x-x_0)^2+(y-y_0)^2+(z-z_0)^2}{2\sigma^2}\bigr)\)</span>
+on a bounded domain <span class="math notranslate nohighlight">\([0, L]^3\)</span> with homogeneous Dirichlet boundaries, the
+analytical solution is a <strong>Fourier sine series</strong>:</p>
 <div class="math notranslate nohighlight">
-\[u(x,y,z,t) = \left(\frac{\sigma^2}{\sigma^2 + 4\alpha t}\right)^{3/2} u_0 \exp\left(-\frac{(x-x_0)^2 + (y-y_0)^2 + (z-z_0)^2}{4\alpha t + \sigma^2}\right)\]</div>
-<p>where <span class="math notranslate nohighlight">\(u_0\)</span> is the initial peak amplitude, <span class="math notranslate nohighlight">\((x_0, y_0, z_0)\)</span> is the center position, and <span class="math notranslate nohighlight">\(\sigma\)</span> is the initial width.</p>
+\[u(x,y,z,t) = \sum_{l,m,n=1}^{N_{\max}} C_{lmn} \, \sin\!\left(\frac{l\pi x}{L}\right) \sin\!\left(\frac{m\pi y}{L}\right) \sin\!\left(\frac{n\pi z}{L}\right) \, e^{-\alpha\pi^2(l^2+m^2+n^2)t/L^2}\]</div>
+<p>where the Fourier coefficients are computed from the initial condition:</p>
+<div class="math notranslate nohighlight">
+\[C_{lmn} = \left(\frac{2}{L}\right)^3 \int_0^L \!\!\int_0^L \!\!\int_0^L u_0(x,y,z) \,\sin\!\left(\frac{l\pi x}{L}\right)\sin\!\left(\frac{m\pi y}{L}\right)\sin\!\left(\frac{n\pi z}{L}\right) \,dx\,dy\,dz\]</div>
+<p>For the Gaussian initial condition centered at <span class="math notranslate nohighlight">\((L/2, L/2, L/2)\)</span> with
+<span class="math notranslate nohighlight">\(\sigma = 0.05\)</span>, the integrals are computed via the error function. The
+series is truncated at <span class="math notranslate nohighlight">\(N_{\max} = 30\)</span> modes per axis, which provides
+convergence to machine precision for this problem.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The unbounded-domain Green’s function solution
+<span class="math notranslate nohighlight">\(u \propto (\sigma^2 + 4\alpha t)^{-3/2} \exp(-r^2/(\sigma^2 + 4\alpha t))\)</span>
+is <strong>not</strong> used, because it does not satisfy homogeneous Dirichlet boundary
+conditions on the finite domain <span class="math notranslate nohighlight">\([0, L]^3\)</span>.</p>
+</div>
 </section>
 </section>
 <section id="physics-informed-neural-networks-pinns">
@@ -549,36 +586,125 @@
 </ul>
 </section>
 </section>
-<section id="nsga-ii-multi-objective-optimization">
-<h2>NSGA-II Multi-Objective Optimization<a class="headerlink" href="#nsga-ii-multi-objective-optimization" title="Link to this heading"></a></h2>
-<p>Non-dominated Sorting Genetic Algorithm II (NSGA-II) is used for multi-objective optimization of both PINNs and QPINNs.</p>
-<section id="algorithm-overview">
-<h3>Algorithm Overview<a class="headerlink" href="#algorithm-overview" title="Link to this heading"></a></h3>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>1. Initialize population P using Latin Hypercube Sampling
-2. Evaluate objectives for each individual
-3. For each generation:
-   a. Generate offspring Q using REX crossover and mutation
-   b. Combine R = P ∪ Q
-   c. Perform non-dominated sorting on R
-   d. Select new population P using crowding distance
-4. Return Pareto front
-</pre></div>
-</div>
-</section>
-<section id="rex-crossover-operator">
-<h3>REX Crossover Operator<a class="headerlink" href="#rex-crossover-operator" title="Link to this heading"></a></h3>
-<p>The REX(ϕ,n+k) crossover uses a V-shaped distribution:</p>
+<section id="spinn-separable-physics-informed-neural-networks">
+<h2>SPINN: Separable Physics-Informed Neural Networks<a class="headerlink" href="#spinn-separable-physics-informed-neural-networks" title="Link to this heading"></a></h2>
+<p>SPINN (Cho et al., NeurIPS 2023 Spotlight) decomposes multi-dimensional PDE solving
+into independent per-axis networks, dramatically reducing computational complexity.</p>
+<section id="separable-body-networks">
+<h3>Separable Body Networks<a class="headerlink" href="#separable-body-networks" title="Link to this heading"></a></h3>
+<p>For a <span class="math notranslate nohighlight">\(d\)</span>-dimensional problem, SPINN uses <span class="math notranslate nohighlight">\(d\)</span> independent body networks:</p>
 <div class="math notranslate nohighlight">
-\[\mathbf{x}_{\text{child}} = \mathbf{x}_g + \sum_{i=1}^{n_{\text{parents}}} \xi_i (\mathbf{x}_i - \mathbf{x}_g)\]</div>
-<p>where:</p>
-<ul class="simple">
-<li><p><span class="math notranslate nohighlight">\(\mathbf{x}_g\)</span> is the center of mass of parents</p></li>
-<li><p><span class="math notranslate nohighlight">\(\xi_i \sim \text{V-shaped}(a)\)</span> with <span class="math notranslate nohighlight">\(a = \sqrt{2/n_{\text{parents}}}\)</span></p></li>
-</ul>
+\[f_k: \mathbb{R}^1 \to \mathbb{R}^r, \quad k = 1, \ldots, d\]</div>
+<p>where <span class="math notranslate nohighlight">\(r\)</span> is the feature rank. The aggregated feature is computed via Hadamard
+(element-wise) product:</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{h}(x,y,z,t) = f_x(x) \odot f_y(y) \odot f_z(z) \odot f_t(t)\]</div>
+<p>This reduces complexity from <span class="math notranslate nohighlight">\(O(N^d)\)</span> to <span class="math notranslate nohighlight">\(O(Nd)\)</span> for <span class="math notranslate nohighlight">\(N\)</span> grid points
+per axis and <span class="math notranslate nohighlight">\(d=4\)</span> dimensions (3 spatial + 1 temporal). Each body network is a
+small MLP with Wavelet activation.</p>
 <p><strong>References</strong>:</p>
 <ul class="simple">
-<li><p>Lu et al. (2023) “NSGA-PINN: A Multi-Objective Optimization Method for Physics-Informed Neural Network Training”</p></li>
-<li><p>Ma et al. (2023) “A comprehensive survey on NSGA-II for multi-objective optimization”</p></li>
+<li><p>Cho et al. (2023) “Separable Physics-Informed Neural Networks” <em>NeurIPS 2023 Spotlight</em></p></li>
+</ul>
+</section>
+</section>
+<section id="pinnsformer-architecture">
+<h2>PINNsFormer Architecture<a class="headerlink" href="#pinnsformer-architecture" title="Link to this heading"></a></h2>
+<p>PINNsFormer (Zhao, Ding &amp; Prakash, ICLR 2024) extends Physics-Informed Neural Networks
+with a Transformer-based architecture that captures temporal dependencies. In our
+implementation, PINNsFormer processes SPINN-aggregated features combined with
+multi-scale Fourier features through an encoder-decoder pipeline.</p>
+<section id="wavelet-activation-function">
+<h3>Wavelet Activation Function<a class="headerlink" href="#wavelet-activation-function" title="Link to this heading"></a></h3>
+<p>PINNsFormer uses a learnable wavelet activation function (Eq. 4 in the original paper):</p>
+<div class="math notranslate nohighlight">
+\[\sigma_{\text{wavelet}}(x) = w_1 \sin(x) + w_2 \cos(x)\]</div>
+<p>where <span class="math notranslate nohighlight">\(w_1\)</span> and <span class="math notranslate nohighlight">\(w_2\)</span> are learnable parameters initialized to 1.0. This
+activation naturally encodes oscillatory behavior relevant to PDE solutions and provides
+smooth derivatives needed for PDE residual computation via autograd.</p>
+</section>
+<section id="pseudo-sequence-generator">
+<h3>Pseudo-Sequence Generator<a class="headerlink" href="#pseudo-sequence-generator" title="Link to this heading"></a></h3>
+<p>The pseudo-sequence generator converts the concatenated SPINN + Fourier features into
+temporal sequences suitable for the Transformer architecture. Given a feature vector
+at a collocation point, it produces a sequence of <span class="math notranslate nohighlight">\(L\)</span> positions with physics-aware
+temporal decay:</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{s}_i = M_i(\mathbf{h}) \cdot e^{-\lambda i \Delta t} + \mathbf{p}_i\]</div>
+<p>where <span class="math notranslate nohighlight">\(M_i\)</span> is a learned temporal modulator, <span class="math notranslate nohighlight">\(\lambda = 0.296\)</span> is the
+dominant decay rate for the 3D heat equation, and <span class="math notranslate nohighlight">\(\mathbf{p}_i\)</span> is a sinusoidal
+position embedding.</p>
+<p><strong>References</strong>:</p>
+<ul class="simple">
+<li><p>Zhao, Ding &amp; Prakash (2024) “PINNsFormer: A Transformer-Based Framework for Physics-Informed Neural Networks” <em>ICLR 2024</em></p></li>
+</ul>
+</section>
+<section id="transformer-encoder-decoder-blocks">
+<h3>Transformer Encoder/Decoder Blocks<a class="headerlink" href="#transformer-encoder-decoder-blocks" title="Link to this heading"></a></h3>
+<p>The architecture uses Transformer encoder and decoder blocks with Wavelet residual connections:</p>
+<ul class="simple">
+<li><p><strong>Encoder</strong>: Self-attention where Q=K=V from the same source, followed by feed-forward
+network with WaveletActivation. Uses residual connections with Wavelet activation instead
+of standard addition, following the PINNsFormer paper.</p></li>
+<li><p><strong>Decoder</strong>: Cross-attention from encoder output, where queries come from the decoder and
+keys/values from the encoder. Also uses Wavelet residual connections.</p></li>
+</ul>
+</section>
+<section id="output-projection">
+<h3>Output Projection<a class="headerlink" href="#output-projection" title="Link to this heading"></a></h3>
+<p>The decoder output is aggregated across sequence positions using learned temporal weights
+(initialized with exponential decay), then projected to scalar output:</p>
+<div class="math notranslate nohighlight">
+\[\hat{u} = W_{\text{out}} \left( \sum_{i=0}^{L-1} \alpha_i \mathbf{h}_i \right) + b_{\text{out}}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\alpha_i = \text{softmax}(w_i)\)</span> are learned temporal weights.</p>
+</section>
+</section>
+<section id="optimization-strategy">
+<h2>Optimization Strategy<a class="headerlink" href="#optimization-strategy" title="Link to this heading"></a></h2>
+<section id="pinn-optimizer">
+<h3>PINN Optimizer<a class="headerlink" href="#pinn-optimizer" title="Link to this heading"></a></h3>
+<p>The classical PINN uses RAdam (Rectified Adam) with decoupled weight decay regularization. RAdam provides an adaptive learning rate with variance rectification that stabilizes early training:</p>
+<div class="math notranslate nohighlight">
+\[\theta_{t+1} = \theta_t - \eta_t \cdot \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon} \quad \text{with variance rectification term } r_t\]</div>
+<p>The learning rate schedule uses <strong>CosineAnnealingWarmRestarts</strong>, which periodically resets the learning rate following a cosine curve to escape local minima.</p>
+</section>
+<section id="qpinn-optimizer">
+<h3>QPINN Optimizer<a class="headerlink" href="#qpinn-optimizer" title="Link to this heading"></a></h3>
+<p>The quantum PINN uses the PennyLane <strong>SPSAOptimizer</strong> (Simultaneous Perturbation Stochastic Approximation), which estimates gradients using only two circuit evaluations per step regardless of the number of parameters:</p>
+<div class="math notranslate nohighlight">
+\[\hat{g}_k(\theta) = \frac{L(\theta + c_k \Delta_k) - L(\theta - c_k \Delta_k)}{2 c_k \Delta_k}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\Delta_k\)</span> is a random perturbation vector with Bernoulli-distributed components.</p>
+</section>
+<section id="relobralo-adaptive-loss-weighting">
+<h3>ReLoBRaLo Adaptive Loss Weighting<a class="headerlink" href="#relobralo-adaptive-loss-weighting" title="Link to this heading"></a></h3>
+<p>Both PINN (RAdam) and QPINN (SPSA) use <strong>ReLoBRaLo</strong> (Relative Loss Balancing with Random Lookback) to adaptively rebalance multi-component losses using softmax-based relative balancing.</p>
+<p><strong>Hyperparameters</strong>:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\alpha = 0.999\)</span> – exponential moving average (EMA) decay</p></li>
+<li><p><span class="math notranslate nohighlight">\(\rho = 0.999\)</span> – random lookback rate (probability of using the previous-step reference)</p></li>
+<li><p><span class="math notranslate nohighlight">\(\tau = 1.0\)</span> – softmax temperature controlling weight sharpness</p></li>
+</ul>
+<p><strong>Two reference points</strong> are maintained:</p>
+<ol class="arabic simple">
+<li><p><strong>Previous-step losses</strong>: the loss values from the immediately preceding training step</p></li>
+<li><p><strong>Initial (epoch 0) losses</strong>: the loss values recorded at the start of training</p></li>
+</ol>
+<p>At each step, softmax-normalized weights are computed relative to each reference point. The step-based weights <span class="math notranslate nohighlight">\(\hat{\lambda}_k\)</span> compare the current losses to the previous step:</p>
+<div class="math notranslate nohighlight">
+\[\hat{\lambda}_k = \frac{\exp\left(\mathcal{L}_k^{(t)} / (\tau \cdot \mathcal{L}_k^{(t-1)})\right)}{\sum_j \exp\left(\mathcal{L}_j^{(t)} / (\tau \cdot \mathcal{L}_j^{(t-1)})\right)}\]</div>
+<p>The initial-reference weights <span class="math notranslate nohighlight">\(\hat{\lambda}_{0,k}\)</span> compare the current losses to the initial losses:</p>
+<div class="math notranslate nohighlight">
+\[\hat{\lambda}_{0,k} = \frac{\exp\left(\mathcal{L}_k^{(t)} / (\tau \cdot \mathcal{L}_k^{(0)})\right)}{\sum_j \exp\left(\mathcal{L}_j^{(t)} / (\tau \cdot \mathcal{L}_j^{(0)})\right)}\]</div>
+<p>These are combined via an exponential moving average with a random lookback governed by <span class="math notranslate nohighlight">\(\rho\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\lambda_k = \rho \cdot \alpha \cdot \lambda_k + (1 - \rho) \cdot \alpha \cdot \hat{\lambda}_{0,k} + (1 - \alpha) \cdot \hat{\lambda}_k\]</div>
+<p>The random lookback (controlled by <span class="math notranslate nohighlight">\(\rho\)</span>) stochastically mixes the history with the initial-reference weights, preventing the weighting from overfitting to a single reference trajectory.</p>
+<p><strong>References</strong>:</p>
+<ul class="simple">
+<li><p>Liu et al. (2020) “On the Variance of the Adaptive Learning Rate and Beyond” <em>ICLR 2020</em> (RAdam)</p></li>
+<li><p>Spall (1998) “Implementation of the Simultaneous Perturbation Algorithm for Stochastic Optimization” <em>IEEE Transactions on Aerospace and Electronic Systems</em> (SPSA)</p></li>
+<li><p>Bischof &amp; Kraus (2025) “Multi-Objective Loss Balancing for Physics-Informed Deep Learning” <em>Computer Methods in Applied Mechanics and Engineering</em>, 431, 117521 (ReLoBRaLo)</p></li>
+<li><p>Zhao et al. (2023) “PINNsFormer: A Transformer-Based Framework For Physics-Informed Neural Networks” <em>arXiv:2307.02049</em></p></li>
 </ul>
 </section>
 </section>
@@ -677,7 +803,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Research Team.</p>
+    <p>&#169; Copyright 2025-2026, Research Team.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

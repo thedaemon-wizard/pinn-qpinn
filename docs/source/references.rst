@@ -13,11 +13,29 @@ Foundational Works
 
 * **Karniadakis et al. (2021)** "Physics-informed machine learning" *Nature Reviews Physics*, 3(6), 422-440.
 
+Separable PINNs (SPINN)
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+* **Cho et al. (2023)** "Separable Physics-Informed Neural Networks" *NeurIPS 2023 Spotlight*. arXiv:2306.15969
+
+  - Per-axis body networks reducing O(N^d) to O(Nd) complexity
+  - Hadamard product aggregation for low-rank tensor approximation
+  - Efficient evaluation on high-dimensional PDEs
+
+PINNsFormer
+^^^^^^^^^^^^
+
+* **Zhao, Ding & Prakash (2024)** "PINNsFormer: A Transformer-Based Framework for Physics-Informed Neural Networks" *ICLR 2024*. arXiv:2307.11833
+
+  - Wavelet activation function (learnable sin/cos combination)
+  - Pseudo-sequence generation for Transformer processing
+  - Encoder-decoder architecture with Wavelet residual connections
+
 Fourier Neural Operators
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 * **Li et al. (2021)** "Fourier Neural Operator for Parametric Partial Differential Equations" *ICLR 2021*. arXiv:2010.08895
-  
+
   - Introduces the FNO architecture for learning mappings between function spaces
   - Demonstrates superior performance on various PDE benchmarks
 
@@ -32,17 +50,42 @@ Training Challenges and Solutions
   - Proposes adaptive weight strategies
 
 * **Krishnapriyan et al. (2021)** "Characterizing possible failure modes in physics-informed neural networks" *NeurIPS 2021*.
-  
+
   - Systematic study of PINN failure modes
   - Guidelines for robust PINN training
 
-Multi-objective Optimization
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Adaptive Loss Balancing
+^^^^^^^^^^^^^^^^^^^^^^^
 
-* **Lu et al. (2023)** "NSGA-PINN: A Multi-Objective Optimization Method for Physics-Informed Neural Network Training" *arXiv:2310.09258*
-  
-  - First application of NSGA-II to PINN training
-  - Demonstrates improved convergence and solution quality
+* **Bischof & Kraus (2025)** "Multi-Objective Loss Balancing for Physics-Informed Deep Learning" *Computer Methods in Applied Mechanics and Engineering*, 431, 117521.
+
+  - ReLoBRaLo (Relative Loss Balancing with Random Lookback)
+  - Softmax-based adaptive weighting with exponential moving average
+  - Applicable to both classical and quantum PINN training
+
+* **Wang et al. (2022)** "Respecting Causality for Training Physics-Informed Neural Networks" *Computer Methods in Applied Mechanics and Engineering*, 397, 115135.
+
+  - Causal loss weighting for temporal PDEs
+  - Temporal causality constraints
+
+Hard Boundary Constraints
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* **Sukumar & Srivastava (2022)** "Exact imposition of boundary conditions with distance functions in physics-informed deep neural networks" *Computer Methods in Applied Mechanics and Engineering*, 389, 114333.
+
+  - Distance function approach for exact Dirichlet BC enforcement
+  - Product distance functions for rectangular domains
+  - Eliminates boundary loss term from the objective
+
+Optimization
+^^^^^^^^^^^^
+
+* **Liu & Nocedal (1989)** "On the limited memory BFGS method for large scale optimization" *Mathematical Programming*, 45, 503-528.
+
+  - L-BFGS second-order optimization for PINN refinement
+  - Strong Wolfe line search
+  - Used as refinement phase after first-order warm-up
+
 
 Quantum Physics-Informed Neural Networks (QPINNs)
 -------------------------------------------------
@@ -100,39 +143,7 @@ Hardware Considerations
   - Probabilistic error cancellation
   - Practical implementation strategies
 
-Multi-Objective Optimization
-----------------------------
 
-NSGA-II Algorithm
-^^^^^^^^^^^^^^^^^
-
-* **Deb et al. (2002)** "A fast and elitist multiobjective genetic algorithm: NSGA-II" *IEEE Transactions on Evolutionary Computation*, 6(2), 182-197.
-  
-  - Original NSGA-II algorithm
-  - Non-dominated sorting
-  - Crowding distance calculation
-
-* **Ma et al. (2023)** "A comprehensive survey on NSGA-II for multi-objective optimization and applications" *arXiv:2310.00001*
-  
-  - Comprehensive review of NSGA-II variants
-  - Application domains and best practices
-
-REX Crossover
-^^^^^^^^^^^^^
-
-* **Akimoto et al. (2018)** "Adaptive Stochastic Natural Gradient Method for One-Shot Neural Architecture Search" *ICML 2018*
-  
-  - REX crossover operator
-  - V-shaped distribution for offspring generation
-  - Theoretical analysis
-
-Latin Hypercube Sampling
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-* **McKay et al. (1979)** "A comparison of three methods for selecting values of input variables in the analysis of output from a computer code" *Technometrics*, 21(2), 239-245.
-  
-  - Original LHS methodology
-  - Statistical properties
 
 Additional References
 ---------------------
@@ -216,7 +227,6 @@ GitHub Repositories
 * **PINNs Official Repository**: https://github.com/maziarraissi/PINNs
 * **FNO Repository**: https://github.com/neuraloperator/neuraloperator
 * **PennyLane**: https://github.com/PennyLaneAI/pennylane
-* **NSGA-II Implementations**: Various implementations available
 * **ketGPT**: Available through PennyLane data module
 
 Datasets

@@ -1,0 +1,142 @@
+==========================================================================================
+  PINN vs QPINN Benchmark Summary Report
+  3D Heat Equation: du/dt = alpha * nabla^2(u)
+  Architecture: SPINN + PINNsFormer (Separable Transformer PINN)
+==========================================================================================
+
+Generated: 2026-02-11 01:37:48
+PyTorch: 2.10.0+cu128, PennyLane: 0.44.0
+Device: cuda
+GPU: NVIDIA RTX PRO 6000 Blackwell Workstation Edition
+GPU Memory: 102.0 GB
+CPU: 20 logical cores
+RAM: 134.3 GB
+
+Problem Configuration
+--------------------------------------------------
+  Equation:     3D Heat Equation (homogeneous Dirichlet BC)
+  Alpha:        0.01 (thermal diffusivity)
+  Domain:       [0, 1.0]^3 x [0, 1.0]
+  Grid:         20 x 20 x 20 x 20 = 160,000 points
+  IC:           Gaussian(sigma=0.05) at (0.5, 0.5, 0.5)
+
+PINN: SPINN + PINNsFormer (RAdam + L-BFGS + ReLoBRaLo)
+--------------------------------------------------
+  Architecture:   SPINN per-axis body nets -> PINNsFormer encoder-decoder
+  Optimizer:      RAdam (decoupled_weight_decay) + L-BFGS
+  Loss weighting: ReLoBRaLo (adaptive multi-objective)
+  Training time:  3745.35 s
+  Total epochs:   3200  (RAdam: 3000, L-BFGS: 200)
+  Parameters:     454,527
+  Best loss:      1.2166042040462344e-06
+  ReLoBRaLo wts:  initial=0.9720, peak=1.0821, pde=0.9458, nonneg=0.1000
+
+  Error Metrics:
+    MSE:            2.124841e-06
+    RMSE:           1.457684e-03
+    MAE:            1.022232e-03
+    Max AE:         3.974702e-03
+    Relative L2:    1.380683e-01
+    Relative MAE:   7.010852e+05
+
+  Physics Metrics:
+    Peak value (t=0, center):  pred=0.663873, true=0.660063, error=3.810629e-03
+    Boundary satisfaction:      mean |u_boundary| = 3.310759e-06
+    Non-negativity violations:  0 (0.00%)
+    Prediction range:           [0.000000, 0.663873]
+    Energy (t=0):              pred=0.003127, true=0.001969
+    Energy (t=T):              pred=0.003173, true=0.001957
+
+QPINN (SPSA + ReLoBRaLo)
+--------------------------------------------------
+  Optimizer:      PennyLane SPSAOptimizer
+  Loss weighting: ReLoBRaLo (adaptive multi-objective)
+  Training time:  12062.29 s
+  Max iterations: 200
+  Circuit params: 1
+  Total params:   9
+  Best cost:      0.0006365832279864582
+  ReLoBRaLo wts:  initial=0.9709, boundary=0.7662, interior=1.2630
+
+  Error Metrics:
+    MSE:            1.409139e-06
+    RMSE:           1.187072e-03
+    MAE:            1.684842e-04
+    Max AE:         1.239383e-01
+    Relative L2:    1.124366e-01
+    Relative MAE:   6.208796e-02
+
+  Physics Metrics:
+    Peak value (t=0, center):  pred=0.623345, true=0.660063, error=3.671770e-02
+    Boundary satisfaction:      mean |u_boundary| = 3.048400e-21
+    Non-negativity violations:  0 (0.00%)
+    Prediction range:           [0.000000, 0.784001]
+    Energy (t=0):              pred=0.001943, true=0.001969
+    Energy (t=T):              pred=0.001953, true=0.001957
+
+==========================================================================================
+  Comparative Summary
+==========================================================================================
+
+  Metric                                       PINN              QPINN     Better
+  ----------------------------------------------------------------------------
+  MSE                                  2.124841e-06       1.409139e-06      QPINN
+  RMSE                                 1.457684e-03       1.187072e-03      QPINN
+  MAE                                  1.022232e-03       1.684842e-04      QPINN
+  Max AE                               3.974702e-03       1.239383e-01       PINN
+  Relative L2                          1.380683e-01       1.124366e-01      QPINN
+  Relative MAE                         7.010852e+05       6.208796e-02      QPINN
+  Peak Error                           3.810629e-03       3.671770e-02       PINN
+  Mean Boundary Error                  3.310759e-06       3.048400e-21      QPINN
+  Neg. Violations                      0.000000e+00       0.000000e+00      QPINN
+  Training Time (s)                         3745.35           12062.29       PINN
+  Parameters                                454,527                  9
+
+  QPINN MSE improvement over PINN: 33.68%
+  Time ratio (QPINN/PINN): 3.22x
+
+Boundary Condition Satisfaction (per timestep)
+--------------------------------------------------
+       t     PINN avg|u|    QPINN avg|u|
+    0.00    2.734282e-24    2.425834e-22
+    0.26    8.177883e-10    6.305276e-37
+    0.53    4.223294e-07    5.370284e-40
+    0.79    5.638435e-06    5.943977e-21
+    1.00    1.825295e-05    1.573089e-20
+
+Thermal Energy Evolution
+--------------------------------------------------
+       t      Analytical            PINN           QPINN
+   0.000    1.968908e-03    3.127230e-03    1.942512e-03
+   0.053    1.968703e-03    3.112724e-03    1.979187e-03
+   0.105    1.968701e-03    3.116737e-03    1.987003e-03
+   0.158    1.968701e-03    3.148849e-03    1.956078e-03
+   0.211    1.968701e-03    3.141643e-03    1.968486e-03
+   0.263    1.968701e-03    3.147904e-03    2.009919e-03
+   0.316    1.968699e-03    3.149424e-03    1.979433e-03
+   0.368    1.968692e-03    3.157635e-03    1.970858e-03
+   0.421    1.968672e-03    3.166163e-03    1.971337e-03
+   0.474    1.968621e-03    3.169028e-03    1.961112e-03
+   0.526    1.968515e-03    3.174031e-03    1.971588e-03
+   0.579    1.968318e-03    3.174964e-03    1.965701e-03
+   0.632    1.967988e-03    3.174040e-03    1.959061e-03
+   0.684    1.967474e-03    3.173170e-03    1.965350e-03
+   0.737    1.966719e-03    3.172750e-03    1.968956e-03
+   0.789    1.965667e-03    3.173641e-03    1.964073e-03
+   0.842    1.964259e-03    3.174673e-03    1.966279e-03
+   0.895    1.962439e-03    3.175637e-03    1.973382e-03
+   0.947    1.960156e-03    3.178066e-03    1.977999e-03
+   1.000    1.957361e-03    3.173296e-03    1.952732e-03
+
+Output Files
+--------------------------------------------------
+  Plots:  comparison_heat_equation.png, loss_comparison.png,
+          profile_comparison.png, pinn_relobralo_evolution.png,
+          qpinn_relobralo_evolution.png, error_distribution.png,
+          pinn_learning_rate.png
+  CSV:    pinn_training_losses.csv, pinn_loss_components.csv,
+          qpinn_training_losses.csv, qpinn_relobralo_weights.csv,
+          metrics_over_time.csv, performance_metrics.csv
+  JSON:   comparative_analysis.json
+  Log:    benchmark.log
+  Model:  pinn_radam_checkpoint.pth, qpinn_spsa_checkpoint.pth

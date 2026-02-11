@@ -8,12 +8,12 @@
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath('../..'))
 
 # -- Project information -----------------------------------------------------
 
 project = 'PINNs-QPINNs Heat Conduction Benchmark'
-copyright = '2025, Research Team'
+copyright = '2025-2026, Research Team'
 author = 'Research Team'
 
 # The full version, including alpha/beta/rc tags
@@ -32,9 +32,7 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.ifconfig',
     'sphinx.ext.duration',
-    'sphinx_rtd_theme',
     'sphinx.ext.autosummary',
-    'breathe'  # For Doxygen integration
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -93,12 +91,6 @@ napoleon_use_admonition_for_references = False
 napoleon_use_ivar = False
 napoleon_use_param = True
 napoleon_use_rtype = True
-
-# Breathe configuration for Doxygen
-breathe_projects = {
-    "nsga2_optimizer": "../doxyxml/xml",
-}
-breathe_default_project = "nsga2_optimizer"
 
 # Todo extension
 todo_include_todos = True

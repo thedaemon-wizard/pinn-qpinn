@@ -1,0 +1,129 @@
+{
+  "physics": {
+    "alpha": 0.01,
+    "L": 1.0,
+    "T": 1.0,
+    "sigma_0": 0.05
+  },
+  "grid": {
+    "nx": 20,
+    "ny": 20,
+    "nz": 20,
+    "nt": 20
+  },
+  "pinn": {
+    "training": {
+      "epochs": 3000,
+      "lr": 1e-3,
+      "weight_decay": 1e-2,
+      "betas": [0.9, 0.999],
+      "eps": 1e-8,
+      "n_samples": 50000
+    },
+    "lbfgs": {
+      "enabled": true,
+      "max_iter": 200,
+      "history_size": 50,
+      "lr": 1.0,
+      "max_eval": 25,
+      "tolerance_grad": 1e-9,
+      "tolerance_change": 1e-11,
+      "line_search_fn": "strong_wolfe"
+    },
+    "architecture": {
+      "layers": [5, 128, 256, 256, 128, 1],
+      "use_hard_constraints": true,
+      "boundary_epsilon": 0.1,
+      "use_fourier_features": true,
+      "num_fourier_features": 64,
+      "use_transformer": true,
+      "transformer_memory_efficient": true,
+      "spinn": {
+        "rank": 64,
+        "hidden_dim": 64,
+        "n_hidden_layers": 2
+      },
+      "fourier_features": {
+        "coarse_scale": 2.0,
+        "fine_scale": 10.0
+      },
+      "transformer": {
+        "seq_length": 8,
+        "d_model": 64,
+        "n_heads": 4,
+        "n_layers": 2,
+        "d_ff": 256,
+        "dropout": 0.1
+      }
+    },
+    "relobralo": {
+      "alpha": 0.999,
+      "rho": 0.999,
+      "tau": 1.0
+    },
+    "sampling": {
+      "ic_ratio": 0.35,
+      "boundary_ratio": 0.05,
+      "interior_ratio": 0.60,
+      "peak_ic_fraction": 0.5
+    },
+    "scheduler": {
+      "T_0_divisor": 6,
+      "T_mult": 2,
+      "eta_min": 1e-6
+    },
+    "gradient_clip": {
+      "radam_max_norm": 1.0,
+      "lbfgs_max_norm": 5.0
+    },
+    "accuracy": {
+      "nonneg_weight": 0.1,
+      "causal_epsilon": 1.0,
+      "curriculum": {
+        "enabled": true,
+        "phase1_ratio": 0.30,
+        "phase2_ratio": 0.40,
+        "phase3_ratio": 0.30
+      }
+    }
+  },
+  "qpinn": {
+    "training": {
+      "max_iterations": 200,
+      "spsa_c": 0.2,
+      "spsa_a": null,
+      "n_samples": 1500
+    },
+    "circuit": {
+      "n_qubits": 6,
+      "shots": null,
+      "backend": "default.mixed",
+      "noise_model": "realistic",
+      "use_gpt_circuit_generation": true
+    },
+    "relobralo": {
+      "alpha": 0.999,
+      "rho": 0.999,
+      "tau": 1.0
+    }
+  },
+  "parallel": {
+    "n_parallel_devices": 4,
+    "use_parallel_training": true,
+    "omp_num_threads": 12
+  },
+  "validation": {
+    "enabled": true,
+    "interval_pinn": 200,
+    "interval_qpinn": 50,
+    "grid_size": 10
+  },
+  "monitoring": {
+    "enabled": true,
+    "gpu_stats": true,
+    "cpu_stats": true
+  },
+  "analytical": {
+    "N_max": 25
+  }
+}
