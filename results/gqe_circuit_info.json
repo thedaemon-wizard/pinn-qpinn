@@ -1,16 +1,16 @@
 {
   "metadata": {
-    "timestamp": "2025-08-09 23:18:14",
+    "timestamp": "2026-02-11 01:37:40",
     "n_qubits": 6,
     "backend": "default.mixed",
-    "shots": 1000,
+    "shots": null,
     "noise_model": "realistic",
     "use_gpt": true
   },
   "circuit_template": {
-    "n_layers": 1,
-    "n_gates": 11,
-    "n_parameters": 2,
+    "n_layers": 0,
+    "n_gates": 3,
+    "n_parameters": 1,
     "entangling_pattern": "efficient_initial",
     "noise_resilience_score": 0.8,
     "hardware_efficiency": 0.85,
@@ -26,43 +26,9 @@
       "param_idx": 0
     },
     {
-      "gate": "RY",
-      "qubits": [
-        2
-      ],
-      "trainable": true,
-      "param_idx": 1
-    },
-    {
-      "gate": "CZ",
-      "qubits": [
-        0,
-        1
-      ],
-      "trainable": false,
-      "param_idx": null
-    },
-    {
       "gate": "H",
       "qubits": [
         2
-      ],
-      "trainable": false,
-      "param_idx": null
-    },
-    {
-      "gate": "H",
-      "qubits": [
-        3
-      ],
-      "trainable": false,
-      "param_idx": null
-    },
-    {
-      "gate": "CZ",
-      "qubits": [
-        2,
-        3
       ],
       "trainable": false,
       "param_idx": null
@@ -71,95 +37,59 @@
       "gate": "H",
       "qubits": [
         4
-      ],
-      "trainable": false,
-      "param_idx": null
-    },
-    {
-      "gate": "CZ",
-      "qubits": [
-        3,
-        4
-      ],
-      "trainable": false,
-      "param_idx": null
-    },
-    {
-      "gate": "H",
-      "qubits": [
-        5
-      ],
-      "trainable": false,
-      "param_idx": null
-    },
-    {
-      "gate": "H",
-      "qubits": [
-        2
-      ],
-      "trainable": false,
-      "param_idx": null
-    },
-    {
-      "gate": "H",
-      "qubits": [
-        3
       ],
       "trainable": false,
       "param_idx": null
     }
   ],
   "parameter_map": {
-    "RY_gate_0": 0,
-    "RY_gate_1": 1
+    "RY_gate_0": 0
   },
   "optimized_parameters": {
     "circuit_params": [
-      0.27930945276686275,
-      -0.36309240607294857
+      0.27314966136978447
     ],
     "output_param_dict": {
-      "output_scale": 1.7922482263080324,
-      "output_bias": 0.12605783868843573,
-      "time_decay": 0.0,
-      "spatial_decay": 1.0600224869706423,
-      "amplitude": 0.2047476816578051,
-      "x_weight": -0.12341970272551997,
-      "correlation_weight": -0.32930727663336806,
-      "boundary_epsilon": 0.19599059289072818
+      "output_scale": 0.9816667165077853,
+      "output_bias": -0.021545487525047806,
+      "time_decay": 0.4930697841813676,
+      "spatial_decay": 0.4726909456584746,
+      "amplitude": 1.0473185383521264,
+      "x_weight": 0.10446481919765635,
+      "correlation_weight": 0.05972343262261903,
+      "boundary_epsilon": 0.07860850276829176
     },
     "spatial_feature_weights": [
-      0.4632650709196195,
-      0.8689573759285166,
-      0.5810454389324845,
-      0.0031437298739149175,
-      0.29410335928101755,
-      -0.042205018080626655,
-      -0.3157314976407216,
-      0.8977778423495892
+      -0.027383531302241193,
+      0.025789164452346254,
+      0.029211599191977577,
+      0.08813731941020084,
+      0.028214844060708767,
+      -0.0786804950920359,
+      0.002451811885074321,
+      0.0016755033823537718
     ],
     "temporal_frequencies": [
-      5.068645845331163,
-      5.114246660361171,
-      5.157598354529931
+      1.0,
+      2.0,
+      4.0
     ],
     "temporal_feature_weights": [
-      -1.0,
-      0.5010193774069998,
-      0.701309195728017,
-      -0.3155712139628202,
-      0.9153892959941203,
-      -0.5150022767646072,
-      0.05820015268278465,
-      0.08709501441411031,
-      -0.5079928435958674,
-      -0.40720000713739746,
-      0.3716542446899221
+      0.05207912916283411,
+      -0.08646449333614822,
+      0.09814922248336055,
+      0.06273109011313431,
+      -0.022486842501661136,
+      -0.051978775378525126,
+      -0.12556601431104025,
+      -0.08517387715674814,
+      0.10389642953665675,
+      0.0036772763938645765,
+      0.054500142549341504
     ]
   },
   "gate_statistics": {
-    "RY": 2,
-    "CZ": 3,
-    "H": 6
+    "RY": 1,
+    "H": 2
   }
 }
